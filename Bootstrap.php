@@ -50,6 +50,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public function install() 
     {   
         try {
+            $this->createConfiguration();
             return array('success' => true, 'invalidateCache' => array('backend'));
         } catch (Exception $e) {
             return array('success' => false, 'message' => $e->getMessage());
@@ -65,6 +66,29 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             return array('success' => true, 'invalidateCache' => array('backend'));
         } catch (Exception $e) {
             return array('success' => false, 'message' => $e->getMessage());
+        }
+    }
+
+    /**
+     * Creates the configuration fields
+     *
+     * @throws Exception
+     * @return void
+     */
+    private function createConfiguration()
+    {
+        try {
+            $form = $this->Form();
+            $form->setElement('text', 'customerid', array(
+                'label' => 'Customer ID', 
+                'required' => true,
+                'description' => 'Test'          
+            ));
+            $repository = Shopware()->Models()->getRepository('Shopware\Models\Config\Form');
+            $form->setParent($repository->findOneBy(array('name' => 'Interface')));
+        } catch (Exception $exception) {
+            Shopware()->Log()->Err("There was an error creating the plugin configuration. " . $exception->getMessage());
+            throw new Exception("There was an error creating the plugin configuration. " . $exception->getMessage());
         }
     }
 
