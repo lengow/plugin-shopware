@@ -64,12 +64,23 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
+     * After init event of the bootstrap class.
+     *
+     * The afterInit function registers the custom plugin models.
+     */
+    public function afterInit()
+    {
+        $this->registerCustomModels();
+    }
+
+    /**
      * Install the plugin
      * @return boolean
      */
     public function install() 
     {   
         try {
+            $this->createDatabase();
             $this->createConfiguration();
             $this->createMenu();
             $this->registerController();
@@ -79,7 +90,26 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         }
     }
 
+    /**
+     * Creates the plugin database tables over the doctrine schema tool.
+     */
+    private function createDatabase()
+    {
+        $em = $this->Application()->Models();
+        $tool = new \Doctrine\ORM\Tools\SchemaTool($em);
+        $classes = array(
+            $em->getClassMetadata('Shopware\CustomModels\Lengow\Log')
+        );
+        try {
+            $tool->createSchema($classes);
+        } catch (\Doctrine\ORM\Tools\ToolsException $e) {
+            // ignore
+        }
+    }
 
+    /**
+     * Creates the plugin configuration.
+     */
     public function createConfiguration()
     {
         try {
@@ -123,11 +153,24 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function uninstall() {
         try {
-            $this->removeSnippets($removeDirty = false); 
+            // $this->removeDatabaseTables();
             return array('success' => true, 'invalidateCache' => array('backend'));
         } catch (Exception $e) {
             return array('success' => false, 'message' => $e->getMessage());
         }
+    }
+
+    /**
+     * Removes the plugin database tables
+     */
+    public function removeDatabaseTables()
+    {
+        $em = $this->Application()->Models();
+        $tool = new \Doctrine\ORM\Tools\SchemaTool($em);
+        $classes = array(
+            $em->getClassMetadata('Shopware\CustomModels\Lengow\Log'),
+        );
+        $tool->dropSchema($classes);
     }
 
     /**

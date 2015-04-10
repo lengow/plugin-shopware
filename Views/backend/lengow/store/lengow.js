@@ -9,7 +9,7 @@ Ext.define('Shopware.apps.Lengow.store.Lengow', {
      * Define the used model for this store
      * @string
      */
-    model: 'Shopware.apps.Lengow.model.Logs',
+    model: 'Shopware.apps.Lengow.model.Log',
 
     /**
      * Auto load the store after the component

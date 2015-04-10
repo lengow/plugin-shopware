@@ -31,7 +31,11 @@ Ext.define('Shopware.apps.Lengow', {
      * Array of views to require from AppName.view namespace.
      * @array
      */
-    views:[ 'main.Window' ],
+    views:[ 
+        'main.Window',
+        'main.Exports',
+        'main.Logs' 
+    ],
 
     /**
      * Array of stores to require from AppName.store namespace.

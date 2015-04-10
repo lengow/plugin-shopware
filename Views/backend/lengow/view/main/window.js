@@ -11,32 +11,27 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
      * @string
      */
     alias:'widget.lengow-main-window',
-    /**
-     * Set no border for the window
-     * @boolean
-     */
-    // border:false,
-    /**
-     * True to automatically show the component upon creation.
-     * @boolean
-     */
-    // autoShow:true,
-    /**
-     * True to display the 'maximize' tool button and allow the user to maximize the window, false to hide the button and disallow maximizing the window.
-     * @boolean
-     */
-    // maximizable:true,
-    /**
-     * True to display the 'minimize' tool button and allow the user to minimize the window, false to hide the button and disallow minimizing the window.
-     * @boolean
-     */
-    //minimizable:true,
-    
-    width: 800,
-    height: 600,
 
+    // border:false,
+    // autoShow:true,
+    // maximizable:true,
+    // minimizable:true,
+    
+    // width: 800,
+    // height: 600,
+
+    overflowY: 'scroll',
+
+    /**
+     * Contains all snippets for the component
+     * @object
+     */
     snippets: {
-        title: '{s name=window/title}Lengow{/s}'
+        title: '{s name=window/title}Lengow{/s}',
+        tab: {
+            exports: '{s name=window/tab/exports}Products export{/s}',
+            logs: '{s name=window/tab/logs}Logs{/s}'
+        }
     },
 
     /**
@@ -45,6 +40,34 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
     initComponent: function () {
         var me = this;
         me.title = me.snippets.title;
+
+        var tabPanel = Ext.create('Ext.tab.Panel', {
+            plain: false,
+            items : [
+                {
+                    title: me.snippets.tab.exports,
+                    xtype: 'lengow-main-exports'
+                },
+                {
+                    title: me.snippets.tab.logs,
+                    xtype: 'lengow-main-logs'
+                },
+                {
+                    tabConfig: {
+                        xtype: 'tbfill'
+                    }
+                }
+            ]
+        });
+
+        me.formPanel = Ext.create('Ext.form.Panel', {
+            name: 'lengow-form-panel',
+            items: [tabPanel],
+            border: false
+        });
+
+        me.items = [me.formPanel];
+
         me.callParent(arguments);
     }
 
