@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * Bootstrap.php
+ *
+ * @category   Shopware
+ * @package    Shopware_Plugins
+ * @subpackage Lengow
+ * @author     Lengow
+ */
+
 class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plugin_Bootstrap
 {
 
@@ -15,6 +24,17 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'enable' => true
         );
     }
+
+    /**
+     * Name of the plugin
+     *
+     * @return string
+     */
+    public function getLabel()
+    {
+        return 'Lengow 1.0';
+    }
+
 
     /**
      * Version of the plugin
@@ -33,7 +53,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     {   
         return array(
             'version' => $this->getVersion(),
-            'label' => 'Lengow',
+            'label' => $this->getLabel(),
             'author' => 'Lengow',
             'supplier' => 'Lengow',
             'description' => '<h2>The new module of Lengow for Shopware.</h2>',
@@ -51,10 +71,50 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     {   
         try {
             $this->createConfiguration();
+            $this->createMenu();
+            $this->registerController();
             return array('success' => true, 'invalidateCache' => array('backend'));
         } catch (Exception $e) {
             return array('success' => false, 'message' => $e->getMessage());
         }
+    }
+
+
+    public function createConfiguration()
+    {
+        try {
+            $form = new Shopware_Plugins_Backend_Lengow_Components_Form($this->Form());
+            $form->create();
+        } catch (Exception $exception) {
+            Shopware()->Log()->Err("There was an error creating the plugin configuration. " . $exception->getMessage());
+            throw new Exception("There was an error creating the plugin configuration. " . $exception->getMessage());
+        }
+    }
+
+    /**
+     * Creates the Lengow backend menu item.
+     */
+    public function createMenu()
+    {
+        $this->createMenuItem(array(
+            'label' => 'Lengow',
+            'controller' => 'Lengow',
+            'class' => 'sprite-star',
+            'action' => 'Index',
+            'active' => 1,
+            'parent' => $this->Menu()->findOneBy(array('label' => 'Einstellungen'))
+        ));
+    }
+
+    /**
+     * Registers the plugin controller event for the backend controller SwagFavorites
+     */
+    public function registerController()
+    {
+        $this->subscribeEvent(
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_Lengow',
+            'onGetBackendController'
+        );
     }
 
     /**
@@ -63,6 +123,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function uninstall() {
         try {
+            $this->removeSnippets($removeDirty = false); 
             return array('success' => true, 'invalidateCache' => array('backend'));
         } catch (Exception $e) {
             return array('success' => false, 'message' => $e->getMessage());
@@ -70,26 +131,18 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * Creates the configuration fields
-     *
-     * @throws Exception
-     * @return void
+     * Returns the path to the controller.
+     * @return string
      */
-    private function createConfiguration()
+    public function onGetBackendController()
     {
-        try {
-            $form = $this->Form();
-            $form->setElement('text', 'customerid', array(
-                'label' => 'Customer ID', 
-                'required' => true,
-                'description' => 'Test'          
-            ));
-            $repository = Shopware()->Models()->getRepository('Shopware\Models\Config\Form');
-            $form->setParent($repository->findOneBy(array('name' => 'Interface')));
-        } catch (Exception $exception) {
-            Shopware()->Log()->Err("There was an error creating the plugin configuration. " . $exception->getMessage());
-            throw new Exception("There was an error creating the plugin configuration. " . $exception->getMessage());
-        }
+        $this->Application()->Snippets()->addConfigDir(
+            $this->Path() . 'Snippets/'
+        );
+        $this->Application()->Template()->addTemplateDir(
+            $this->Path() . 'Views/'
+        );
+        return $this->Path(). 'Controllers/Backend/Lengow.php';
     }
 
 }
