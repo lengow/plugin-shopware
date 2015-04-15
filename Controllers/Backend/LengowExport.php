@@ -1,6 +1,6 @@
 <?php
 /**
- * Lengow.php
+ * LengowExport.php
  *
  * @category   Shopware
  * @package    Shopware_Plugins
@@ -8,7 +8,6 @@
  * @author     Lengow
  */
 
-class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_ExtJs
+class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Backend_ExtJs
 {
 }
-

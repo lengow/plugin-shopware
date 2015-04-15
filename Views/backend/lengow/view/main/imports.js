@@ -1,29 +1,28 @@
 //{namespace name="backend/lengow/view/main"}
-//{block name="backend/lengow/view/main/logs"}
-Ext.define('Shopware.apps.Lengow.view.main.Logs', {
+//{block name="backend/lengow/view/main/imports"}
+Ext.define('Shopware.apps.Lengow.view.main.Imports', {
 
-    extend: 'Ext.grid.Panel',
+    extend:'Ext.grid.Panel',
 
-    alias:'widget.lengow-main-logs',
+    alias:'widget.lengow-main-imports',
 
     border: 0,
     autoScroll: true,
 
     /**
-     * Called when the component will be initialed.
+     * Sets up the ui component
+     *
+     * @return void
      */
     initComponent: function() {
         var me = this;
         me.registerEvents();
 
         me.dockedItems = [];
-        me.store = me.logsStore;
-        me.selModel = me.getGridSelModel();
+        me.store = me.ordersStore;
         me.columns = me.getColumns();
         me.toolbar = me.getToolbar();
         me.dockedItems.push(me.toolbar);
-
-        // Add paging toolbar to the bottom of the grid panel
         me.bbar = me.createPagingToolbar();
 
         me.callParent(arguments);
@@ -37,25 +36,6 @@ Ext.define('Shopware.apps.Lengow.view.main.Logs', {
     },
 
     /**
-     * Creates the selectionModel of the grid with a listener to enable the delete-button
-     */
-    getGridSelModel: function(){
-        var selModel = Ext.create('Ext.selection.CheckboxModel',{
-            listeners: {
-                selectionchange: function(sm, selections){
-                    var owner = this.view.ownerCt,
-                            btn = owner.down('button[action=deleteSelectedLogs]');
-                    //If no article is marked
-                    if(btn){
-                        btn.setDisabled(selections.length == 0);
-                    }
-                }
-            }
-        });
-        return selModel;
-    },
-
-    /**
      * Creates the paging toolbar
      */
     createPagingToolbar: function() {
@@ -63,7 +43,6 @@ Ext.define('Shopware.apps.Lengow.view.main.Logs', {
             toolbar = Ext.create('Ext.toolbar.Paging', {
             store: me.store
         });
-
         return toolbar;
     },
 
@@ -72,39 +51,43 @@ Ext.define('Shopware.apps.Lengow.view.main.Logs', {
      */
     getColumns: function(){
         var me = this;
-        var buttons = new Array();
-
-        buttons.push(Ext.create('Ext.button.Button', {
-            iconCls: 'sprite-minus-circle',
-            action: 'delete',
-            cls: 'delete',
-            tooltip: 'Delete Log',
-            handler:function (view, rowIndex, colIndex, item) {
-                me.fireEvent('deleteColumn', view, rowIndex,  item, colIndex);
-            }
-        }));
 
         var columns = [
             {
-                header: '{s name=logs/column/idLog}ID{/s}',
+                header: 'ID',
                 dataIndex: 'id',
                 flex: 1
             },{
-                header: '{s name=logs/column/created}Created{/s}',
-                dataIndex: 'created',
-                flex: 2,
-                renderer: me.modifiedCreated
-            }, {
-                header: '{s name=logs/column/message}Message{/s}',
-                dataIndex: 'message',
-                flex: 5
-            }, {
-                xtype: 'actioncolumn',
-                width: 30,
-                items: buttons
+                header: 'Order date',
+                dataIndex: 'orderDate',
+                flex: 3,
+                renderer:  me.modifiedCreated
+            },{
+                header: 'ID Lengow',
+                dataIndex: 'idOrderLengow',
+                flex: 4
+            },{
+                header: 'ID Flux',
+                dataIndex: 'idFlux',
+                flex: 1
+            },{
+                header: 'Price',
+                dataIndex: 'totalPaid',
+                flex: 2
+            },{
+                header: 'Marketplace',
+                dataIndex: 'marketplace',
+                flex: 3
+            },{
+                header: 'Carrier',
+                dataIndex: 'carrier',
+                flex: 2
+            },{
+                header: 'Carrier Method',
+                dataIndex: 'carrierMethod',
+                flex: 2
             }
         ];
-
         return columns;
     },
 
@@ -116,10 +99,10 @@ Ext.define('Shopware.apps.Lengow.view.main.Logs', {
         var searchField = Ext.create('Ext.form.field.Text',{
             name : 'searchfield',
             cls : 'searchfield',
-            action : 'searchLogs',
+            action : 'searchImport',
             width : 170,
             enableKeyEvents : true,
-            emptyText : '{s name=logs/topToolbar/searchLogs}Search...{/s}',
+            emptyText : 'search...',
             listeners: {
                 buffer: 500,
                 keyup: function() {
@@ -138,16 +121,9 @@ Ext.define('Shopware.apps.Lengow.view.main.Logs', {
         var items = [];
         
         items.push(Ext.create('Ext.button.Button',{
-            iconCls: 'sprite-minus-circle',
-            text: '{s name=logs/topToolbar/deleteSelectedLogs}Delele selected Logs{/s}',
-            disabled: true,
-            action: 'deleteSelectedLogs'
-        }));
-        
-        items.push(Ext.create('Ext.button.Button',{
-            iconCls: 'sprite-minus-circle',
-            text: '{s name=logs/topToolbar/flushLogs}Flush Logs{/s}',
-            action: 'flushLogs'
+            iconCls: 'sprite-plus-circle',
+            text: 'Manual Import',
+            action: 'manualImport'
         }));
 
         items.push('->');
@@ -173,9 +149,8 @@ Ext.define('Shopware.apps.Lengow.view.main.Logs', {
      * @param [string] record   - The whole data model
      */
     modifiedCreated: function(value, metaData, record) {
-       return Ext.util.Format.date(record.get('created')) + ' ' + Ext.util.Format.date(record.get('created'), 'H:i:s');
+       return Ext.util.Format.date(record.get('orderDate')) + ' ' + Ext.util.Format.date(record.get('orderDate'), 'H:i:s');
     }
 
 });
-
 //{/block}

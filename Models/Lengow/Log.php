@@ -11,21 +11,23 @@
 
 namespace Shopware\CustomModels\Lengow;
 
-use Shopware\Components\Model\ModelEntity;
-use Doctrine\ORM\Mapping as ORM;
+use Shopware\Components\Model\ModelEntity,
+    Doctrine\ORM\Mapping AS ORM,
+    Symfony\Component\Validator\Constraints as Assert,
+    Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Shopware\CustomModels\Lengow\Log
  *
+ * @ORM\Table(name="lengow_logs")
  * @ORM\Entity
- * @ORM\Table(name="lengow_log")
  */
 class Log extends ModelEntity
 {
     /**
      * @var integer $id
      *
-     * @ORM\Column(name="id", type="integer", precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
@@ -34,14 +36,14 @@ class Log extends ModelEntity
     /**
      * @var \DateTime $created
      *
-     * @ORM\Column(name="created", type="datetime", precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="created", type="datetime", nullable=false)
      */
     private $created;
 
     /**
      * @var string $message
      *
-     * @ORM\Column(name="message", type="text", precision=0, scale=0, nullable=false, unique=false)
+     * @ORM\Column(name="message", type="text", nullable=false)
      */
     private $message;
 

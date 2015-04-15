@@ -1,74 +1,114 @@
 //{namespace name="backend/lengow/view/main"}
 //{block name="backend/lengow/view/main/window"}
 Ext.define('Shopware.apps.Lengow.view.main.Window', {
-    /**
-     * Define that the order main window is an extension of the enlight application window
-     * @string
-     */
+
     extend:'Enlight.app.Window',
-    /**
-     * List of short aliases for class names. Most useful for defining xtypes for widgets.
-     * @string
-     */
+
+    title: '{s name=window/title}Lengow{/s}',
+
     alias:'widget.lengow-main-window',
 
-    // border:false,
-    // autoShow:true,
-    // maximizable:true,
-    // minimizable:true,
-    
-    // width: 800,
-    // height: 600,
-
-    overflowY: 'scroll',
+    border: false,
+    autoShow: true,
+    layout: 'fit',
+    height: '90%',
+    width: 800,
 
     /**
      * Contains all snippets for the component
      * @object
      */
     snippets: {
-        title: '{s name=window/title}Lengow{/s}',
         tab: {
             exports: '{s name=window/tab/exports}Products export{/s}',
+            imports: '{s name=window/tab/imports}Lengow orders{/s}',
             logs: '{s name=window/tab/logs}Logs{/s}'
         }
     },
 
     /**
+     * Initializes the component and builds up the main interface
+     *
      * @return void
      */
-    initComponent: function () {
+    initComponent: function() {
         var me = this;
-        me.title = me.snippets.title;
+        me.items = me.createTabPanel();
+        me.callParent(arguments);
+    },
 
-        var tabPanel = Ext.create('Ext.tab.Panel', {
-            plain: false,
-            items : [
-                {
-                    title: me.snippets.tab.exports,
-                    xtype: 'lengow-main-exports'
-                },
-                {
-                    title: me.snippets.tab.logs,
-                    xtype: 'lengow-main-logs'
-                },
-                {
-                    tabConfig: {
-                        xtype: 'tbfill'
-                    }
-                }
+    /**
+     * Creates the tab panel which holds off the different areas of the lengow module.
+     * @returns { Ext.tab.Panel } the tab panel which contains the different areas
+     */
+    createTabPanel: function() {
+        var me = this;
+        me.tabPanel = Ext.create('Ext.tab.Panel', {
+            items: [ 
+                me.createExportsTab(),
+                me.createImportsTab(),
+                me.createLogsTab() 
             ]
         });
 
-        me.formPanel = Ext.create('Ext.form.Panel', {
-            name: 'lengow-form-panel',
-            items: [tabPanel],
-            border: false
+        return me.tabPanel;
+    },
+
+    /**
+     * Creates a container "exports"
+     * The container will be used as the "exports" tab.
+     * @returns { Ext.container.Container }
+     */
+    createExportsTab: function() {
+        var me = this;
+        me.exportsContainer = Ext.create('Ext.container.Container', {
+            layout: 'border',
+            title: me.snippets.tab.exports,
+            items: {
+                xtype: 'lengow-main-exports',
+                region: 'center',
+                articleStore: me.articleStore
+            }
         });
+        return me.exportsContainer;
+    },
 
-        me.items = [me.formPanel];
+    /**
+     * Creates a container "imports"
+     * The container will be used as the "imports" tab.
+     * @returns { Ext.container.Container }
+     */
+    createImportsTab: function() {
+        var me = this;
+        me.importsContainer = Ext.create('Ext.container.Container', {
+            layout: 'border',
+            title: me.snippets.tab.imports,
+            items: {
+                xtype: 'lengow-main-imports',
+                region: 'center',
+                ordersStore: me.ordersStore
+            }
+        });
+        return me.importsContainer;
+    },
 
-        me.callParent(arguments);
+    /**
+     * Creates a container "logs"
+     * The container will be used as the "logs" tab.
+     * @returns { Ext.container.Container }
+     */
+    createLogsTab: function() {
+        var me = this;
+        me.logsContainer = Ext.create('Ext.container.Container', {
+            layout: 'border',
+            title: me.snippets.tab.logs,
+            items: {
+                xtype: 'lengow-main-logs',
+                region: 'center', 
+                logsStore: me.logsStore
+            }
+        });
+        return me.logsContainer;
     }
 
 });

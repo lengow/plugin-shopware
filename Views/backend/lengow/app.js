@@ -25,15 +25,16 @@ Ext.define('Shopware.apps.Lengow', {
      *
      * @string
      */
-    loadPath:'{url controller="Lengow" action="load"}',
+    loadPath:'{url action="load"}',
 
     /**
      * Array of views to require from AppName.view namespace.
      * @array
      */
-    views:[ 
+    views: [ 
         'main.Window',
         'main.Exports',
+        'main.Imports',
         'main.Logs' 
     ],
 
@@ -41,19 +42,25 @@ Ext.define('Shopware.apps.Lengow', {
      * Array of stores to require from AppName.store namespace.
      * @array
      */
-    // stores:[ 'Lengow' ],
+    stores: [
+        'Orders', 
+        'Logs' 
+    ],
 
     /**
      * Array of models to require from AppName.model namespace.
      * @array
      */
-    // models: [ 'Logs' ],
+    models: [
+        'Order', 
+        'Log' 
+    ],
 
     /**
      * Requires controllers for sub-application
      * @array
      */
-    controllers: [ 'Lengow' ],
+    controllers: [ 'Main' ],
 
     /**
      * @private
@@ -61,7 +68,7 @@ Ext.define('Shopware.apps.Lengow', {
      */
     launch: function() {
         var me = this,
-            mainController = me.getController('Lengow');
+            mainController = me.getController('Main');
         return mainController.mainWindow;
     }
 });

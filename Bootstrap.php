@@ -83,7 +83,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             $this->createDatabase();
             $this->createConfiguration();
             $this->createMenu();
-            $this->registerController();
+            $this->createEvents();
             return array('success' => true, 'invalidateCache' => array('backend'));
         } catch (Exception $e) {
             return array('success' => false, 'message' => $e->getMessage());
@@ -98,6 +98,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $em = $this->Application()->Models();
         $tool = new \Doctrine\ORM\Tools\SchemaTool($em);
         $classes = array(
+            $em->getClassMetadata('Shopware\CustomModels\Lengow\Order'),
             $em->getClassMetadata('Shopware\CustomModels\Lengow\Log')
         );
         try {
@@ -137,14 +138,14 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * Registers the plugin controller event for the backend controller SwagFavorites
+     * Create Events
      */
-    public function registerController()
+    public function createEvents()
     {
-        $this->subscribeEvent(
-            'Enlight_Controller_Dispatcher_ControllerPath_Backend_Lengow',
-            'onGetBackendController'
-        );
+        $this->subscribeEvent('Enlight_Controller_Dispatcher_ControllerPath_Backend_Lengow', 'onGetControllerPath');
+        $this->subscribeEvent('Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowExport', 'lengowBackendControllerExport');
+        $this->subscribeEvent('Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowImport', 'lengowBackendControllerImport');
+        $this->subscribeEvent('Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowLog', 'lengowBackendControllerLog');
     }
 
     /**
@@ -168,24 +169,53 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $em = $this->Application()->Models();
         $tool = new \Doctrine\ORM\Tools\SchemaTool($em);
         $classes = array(
-            $em->getClassMetadata('Shopware\CustomModels\Lengow\Log'),
+            $em->getClassMetadata('Shopware\CustomModels\Lengow\Order')
         );
         $tool->dropSchema($classes);
     }
 
     /**
-     * Returns the path to the controller.
+     * Returns the path to the controller Lengow
      * @return string
      */
-    public function onGetBackendController()
+    public function onGetControllerPath()
     {
-        $this->Application()->Snippets()->addConfigDir(
-            $this->Path() . 'Snippets/'
-        );
-        $this->Application()->Template()->addTemplateDir(
-            $this->Path() . 'Views/'
-        );
+        $this->Application()->Snippets()->addConfigDir($this->Path() . 'Snippets/');
+        $this->Application()->Template()->addTemplateDir($this->Path() . 'Views/');
         return $this->Path(). 'Controllers/Backend/Lengow.php';
+    }
+
+    /**
+     * Returns the path to the controller LengowExport
+     * @return string
+     */
+    public function lengowBackendControllerExport()
+    {
+        $this->Application()->Snippets()->addConfigDir($this->Path() . 'Snippets/');
+        $this->Application()->Template()->addTemplateDir($this->Path() . 'Views/');
+        return $this->Path(). 'Controllers/Backend/LengowExport.php';
+    }
+
+    /**
+     * Returns the path to the controller LengowImport
+     * @return string
+     */
+    public function lengowBackendControllerImport()
+    {
+        $this->Application()->Snippets()->addConfigDir($this->Path() . 'Snippets/');
+        $this->Application()->Template()->addTemplateDir($this->Path() . 'Views/');
+        return $this->Path(). 'Controllers/Backend/LengowImport.php';
+    }
+
+    /**
+     * Returns the path to the controller LengowLog
+     * @return string
+     */
+    public function lengowBackendControllerLog()
+    {
+        $this->Application()->Snippets()->addConfigDir($this->Path() . 'Snippets/');
+        $this->Application()->Template()->addTemplateDir($this->Path() . 'Views/');
+        return $this->Path(). 'Controllers/Backend/LengowLog.php';
     }
 
 }
