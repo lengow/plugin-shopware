@@ -33,9 +33,10 @@ Ext.define('Shopware.apps.Lengow', {
      */
     views: [ 
         'main.Window',
-        'main.Exports',
         'main.Imports',
-        'main.Logs' 
+        'main.Logs',
+        'export.Exports',
+        'export.Grid'       
     ],
 
     /**
@@ -43,6 +44,7 @@ Ext.define('Shopware.apps.Lengow', {
      * @array
      */
     stores: [
+        'Articles',
         'Orders', 
         'Logs' 
     ],
@@ -52,6 +54,7 @@ Ext.define('Shopware.apps.Lengow', {
      * @array
      */
     models: [
+        'Article',
         'Order', 
         'Log' 
     ],
@@ -60,7 +63,12 @@ Ext.define('Shopware.apps.Lengow', {
      * Requires controllers for sub-application
      * @array
      */
-    controllers: [ 'Main' ],
+    controllers: [ 
+        'Main',
+        'Export',
+        'Import',
+        'Log' 
+    ],
 
     /**
      * @private

@@ -74,6 +74,14 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
+     * @return \Shopware\Components\Model\ModelManager
+     */
+    protected function getEntityManager()
+    {
+        return Shopware()->Models();
+    }
+
+    /**
      * Install the plugin
      * @return boolean
      */
@@ -81,6 +89,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     {   
         try {
             $this->createDatabase();
+            $this->createAttribute();
             $this->createConfiguration();
             $this->createMenu();
             $this->createEvents();
@@ -106,6 +115,25 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         } catch (\Doctrine\ORM\Tools\ToolsException $e) {
             // ignore
         }
+    }
+
+    /**
+     * create additional attributes in s_user_attributes and re-generate attribute models
+     */
+    private function createAttribute()
+    {
+        $this->Application()->Models()->addAttribute(
+            's_articles_attributes',
+            'lengow',
+            'lengowActive',
+            'int(1)',
+            false,
+            0
+        );
+     
+        $this->getEntityManager()->generateAttributeModels(array(
+            's_articles_attributes'
+        ));
     }
 
     /**
@@ -149,12 +177,20 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * Uninstall the plugin
+     * Uninstall the plugin - Remove attribute and re-generate articles models
      * @return boolean
      */
     public function uninstall() {
         try {
             // $this->removeDatabaseTables();
+            // $this->Application()->Models()->removeAttribute(
+            //     's_articles_attributes',
+            //     'lengow',
+            //     'lengowActive'
+            // );
+            // $this->getEntityManager()->generateAttributeModels(array(
+            //     's_articles_attributes'
+            // ));
             return array('success' => true, 'invalidateCache' => array('backend'));
         } catch (Exception $e) {
             return array('success' => false, 'message' => $e->getMessage());
@@ -173,6 +209,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         );
         $tool->dropSchema($classes);
     }
+
 
     /**
      * Returns the path to the controller Lengow

@@ -12,7 +12,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
     autoShow: true,
     layout: 'fit',
     height: '90%',
-    width: 800,
+    width: 1200,
 
     /**
      * Contains all snippets for the component
@@ -45,7 +45,13 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
         var me = this;
         me.tabPanel = Ext.create('Ext.tab.Panel', {
             items: [ 
-                me.createExportsTab(),
+                {
+                    title: me.snippets.tab.exports,
+                    xtype: 'lengow-export-exports',
+                    region: 'center',
+                    articlesStore: me.articlesStore,
+                    layout: 'border'
+                },
                 me.createImportsTab(),
                 me.createLogsTab() 
             ]
@@ -65,9 +71,8 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
             layout: 'border',
             title: me.snippets.tab.exports,
             items: {
-                xtype: 'lengow-main-exports',
-                region: 'center',
-                articleStore: me.articleStore
+                xtype: 'lengow-export-exports',
+                articlesStore: me.articlesStore
             }
         });
         return me.exportsContainer;

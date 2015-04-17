@@ -15,7 +15,7 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
     init:function () {
         var me = this;
         me.mainWindow = me.getView('main.Window').create({
-            articleStore: Ext.create('Shopware.apps.Base.store.Article').load(),
+            articlesStore: Ext.create('Shopware.apps.Lengow.store.Articles').load(),
             ordersStore: Ext.create('Shopware.apps.Lengow.store.Orders').load(),
             logsStore: Ext.create('Shopware.apps.Lengow.store.Logs').load()
         }).show();

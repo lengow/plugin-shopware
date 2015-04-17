@@ -14,7 +14,22 @@ Ext.define('Shopware.apps.Lengow.model.Log', {
         { name: 'id', type: 'int' },
         { name: 'created', type: 'date' },
         { name: 'message', type: 'string' }
-    ]
+    ],
+
+    /**
+     * Configure the data communication
+     * @object
+     */
+    proxy: {
+        type: 'ajax',   
+        api: {
+            read: '{url controller="LengowLog" action="getList"}'
+        },
+        reader: {
+            type: 'json',
+            root: 'data'
+        }
+    }
     
 });
 //{/block}
