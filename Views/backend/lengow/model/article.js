@@ -13,22 +13,14 @@ Ext.define('Shopware.apps.Lengow.model.Article', {
     fields: [
         { name: 'id', type: 'int' },
         { name: 'articleId', type: 'int' },
-
         { name: 'number',   type: 'string' },
         { name: 'name',     type: 'string' },
         { name: 'supplier', type: 'string' },
-        { name: 'additionalText', type: 'string' },
-
         { name: 'tax',      type: 'string' },
         { name: 'price',    type: 'string' },
-
         { name: 'active',   type: 'boolean' },
         { name: 'inStock',  type: 'int' },
         { name: 'activeLengow',  type: 'boolean' },
-        { name: 'imageSrc', type: 'string' },
-
-        { name: 'hasVariants',      type: 'boolean' },
-        { name: 'hasConfigurator',  type: 'boolean' },
         { name: 'hasCategories',    type: 'boolean' }
     ],
 

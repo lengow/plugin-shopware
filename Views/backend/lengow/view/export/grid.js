@@ -6,12 +6,25 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
     alias: 'widget.lengow-export-grid',
 
+    snippets: {
+        column: {
+            number:         '{s name=export/grid/column/number}Number{/s}',
+            name:           '{s name=export/grid/column/name}Product name{/s}',
+            supplier:       '{s name=export/grid/column/supplier}Supplier{/s}',
+            active:         '{s name=export/grid/column/active}Active{/s}',
+            price:          '{s name=export/grid/column/price}Price{/s}',
+            tax:            '{s name=export/grid/column/tax}Tax{/s}',
+            stock:          '{s name=export/grid/column/stock}Stock{/s}',
+            activeLengow:   '{s name=export/grid/column/activeLengow}Lengow\'s products{/s}'
+        },
+        topToolbar: {
+            publishProducts:    '{s name=export/grid/topToolbar/publish_products}Publish Lengow\'s products{/s}',
+            unpublishProducts:  '{s name=export/grid/topToolbar/unpublish_products}Unpublish Lengow\'s products{/s}',
+            exportProducts:     '{s name=export/grid/topToolbar/export_products}Export products{/s}',
+            searchProducts:     '{s name=export/grid/topToolbar/search_products}Search...{/s}',
+        }
+    },
 
-    /**
-     * Sets up the ui component
-     *
-     * @return void
-     */
     initComponent: function() {
         var me = this;
 
@@ -26,7 +39,9 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             'publishProducts',
             'unpublishProducts',
             'exportProducts',
-            'saveActiveProduct'
+            'saveActiveProduct',
+            'activeProduct',
+            'desactiveProduct'
         );
 
         me.callParent(arguments);
@@ -35,7 +50,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
     createPlugins: function() {
         var me = this,
             rowEditor = Ext.create('Ext.grid.plugin.RowEditing', {
-            clicksToEdit: 1,
+            clicksToEdit: 2,
             autoCancel: true,
             listeners: {
                 scope: me,
@@ -49,7 +64,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
     /**
      * Creates the grid selection model for checkboxes
-     *
      * @return [Ext.selection.CheckboxModel] grid selection model
      */
     getGridSelModel: function () {
@@ -70,54 +84,79 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
      *  Creates the columns
      */
     getColumns: function(){
-        var me = this;
+        var me = this,
+            actionColumItems = [];
+
+        actionColumItems.push({
+            iconCls:'sprite-plus-circle-frame',
+            action:'activeProduct',
+            tooltip: 'Publish product',
+            handler: function (view, rowIndex, colIndex, item, opts, record) {
+                var value = true;
+                me.fireEvent('activeProduct', record, value);
+            }
+        });
+
+        actionColumItems.push({
+            iconCls:'sprite-minus-circle-frame',
+            action:'desactiveProduct',
+            tooltip: 'Unpublish Product',
+            handler: function (view, rowIndex, colIndex, item, opts, record) {
+                var value = false;
+                me.fireEvent('desactiveProduct', record, value);
+            }
+        });
 
         var columns = [
             {
-                header: 'Number',
+                header: me.snippets.column.number,
                 dataIndex: 'number',
                 flex: 2
             }, {
-                header: 'Product name',
+                header: me.snippets.column.name,
                 dataIndex: 'name',
-                flex: 4
+                flex: 3
             }, {
-                header: 'Supplier',
+                header: me.snippets.column.supplier,
                 dataIndex: 'supplier',
                 flex: 3
             }, {
-                header: 'Active',
+                header: me.snippets.column.active,
                 dataIndex: 'active',
                 xtype: 'booleancolumn',
-                width: 40,
+                width: 50,
                 renderer: me.activeColumnRenderer
             }, {
-                xtype: 'numbercolumn',
-                header: 'Price',
+                header: me.snippets.column.price,
                 dataIndex: 'price',
-                align: 'right',
-                width: 55
-            }, {
                 xtype: 'numbercolumn',
-                header: 'Tax',
+                width: 60
+            }, { 
+                header: me.snippets.column.tax,
                 dataIndex: 'tax',
-                flex: 1
+                xtype: 'numbercolumn',
+                width: 60
             }, {
-                header: 'Stock',
+                header: me.snippets.column.stock,
                 dataIndex: 'inStock',
-                flex: 1
+                flex: 1,
+                renderer: me.colorColumnRenderer
             }, {
-                header: 'Lengow Product',
+                header: me.snippets.column.activeLengow,
                 dataIndex: 'activeLengow',
                 xtype: 'booleancolumn',
-                width: 100,
+                width: 110,
                 renderer: me.activeColumnRenderer,
                 editor: {
-                    width: 100,
+                    width: 110,
                     xtype: 'checkbox',
                     uncheckedValue: false,
                     inputValue: true
                 }
+            }, {
+                xtype: 'actioncolumn',
+                width: 26 * actionColumItems.length,
+                items: actionColumItems
             }
         ];
         return columns;
@@ -125,7 +164,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
     /**
      * Creates the grid toolbar
-     *
      * @return [Ext.toolbar.Toolbar] grid toolbar
      */
     getToolbar: function() {
@@ -133,32 +171,37 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
         me.publishProductsBtn = Ext.create('Ext.button.Button', {
             iconCls: 'sprite-plus-circle',
-            text: 'Publish Lengow\'s products',
+            text: me.snippets.topToolbar.publishProducts,
             disabled: true,
             handler: function() {
                 var selectionModel = me.getSelectionModel(),
                     records = selectionModel.getSelection();
-                me.fireEvent('publishProducts', this, records);
+                if (records.length > 0) {
+                    var value = true;
+                    me.fireEvent('publishProducts', records, value);
+                }
             }
         });
         buttons.push(me.publishProductsBtn);
 
         me.unpublishProductsBtn = Ext.create('Ext.button.Button', {
             iconCls: 'sprite-minus-circle',
-            text: 'Unpublish Lengow\'s products',
+            text: me.snippets.topToolbar.unpublishProducts,
             disabled: true,
             handler: function() {
                 var selectionModel = me.getSelectionModel(),
                     records = selectionModel.getSelection();
-                me.fireEvent('unpublishProducts', this, records);
+                if (records.length > 0) {
+                    var value = false;
+                    me.fireEvent('unpublishProducts', records, value);
+                }
             }
         });
         buttons.push(me.unpublishProductsBtn);
 
-        //creates the delete button to remove all selected esds in one request.
         me.exportProductsBtn = Ext.create('Ext.button.Button', {
             iconCls:'sprite-plus-circle',
-            text: 'Export products',
+            text: me.snippets.topToolbar.exportProducts,
             handler: function() {
                 me.fireEvent('exportProducts');
             }
@@ -177,7 +220,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             cls: 'searchfield',
             enableKeyEvents: true,
             checkChangeBuffer: 500,
-            emptyText: 'Search...',
+            emptyText: me.snippets.topToolbar.searchProducts,
             listeners: {
                 'change': function(field, value) {
                     var store        = me.store,
@@ -250,8 +293,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
     /**
      * Event listener method which fires when the user selects
-     * a entry in the "number of orders"-combo box.
-     *
      * @event select
      * @param [object] combo - Ext.form.field.ComboBox
      * @param [array] records - Array of selected entries
@@ -272,6 +313,14 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             return '<div class="sprite-tick-small"  style="width: 25px; height: 25px">&nbsp;</div>';
         } else {
             return '<div class="sprite-cross-small" style="width: 25px; height: 25px">&nbsp;</div>';
+        }
+    },
+
+    colorColumnRenderer: function(value) {
+        if (value > 0){
+            return '<span style="color:green;">' + value + '</span>';
+        } else {
+            return '<span style="color:red;">' + value + '</span>';
         }
     }
 

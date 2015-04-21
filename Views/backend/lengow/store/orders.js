@@ -31,27 +31,7 @@ Ext.define('Shopware.apps.Lengow.store.Orders', {
     /**
      * Define how much rows loaded with one request
      */
-    pageSize: 20,
-
-    proxy:{
-        type:'ajax',
-
-        /**
-         * Configure the url mapping for the different store operations based on
-         * @object
-         */
-        url:'{url controller="LengowImport" action="getList"}',
-
-        /**
-         * Configure the data reader
-         * @object
-         */
-        reader:{
-            type:'json',
-            root:'data',
-            totalProperty:'total'
-        }
-    }
+    pageSize: 40
 
 });
 //{/block}

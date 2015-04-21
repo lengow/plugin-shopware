@@ -9,99 +9,88 @@ Ext.define('Shopware.apps.Lengow.view.main.Logs', {
     border: 0,
     autoScroll: true,
 
-    /**
-     * Called when the component will be initialed.
-     */
+    snippets: {
+        column: {
+            idLog:      '{s name=logs/column/id_log}ID{/s}',
+            created:    '{s name=logs/column/created}Created{/s}',
+            message:    '{s name=logs/column/message}Message{/s}'
+        },
+        topToolbar: {
+            deleteSelectedLogs: '{s name=logs/topToolbar/delete_selected_logs}Delete selected Logs{/s}',
+            flushLogs:          '{s name=logs/topToolbar/flush_logs}Flush Logs{/s}',
+            searchLogs:         '{s name=logs/topToolbar/search_logs}Search...{/s}'
+        }
+    },
+
     initComponent: function() {
         var me = this;
-        me.registerEvents();
 
-        me.dockedItems = [];
         me.store = me.logsStore;
         me.selModel = me.getGridSelModel();
         me.columns = me.getColumns();
-        me.toolbar = me.getToolbar();
-        me.dockedItems.push(me.toolbar);
-
-        // Add paging toolbar to the bottom of the grid panel
+        me.tbar = me.getToolbar();
         me.bbar = me.createPagingToolbar();
+
+        me.addEvents(
+            'deleteSelectedLogs',
+            'flushLogs',
+            'deleteLog'
+        );
 
         me.callParent(arguments);
     },
 
     /**
-     * Registers additional component events.
+     * Creates the grid selection model for checkboxes
+     * @return [Ext.selection.CheckboxModel] grid selection model
      */
-    registerEvents: function() {
-        this.addEvents();
-    },
+    getGridSelModel: function () {
+        var me = this;
 
-    /**
-     * Creates the selectionModel of the grid with a listener to enable the delete-button
-     */
-    getGridSelModel: function(){
-        var selModel = Ext.create('Ext.selection.CheckboxModel',{
-            listeners: {
-                selectionchange: function(sm, selections){
-                    var owner = this.view.ownerCt,
-                            btn = owner.down('button[action=deleteSelectedLogs]');
-                    //If no article is marked
-                    if(btn){
-                        btn.setDisabled(selections.length == 0);
-                    }
+        return Ext.create('Ext.selection.CheckboxModel', {
+            listeners:{
+                // Unlocks the delete button if the user has checked at least one checkbox
+                selectionchange: function (sm, selections) {
+                    me.deleteSelectedLogsBtn.setDisabled(selections.length === 0);
                 }
             }
         });
-        return selModel;
-    },
-
-    /**
-     * Creates the paging toolbar
-     */
-    createPagingToolbar: function() {
-        var me = this,
-            toolbar = Ext.create('Ext.toolbar.Paging', {
-            store: me.store
-        });
-
-        return toolbar;
     },
 
     /**
      *  Creates the columns
      */
     getColumns: function(){
-        var me = this;
-        var buttons = new Array();
+        var me = this,
+            actionColumItems = [];
 
-        buttons.push(Ext.create('Ext.button.Button', {
-            iconCls: 'sprite-minus-circle',
-            action: 'delete',
-            cls: 'delete',
+        actionColumItems.push({
+            iconCls:'sprite-minus-circle-frame',
+            action:'deleteLog',
             tooltip: 'Delete Log',
-            handler:function (view, rowIndex, colIndex, item) {
-                me.fireEvent('deleteColumn', view, rowIndex,  item, colIndex);
+            handler: function (view, rowIndex, colIndex, item, opts, record) {
+                me.fireEvent('deleteLog', record);
             }
-        }));
+        });
 
         var columns = [
             {
-                header: '{s name=logs/column/idLog}ID{/s}',
+                header: me.snippets.column.idLog,
                 dataIndex: 'id',
-                flex: 1
+                width: 60
             },{
-                header: '{s name=logs/column/created}Created{/s}',
+                header: me.snippets.column.created,
                 dataIndex: 'created',
-                flex: 2,
+                width: 150,
                 renderer: me.modifiedCreated
             }, {
-                header: '{s name=logs/column/message}Message{/s}',
+                header: me.snippets.column.message,
                 dataIndex: 'message',
-                flex: 5
+                flex: 1
             }, {
                 xtype: 'actioncolumn',
-                width: 30,
-                items: buttons
+                width: 26 * actionColumItems.length,
+                items: actionColumItems
             }
         ];
 
@@ -109,61 +98,131 @@ Ext.define('Shopware.apps.Lengow.view.main.Logs', {
     },
 
     /**
-     * Creates the toolbar with two buttons and a searchfield
+     * Creates the grid toolbar
+     * @return [Ext.toolbar.Toolbar] grid toolbar
      */
-    getToolbar: function(){
+    getToolbar: function() {
+        var me = this,
+            buttons = [];
 
-        var searchField = Ext.create('Ext.form.field.Text',{
-            name : 'searchfield',
-            cls : 'searchfield',
-            action : 'searchLogs',
-            width : 170,
-            enableKeyEvents : true,
-            emptyText : '{s name=logs/topToolbar/searchLogs}Search...{/s}',
+        me.deleteSelectedLogsBtn = Ext.create('Ext.button.Button',{
+            iconCls: 'sprite-minus-circle',
+            text: me.snippets.topToolbar.deleteSelectedLogs,
+            disabled: true,
+            handler: function() {
+                var selectionModel = me.getSelectionModel(),
+                    records = selectionModel.getSelection();
+                if (records.length > 0) {
+                    me.fireEvent('deleteSelectedLogs', records);
+                }
+            }
+        });
+        buttons.push(me.deleteSelectedLogsBtn);
+
+        me.flushLogsBtn = Ext.create('Ext.button.Button',{
+            iconCls: 'sprite-minus-circle',
+            text: me.snippets.topToolbar.flushLogs, 
+            handler: function() {
+                me.fireEvent('flushLogs');
+            }
+        });
+        buttons.push(me.flushLogsBtn);
+
+        buttons.push({
+            xtype: 'tbfill'
+        });
+
+        buttons.push({
+            xtype: 'textfield',
+            name: 'searchfield',
+            action: 'search',
+            width: 170,
+            cls: 'searchfield',
+            enableKeyEvents: true,
+            checkChangeBuffer: 500,
+            emptyText: me.snippets.topToolbar.searchLogs,
             listeners: {
-                buffer: 500,
-                keyup: function() {
-                    if(this.getValue().length >= 3 || this.getValue().length<1) {
-                        /**
-                         * @param this Contains the searchfield
-                         */
-                        this.fireEvent('fieldchange', this);
+                'change': function(field, value) {
+                    var store        = me.store,
+                        searchString = Ext.String.trim(value);
+                    //scroll the store to first page
+                    store.currentPage = 1;
+                    //If the search-value is empty, reset the filter
+                    if (searchString.length === 0 ) {
+                        store.clearFilter();
+                    } else {
+                        //This won't reload the store
+                        store.filters.clear();
+                        //Loads the store with a special filter
+                        store.filter('search', searchString);
                     }
                 }
             }
         });
 
-        searchField.addEvents('fieldchange');
-
-        var items = [];
-        
-        items.push(Ext.create('Ext.button.Button',{
-            iconCls: 'sprite-minus-circle',
-            text: '{s name=logs/topToolbar/deleteSelectedLogs}Delele selected Logs{/s}',
-            disabled: true,
-            action: 'deleteSelectedLogs'
-        }));
-        
-        items.push(Ext.create('Ext.button.Button',{
-            iconCls: 'sprite-minus-circle',
-            text: '{s name=logs/topToolbar/flushLogs}Flush Logs{/s}',
-            action: 'flushLogs'
-        }));
-
-        items.push('->');
-        items.push(searchField);
-        items.push({
+        buttons.push({
             xtype: 'tbspacer',
             width: 6
         });
 
-        var toolbar = Ext.create('Ext.toolbar.Toolbar', {
-            dock: 'top',
+        return Ext.create('Ext.toolbar.Toolbar', {
             ui: 'shopware-ui',
-            padding: 5,
-            items: items
+            items: buttons
         });
-        return toolbar;
+    },
+
+    /**
+     * Creates the paging toolbar
+     */
+    createPagingToolbar: function() {
+        var me = this;
+        var pageSize = Ext.create('Ext.form.field.ComboBox', {
+            labelWidth: 120,
+            cls: Ext.baseCSSPrefix + 'page-size',
+            queryMode: 'local',
+            width: 80,
+            listeners: {
+                scope: me,
+                select: me.onPageSizeChange
+            },
+            store: Ext.create('Ext.data.Store', {
+                fields: [ 'value' ],
+                data: [
+                    { value: '20' },
+                    { value: '40' },
+                    { value: '60' },
+                    { value: '80' },
+                    { value: '100' },
+                    { value: '250' }
+                ]
+            }),
+            displayField: 'value',
+            valueField: 'value'
+        });
+        pageSize.setValue(me.store.pageSize);
+
+        var pagingBar = Ext.create('Ext.toolbar.Paging', {
+            store: me.store,
+            dock:'bottom',
+            displayInfo:true
+        });
+
+        pagingBar.insert(pagingBar.items.length - 2, [ { xtype: 'tbspacer', width: 6 }, pageSize ]);
+        return pagingBar;
+    },
+
+    /**
+     * Event listener method which fires when the user selects
+     * @event select
+     * @param [object] combo - Ext.form.field.ComboBox
+     * @param [array] records - Array of selected entries
+     * @return void
+     */
+    onPageSizeChange: function(combo, records) {
+        var record = records[0],
+            me = this;
+        me.store.pageSize = record.get('value');
+        me.store.loadPage(1);
     },
 
     /**

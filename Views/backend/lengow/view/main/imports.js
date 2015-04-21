@@ -9,41 +9,52 @@ Ext.define('Shopware.apps.Lengow.view.main.Imports', {
     border: 0,
     autoScroll: true,
 
-    /**
-     * Sets up the ui component
-     *
-     * @return void
-     */
+    snippets: {
+        column: {
+            idOrder:        '{s name=imports/column/id_Order}ID{/s}',
+            orderDate:      '{s name=imports/column/order_date}Order date{/s}',
+            idOrderLengow:  '{s name=imports/column/id_order_lengow}ID Lengow{/s}',
+            idFlux:         '{s name=imports/column/id_flux}ID Flux{/s}',
+            totalPaid:      '{s name=imports/column/total_paid}Price{/s}',
+            marketplace:    '{s name=imports/column/marketplace}Marketplace{/s}',
+            carrier:        '{s name=imports/column/carrier}Carrier{/s}',
+            carrierMethod:  '{s name=imports/column/carrier_method}Carrier Method{/s}'
+        },
+        topToolbar: {
+            manualImport:   '{s name=imports/topToolbar/manual_import}Manual Import{/s}',
+            searchOrder:    '{s name=imports/topToolbar/search_order}Search...{/s}'
+        }
+    },
+
     initComponent: function() {
         var me = this;
-        me.registerEvents();
 
-        me.dockedItems = [];
         me.store = me.ordersStore;
+        me.selModel = me.getGridSelModel();
         me.columns = me.getColumns();
-        me.toolbar = me.getToolbar();
-        me.dockedItems.push(me.toolbar);
+        me.tbar = me.getToolbar();
         me.bbar = me.createPagingToolbar();
+
+        me.addEvents(
+            'manualImport'
+        );
 
         me.callParent(arguments);
     },
 
     /**
-     * Registers additional component events.
+     * Creates the grid selection model for checkboxes
+     * @return [Ext.selection.CheckboxModel] grid selection model
      */
-    registerEvents: function() {
-        this.addEvents();
-    },
+    getGridSelModel: function () {
+        var me = this;
 
-    /**
-     * Creates the paging toolbar
-     */
-    createPagingToolbar: function() {
-        var me = this,
-            toolbar = Ext.create('Ext.toolbar.Paging', {
-            store: me.store
+        return Ext.create('Ext.selection.CheckboxModel', {
+            listeners:{
+                selectionchange: function (sm, selections) {
+                }
+            }
         });
-        return toolbar;
     },
 
     /**
@@ -54,36 +65,36 @@ Ext.define('Shopware.apps.Lengow.view.main.Imports', {
 
         var columns = [
             {
-                header: 'ID',
+                header: me.snippets.column.idOrder,
                 dataIndex: 'id',
-                flex: 1
+                width: 60
             },{
-                header: 'Order date',
+                header: me.snippets.column.orderDate,
                 dataIndex: 'orderDate',
                 flex: 3,
                 renderer:  me.modifiedCreated
             },{
-                header: 'ID Lengow',
+                header: me.snippets.column.idOrderLengow,
                 dataIndex: 'idOrderLengow',
                 flex: 4
             },{
-                header: 'ID Flux',
+                header: me.snippets.column.idFlux,
                 dataIndex: 'idFlux',
-                flex: 1
+                width: 60
             },{
-                header: 'Price',
+                header: me.snippets.column.totalPaid,
                 dataIndex: 'totalPaid',
-                flex: 2
+                width: 60
             },{
-                header: 'Marketplace',
+                header: me.snippets.column.marketplace,
                 dataIndex: 'marketplace',
                 flex: 3
             },{
-                header: 'Carrier',
+                header: me.snippets.column.carrier,
                 dataIndex: 'carrier',
                 flex: 2
             },{
-                header: 'Carrier Method',
+                header: me.snippets.column.carrierMethod,
                 dataIndex: 'carrierMethod',
                 flex: 2
             }
@@ -92,54 +103,117 @@ Ext.define('Shopware.apps.Lengow.view.main.Imports', {
     },
 
     /**
-     * Creates the toolbar with two buttons and a searchfield
+     * Creates the grid toolbar
+     * @return [Ext.toolbar.Toolbar] grid toolbar
      */
-    getToolbar: function(){
+    getToolbar: function() {
+        var me = this,
+            buttons = [];
 
-        var searchField = Ext.create('Ext.form.field.Text',{
+        me.manualImportBtn = Ext.create('Ext.button.Button',{
+            iconCls: 'sprite-plus-circle',
+            text: me.snippets.topToolbar.manualImport,
+            handler: function() {
+                me.fireEvent('manualImport');
+            }
+        });
+        buttons.push(me.manualImportBtn);
+
+        buttons.push({
+            xtype: 'tbfill'
+        });
+
+        buttons.push({
+            xtype : 'textfield',
             name : 'searchfield',
-            cls : 'searchfield',
-            action : 'searchImport',
-            width : 170,
-            enableKeyEvents : true,
-            emptyText : 'search...',
+            action : 'search',
+            width: 170,
+            cls: 'searchfield',
+            enableKeyEvents: true,
+            checkChangeBuffer: 500,
+            emptyText: me.snippets.topToolbar.searchOrder,
             listeners: {
-                buffer: 500,
-                keyup: function() {
-                    if(this.getValue().length >= 3 || this.getValue().length<1) {
-                        /**
-                         * @param this Contains the searchfield
-                         */
-                        this.fireEvent('fieldchange', this);
+                'change': function(field, value) {
+                    var store        = me.store,
+                        searchString = Ext.String.trim(value);
+                    //scroll the store to first page
+                    store.currentPage = 1;
+                    //If the search-value is empty, reset the filter
+                    if (searchString.length === 0 ) {
+                        store.clearFilter();
+                    } else {
+                        //This won't reload the store
+                        store.filters.clear();
+                        //Loads the store with a special filter
+                        store.filter('search', searchString);
                     }
                 }
             }
         });
 
-        searchField.addEvents('fieldchange');
-
-        var items = [];
-        
-        items.push(Ext.create('Ext.button.Button',{
-            iconCls: 'sprite-plus-circle',
-            text: 'Manual Import',
-            action: 'manualImport'
-        }));
-
-        items.push('->');
-        items.push(searchField);
-        items.push({
+        buttons.push({
             xtype: 'tbspacer',
             width: 6
         });
 
-        var toolbar = Ext.create('Ext.toolbar.Toolbar', {
-            dock: 'top',
+        return Ext.create('Ext.toolbar.Toolbar', {
             ui: 'shopware-ui',
-            padding: 5,
-            items: items
+            items: buttons
         });
-        return toolbar;
+    },
+
+    /**
+     * Creates the paging toolbar
+     */
+    createPagingToolbar: function() {
+        var me = this;
+        var pageSize = Ext.create('Ext.form.field.ComboBox', {
+            labelWidth: 120,
+            cls: Ext.baseCSSPrefix + 'page-size',
+            queryMode: 'local',
+            width: 80,
+            listeners: {
+                scope: me,
+                select: me.onPageSizeChange
+            },
+            store: Ext.create('Ext.data.Store', {
+                fields: [ 'value' ],
+                data: [
+                    { value: '20' },
+                    { value: '40' },
+                    { value: '60' },
+                    { value: '80' },
+                    { value: '100' },
+                    { value: '250' }
+                ]
+            }),
+            displayField: 'value',
+            valueField: 'value'
+        });
+        pageSize.setValue(me.store.pageSize);
+
+        var pagingBar = Ext.create('Ext.toolbar.Paging', {
+            store: me.store,
+            dock:'bottom',
+            displayInfo:true
+        });
+
+        pagingBar.insert(pagingBar.items.length - 2, [ { xtype: 'tbspacer', width: 6 }, pageSize ]);
+        return pagingBar;
+    },
+
+    /**
+     * Event listener method which fires when the user selects
+     * @event select
+     * @param [object] combo - Ext.form.field.ComboBox
+     * @param [array] records - Array of selected entries
+     * @return void
+     */
+    onPageSizeChange: function(combo, records) {
+        var record = records[0],
+            me = this;
+        me.store.pageSize = record.get('value');
+        me.store.loadPage(1);
     },
 
     /**

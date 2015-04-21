@@ -11,51 +11,74 @@
 class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Backend_ExtJs
 {
 
-	public function getListAction() {
-		$this->View()->assign(
-            $this->getList(
-                $this->Request()->getParam('filter'),
-                $this->Request()->getParam('sort'),
-                $this->Request()->getParam('offset'),
-                $this->Request()->getParam('limit')
-            )
-        );
-	}
-
-	/**
-     * Internal helper function which selects an filtered and sorted offset of order.
-     * @param $filter
-     * @param $sort
-     * @param $offset
-     * @param $limit
-     *
-     * @return array
-     */
-    protected function getList($filter, $sort, $offset, $limit) {
-
+    public function getListAction()
+    {
         $builder = Shopware()->Models()->createQueryBuilder();
-        $builder->select(array('orders'))
+        $builder->select('orders')
                 ->from('Shopware\CustomModels\Lengow\Order', 'orders');
-        if (!empty($filter)) {
-            $builder->addFilter($filter);
+
+        //If a filter is set
+        if ($this->Request()->getParam('filter')) {
+            //Get the value itself
+            $filters = $this->Request()->getParam('filter');
+            foreach ($filters as $filter) {
+                $builder->andWhere($builder->expr()->orX(
+                        'orders.idOrderLengow LIKE :value'))
+                        ->setParameter('value', "%" . $filter["value"] . "%");
+            }
         }
-        if (!empty($sort)) {
-            $builder->addOrderBy($sort);
+
+        $sort = $this->Request()->getParam('sort');
+        if ($sort) {
+            $sorting = $sort[0];
+            switch ($sorting['property']) {
+                case 'id':
+                    $builder->orderBy('orders.id', $sorting['direction']);
+                    break;
+                case 'idOrderLengow':
+                    $builder->orderBy('orders.idOrderLengow', $sorting['direction']);
+                    break;
+                case 'idFlux':
+                    $builder->orderBy('orders.idFlux', $sorting['direction']);
+                    break;
+                case 'marketplace':
+                    $builder->orderBy('orders.marketplace', $sorting['direction']);
+                    break;
+                case 'totalPaid':
+                    $builder->orderBy('orders.totalPaid', $sorting['direction']);
+                    break;
+                case 'carrier':
+                    $builder->orderBy('orders.carrier', $sorting['direction']);
+                    break;
+                case 'carrierMethod':
+                    $builder->orderBy('orders.carrierMethod', $sorting['direction']);
+                    break;
+                case 'orderDate':
+                    $builder->orderBy('orders.orderDate', $sorting['direction']);
+                    break;
+                case 'extra':
+                    $builder->orderBy('orders.extra', $sorting['direction']);
+                    break;
+                default:
+                    $builder->orderBy('orders.orderDate', 'DESC');
+            }
+        } else {
+            $builder->orderBy('orders.orderDate', 'DESC');
         }
-        $builder->setFirstResult($offset)
-                ->setMaxResults($limit);
+
+        $builder->setFirstResult($this->Request()->getParam('start'))
+                ->setMaxResults($this->Request()->getParam('limit'));
 
         $query = $builder->getQuery();
-        $query->setHydrationMode(
-            \Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY
-        );
 
-        $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query);
+        $count = Shopware()->Models()->getQueryCount($builder->getQuery());
+        $data = $query->getArrayResult();
 
-		return array(
+        $this->View()->assign(array(
             'success' => true,
-            'total'   => $paginator->count(),
-            'data'    => $paginator->getIterator()->getArrayCopy()
-        ); 
+            'data' => $data,
+            'total' => $count
+        ));
     }
+
 }

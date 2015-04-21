@@ -23,7 +23,8 @@ Ext.define('Shopware.apps.Lengow.model.Log', {
     proxy: {
         type: 'ajax',   
         api: {
-            read: '{url controller="LengowLog" action="getList"}'
+            read: '{url controller="LengowLog" action="getList"}',
+            destroy:  '{url controller="LengowLog" action="delete"}'
         },
         reader: {
             type: 'json',

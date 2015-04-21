@@ -20,7 +20,22 @@ Ext.define('Shopware.apps.Lengow.model.Order', {
         { name: 'carrierMethod', type: 'string' },
         { name: 'orderDate', type: 'date' },
         { name: 'extra', type: 'string' }
-    ]
+    ],
+
+    /**
+     * Configure the data communication
+     * @object
+     */
+    proxy: {
+        type: 'ajax',   
+        api: {
+            read: '{url controller="LengowImport" action="getList"}'
+        },
+        reader: {
+            type: 'json',
+            root: 'data'
+        }
+    }
     
 });
 //{/block}

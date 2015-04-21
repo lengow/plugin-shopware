@@ -6,6 +6,16 @@ Ext.define('Shopware.apps.Lengow.view.export.Exports', {
 
     alias: 'widget.lengow-export-exports',
 
+    snippets: {
+        categoryTitle:  '{s name=export/exports/category_title}Categories{/s}',
+        filterTitle:    '{s name=export/exports/filter_title}Filter{/s}',
+        noFilter:       '{s name=export/exports/no_filter}No filter{/s}',
+        lengowProducts: '{s name=export/exports/lengow_products}Lengow\'s products{/s}',
+        activeProducts: '{s name=export/exports/active_products}Active products{/s}',
+        inStock:        '{s name=export/exports/in_stock}In stock{/s}',
+        noCategory:     '{s name=export/exports/no_category}No categories{/s}'
+    },
+
     initComponent: function() {
         var me = this;
 
@@ -19,7 +29,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Exports', {
         }];
 
         me.sidebarPanel = Ext.create('Ext.panel.Panel', {
-            title: 'Categories',
+            title: me.snippets.categoryTitle,
             collapsible: true,
             width: 230,
             layout: {
@@ -44,7 +54,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Exports', {
         var me = this;
 
         return new Ext.create('Ext.form.Panel', {
-            title: 'Filter',
+            title: me.snippets.filterTitle,
             bodyPadding: 5,
             items: [{
                 xtype: 'radiogroup',
@@ -62,11 +72,11 @@ Ext.define('Shopware.apps.Lengow.view.export.Exports', {
                 columns: 1,
                 vertical: true,
                 items: [
-                    { boxLabel: 'No filter', name: 'filter', inputValue: 'none', checked: true  },
-                    { boxLabel: 'Lengow products', name: 'filter', inputValue: 'lengowProduct' },
-                    { boxLabel: 'Active products', name: 'filter', inputValue: 'activeProduct' },
-                    { boxLabel: 'In stock', name: 'filter', inputValue: 'inStock'  },
-                    { boxLabel: 'No category', name: 'filter', inputValue: 'noCategory' }
+                    { boxLabel: me.snippets.noFilter, name: 'filter', inputValue: 'none', checked: true  },
+                    { boxLabel: me.snippets.lengowProducts, name: 'filter', inputValue: 'lengowProduct' },
+                    { boxLabel: me.snippets.activeProducts, name: 'filter', inputValue: 'activeProduct' },
+                    { boxLabel: me.snippets.inStock, name: 'filter', inputValue: 'inStock'  },
+                    { boxLabel: me.snippets.noCategory, name: 'filter', inputValue: 'noCategory' }
                 ]
             }]
         });
@@ -87,7 +97,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Exports', {
             useArrows: false,
             store: me.categoryStore,
             root: {
-                text: 'Categories',
+                text: me.snippets.categoryTitle,
                 expanded: true
             },
             listeners: {

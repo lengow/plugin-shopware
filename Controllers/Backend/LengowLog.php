@@ -11,52 +11,104 @@
 class Shopware_Controllers_Backend_LengowLog extends Shopware_Controllers_Backend_ExtJs
 {
 
-	public function getListAction() {
-		$this->View()->assign(
-            $this->getList(
-                $this->Request()->getParam('filter'),
-                $this->Request()->getParam('sort'),
-                $this->Request()->getParam('offset'),
-                $this->Request()->getParam('limit')
-            )
-        );
-	}
-
-	/**
-     * Internal helper function which selects an filtered and sorted offset of log.
-     * @param $filter
-     * @param $sort
-     * @param $offset
-     * @param $limit
-     *
-     * @return array
-     */
-    protected function getList($filter, $sort, $offset, $limit) {
-
+    public function getListAction()
+    {
         $builder = Shopware()->Models()->createQueryBuilder();
-        $builder->select(array('logs'))
+        $builder->select('logs')
                 ->from('Shopware\CustomModels\Lengow\Log', 'logs');
-        if (!empty($filter)) {
-            $builder->addFilter($filter);
+
+        //If a filter is set
+        if ($this->Request()->getParam('filter')) {
+            //Get the value itself
+            $filters = $this->Request()->getParam('filter');
+            foreach ($filters as $filter) {
+                $builder->andWhere($builder->expr()->orX('logs.message LIKE :value'))
+                        ->setParameter('value', "%" . $filter["value"] . "%");
+            }
         }
-        if (!empty($sort)) {
-            $builder->addOrderBy($sort);
+
+        $sort = $this->Request()->getParam('sort');
+        if ($sort) {
+            $sorting = $sort[0];
+            switch ($sorting['property']) {
+                case 'id':
+                    $builder->orderBy('logs.id', $sorting['direction']);
+                    break;
+                case 'created':
+                    $builder->orderBy('logs.created', $sorting['direction']);
+                    break;
+                case 'message':
+                    $builder->orderBy('logs.message', $sorting['direction']);
+                    break;
+                default:
+                    $builder->orderBy('logs.created', 'DESC');
+            }
+        } else {
+            $builder->orderBy('logs.created', 'DESC');
         }
-        $builder->setFirstResult($offset)
-                ->setMaxResults($limit);
+
+        $builder->setFirstResult($this->Request()->getParam('start'))
+                ->setMaxResults($this->Request()->getParam('limit'));
 
         $query = $builder->getQuery();
-        $query->setHydrationMode(
-            \Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY
-        );
 
-        $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query);
+        $count = Shopware()->Models()->getQueryCount($builder->getQuery());
+        $data = $query->getArrayResult();
 
-		return array(
+        $this->View()->assign(array(
             'success' => true,
-            'total'   => $paginator->count(),
-            'data'    => $paginator->getIterator()->getArrayCopy()
-        ); 
+            'data' => $data,
+            'total' => $count
+        ));
+    }
+
+    public function deleteAction() 
+    {
+        $logId = (int) $this->Request()->getParam('id');
+
+        if (empty($logId)) {
+            $this->View()->assign(array(
+                'success' => false, 
+                'error' => 'No id passed'
+            ));
+        }
+
+        $log = Shopware()->Models()->find('\Shopware\CustomModels\Lengow\Log',(int) $logId);
+
+        if (!($log instanceof \Shopware\CustomModels\Lengow\Log)) {
+            $this->View()->assign(array(
+                'success' => false,
+                'error'   => "The passed id '" . $logId . " doesn't exist"
+            ));
+        }
+
+        try {
+            Shopware()->Models()->remove($log);
+            Shopware()->Models()->flush();
+            $this->View()->assign(array(
+                'success' => true
+            ));
+        } catch (Exception $e) {
+            $this->View()->assign(array(
+                'success' => true,
+                'error'   => $e->getMessage()
+            ));
+        }
+    }
+
+    public function flushLogsAction()
+    {
+        try {
+            Shopware()->Db()->exec("TRUNCATE lengow_logs");
+            $this->View()->assign(array(
+                'success' => true
+            ));
+        } catch (Exception $e) {
+            $this->View()->assign(array(
+                'success' => true,
+                'error'   => $e->getMessage()
+            ));
+        }
     }
 
 }

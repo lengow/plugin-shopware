@@ -36,27 +36,27 @@ class Shopware_Plugins_Backend_Lengow_Components_Form
         $this->form->setElement('text', 'lengowIdUser', array(
             'label' => 'Customer ID', 
             'required' => true,
-            'description' => 'Bla Bla'
+            'description' => 'Your Customer ID of Lengow'
         ));
         $this->form->setElement('text', 'lengowIdGroup', array(
             'label' => 'Group ID', 
             'required' => true,
-            'description' => 'Bla Bla'
+            'description' => 'Your Group ID of Lengow'
         ));
         $this->form->setElement('text', 'lengowApiKey', array(
             'label' => 'Token API', 
             'required' => true,
-            'description' => 'Bla Bla'
+            'description' => 'Your Token API of Lengow'
         ));
         $this->form->setElement('text', 'lengowAuthorisedIp', array(
             'label' => 'IP authorised to export', 
             'required' => true,
-            'description' => 'Bla Bla'
+            'description' => 'Authorized access to catalog export by IP, separated by ;'
         ));
         $this->form->setElement('boolean', 'lengowExportAllProduct', array(
             'label' => 'Export only selected product',
             'value' => false,
-            'description' => 'Bla Bla'
+            'description' => 'Export Lengow\'s products or not' 
         ));
         $this->form->setElement('select', 'lengowExportStatusProduct', array(
             'label' => 'Status of product to export',
@@ -66,7 +66,7 @@ class Shopware_Plugins_Backend_Lengow_Components_Form
                     array(3, 'All')
                 ),
             'value' => 1,
-            'description' => 'Bla Bla'
+            'description' => 'Export only active poducts or not'
         ));
         $this->form->setElement('boolean', 'lengowExportAttributes', array(
             'label' => 'Export attributes',
@@ -115,7 +115,7 @@ class Shopware_Plugins_Backend_Lengow_Components_Form
         $this->form->setElement('boolean', 'lengowExportFile', array(
             'label' => 'Save feed on file',
             'value' => false,
-            'description' => 'Bla Bla'
+            'description' => 'You should use this option if you have more than 10,000 products'
         ));
         $this->form->setElement('text', 'lengowExportUrl', array(
             'label' => 'Our export URL'

@@ -4,7 +4,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
 
     extend:'Enlight.app.Window',
 
-    title: '{s name=window/title}Lengow{/s}',
+    title: '{s name=window/title_window}Lengow{/s}',
 
     alias:'widget.lengow-main-window',
 
@@ -20,9 +20,9 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
      */
     snippets: {
         tab: {
-            exports: '{s name=window/tab/exports}Products export{/s}',
-            imports: '{s name=window/tab/imports}Lengow orders{/s}',
-            logs: '{s name=window/tab/logs}Logs{/s}'
+            exports:    '{s name=window/tab/exports}Products export{/s}',
+            imports:    '{s name=window/tab/imports}Lengow\'s orders{/s}',
+            logs:       '{s name=window/tab/logs}Logs{/s}'
         }
     },
 
@@ -58,24 +58,6 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
         });
 
         return me.tabPanel;
-    },
-
-    /**
-     * Creates a container "exports"
-     * The container will be used as the "exports" tab.
-     * @returns { Ext.container.Container }
-     */
-    createExportsTab: function() {
-        var me = this;
-        me.exportsContainer = Ext.create('Ext.container.Container', {
-            layout: 'border',
-            title: me.snippets.tab.exports,
-            items: {
-                xtype: 'lengow-export-exports',
-                articlesStore: me.articlesStore
-            }
-        });
-        return me.exportsContainer;
     },
 
     /**
