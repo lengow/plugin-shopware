@@ -81,4 +81,19 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         ));
     }
 
+    /**
+     * Event listener function of the articles store to import orders from marketplaces
+     *
+     * @return mixed
+     */
+    public function importAction()
+    {
+        $test = 'Import orders';
+
+        $this->View()->assign(array(
+            'success' => true,
+            'data'    => $test
+        ));
+    }
+
 }

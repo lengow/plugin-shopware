@@ -120,7 +120,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     }
 
     /**
-     * Event listener function of the articles store of the backend module.
+     * Event listener function of the articles store of the backend module
      *
      * @return mixed
      */
@@ -141,6 +141,21 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $this->View()->assign(array(
             'success' => true,
             'data'    => $this->Request()->getPost()
+        ));
+    }
+
+    /**
+     * Event listener function of the articles store to export a list of products
+     *
+     * @return mixed
+     */
+    public function exportAction()
+    {
+        $test = new Shopware_Plugins_Backend_Lengow_Components_LengowExport();
+
+        $this->View()->assign(array(
+            'success' => true,
+            'data'    => $test
         ));
     }
 

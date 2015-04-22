@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Form.php
+ * LengowForm.php
  *
  * @category   Shopware
  * @package    Shopware_Plugins
  * @subpackage Lengow
  * @author     Lengow
  */
-class Shopware_Plugins_Backend_Lengow_Components_Form
+class Shopware_Plugins_Backend_Lengow_Components_LengowForm
 {
 	/**
 	 * @var \Shopware\Models\Config\Form $form
@@ -33,6 +33,22 @@ class Shopware_Plugins_Backend_Lengow_Components_Form
      */
     public function create()
     {
+        $exportFormats = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportFormats();
+        $formats = array();
+        foreach ($exportFormats as $format) {
+            $formats[] = array($format->id, $format->name);
+        }
+
+        $exportImage = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getImagesCount();
+        $nbImage = array();
+        foreach ($exportImage as $value) {
+            if ($value->id === 'all') {
+                $nbImage[] = array($value->id, $value->name);
+            } else {
+                $nbImage[] = array($value->id, $value->name. ' images'); 
+            }  
+        }
+
         $this->form->setElement('text', 'lengowIdUser', array(
             'label' => 'Customer ID', 
             'required' => true,
@@ -53,64 +69,42 @@ class Shopware_Plugins_Backend_Lengow_Components_Form
             'required' => true,
             'description' => 'Authorized access to catalog export by IP, separated by ;'
         ));
-        $this->form->setElement('boolean', 'lengowExportAllProduct', array(
-            'label' => 'Export only selected product',
-            'value' => false,
-            'description' => 'Export Lengow\'s products or not' 
+        $this->form->setElement('boolean', 'lengowExportAllProducts', array(
+            'label' => 'Export all products',
+            'value' => true,
+            'description' => 'If don\'t want to export all your available products, select "no" and select yours products in the Lengow plugin.' 
         ));
-        $this->form->setElement('select', 'lengowExportStatusProduct', array(
-            'label' => 'Status of product to export',
-            'store' => array(
-                    array(1, 'Enable'),
-                    array(2, 'Disable'),
-                    array(3, 'All')
-                ),
-            'value' => 1,
-            'description' => 'Export only active poducts or not'
+        $this->form->setElement('boolean', 'lengowExportDisabledProducts', array(
+            'label' => 'Export disabled products',
+            'value' => false,
+            'description' => 'If you want to export disabled products, select "yes".'
         ));
         $this->form->setElement('boolean', 'lengowExportAttributes', array(
             'label' => 'Export attributes',
             'value' => false,
-            'description' => 'Bla Bla'
+            'description' => 'If you select "yes", your product(s) will be exported with attributes.'
         ));
         $this->form->setElement('select', 'lengowExportImageSize', array(
-            'label' => 'Product images size',
+            'label' => 'Image type to export',
             'store' => array(
                     array(1, 'Small'),
                     array(2, 'Medium'),
                     array(3, 'Big')
                 ),
             'value' => 1,
-            'required' => true,
-            'description' => 'Bla Bla'
+            'required' => true
         ));
         $this->form->setElement('select', 'lengowExportImages', array(
-            'label' => 'Image max',
-            'store' => array(
-                    array(1, '3 images'),
-                    array(2, '4 images'),
-                    array(3, '5 images'),
-                    array(4, '6 images'),
-                    array(5, '7 images'),
-                    array(6, '8 images'),
-                    array(7, '9 images'),
-                    array(8, '10 images')
-                ),
-            'value' => 1,
-            'required' => true,
-            'description' => 'Bla Bla'
+            'label' => 'Number of images to export',
+            'store' => $nbImage,
+            'value' => 3,
+            'required' => true
         ));
         $this->form->setElement('select', 'lengowExportFormat', array(
             'label' => 'Export format',
-            'store' => array(
-                    array(1, 'csv'),
-                    array(2, 'xml'),
-                    array(3, 'json'),
-                    array(4, 'yaml')
-                ),
-            'value' => 1,
-            'required' => true,
-            'description' => 'Bla Bla'
+            'store' => $formats,
+            'value' => 'csv',
+            'required' => true
         ));
         $this->form->setElement('boolean', 'lengowExportFile', array(
             'label' => 'Save feed on file',
@@ -123,7 +117,7 @@ class Shopware_Plugins_Backend_Lengow_Components_Form
         $this->form->setElement('boolean', 'lengowExportCron', array(
             'label' => 'Active cron',
             'value' => false,
-            'description' => 'Bla Bla'
+            'description' => 'If you select "yes", orders will be automatically imported.'
         ));
         $repository = Shopware()->Models()->getRepository('Shopware\Models\Config\Form');
         $this->form->setParent($repository->findOneBy(array('name' => 'Interface')));

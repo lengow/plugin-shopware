@@ -142,7 +142,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public function createConfiguration()
     {
         try {
-            $form = new Shopware_Plugins_Backend_Lengow_Components_Form($this->Form());
+            $form = new Shopware_Plugins_Backend_Lengow_Components_LengowForm($this->Form());
             $form->create();
         } catch (Exception $exception) {
             Shopware()->Log()->Err("There was an error creating the plugin configuration. " . $exception->getMessage());
