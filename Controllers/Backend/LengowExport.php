@@ -93,7 +93,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                 ON articles.main_detail_id = details.id
             LEFT JOIN s_articles_supplier as suppliers
                 ON articles.supplierID = suppliers.id
-            INNER JOIN s_articles_attributes as attributes
+            LEFT JOIN s_articles_attributes as attributes
                 ON attributes.articleID = articles.id
             LEFT JOIN s_articles_prices prices
                 ON prices.articledetailsID = details.id
@@ -151,11 +151,19 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
      */
     public function exportAction()
     {
-        $test = new Shopware_Plugins_Backend_Lengow_Components_LengowExport();
-
+        
+        $product = new Shopware_Plugins_Backend_Lengow_Components_LengowProduct(2, 124);
+        $id = $product->getData('id_article');
+        $result = $product->getExportIds(false, true); 
+        $last = end($result);
+        $test = count($result);
+        
         $this->View()->assign(array(
             'success' => true,
-            'data'    => $test
+            'id' => $id,
+            'data'    => $test,
+            'result' => $result,
+            'last' => $last
         ));
     }
 

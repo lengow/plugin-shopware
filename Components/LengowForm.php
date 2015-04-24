@@ -49,6 +49,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
             }  
         }
 
+        $exportUrl = Shopware()->Plugins()->Backend()->Lengow()->Path() . 'Webservice/export.php';
+
         $this->form->setElement('text', 'lengowIdUser', array(
             'label' => 'Customer ID', 
             'required' => true,
@@ -78,6 +80,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
             'label' => 'Export disabled products',
             'value' => false,
             'description' => 'If you want to export disabled products, select "yes".'
+        ));
+        $this->form->setElement('boolean', 'lengowExportVariantProducts', array(
+            'label' => 'Export variant products',
+            'value' => true,
+            'description' => 'If don\'t want to export all your products\' variations, click "no"'
         ));
         $this->form->setElement('boolean', 'lengowExportAttributes', array(
             'label' => 'Export attributes',
@@ -112,7 +119,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
             'description' => 'You should use this option if you have more than 10,000 products'
         ));
         $this->form->setElement('text', 'lengowExportUrl', array(
-            'label' => 'Our export URL'
+            'label' => 'Our export URL',
+            'value' => $exportUrl
+
         ));
         $this->form->setElement('boolean', 'lengowExportCron', array(
             'label' => 'Active cron',
@@ -121,6 +130,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
         ));
         $repository = Shopware()->Models()->getRepository('Shopware\Models\Config\Form');
         $this->form->setParent($repository->findOneBy(array('name' => 'Interface')));
+    }
+
+    /**
+     * Get export url
+     *
+     * @return string Export url
+     */
+    private static function _getExportUrl($link = true) {
+        $exportUrl =  Shopware()->Plugins()->Backend()->Lengow()->Path() . 'Webservice/export.php';
+
+        if($link)
+            return '<a href="' . $exportUrl . '" target="_blank">' . $exportUrl . '</a>';
+        else
+            return $exportUrl;
     }
 
 }
