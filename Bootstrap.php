@@ -127,7 +127,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'lengow',
             'lengowActive',
             'int(1)',
-            false,
+            true,
             0
         );
      

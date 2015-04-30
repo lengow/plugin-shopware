@@ -112,10 +112,13 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $sql= "SELECT FOUND_ROWS() as count";
         $count = Shopware()->Db()->fetchOne($sql);
 
+        $sPathBase = 'http://' . Shopware()->Config()->basePath();
+
         $this->View()->assign(array(
             'success' => true,
             'data'    => $articles,
-            'total'   => $count
+            'total'   => $count,
+            'test' => $sPathBase
         ));
     }
 
@@ -152,19 +155,89 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     public function exportAction()
     {
         
-        $product = new Shopware_Plugins_Backend_Lengow_Components_LengowProduct(2, 124);
-        $id = $product->getData('id_article');
-        $result = $product->getExportIds(false, true); 
-        $last = end($result);
-        $test = count($result);
-        
+        $url = Shopware()->Plugins()->Backend()->Lengow()->Config()->get('lengowExportUrl');
+
         $this->View()->assign(array(
             'success' => true,
-            'id' => $id,
-            'data'    => $test,
-            'result' => $result,
-            'last' => $last
+            'url' => $url
         ));
+
+
+        //     // $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($format, $all, $all_product, $fullmode, $export_attributes, $stream);
+        //     // $export->exec();
+        // }
+        // else
+        //     die('Unauthorized access for IP : '.$_SERVER['REMOTE_ADDR']);
+        
+    //     $idProduct = 65;
+    //     $idVariant = null;
+
+    //     $product = new Shopware_Plugins_Backend_Lengow_Components_LengowProduct($idProduct, $idVariant);
+    //     $id = $product->getData('id_article', $idVariant);
+    //     $name = $product->getData('name_article', $idVariant);
+    //     $number = $product->getData('number_article', $idVariant);
+    //     $supplier = $product->getData('supplier', $idVariant);
+    //     $price = $product->getData('price', $idVariant);
+    //     $priceWt = $product->getData('price_wt', $idVariant);
+    //     $tax = $product->getData('tax', $idVariant);
+    //     $inStock = $product->getData('in_stock', $idVariant);
+    //     $weight = $product->getData('weight', $idVariant);
+    //     $description = $product->getData('description', $idVariant);
+    //     $longDescription = $product->getData('long_description', $idVariant);
+    //     $availableProduct = $product->getData('available_product', $idVariant);
+    //     $quantity = $product->getData('quantity', $idVariant);
+    //     $unit = $product->getData('unit', $idVariant);
+    //     $unitReference = $product->getData('unit_reference', $idVariant);
+    //     $unitPack = $product->getData('unit_pack', $idVariant);
+    //     $unitPurchase = $product->getData('unit_purchase', $idVariant);
+    //     $minPurchase = $product->getData('min_purchase', $idVariant);
+    //     $maxPurchase = $product->getData('max_purchase', $idVariant);
+    //     $shippingTime = $product->getData('shipping_time', $idVariant);
+    //     $ean = $product->getData('ean', $idVariant);
+    //     $width = $product->getData('width', $idVariant);
+    //     $height = $product->getData('height', $idVariant);
+    //     $length = $product->getData('length', $idVariant);
+    //     $idParent = $product->getData('id_parent', $idVariant);
+
+   
+    //     $image = $product->getData('image_2', $idVariant);
+    //     // $breadcrumb = array_reverse(Shopware()->Modules()->sCategories()->sGetCategoriesByParent($idProduct));
+        
+    //     $path = $this->Request()->getScheme().'://'.$this->Request()->getHttpHost().$this->Request()->getBasePath().'/media/image/';
+
+    //     $this->View()->assign(array(
+    //         'success' => true,
+    //         'url' => $url,
+    //         'path' => $path,
+    //         'image' => $image,
+    //         'results' => array(
+    //             'id_article' => $id,
+    //             'name_article'    => $name,
+    //             'number_article' => $number,
+    //             'supplier' => $supplier,
+    //             'price' => $price,
+    //             'price_wt' => $priceWt,
+    //             'tax' => $tax,
+    //             'in_stock' => $inStock,
+    //             'weight' => $weight,
+    //             'description' => $description,
+    //             'long_description' => $longDescription,
+    //             'available_product' => $availableProduct,
+    //             'quantity' => $quantity,
+    //             'unit' => $unit,
+    //             'unit_reference' => $unitReference,
+    //             'unit_pack' => $unitPack,
+    //             'unit_purchase' => $unitPurchase,
+    //             'min_purchase' => $minPurchase,
+    //             'max_purchase' => $maxPurchase,
+    //             'shipping_time' => $shippingTime,
+    //             'ean' => $ean,
+    //             'width' => $width,
+    //             'height' => $height,
+    //             'length' => $length,
+    //             'id_parent' => $idParent
+    //         )
+    //     ));
     }
 
 

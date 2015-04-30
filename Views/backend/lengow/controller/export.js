@@ -10,8 +10,12 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
 
     snippets: {
         message: {
-            exportProductsTitle:    '{s name=export/message/export_products_title}Export product(s)?{/s}',
-            exportProducts:         '{s name=export/message/export_products}Are you sure you want to export product(s)?{/s}'
+            exportProductsTitleFirst:   '{s name=export/message/export_products_title_first}Export the {/s}',
+            exportProductsTitleEnd:     '{s name=export/message/export_products_title_end} shop?{/s}',
+            exportProductsFirst:        '{s name=export/message/export_products_first}Are you sure you want to export the {/s}',
+            exportProductsEnd:          '{s name=export/message/export_products_end} shop product(s)?{/s}',
+            alertExportTitle:           '{s name=export/message/alert_export_title}Export shop product(s)!{/s}',
+            alertExport:                '{s name=export/message/alert_export}Thank you to choose a shop for export.{/s}',
         }
     },
 
@@ -75,31 +79,31 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
         store.load();
     },
 
-    onExportProducts: function() {
+    onExportProducts: function(record) {
         console.log('Export products');
 
         var me          = this,
             store       = me.getArticleGrid().getStore(),
             articleGrid = me.getArticleGrid();
 
-        Ext.MessageBox.confirm(me.snippets.message.exportProductsTitle, me.snippets.message.exportProducts, function (response) {
-            if ( response !== 'yes' ) {
-                return;
-            }
-            articleGrid.setLoading(true);
-            Ext.Ajax.request({
-                url: '{url controller="LengowExport" action="export"}',
-                method: 'POST',
-                params: {},
-                success: function(response, opts) {
-                    store.load({
-                        callback: function() {
-                            articleGrid.setLoading(false);
-                        }
-                    }); 
+        var shop = record.getValue();
+        var http = location.protocol;
+        var slashes = http.concat("//");
+        var host = slashes.concat(window.location.hostname);
+
+        if (shop) {
+            Ext.MessageBox.confirm(
+            me.snippets.message.exportProductsTitleFirst + shop + me.snippets.message.exportProductsTitleEnd,
+            me.snippets.message.exportProductsFirst + shop + me.snippets.message.exportProductsEnd,
+            function (response) {
+                if ( response !== 'yes' ) {
+                    return;
                 }
+                window.open(host + '/engine/Shopware/Plugins/Local/Backend/Lengow/Webservice/export.php?shop=' + shop, '_blank');
             });
-        });
+        } else {
+            Ext.MessageBox.alert(me.snippets.message.alertExportTitle, me.snippets.message.alertExport);
+        }
     }
 
 });

@@ -26,7 +26,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 		'yaml',
 	);
 
-	public static $EXPORT_IMAGE = array('all', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+	public static $EXPORT_IMAGE = array(3, 4, 5, 6, 7, 8, 9, 10);
 
 	/**
      * Lengow IP.
@@ -46,7 +46,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
         '95.131.141.171',
         '82.127.207.67',
         '80.14.226.127',
-        '80.236.15.223'
+        '80.236.15.223',
+        '127.0.0.1'
     );
 
 	/**
@@ -90,7 +91,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      *
      * @return boolean.
      */
-    public static function check_ip() {
+    public static function checkIp() {
         $ips = self::getConfig()->get('lengowAuthorisedIp');
         $ips = trim(str_replace(array("\r\n", ',', '-', '|', ' '), ';', $ips), ';');
         $ips = explode(';', $ips);
@@ -199,6 +200,36 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      */
     public static function getExportCron() {
         return (self::getConfig()->get('lengowExportCron') == 1 ? true : false);
+    }
+
+    /**
+    * Clean html.
+    *
+    * @param string $html The html content
+    *
+    * @return string Text cleaned.
+    */
+    public static function cleanHtml($html)
+    {
+        $string = str_replace('<br />', '', nl2br($html));
+        $string = trim(strip_tags(htmlspecialchars_decode($string)));
+        $string = preg_replace('`[\s]+`sim', ' ', $string);
+        $string = preg_replace('`"`sim', '', $string);
+        $string = nl2br($string);
+        $pattern = '@<[\/\!]*?[^<>]*?>@si'; //nettoyage du code HTML
+        $string = preg_replace($pattern, ' ', $string);
+        $string = preg_replace('/[\s]+/', ' ', $string); //nettoyage des espaces multiples
+        $string = trim($string);
+        $string = str_replace('&nbsp;', ' ', $string);
+        $string = str_replace('|', ' ', $string);
+        $string = str_replace('"', '\'', $string);
+        $string = str_replace('’', '\'', $string);
+        $string = str_replace('&#39;', '\' ', $string);
+        $string = str_replace('&#150;', '-', $string);
+        $string = str_replace(chr(9), ' ', $string);
+        $string = str_replace(chr(10), ' ', $string);
+        $string = str_replace(chr(13), ' ', $string);
+        return $string;
     }
 
     /**

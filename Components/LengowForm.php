@@ -42,11 +42,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
         $exportImage = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getImagesCount();
         $nbImage = array();
         foreach ($exportImage as $value) {
-            if ($value->id === 'all') {
-                $nbImage[] = array($value->id, $value->name);
-            } else {
-                $nbImage[] = array($value->id, $value->name. ' images'); 
-            }  
+
+            $nbImage[] = array($value->id, $value->name. ' images');  
         }
 
         $exportUrl = Shopware()->Plugins()->Backend()->Lengow()->Path() . 'Webservice/export.php';

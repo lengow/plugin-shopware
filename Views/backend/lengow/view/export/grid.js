@@ -20,8 +20,10 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         topToolbar: {
             publishProducts:    '{s name=export/grid/topToolbar/publish_products}Publish Lengow\'s products{/s}',
             unpublishProducts:  '{s name=export/grid/topToolbar/unpublish_products}Unpublish Lengow\'s products{/s}',
-            exportProducts:     '{s name=export/grid/topToolbar/export_products}Export products{/s}',
-            searchProducts:     '{s name=export/grid/topToolbar/search_products}Search...{/s}',
+            selectShop:         '{s name=export/grid/topToolbar/select_shop}Choose Shop{/s}',
+            selectShopEmpty:    '{s name=export/grid/topToolbar/select_shop_empty}Select a shop...{/s}',
+            exportProducts:     '{s name=export/grid/topToolbar/export_products}Export shop products{/s}',
+            searchProducts:     '{s name=export/grid/topToolbar/search_products}Search...{/s}'
         }
     },
 
@@ -199,11 +201,28 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         });
         buttons.push(me.unpublishProductsBtn);
 
+        var shopStore = Ext.create('Shopware.apps.Base.store.Shop');
+        shopStore.filters.clear();
+
+        me.shopCombo = Ext.create('Ext.form.field.ComboBox', {
+            triggerAction:'all',
+            fieldLabel: me.snippets.topToolbar.selectShop,
+            emptyText: me.snippets.topToolbar.selectShopEmpty,
+            store: shopStore,
+            labelWidth: 80,
+            name: 'shopExport',
+            valueField: 'name',
+            displayField: 'name',
+            queryMode: 'remote'
+        });
+        buttons.push(me.shopCombo);
+
         me.exportProductsBtn = Ext.create('Ext.button.Button', {
             iconCls:'sprite-plus-circle',
             text: me.snippets.topToolbar.exportProducts,
+            width: 150,
             handler: function() {
-                me.fireEvent('exportProducts');
+                me.fireEvent('exportProducts', me.shopCombo);
             }
         });
         buttons.push(me.exportProductsBtn);
@@ -216,7 +235,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             xtype : 'textfield',
             name : 'searchfield',
             action : 'search',
-            width: 170,
+            width: 150,
             cls: 'searchfield',
             enableKeyEvents: true,
             checkChangeBuffer: 500,
