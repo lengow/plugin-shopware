@@ -46,8 +46,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
         '95.131.141.171',
         '82.127.207.67',
         '80.14.226.127',
-        '80.236.15.223',
-        '127.0.0.1'
+        '80.236.15.223'
     );
 
 	/**
@@ -63,6 +62,28 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 		return $array_ImageCount;
 	}
 
+    /**
+    * The images size to export.
+    *
+    * @return array Images size option
+    */
+    public static function getImagesSize()
+    {
+        $sql = '
+            SELECT DISTINCT SQL_CALC_FOUND_ROWS 
+            album.id as id
+            FROM s_media_album album
+            WHERE album.name = \'Artikel\'
+        ';
+        $idAlbum = Shopware()->Db()->fetchOne($sql);
+        $articleAlbum = Shopware()->Models()->find('Shopware\Models\Media\Album', $idAlbum);
+        $imageSizes = $articleAlbum->getSettings()->getThumbnailSize();
+        $array_ImageSize = array();
+        foreach ($imageSizes as $value)
+            $array_ImageSize[] = new Shopware_Plugins_Backend_Lengow_Components_LengowOption($value, $value);
+        return $array_ImageSize;
+    }
+
 	/**
 	* The export format aivalable.
 	*
@@ -75,6 +96,40 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 			$array_formats[] = new Shopware_Plugins_Backend_Lengow_Components_LengowOption($value, $value);
 		return $array_formats;
 	}
+
+
+
+    /**
+    * Get all carriers.
+    *
+    * @return array Carrier
+    */
+    public static function getCarriers()
+    {
+        $sql = '
+            SELECT DISTINCT SQL_CALC_FOUND_ROWS 
+            dispatch.name as name
+            FROM s_premium_dispatch dispatch
+            WHERE dispatch.type = 0 AND dispatch.active = 1
+        ';
+        $carriers = Shopware()->Db()->fetchAll($sql);
+        $array_carriers = array();
+        foreach ($carriers as $value)
+            $array_carriers[] = new Shopware_Plugins_Backend_Lengow_Components_LengowOption($value['name'], $value['name']);
+        return $array_carriers;
+    }
+
+    /**
+     * Get the path of the module
+     *
+     * @return string
+     */
+    public static function getPathPlugin()
+    {
+        $path = Shopware()->Plugins()->Backend()->Lengow()->Path();
+        $index = strpos($path, '/engine');
+        return substr($path, $index);
+    }
 
     /**
      * Get the configuration of the module
@@ -91,7 +146,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      *
      * @return boolean.
      */
-    public static function checkIp() {
+    public static function checkIp() 
+    {
         $ips = self::getConfig()->get('lengowAuthorisedIp');
         $ips = trim(str_replace(array("\r\n", ',', '-', '|', ' '), ';', $ips), ';');
         $ips = explode(';', $ips);
@@ -107,7 +163,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      *
      * @return int
      */
-    public static function getIdCustomer() {
+    public static function getIdCustomer() 
+    {
         return self::getConfig()->get('lengowIdUser');
     }
 
@@ -116,7 +173,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      *
      * @return int
      */
-    public static function getGroupCustomer() {
+    public static function getGroupCustomer() 
+    {
         return self::getConfig()->get('lengowIdGroup');
     }
 
@@ -125,7 +183,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      *
      * @return string
      */
-    public static function getTokenCustomer() {
+    public static function getTokenCustomer() 
+    {
         return self::getConfig()->get('lengowApiKey');
     }
 
@@ -134,7 +193,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      *
      * @return boolean
      */
-    public static function isExportAllProducts() {
+    public static function isExportAllProducts() 
+    {
         return (self::getConfig()->get('lengowExportAllProducts') == 1 ? true : false);
     }
 
@@ -143,7 +203,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      *
      * @return boolean
      */
-    public static function exportAllProducts() {
+    public static function exportAllProducts() 
+    {
         return (self::getConfig()->get('lengowExportDisabledProducts') == 1 ? true : false);
     }
 
@@ -152,7 +213,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      *
      * @return boolean
      */
-    public static function isExportFullmode() {
+    public static function isExportFullmode() 
+    {
         return (self::getConfig()->get('lengowExportVariantProducts') == 1 ? true : false);
     }
 
@@ -161,8 +223,39 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      *
      * @return boolean
      */
-    public static function getExportAttributes() {
+    public static function getExportAttributes() 
+    {
         return (self::getConfig()->get('lengowExportAttributes') == 1 ? true : false);
+    }
+
+    /**
+    * Export only title or title + attribute
+    *
+    * @return boolean
+    */
+    public static function exportTitle()
+    {
+        return (self::getConfig()->get('lengowExportAttributesTitle') == 1 ? true : false);
+    }
+
+    /**
+    * Export out of stock product
+    *
+    * @return boolean
+    */
+    public static function exportOutOfStockProduct()
+    {
+        return (self::getConfig()->get('lengowExportOutStock') == 1 ? true : false);
+    }
+
+    /**
+     * Export image size
+     *
+     * @return string
+     */
+    public static function getExportImagesSize() 
+    {
+        return self::getConfig()->get('lengowExportImageSize');
     }
 
     /**
@@ -170,7 +263,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      *
      * @return string
      */
-    public static function getExportImages() {
+    public static function getExportImages() 
+    {
         return self::getConfig()->get('lengowExportImages');
     }
 
@@ -189,8 +283,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      *
      * @return boolean
      */
-    public static function getExportInFile() {
+    public static function getExportInFile() 
+    {
         return (self::getConfig()->get('lengowExportFile') == 1 ? true : false);
+    }
+
+    /**
+     * Default Carrier
+     *
+     * @return string
+     */
+    public static function getDefaultCarrier() 
+    {
+        return self::getConfig()->get('lengowCarrierDefault');
     }
 
     /**
@@ -198,7 +303,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      *
      * @return boolean
      */
-    public static function getExportCron() {
+    public static function getExportCron() 
+    {
         return (self::getConfig()->get('lengowExportCron') == 1 ? true : false);
     }
 

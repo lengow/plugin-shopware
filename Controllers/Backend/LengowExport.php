@@ -112,13 +112,10 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $sql= "SELECT FOUND_ROWS() as count";
         $count = Shopware()->Db()->fetchOne($sql);
 
-        $sPathBase = 'http://' . Shopware()->Config()->basePath();
-
         $this->View()->assign(array(
             'success' => true,
             'data'    => $articles,
-            'total'   => $count,
-            'test' => $sPathBase
+            'total'   => $count
         ));
     }
 
@@ -153,13 +150,14 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
      * @return mixed
      */
     public function exportAction()
-    {
-        
-        $url = Shopware()->Plugins()->Backend()->Lengow()->Config()->get('lengowExportUrl');
+    {   
+
+        $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
+        $exportUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Webservice/export.php';
 
         $this->View()->assign(array(
             'success' => true,
-            'url' => $url
+            'url' => $exportUrl
         ));
 
 

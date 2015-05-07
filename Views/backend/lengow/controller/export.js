@@ -82,14 +82,8 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
     onExportProducts: function(record) {
         console.log('Export products');
 
-        var me          = this,
-            store       = me.getArticleGrid().getStore(),
-            articleGrid = me.getArticleGrid();
-
+        var me = this;
         var shop = record.getValue();
-        var http = location.protocol;
-        var slashes = http.concat("//");
-        var host = slashes.concat(window.location.hostname);
 
         if (shop) {
             Ext.MessageBox.confirm(
@@ -99,7 +93,17 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
                 if ( response !== 'yes' ) {
                     return;
                 }
-                window.open(host + '/engine/Shopware/Plugins/Local/Backend/Lengow/Webservice/export.php?shop=' + shop, '_blank');
+                Ext.Ajax.request({
+                    url: '{url controller="LengowExport" action="export"}',
+                    method: 'POST',
+                    params: {},
+                    success: function(response, opts) {
+                        var strJson  = response.responseText;
+                        var obj = Ext.JSON.decode(strJson);
+                        var url = obj.url;
+                        window.open(url + '?shop=' + shop, '_blank');
+                    }
+                });   
             });
         } else {
             Ext.MessageBox.alert(me.snippets.message.alertExportTitle, me.snippets.message.alertExport);

@@ -26,7 +26,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOption
      * @param integer $id The tracker type unique ID.
      * @param varchar $token The tracker type name.
      */
-    public function __construct($id, $name) {
+    public function __construct($id, $name) 
+    {
         $this->id = $id;
         $this->name = $name;
     }

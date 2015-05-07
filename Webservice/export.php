@@ -29,6 +29,8 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIP())
     $all_products = null;
     $fullmode = null;
     $export_attributes = null;
+    $full_title = null;
+    $out_stock = null;
     $stream = null;
     $shop = null;
 
@@ -52,6 +54,13 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIP())
         }
     }
 
+    if(array_key_exists('fullmode', $_GET)) {
+        if($_GET['fullmode'] == 'full')
+            $fullmode = true;
+        elseif($_GET['fullmode'] == 'simple')
+            $fullmode = false;
+    }
+
     if(array_key_exists('export_attributes', $_GET)) {
         if($_GET['export_attributes'] == 1)
             $export_attributes = true;
@@ -59,11 +68,18 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIP())
             $export_attributes = false;
     }
 
-    if(array_key_exists('fullmode', $_GET)) {
-        if($_GET['fullmode'] == 'full')
-            $fullmode = true;
-        elseif($_GET['fullmode'] == 'simple')
-            $fullmode = false;
+    if(array_key_exists('full_title', $_GET)) {
+        if($_GET['full_title'] == 1)
+            $full_title = true;
+        elseif($_GET['full_title'] == 0)
+            $full_title = false;
+    }
+
+    if(array_key_exists('out_stock', $_GET)) {
+        if($_GET['out_stock'] == 1)
+            $out_stock = true;
+        elseif($_GET['out_stock'] == 0)
+            $out_stock = false;
     }
 
     if(array_key_exists('stream', $_GET)) {
@@ -85,40 +101,13 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIP())
         $idShop = Shopware()->Db()->fetchOne($sql, $sqlParams);
         if ($idShop) {
             $shop = Shopware()->Models()->find('Shopware\Models\Shop\Shop', $idShop);
-
-            $product = Shopware()->Models()->find('Shopware\Models\Article\Article', 18);
-
-            $idCategoryParent = $shop->getCategory()->getId();
-            $categories = $product->getCategories();
-
-            foreach($categories as $category) {
-                $pathCategory = explode("|",$category->getPath());
-
-                if(in_array($idCategoryParent, $pathCategory)) {
-                    $breadcrumb = $category->getName();
-                    $idCategory = (int) $category->getParentId();
-
-                    for ($i=0; $i < count($pathCategory) - 2 ; $i++) { 
-                        $category = Shopware()->Models()->find('Shopware\Models\Category\Category', $idCategory);
-                        $breadcrumb = $category->getName() . ' > ' . $breadcrumb;
-                        $idCategory = (int) $category->getParentId();
-                    }
-
-                    print_r(Shopware_Plugins_Backend_Lengow_Components_LengowCore::replaceAccentedChars($breadcrumb));
-                    break;
-                }
-            }
-
-            die();
-
-
         } else {
             die('Invalid Shop for '. $_GET['shop'] );
         }
     }
 
     if ($shop) {
-        $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($format, $all, $all_products, $fullmode, $export_attributes, $stream, $shop);
+        $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($format, $all, $all_products, $fullmode, $export_attributes, $full_title, $out_stock, $stream, $shop);
         $export->exec();
         die();
     } else {

@@ -46,7 +46,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
             $nbImage[] = array($value->id, $value->name. ' images');  
         }
 
-        $exportUrl = Shopware()->Plugins()->Backend()->Lengow()->Path() . 'Webservice/export.php';
+        $exportCarrier = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getCarriers();
+        $carriers = array();
+        foreach ($exportCarrier as $value) {
+            $carriers[] = array($value->id, $value->name);  
+        }
+
+        $exportImageSize = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getImagesSize();
+        $sizeImage = array();
+        foreach ($exportImageSize as $value) {
+            $sizeImage[] = array($value->id, $value->name);  
+        }
+
+        $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
+        $exportUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Webservice/export.php';
 
         $this->form->setElement('text', 'lengowIdUser', array(
             'label' => 'Customer ID', 
@@ -66,6 +79,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
         $this->form->setElement('text', 'lengowAuthorisedIp', array(
             'label' => 'IP authorised to export', 
             'required' => true,
+            'value' => '127.0.0.1',
             'description' => 'Authorized access to catalog export by IP, separated by ;'
         ));
         $this->form->setElement('boolean', 'lengowExportAllProducts', array(
@@ -88,26 +102,32 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
             'value' => false,
             'description' => 'If you select "yes", your product(s) will be exported with attributes.'
         ));
+        $this->form->setElement('boolean', 'lengowExportAttributesTitle', array(
+            'label' => 'Title + attributes + features',
+            'value' => true,
+            'description' => 'Select this option if you want a variation product title as title + attributes + feature. By default the title will be the product name'
+        ));
+        $this->form->setElement('boolean', 'lengowExportOutStock', array(
+            'label' => 'Export out of stock product',
+            'value' => true,
+            'description' => 'Select this option if you want to export out of stock product.'
+        ));
         $this->form->setElement('select', 'lengowExportImageSize', array(
-            'label' => 'Image type to export',
-            'store' => array(
-                    array(1, 'Small'),
-                    array(2, 'Medium'),
-                    array(3, 'Big')
-                ),
-            'value' => 1,
+            'label' => 'Image size to export',
+            'store' => $sizeImage,
+            'value' => $sizeImage[0],
             'required' => true
         ));
         $this->form->setElement('select', 'lengowExportImages', array(
             'label' => 'Number of images to export',
             'store' => $nbImage,
-            'value' => 3,
+            'value' => $nbImage[0],
             'required' => true
         ));
         $this->form->setElement('select', 'lengowExportFormat', array(
             'label' => 'Export format',
             'store' => $formats,
-            'value' => 'csv',
+            'value' => $formats[0],
             'required' => true
         ));
         $this->form->setElement('boolean', 'lengowExportFile', array(
@@ -117,30 +137,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
         ));
         $this->form->setElement('text', 'lengowExportUrl', array(
             'label' => 'Our export URL',
-            'value' => $exportUrl
-
+            'value' => $exportUrl,
+            'description' => 'For export, we must put the name of the store (export.php?shop=nameShop) at the end of this address : ' . $exportUrl
+        ));
+        $this->form->setElement('select', 'lengowCarrierDefault', array(
+            'label' => 'Default shipping cost',
+            'store' => $carriers,
+            'value' => $carriers[0],
+            'description' => 'Your default shipping cost',
+            'required' => true
         ));
         $this->form->setElement('boolean', 'lengowExportCron', array(
             'label' => 'Active cron',
             'value' => false,
             'description' => 'If you select "yes", orders will be automatically imported.'
         ));
-        $repository = Shopware()->Models()->getRepository('Shopware\Models\Config\Form');
-        $this->form->setParent($repository->findOneBy(array('name' => 'Interface')));
-    }
-
-    /**
-     * Get export url
-     *
-     * @return string Export url
-     */
-    private static function _getExportUrl($link = true) {
-        $exportUrl =  Shopware()->Plugins()->Backend()->Lengow()->Path() . 'Webservice/export.php';
-
-        if($link)
-            return '<a href="' . $exportUrl . '" target="_blank">' . $exportUrl . '</a>';
-        else
-            return $exportUrl;
     }
 
 }

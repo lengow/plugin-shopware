@@ -32,7 +32,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function getLabel()
     {
-        return 'Lengow 1.0';
+        return 'Lengow';
     }
 
 

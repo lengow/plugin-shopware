@@ -27,30 +27,43 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     public $variant_product = null;
 
     /**
+     * Instance of shop, the article shop
+     */
+    public $shop = null;
+
+    /**
     * Images of produtcs
     */
     public $images;
 
 
-    public function __construct($id_product = null, $id_variation = null) {
+    public function __construct($id_product = null, $id_variation = null, $shop = null) 
+    {
 
         $this->product = Shopware()->Models()->find('Shopware\Models\Article\Article', $id_product);
         $this->detail_product = Shopware()->Models()->find('Shopware\Models\Article\Detail', $this->product->getMainDetail()->getId());
+
         if ($id_variation) {
             $this->variant_product = Shopware()->Models()->find('Shopware\Models\Article\Detail', $id_variation);
         } 
 
         if ($id_variation) {
-            $images = $this->variant_product->getImages();
+            $refImages = $this->variant_product->getImages();
+            $images = array();
+            foreach ($refImages as $ref) {
+                $images[] = $ref->getParent();
+            }
         } else {
             $images = $this->product->getImages();
         }
+
         $array_images = array();
-        foreach ($images as $image)
-        {
+        foreach ($images as $image) {
             $array_images[] = $image;
         }
         $this->images = $array_images;
+
+        $this->shop = $shop;
     }
 
     /**
@@ -59,7 +72,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      * @param string $name
      * @return string the data
      */
-    public function getData($name, $id_variation = null) {
+    public function getData($name, $id_variation = null)
+    {
         switch ($name) {
             case 'id_article':
             	if ($id_variation) {
@@ -69,10 +83,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 }
                 break;
             case 'name_article':
-                if ($id_variation) {
-                    return $this->product->getName().' - '.$this->variant_product->getAdditionalText();
+                if ($id_variation && Shopware_Plugins_Backend_Lengow_Components_LengowCore::exportTitle()) {
+                    $variationName = '';
+                    $values = $this->_getOptions($id_variation);
+                    foreach ($values as $value) {
+                        $variationName .= ' - ' . $value['name'] . ' : ' . $value['value'];
+                    }
+                    return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml($this->product->getName() . $variationName);
                 } else {
-                    return $this->product->getName();
+                    return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml($this->product->getName());
                 }
                 break;
             case 'number_article':
@@ -82,80 +101,91 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     return $this->detail_product->getNumber();
                 }
                 break;
+            case 'manufacturer_number':
+                if ($id_variation) {
+                    return $this->variant_product->getSupplierNumber();
+                } else {
+                    return $this->detail_product->getSupplierNumber();
+                }
+                break;
             case 'supplier':
-                return $this->product->getSupplier()->getName();
+                return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml($this->product->getSupplier()->getName());
+                break;
+             case 'category':
+                $idCategoryParent = $this->shop->getCategory()->getId();
+                $categories = $this->product->getCategories();
+                foreach($categories as $category) {
+                    $pathCategory = explode("|",$category->getPath());
+
+                    if(in_array($idCategoryParent, $pathCategory)) {
+                        $breadcrumb = $category->getName();
+                        $idCategory = (int) $category->getParentId();
+                        for ($i=0; $i < count($pathCategory) - 2 ; $i++) { 
+                            $category = Shopware()->Models()->find('Shopware\Models\Category\Category', $idCategory);
+                            $breadcrumb = $category->getName() . ' > ' . $breadcrumb;
+                            $idCategory = (int) $category->getParentId();
+                        }
+                        break;
+                    }
+                }
+                return Shopware_Plugins_Backend_Lengow_Components_LengowCore::replaceAccentedChars($breadcrumb);
+                break;
+            case 'category_parent':
+                $idCategoryParent = $this->shop->getCategory()->getId();
+                $categoryParent = Shopware()->Models()->find('Shopware\Models\Category\Category', $idCategoryParent);
+                return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml($categoryParent->getName());
                 break;
             case 'price':
-                $sqlParams = array();
-                $sql = "
-                    SELECT DISTINCT SQL_CALC_FOUND_ROWS
-                    prices.price as price
-                    FROM s_articles_prices prices
-                    WHERE prices.`to`= 'beliebig'
-                    AND prices.pricegroup='EK'
-                    AND prices.articledetailsID = :detailId
-                ";
                 if ($id_variation) {
-                    $sqlParams["detailId"] = $this->variant_product->getId();
-                    $price = Shopware()->Db()->fetchOne($sql, $sqlParams);
-                    return round($price, 2);
+                    $price = (float) $this->_getPriceField('price', $id_variation);;
                 } else {
-                    $sqlParams["detailId"] = $this->detail_product->getId();
-                    $price = Shopware()->Db()->fetchOne($sql, $sqlParams);
-                    return round($price, 2);
+                    $price = (float) $this->_getPriceField('price');
                 }
+                return round($price, 2);
                 break;
             case 'price_wt':
                 $tax = $this->product->getTax()->getTax();
-                $sqlParams = array();
-                $sql = "
-                    SELECT DISTINCT SQL_CALC_FOUND_ROWS
-                    prices.price as price
-                    FROM s_articles_prices prices
-                    WHERE prices.`to`= 'beliebig'
-                    AND prices.pricegroup='EK'
-                    AND prices.articledetailsID = :detailId
-                ";
                 if ($id_variation) {
-                    $sqlParams["detailId"] = $this->variant_product->getId();
-                    $price = Shopware()->Db()->fetchOne($sql, $sqlParams);
-                    return $price*(100+$tax)/100;
+                    $price = (float) $this->_getPriceField('price', $id_variation);
                 } else {
-                    $sqlParams["detailId"] = $this->detail_product->getId();
-                    $price = Shopware()->Db()->fetchOne($sql, $sqlParams);
-                    return $price*(100+$tax)/100;
+                    $price = (float) $this->_getPriceField('price');
                 }
+                return round($price*(100+$tax)/100, 2);
+                break;
+            case 'price_discount':
+                $tax = $this->product->getTax()->getTax();
+                if ($id_variation) {
+                    $percentDiscount = (float) $this->_getPriceField('percent', $id_variation);
+                    $price = (float) $this->_getPriceField('price', $id_variation);
+                } else {
+                    $percentDiscount = (float) $this->_getPriceField('percent');
+                    $price = (float) $this->_getPriceField('price');
+                }
+                $priceWt = $price*(100+$tax)/100;
+                return round($priceWt*(100-$percentDiscount)/100, 2);
+                break;
+            case 'percent_discount':
+                if ($id_variation) {
+                    return (float) $this->_getPriceField('percent', $id_variation); 
+                } else {
+                    return (float) $this->_getPriceField('percent');
+                }
+                break;
+            case 'purchase_price':
+                if ($id_variation) {
+                    $purchasePrice = (float) $this->_getPriceField('baseprice', $id_variation); 
+                } else {
+                    $purchasePrice = (float) $this->_getPriceField('baseprice');
+                }
+                return round($purchasePrice, 2);
                 break;
             case 'tax':
                 return (float) $this->product->getTax()->getTax();
                 break;
-            case 'in_stock':
-                if ($id_variation) {
-                    return ($this->variant_product->getInStock() > 0 ? 1 : 0);
-                } else {
-                    return ($this->detail_product->getInStock() > 0 ? 1 : 0);
-                }
+            case 'currency':
+                return $this->shop->getCurrency()->getName();
                 break;
-            case 'weight':
-                if ($id_variation) {
-                    return $this->variant_product->getWeight();
-                } else {
-                    return $this->detail_product->getWeight();
-                }
-                break;
-            case 'description':
-                return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml($this->product->getDescription());
-                break;
-            case 'long_description':
-                return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml($this->product->getDescriptionLong());
-                break;
-            case 'url_article':
-                return 'url_article';
-                break;
-            case 'category':
-                return 'cataegory';
-                break;
-            case 'available_product':
+            case 'available_article':
                 if($this->product->getActive()) {
                     if ($id_variation) {
                         return ($this->variant_product->getActive() ? 1 : 0);
@@ -166,18 +196,59 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     return 0;
                 }
                 break;
-            case 'quantity':
+            case 'in_stock':
+                if ($id_variation) {
+                    return ($this->variant_product->getInStock() > 0 ? 1 : 0);
+                } else {
+                    return ($this->detail_product->getInStock() > 0 ? 1 : 0);
+                }
+                break;
+                        case 'quantity':
                 if ($id_variation) {
                     return ($this->variant_product->getInStock() > 0 ? $this->variant_product->getInStock() : 0);
                 } else {
                     return ($this->detail_product->getInStock() > 0 ? $this->detail_product->getInStock() : 0);
                 }
                 break;
+            case 'ean':
+                if ($id_variation) {
+                    return ($this->variant_product->getEan() ? $this->variant_product->getEan() : '' );
+                } else {
+                    return ($this->detail_product->getEan() ? $this->detail_product->getEan() : '' );
+                }
+                break;
+            case 'url_article':
+                $idProduct = $this->product->getId();
+                $host = ($this->shop->getMain() ? $host = $this->shop->getMain()->getHost() : $host = $this->shop->getHost());
+                $baseUrl = ($this->shop->getBaseUrl() ? $this->shop->getBaseUrl() : '');
+                $idCategoryParent = $this->shop->getCategory()->getId();
+                $categories = $this->product->getCategories();
+                foreach($categories as $category) {
+                    $pathCategory = explode("|",$category->getPath());
+                    if(in_array($idCategoryParent, $pathCategory)) {
+                        $idCategory = $category->getId();
+                        break;
+                    }
+                }
+                return 'http://' . $host . $baseUrl . '/detail/index/sArticle/' . $idProduct . '/sCategory/' . $idCategory; 
+                break;  
+            case 'meta_title':
+                return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml($this->product->getMetaTitle());
+                break;
+            case 'meta_keywords':
+                return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml($this->product->getKeywords());
+                break;
+            case 'description':
+                return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml($this->product->getDescription());
+                break;
+            case 'long_description':
+                return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml($this->product->getDescriptionLong());
+                break;   
             case 'unit':
                 if ($id_variation) {
-                    return ($this->variant_product->getUnit() ? $this->variant_product->getUnit()->getUnit() : '' );
+                    return ($this->variant_product->getUnit() ? $this->variant_product->getUnit()->getName() : '' );
                 } else {
-                    return ($this->detail_product->getUnit() ? $this->detail_product->getUnit()->getUnit() : '' );
+                    return ($this->detail_product->getUnit() ? $this->detail_product->getUnit()->getName() : '' );
                 }
                 break;
             case 'unit_reference':
@@ -222,11 +293,58 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     return $this->detail_product->getShippingTime();
                 }
                 break;
-            case 'ean':
+            case 'shipping_price':
+
+                $sqlParams = array();
+                $sqlParams["nameCarrier"] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDefaultCarrier(); 
+                $sql = '
+                    SELECT DISTINCT SQL_CALC_FOUND_ROWS 
+                    dispatch.id as id
+                    FROM s_premium_dispatch dispatch
+                    WHERE dispatch.name = :nameCarrier
+                ';
+                $idDispatch = Shopware()->Db()->fetchOne($sql, $sqlParams);
+                $dispatch = Shopware()->Models()->find('Shopware\Models\Dispatch\Dispatch', $idDispatch);
+
+                $calculation = $dispatch->getCalculation();
+
+                switch ($calculation) {
+                    case 0:
+                        if ($id_variation) {
+                            $value = (float) $this->variant_product->getWeight();
+                        } else {
+                            $value = (float) $this->detail_product->getWeight();
+                        }
+                        break;
+                    case 1:
+                    case 3:
+                        if ($id_variation) {
+                            $value = round((float) $this->_getPriceField('price', $id_variation), 2);
+                        } else {
+                            $value = round((float) $this->_getPriceField('price'), 2);
+                        }
+                        break;
+                    case 2:
+                        $value = 1;
+                        break;
+                    default:
+                        break;
+                }
+
+                $shippingCosts = $dispatch->getCostsMatrix();
+
+                for ($i=0; $i < count($shippingCosts) ; $i++) {
+                    if ($value >= $shippingCosts[$i]->getFrom() && $i = count($shippingCosts)-1) {
+                        return $shippingCosts[$i]->getValue() .'/'. $value .'/'. $shippingCosts[$i]->getFrom() .'/'.$i;
+                    }
+                }
+
+                break;
+            case 'weight':
                 if ($id_variation) {
-                    return ($this->variant_product->getEan() ? $this->variant_product->getEan() : '' );
+                    return $this->variant_product->getWeight();
                 } else {
-                    return ($this->detail_product->getEan() ? $this->detail_product->getEan() : '' );
+                    return $this->detail_product->getWeight();
                 }
                 break;
             case 'width':
@@ -250,22 +368,51 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     return ($this->detail_product->getLen() ? $this->detail_product->getLen() : '' );
                 }
                 break;
+            case 'type_article':
+                if ($id_variation) {
+                    return 'Variant';
+                } else {
+                    if ($this->product->getConfiguratorSet() !== NULL) {
+                        return 'Parent';
+                    } else {
+                        return 'Simple';
+                    }
+                }
+                break;
             case 'id_parent':
                 return $this->product->getId();
                 break;
-            case 'image':
-                return $this->images;
+            case 'variant_article':
+                $variantOption = '';
+                if ($id_variation) {               
+                    $idProduct = $id_variation;
+                } else {
+                    if ($this->product->getConfiguratorSet() !== NULL) {
+                        $idProduct = $this->detail_product->getId();
+                    } else {
+                        $idProduct = $this->product->getId();
+                    }
+                }
+                $values = $this->_getOptions($idProduct);
+                foreach ($values as $value) {
+                    $variantOption .= $value['name'] . ' - ';
+                }   
+                Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml($variantOption);
+                return rtrim($variantOption, ' - ');
                 break;
             case (preg_match('`image_([0-9]+)`', $name) ? true : false):
                 $index = explode('_', $name);
                 $index = $index[1];
                 $imagePath = '';
+                $size = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportImagesSize();
                 if(isset($this->images[$index - 1]) && $this->images[$index - 1]) {
                     if($this->images[$index - 1]->getMedia() !== null) {
-                        $imagePath = 'http://' . $_SERVER['HTTP_HOST'] . '/' . $this->images[$index - 1]->getMedia()->getPath();
+                        $thumbnailPaths = $this->images[$index - 1]->getMedia()->getThumbnailFilePaths();
+                        $path = $thumbnailPaths[$size];
+                        $imagePath = 'http://' . $_SERVER['SERVER_NAME'] . '/' . $path;
                     }
-                    return $imagePath;
                 }
+                return $imagePath;
                 break;
             default:
                 break;
@@ -298,7 +445,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 ON ac.articleID = article.id '
                 . $LengowProduct
                 . $filterSql
-                . 'ORDER BY article.id ASC
+                . ' ORDER BY article.id ASC
             ';
 
             return Shopware()->Db()->fetchAll($sql);
@@ -308,11 +455,109 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 	}
 
     /**
+    * Get all attributes
+    *
+    * @return array
+    */
+    public static function getAttributes() 
+    {
+        $sql = '
+            SELECT DISTINCT SQL_CALC_FOUND_ROWS 
+            groups.id as id, groups.name as name
+            FROM s_article_configurator_groups as groups
+        ';
+        return Shopware()->Db()->fetchAll($sql);
+    }
+
+    /**
+    * Get the product attributes
+    *
+    * @return array
+    */
+    public function getAttributeData($name = null, $id_variation = null)
+    {
+        if($name == null) {
+            return;
+        }
+
+        $sqlParams = array();
+
+        if ($id_variation) {
+            $sqlParams["idProduct"] = $this->variant_product->getId();
+        } else {
+            if ($this->product->getConfiguratorSet() !== NULL) {
+                return '';
+            } else {
+                $sqlParams["idProduct"] = $this->product->getId();
+            }   
+        }
+       
+        $sqlParams["nameAttribute"] = $name;
+        $sql = '
+            SELECT DISTINCT SQL_CALC_FOUND_ROWS o.name AS name
+            FROM s_article_configurator_options o
+            LEFT JOIN s_article_configurator_groups g ON g.id = o.group_id
+            LEFT JOIN s_article_configurator_option_relations r ON r.option_id = o.id
+            WHERE r.article_id = :idProduct
+            AND g.name = :nameAttribute
+        ';
+        return Shopware()->Db()->fetchOne($sql, $sqlParams);  
+    }
+
+    /**
+     * Get the name and value of the options based on a product
+     *
+     * @return array
+     */
+    private function _getOptions($idProduct) 
+    {
+        $sqlParams = array();
+        $sqlParams["idProduct"] = $idProduct;
+        $sql = '
+            SELECT DISTINCT SQL_CALC_FOUND_ROWS
+            o.name AS value, g.name AS name
+            FROM s_article_configurator_options o
+            LEFT JOIN s_article_configurator_option_relations r ON r.option_id = o.id
+            LEFT JOIN s_article_configurator_groups g ON g.id = o.group_id
+            WHERE r.article_id = :idProduct
+        ';
+        return Shopware()->Db()->fetchAll($sql, $sqlParams);
+    }
+
+    /**
+     * Get Price 
+     *
+     * @return Price
+     */
+    private function _getPriceField($field, $id_variation = null) 
+    {
+        $sqlParams = array();
+        $sqlParams["customerGroupKey"] = $this->shop->getCustomerGroup()->getKey();
+        $sql = '
+            SELECT DISTINCT SQL_CALC_FOUND_ROWS '
+            . $field
+            . ' FROM s_articles_prices prices
+            WHERE prices.to = \'beliebig\'
+            AND prices.pricegroup = :customerGroupKey
+            AND prices.articledetailsID = :detailId
+        ';
+        if ($id_variation) {
+            $detailId = $this->variant_product->getId();
+        } else {
+            $detailId = $this->detail_product->getId();
+        }
+        $sqlParams["customerGroupKey"] = $this->shop->getCustomerGroup()->getKey();
+        $sqlParams["detailId"] = $detailId;
+        return Shopware()->Db()->fetchOne($sql, $sqlParams);
+    }
+
+    /**
      * Get the ID product
      *
      * @return int id
      */
-    public function getId() {
+    public function getId() 
+    {
         return $this->product->getId();
     }
 
@@ -321,7 +566,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      *
      * @return integer
      */
-    public function getConfiguratorSet() {
+    public function getConfiguratorSet() 
+    {
         return $this->product->getConfiguratorSet();
     }
 
@@ -330,7 +576,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      *
      * @return 
      */
-    public function getDetails() {
+    public function getDetails() 
+    {
         return $this->product->getDetails();
     }
 
@@ -344,6 +591,28 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $images = $this->product->getImages();
         return count($images);
     }
- 
- 
+
+    /**
+    * Get in stock product or not
+    *
+    * @return boolean
+    */
+    public function getInStockProduct($id_variation =  null)
+    {
+        if ($id_variation) {
+            return ($this->variant_product->getInStock() > 0 ? true : false);
+        } else {
+            if ($this->product->getConfiguratorSet() !== NULL) {
+                $variants = $this->product->getDetails();
+                foreach($variants as $variant) {
+                    if($variant->getInStock() > 0) {
+                        return true;
+                    }
+                }
+                return false;
+            } else {
+                return ($this->detail_product->getInStock() > 0 ? true : false);
+            }
+        }
+    }
 }
