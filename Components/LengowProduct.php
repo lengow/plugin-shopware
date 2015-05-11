@@ -14,39 +14,43 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Instance of article
      */
-    public $product = null;
+    private $product = null;
 
     /**
      * Instance of article_detail, the main detail
      */
-    public $detail_product = null;
+    private $detail_product = null;
 
     /**
      * Instance of article_detail
      */
-    public $variant_product = null;
+    private $variant_product = null;
 
     /**
      * Instance of shop, the article shop
      */
-    public $shop = null;
+    private $shop = null;
 
     /**
     * Images of produtcs
     */
-    public $images;
+    private $images;
 
-
+    /**
+    * Construct new Lengow product
+    * 
+    * @return Exception Error
+    */
     public function __construct($id_product = null, $id_variation = null, $shop = null) 
     {
-
+        // Get the product and its detail
         $this->product = Shopware()->Models()->find('Shopware\Models\Article\Article', $id_product);
         $this->detail_product = Shopware()->Models()->find('Shopware\Models\Article\Detail', $this->product->getMainDetail()->getId());
-
+        // Get the variation product
         if ($id_variation) {
             $this->variant_product = Shopware()->Models()->find('Shopware\Models\Article\Detail', $id_variation);
         } 
-
+        // Get images of a product
         if ($id_variation) {
             $refImages = $this->variant_product->getImages();
             $images = array();
@@ -56,20 +60,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         } else {
             $images = $this->product->getImages();
         }
-
         $array_images = array();
         foreach ($images as $image) {
             $array_images[] = $image;
         }
         $this->images = $array_images;
-
+        // Get the shop to export
         $this->shop = $shop;
     }
 
     /**
      * Get data of product
-     *
+     * 
      * @param string $name
+     * @param int $id_variation
      * @return string the data
      */
     public function getData($name, $id_variation = null)
@@ -218,6 +222,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 }
                 break;
             case 'url_article':
+                $sep = '/';
                 $idProduct = $this->product->getId();
                 $host = ($this->shop->getMain() ? $host = $this->shop->getMain()->getHost() : $host = $this->shop->getHost());
                 $baseUrl = ($this->shop->getBaseUrl() ? $this->shop->getBaseUrl() : '');
@@ -230,7 +235,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                         break;
                     }
                 }
-                return 'http://' . $host . $baseUrl . '/detail/index/sArticle/' . $idProduct . '/sCategory/' . $idCategory; 
+                return 'http://' . $host . $baseUrl .$sep.'detail'.$sep.'index'.$sep.'sArticle'.$sep.$idProduct.$sep.'sCategory'.$sep.$idCategory; 
                 break;  
             case 'meta_title':
                 return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml($this->product->getMetaTitle());
@@ -294,78 +299,71 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 }
                 break;
             case 'shipping_price':
-
-                $sqlParams = array();
-                $sqlParams["nameCarrier"] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDefaultCarrier(); 
-                $sql = '
-                    SELECT DISTINCT SQL_CALC_FOUND_ROWS 
-                    dispatch.id as id
-                    FROM s_premium_dispatch dispatch
-                    WHERE dispatch.name = :nameCarrier
-                ';
-                $idDispatch = Shopware()->Db()->fetchOne($sql, $sqlParams);
+                // Get the default dispatch
+                $idDispatch = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDefaultCarrier(); 
                 $dispatch = Shopware()->Models()->find('Shopware\Models\Dispatch\Dispatch', $idDispatch);
-
+                $shippingPrice  = 0;
+                $weight         = 0;
+                $price          = 0;
+                // Get the weight and the price of a product
+                if ($id_variation) {
+                    $weight = (float) $this->variant_product->getWeight();
+                    $price = round((float) $this->_getPriceField('price', $id_variation), 2);
+                } else {
+                    $weight = (float) $this->detail_product->getWeight();
+                    $price = round((float) $this->_getPriceField('price'), 2);
+                }
+                // Get the calculation base (0->weight, 1->price, 2->quantity, 3->calculation)
                 $calculation = $dispatch->getCalculation();
-
-                switch ($calculation) {
-                    case 0:
-                        if ($id_variation) {
-                            $value = (float) $this->variant_product->getWeight();
-                        } else {
-                            $value = (float) $this->detail_product->getWeight();
-                        }
-                        break;
-                    case 1:
-                    case 3:
-                        if ($id_variation) {
-                            $value = round((float) $this->_getPriceField('price', $id_variation), 2);
-                        } else {
-                            $value = round((float) $this->_getPriceField('price'), 2);
-                        }
-                        break;
-                    case 2:
-                        $value = 1;
-                        break;
-                    default:
-                        break;
+                if ($calculation === 0) {
+                    $value = $weight;
+                } elseif ($calculation === 1 || $calculation === 3) {
+                    $value = $price;
+                } else {
+                    $value = 1;
                 }
-
-                $shippingCosts = $dispatch->getCostsMatrix();
-
-                for ($i=0; $i < count($shippingCosts) ; $i++) {
-                    if ($value >= $shippingCosts[$i]->getFrom() && $i = count($shippingCosts)-1) {
-                        return $shippingCosts[$i]->getValue() .'/'. $value .'/'. $shippingCosts[$i]->getFrom() .'/'.$i;
-                    }
+                // Calculation of shipping costs
+                if($dispatch->getShippingFree() && $price >= $dispatch->getShippingFree()) {
+                    $shippingPrice = 0; 
+                } 
+                else { 
+                    if ($dispatch->getCostsMatrix()) {
+                        $shippingCosts = $dispatch->getCostsMatrix();
+                        for ($i=0; $i < count($shippingCosts) ; $i++) {
+                            if ($value >= $shippingCosts[$i]->getFrom()) {
+                                $shippingPrice = $shippingCosts[$i]->getValue();
+                            }
+                        }
+                    }          
                 }
-
+                return $shippingPrice;
                 break;
             case 'weight':
                 if ($id_variation) {
-                    return $this->variant_product->getWeight();
+                    return (float) $this->variant_product->getWeight();
                 } else {
-                    return $this->detail_product->getWeight();
+                    return (float) $this->detail_product->getWeight();
                 }
                 break;
             case 'width':
                 if ($id_variation) {
-                    return ($this->variant_product->getWidth() ? $this->variant_product->getWidth() : '' );
+                    return ($this->variant_product->getWidth() ? (float) $this->variant_product->getWidth() : '' );
                 } else {
-                    return ($this->detail_product->getWidth() ? $this->detail_product->getWidth() : '' );
+                    return ($this->detail_product->getWidth() ? (float) $this->detail_product->getWidth() : '' );
                 }
                 break;
             case 'height':
                 if ($id_variation) {
-                    return ($this->variant_product->getHeight() ? $this->variant_product->getHeight() : '' );
+                    return ($this->variant_product->getHeight() ? (float) $this->variant_product->getHeight() : '' );
                 } else {
-                    return ($this->detail_product->getHeight() ? $this->detail_product->getHeight() : '' );
+                    return ($this->detail_product->getHeight() ? (float) $this->detail_product->getHeight() : '' );
                 }
                 break;
             case 'length':
                 if ($id_variation) {
-                    return ($this->variant_product->getLen() ? $this->variant_product->getLen() : '' );
+                    return ($this->variant_product->getLen() ? (float) $this->variant_product->getLen() : '' );
                 } else {
-                    return ($this->detail_product->getLen() ? $this->detail_product->getLen() : '' );
+                    return ($this->detail_product->getLen() ? (float) $this->detail_product->getLen() : '' );
                 }
                 break;
             case 'type_article':
@@ -401,6 +399,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 return rtrim($variantOption, ' - ');
                 break;
             case (preg_match('`image_([0-9]+)`', $name) ? true : false):
+                $sep = '/';
                 $index = explode('_', $name);
                 $index = $index[1];
                 $imagePath = '';
@@ -409,7 +408,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     if($this->images[$index - 1]->getMedia() !== null) {
                         $thumbnailPaths = $this->images[$index - 1]->getMedia()->getThumbnailFilePaths();
                         $path = $thumbnailPaths[$size];
-                        $imagePath = 'http://' . $_SERVER['SERVER_NAME'] . '/' . $path;
+                        $imagePath = 'http://' . $_SERVER['SERVER_NAME'] . $sep . $path;
                     }
                 }
                 return $imagePath;
@@ -420,18 +419,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     }
 
     /**
-	* Get the products to export.
-	*
-	* @return varchar IDs product.
+	* Get products to export
+    * 
+    * @param boolean $all
+    * @param boolean $all_products
+    * @param Object $shop
+	* @return varchar IDs product
 	*/
-	public static function getExportIds($all = true, $all_product = false, $shop = null)
+	public static function getExportIds($all = true, $all_products = false, $shop = null)
 	{
 		if ($shop) {
             $id_shop = $shop->getCategory()->getId();
             $LengowProduct = '';
             $filterSql = 'WHERE ac.categoryID = ' . $id_shop . ' ';
 
-            if ($all_product == false) {
+            if ($all_products == false) {
                 $filterSql .= ' AND article.active = 1 ';
             }
             if ($all == false) {
@@ -447,7 +449,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 . $filterSql
                 . ' ORDER BY article.id ASC
             ';
-
             return Shopware()->Db()->fetchAll($sql);
         } else {
             return array();
@@ -456,7 +457,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 
     /**
     * Get all attributes
-    *
+    * 
     * @return array
     */
     public static function getAttributes() 
@@ -471,7 +472,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 
     /**
     * Get the product attributes
-    *
+    * 
+    * @param  string $name
+    * @param  int $id_variation
     * @return array
     */
     public function getAttributeData($name = null, $id_variation = null)
@@ -479,9 +482,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         if($name == null) {
             return;
         }
-
         $sqlParams = array();
-
         if ($id_variation) {
             $sqlParams["idProduct"] = $this->variant_product->getId();
         } else {
@@ -490,8 +491,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             } else {
                 $sqlParams["idProduct"] = $this->product->getId();
             }   
-        }
-       
+        }      
         $sqlParams["nameAttribute"] = $name;
         $sql = '
             SELECT DISTINCT SQL_CALC_FOUND_ROWS o.name AS name
@@ -505,14 +505,81 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     }
 
     /**
+     * Get the ID product
+     * 
+     * @return int id
+     */
+    public function getId() 
+    {
+        return $this->product->getId();
+    }
+
+    /**
+     * Get Configuration set for variation of one product
+     * 
+     * @return integer
+     */
+    public function getConfiguratorSet() 
+    {
+        return $this->product->getConfiguratorSet();
+    }
+
+    /**
+     * Get all variations product
+     * 
+     * @return 
+     */
+    public function getDetails() 
+    {
+        return $this->product->getDetails();
+    }
+
+    /**
+    * Get max number of images
+    * 
+    * @return int max number of images for one product
+    */
+    public function getMaxImages()
+    {
+        $images = $this->product->getImages();
+        return count($images);
+    }
+
+    /**
+    * Get in stock product or not
+    * 
+    * @param int $id_variation
+    * @return boolean
+    */
+    public function getInStockProduct($id_variation =  null)
+    {
+        if ($id_variation) {
+            return ($this->variant_product->getInStock() > 0 ? true : false);
+        } else {
+            if ($this->product->getConfiguratorSet() !== NULL) {
+                $variants = $this->product->getDetails();
+                foreach($variants as $variant) {
+                    if($variant->getInStock() > 0) {
+                        return true;
+                    }
+                }
+                return false;
+            } else {
+                return ($this->detail_product->getInStock() > 0 ? true : false);
+            }
+        }
+    }
+
+    /**
      * Get the name and value of the options based on a product
-     *
+     * 
+     * @param int $id_product
      * @return array
      */
-    private function _getOptions($idProduct) 
+    private function _getOptions($id_product) 
     {
         $sqlParams = array();
-        $sqlParams["idProduct"] = $idProduct;
+        $sqlParams["idProduct"] = $id_product;
         $sql = '
             SELECT DISTINCT SQL_CALC_FOUND_ROWS
             o.name AS value, g.name AS name
@@ -525,9 +592,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     }
 
     /**
-     * Get Price 
-     *
-     * @return Price
+     * Get field Price 
+     * 
+     * @param string $field
+     * @param int $id_variation
+     * @return string
      */
     private function _getPriceField($field, $id_variation = null) 
     {
@@ -551,68 +620,4 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         return Shopware()->Db()->fetchOne($sql, $sqlParams);
     }
 
-    /**
-     * Get the ID product
-     *
-     * @return int id
-     */
-    public function getId() 
-    {
-        return $this->product->getId();
-    }
-
-    /**
-     * Get Configuration set for variation of one product
-     *
-     * @return integer
-     */
-    public function getConfiguratorSet() 
-    {
-        return $this->product->getConfiguratorSet();
-    }
-
-    /**
-     * Get all variations product
-     *
-     * @return 
-     */
-    public function getDetails() 
-    {
-        return $this->product->getDetails();
-    }
-
-    /**
-    * Get max number of images
-    *
-    * @return int max number of images for one product
-    */
-    public function getMaxImages()
-    {
-        $images = $this->product->getImages();
-        return count($images);
-    }
-
-    /**
-    * Get in stock product or not
-    *
-    * @return boolean
-    */
-    public function getInStockProduct($id_variation =  null)
-    {
-        if ($id_variation) {
-            return ($this->variant_product->getInStock() > 0 ? true : false);
-        } else {
-            if ($this->product->getConfiguratorSet() !== NULL) {
-                $variants = $this->product->getDetails();
-                foreach($variants as $variant) {
-                    if($variant->getInStock() > 0) {
-                        return true;
-                    }
-                }
-                return false;
-            } else {
-                return ($this->detail_product->getInStock() > 0 ? true : false);
-            }
-        }
-    }
 }

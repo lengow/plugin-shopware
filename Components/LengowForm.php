@@ -16,8 +16,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
 	private $form;
 
 	/**
-	 * initialises $form
-	 *
+	 * Construct new Lengow form
+     * 
 	 * @param \Shopware\Models\Config\Form $form
 	 */
 	public function __construct(\Shopware\Models\Config\Form $form)
@@ -27,40 +27,38 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
 
 	/**
      * creates the plugin configuration form
-     *
-     * @throws Exception
-     * @return void
      */
     public function create()
     {
+        // Get a list of export formats
         $exportFormats = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportFormats();
         $formats = array();
         foreach ($exportFormats as $format) {
             $formats[] = array($format->id, $format->name);
         }
-
+        // Get a list of the number of export image
         $exportImage = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getImagesCount();
         $nbImage = array();
         foreach ($exportImage as $value) {
-
             $nbImage[] = array($value->id, $value->name. ' images');  
         }
-
-        $exportCarrier = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getCarriers();
-        $carriers = array();
-        foreach ($exportCarrier as $value) {
-            $carriers[] = array($value->id, $value->name);  
-        }
-
+        // Get a list of image formats
         $exportImageSize = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getImagesSize();
         $sizeImage = array();
         foreach ($exportImageSize as $value) {
             $sizeImage[] = array($value->id, $value->name);  
         }
-
+        // Get a list of carriers
+        $exportCarrier = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getCarriers();
+        $carriers = array();
+        foreach ($exportCarrier as $value) {
+            $carriers[] = array($value->id, $value->name);  
+        }
+        // Get export URL
         $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
         $exportUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Webservice/export.php';
 
+        // Set the settings plugin
         $this->form->setElement('text', 'lengowIdUser', array(
             'label' => 'Customer ID', 
             'required' => true,
@@ -151,6 +149,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
             'label' => 'Active cron',
             'value' => false,
             'description' => 'If you select "yes", orders will be automatically imported.'
+        ));
+        $this->form->setElement('boolean', 'lengowDebug', array(
+            'label' => 'Debug mode',
+            'value' => false,
+            'description' => 'Use it only during tests.'
         ));
     }
 

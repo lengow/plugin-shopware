@@ -17,8 +17,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     const VERSION = '1.0.0';
 
     /**
-	* Lengow export format.
-	*/
+	 * Lengow export format.
+	 */
 	public static $FORMAT_LENGOW = array(
 		'csv',
 		'xml',
@@ -26,7 +26,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 		'yaml',
 	);
 
-	public static $EXPORT_IMAGE = array(3, 4, 5, 6, 7, 8, 9, 10);
+    /**
+     * Number of images to export
+     */
+    public static $EXPORT_IMAGE = array(3, 4, 5, 6, 7, 8, 9, 10);
+
+    /**
+     * Log file instance.
+     */
+    public static $log_instance;
 
 	/**
      * Lengow IP.
@@ -50,10 +58,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     );
 
 	/**
-	* The images number to export.
-	*
-	* @return array Images count option
-	*/
+	 * The images number to export.
+     * 
+	 * @return array Images count option
+	 */
 	public static function getImagesCount()
 	{
 		$array_ImageCount = array();
@@ -63,9 +71,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 	}
 
     /**
-    * The images size to export.
-    *
-    * @return array Images size option
+     * The images size to export.
+     * 
+     * @return array Images size option
     */
     public static function getImagesSize()
     {
@@ -85,10 +93,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     }
 
 	/**
-	* The export format aivalable.
-	*
-	* @return array Formats
-	*/
+	 * The export format aivalable.
+     * 
+	 * @return array Formats
+	 */
 	public static function getExportFormats()
 	{
 		$array_formats = array();
@@ -100,28 +108,28 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
 
     /**
-    * Get all carriers.
-    *
-    * @return array Carrier
-    */
+     * Get all carriers.
+     * 
+     * @return array Carriers
+     */
     public static function getCarriers()
     {
         $sql = '
             SELECT DISTINCT SQL_CALC_FOUND_ROWS 
-            dispatch.name as name
+            dispatch.id as id, dispatch.name as name
             FROM s_premium_dispatch dispatch
-            WHERE dispatch.type = 0 AND dispatch.active = 1
+            WHERE dispatch.active = 1
         ';
         $carriers = Shopware()->Db()->fetchAll($sql);
         $array_carriers = array();
         foreach ($carriers as $value)
-            $array_carriers[] = new Shopware_Plugins_Backend_Lengow_Components_LengowOption($value['name'], $value['name']);
+            $array_carriers[] = new Shopware_Plugins_Backend_Lengow_Components_LengowOption($value['id'], $value['name']);
         return $array_carriers;
     }
 
     /**
      * Get the path of the module
-     *
+     * 
      * @return string
      */
     public static function getPathPlugin()
@@ -133,7 +141,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
      * Get the configuration of the module
-     *
+     * 
      * @return int
      */
     public static function getConfig()
@@ -143,7 +151,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
      * Check if current IP is authorized.
-     *
+     * 
      * @return boolean.
      */
     public static function checkIp() 
@@ -160,7 +168,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
      * Get id Customer
-     *
+     * 
      * @return int
      */
     public static function getIdCustomer() 
@@ -170,7 +178,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
      * Get group id
-     *
+     * 
      * @return int
      */
     public static function getGroupCustomer() 
@@ -180,7 +188,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
      * Get token API
-     *
+     * 
      * @return string
      */
     public static function getTokenCustomer() 
@@ -190,7 +198,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
      * Export all product or only selected
-     *
+     * 
      * @return boolean
      */
     public static function isExportAllProducts() 
@@ -200,7 +208,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
      * Export all product or only selected
-     *
+     * 
      * @return boolean
      */
     public static function exportAllProducts() 
@@ -210,7 +218,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
      * Export variant products
-     *
+     * 
      * @return boolean
      */
     public static function isExportFullmode() 
@@ -220,7 +228,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
      * Export attributes
-     *
+     * 
      * @return boolean
      */
     public static function getExportAttributes() 
@@ -230,7 +238,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
     * Export only title or title + attribute
-    *
+    * 
     * @return boolean
     */
     public static function exportTitle()
@@ -240,7 +248,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
     * Export out of stock product
-    *
+    * 
     * @return boolean
     */
     public static function exportOutOfStockProduct()
@@ -250,7 +258,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
      * Export image size
-     *
+     * 
      * @return string
      */
     public static function getExportImagesSize() 
@@ -260,7 +268,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
      * Export max images
-     *
+     * 
      * @return string
      */
     public static function getExportImages() 
@@ -269,8 +277,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     }
 
     /**
-	* The export format used.
-	*
+	* The export format used
+    * 
 	* @return varchar Format
 	*/
 	public static function getExportFormat()
@@ -290,7 +298,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
      * Default Carrier
-     *
+     * 
      * @return string
      */
     public static function getDefaultCarrier() 
@@ -300,7 +308,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
      * Export with cron
-     *
+     * 
      * @return boolean
      */
     public static function getExportCron() 
@@ -309,10 +317,40 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     }
 
     /**
-    * Clean html.
-    *
+     * Debug mode actived
+     * 
+     * @return boolean
+     */
+    public static function isDebug() 
+    {
+        return (self::getConfig()->get('lengowDebug') == 1 ? true : false);
+    }
+
+    /**
+     * Log
+     * 
+     * @param string $txt The float to format
+     * @param boolean $force_output
+     */
+    public static function log($txt, $force_output = false) {
+        $sep = '/';
+        // $debug = self::getConfig()->get('lengowDebug');
+        // if ($force_output !== -1) {
+        //     if ($debug || $force_output) {
+        //         echo date('Y-m-d : H:i:s') . ' - ' . $txt . '<br />' . "\r\n";
+        //         flush();
+        //     }
+        // }
+        if (!is_resource(self::$log_instance)) {
+            self::$log_instance = fopen(dirname(__FILE__) . $sep . '..' . $sep . 'Logs' . $sep . 'logs-' . date('Y-m-d') . '.txt', 'a+');
+        }
+        fwrite(self::$log_instance, date('Y-m-d : H:i:s - ') . $txt . "\r\n");
+    }
+
+    /**
+    * Clean html
+    * 
     * @param string $html The html content
-    *
     * @return string Text cleaned.
     */
     public static function cleanHtml($html)
@@ -339,8 +377,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     }
 
     /**
-    * Replace all accented chars by their equivalent non accented chars.
-    *
+    * Replace all accented chars by their equivalent non accented chars
+    * 
     * @param string $str
     * @return string
     */
@@ -396,16 +434,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
             /* Z */ '/[\x{0179}\x{017B}\x{017D}]/u',
             /* AE */ '/[\x{00C6}]/u',
             /* OE */ '/[\x{0152}]/u');
-
         // ö to oe
         // å to aa
         // ä to ae
-
         $replacements = array(
             'a', 'c', 'd', 'e', 'g', 'h', 'i', 'j', 'k', 'l', 'n', 'o', 'r', 's', 'ss', 't', 'u', 'y', 'w', 'z', 'ae', 'oe',
             'A', 'C', 'D', 'E', 'G', 'H', 'I', 'J', 'K', 'L', 'N', 'O', 'R', 'S', 'T', 'U', 'Z', 'AE', 'OE'
         );
-
         return preg_replace($patterns, $replacements, $str);
     }
 

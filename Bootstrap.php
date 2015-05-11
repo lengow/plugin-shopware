@@ -65,7 +65,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
     /**
      * After init event of the bootstrap class.
-     *
      * The afterInit function registers the custom plugin models.
      */
     public function afterInit()
@@ -83,16 +82,17 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
     /**
      * Install the plugin
-     * @return boolean
+     * @return array
      */
     public function install() 
     {   
         try {
-            $this->createDatabase();
-            $this->createAttribute();
-            $this->createConfiguration();
-            $this->createMenu();
-            $this->createEvents();
+            $this->_createDatabase();
+            $this->_createAttribute();
+            $this->_createConfiguration();
+            $this->_createMenu();
+            $this->_createEvents();
+            $this->Plugin()->setActive(true);
             return array('success' => true, 'invalidateCache' => array('backend'));
         } catch (Exception $e) {
             return array('success' => false, 'message' => $e->getMessage());
@@ -102,7 +102,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     /**
      * Creates the plugin database tables over the doctrine schema tool.
      */
-    private function createDatabase()
+    private function _createDatabase()
     {
         $em = $this->Application()->Models();
         $tool = new \Doctrine\ORM\Tools\SchemaTool($em);
@@ -120,7 +120,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     /**
      * create additional attributes in s_user_attributes and re-generate attribute models
      */
-    private function createAttribute()
+    private function _createAttribute()
     {
         $this->Application()->Models()->addAttribute(
             's_articles_attributes',
@@ -130,7 +130,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             true,
             0
         );
-     
         $this->getEntityManager()->generateAttributeModels(array(
             's_articles_attributes'
         ));
@@ -139,7 +138,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     /**
      * Creates the plugin configuration.
      */
-    public function createConfiguration()
+    private function _createConfiguration()
     {
         try {
             $form = new Shopware_Plugins_Backend_Lengow_Components_LengowForm($this->Form());
@@ -153,7 +152,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     /**
      * Creates the Lengow backend menu item.
      */
-    public function createMenu()
+    private function _createMenu()
     {
         $this->createMenuItem(array(
             'label' => 'Lengow',
@@ -168,7 +167,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     /**
      * Create Events
      */
-    public function createEvents()
+    private function _createEvents()
     {
         $this->subscribeEvent('Enlight_Controller_Dispatcher_ControllerPath_Backend_Lengow', 'onGetControllerPath');
         $this->subscribeEvent('Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowExport', 'lengowBackendControllerExport');
@@ -178,11 +177,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
     /**
      * Uninstall the plugin - Remove attribute and re-generate articles models
-     * @return boolean
+     * @return array
      */
     public function uninstall() {
         try {
-            // $this->removeDatabaseTables();
+            // $this->_removeDatabaseTables();
             // $this->Application()->Models()->removeAttribute(
             //     's_articles_attributes',
             //     'lengow',
@@ -200,12 +199,13 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     /**
      * Removes the plugin database tables
      */
-    public function removeDatabaseTables()
+    private function _removeDatabaseTables()
     {
         $em = $this->Application()->Models();
         $tool = new \Doctrine\ORM\Tools\SchemaTool($em);
         $classes = array(
-            $em->getClassMetadata('Shopware\CustomModels\Lengow\Order')
+            $em->getClassMetadata('Shopware\CustomModels\Lengow\Order'),
+            $em->getClassMetadata('Shopware\CustomModels\Lengow\Log')
         );
         $tool->dropSchema($classes);
     }

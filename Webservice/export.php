@@ -1,4 +1,5 @@
 <?php
+
 use Shopware\Kernel;
 use Shopware\Components\HttpCache\AppCache;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,10 +13,7 @@ $kernel->boot();
 if ($kernel->isHttpCacheEnabled()) {
     $kernel = new AppCache($kernel, $kernel->getHttpCacheConfig());
 }
-/*
-$request = Request::createFromGlobals();
-$kernel->handle($request)
-       ->send();*/
+
 require_once('../Components/LengowCore.php');
 require_once('../Components/LengowExport.php');
 require_once('../Components/LengowProduct.php');

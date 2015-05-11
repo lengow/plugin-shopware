@@ -11,6 +11,11 @@
 class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Backend_ExtJs
 {
 
+    /**
+     * Event listener function of the orders store to list Lengow orders
+     *
+     * @return mixed
+     */
     public function getListAction()
     {
         $builder = Shopware()->Models()->createQueryBuilder();
@@ -82,7 +87,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     }
 
     /**
-     * Event listener function of the articles store to import orders from marketplaces
+     * Event listener function of the orders store to import orders from marketplaces
      *
      * @return mixed
      */

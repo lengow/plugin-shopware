@@ -11,6 +11,11 @@
 class Shopware_Controllers_Backend_LengowLog extends Shopware_Controllers_Backend_ExtJs
 {
 
+    /**
+     * Event listener function of logs store to list Lengow logs
+     *
+     * @return mixed
+     */
     public function getListAction()
     {
         $builder = Shopware()->Models()->createQueryBuilder();
@@ -62,6 +67,12 @@ class Shopware_Controllers_Backend_LengowLog extends Shopware_Controllers_Backen
         ));
     }
 
+    
+    /**
+     * Event listener function of logs store to delete Lengow logs
+     *
+     * @return mixed
+     */
     public function deleteAction() 
     {
         $logId = (int) $this->Request()->getParam('id');
@@ -96,6 +107,11 @@ class Shopware_Controllers_Backend_LengowLog extends Shopware_Controllers_Backen
         }
     }
 
+    /**
+     * Event listener function of logs store to delete all Lengow logs
+     *
+     * @return mixed
+     */
     public function flushLogsAction()
     {
         try {

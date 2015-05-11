@@ -160,6 +160,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
      */
     private $shop = null;
 
+    /**
+    * Construct new Lengow export
+    * 
+    * @return Exception Error
+    */
     public function __construct($format = null, $all = null , $all_products = null, $fullmode = null, $export_attributes = null, $full_title = null, $out_stock = null, $stream = null, $shop = null)  
     {
         try {
@@ -178,10 +183,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 	}
 
 	/**
-	* Set format to export.
-	*
+	* Set format to export
+    * 
 	* @param string $format The format to export
-	*
 	* @return boolean.
 	*/
 	public function setFormat($format)
@@ -206,10 +210,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 	}
 
 	/**
-	* Set selected or not products to export.
-	*
+	* Set selected or not products to export
+    * 
 	* @param boolean $all True for all products, False for selected products by Lengow
-	*
 	* @return boolean.
 	*/
 	public function setProducts($all)
@@ -222,10 +225,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 	}
 
 	/**
-	* Set disabled or not products to export.
-	*
+	* Set disabled or not products to export
+    * 
 	* @param boolean $all_product True for all products, False for only enabled products
-	*
 	* @return boolean.
 	*/
 	public function setAllProducts($all_products)
@@ -238,10 +240,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 	}
 
     /**
-    * Set FullMode.
-    *
+    * Set FullMode
+    * 
     * @param boolean $fullmode True for variant products, False for only parent Products
-    *
     * @return boolean.
     */
     public function setFullmode($fullmode)
@@ -254,10 +255,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     }
 
 	/**
-	* Set attributes product or not to export.
-	*
+	* Set attributes product or not to export
+    * 
 	* @param boolean $export_attributes True for export attributes, False for no attributes
-	*
 	* @return boolean.
 	*/
 	public function setExportAttributes($export_attributes) 
@@ -270,10 +270,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     }
 
     /**
-    * Set title param export.
-    *
+    * Set title param export
+    * 
     * @param boolean $title False for only title, True for title + attribute
-    *
     * @return boolean.
     */
     public function setTitle($full_title)
@@ -286,10 +285,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     }
 
     /**
-    * Set export out of stock products.
-    *
+    * Set export out of stock products
+    * 
     * @param boolean $export_out_stock True for export out of stock product, False for only in stock products
-    *
     * @return boolean.
     */
     public function setExportOutOfStock($out_stock)
@@ -302,10 +300,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     }
 
     /**
-	* Set stream export.
-	*
+	* Set stream export
+    * 
 	* @param boolean $export_attributes True for export in a file, False for direct export
-	*
 	* @return boolean.
 	*/
 	public function setStream($stream)
@@ -318,10 +315,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 	}
 
     /**
-    * Set selected or not products to export.
-    *
+    * Set the shop to export
+    * 
     * @param boolean $all True for all products, False for selected products by Lengow
-    *
     * @return boolean.
     */
     public function setShop($shop)
@@ -333,43 +329,35 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     
 
 	/**
-     * Execute the export.
-     *
-     * @return mixed.
+     * Execute the export
+     * 
+     * @return mixed
      */
     public function exec() 
     {
         try {
-            // Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('export : init');
+            Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('export : init');
             $i = 0;
-
             //Make header
-            $this->max_images = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportImages();
-             
+            $this->max_images = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportImages();           
             if($this->export_attributes) {
                 foreach(Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAttributes() as $attribute) {
                     $this->attributes[$attribute['name']] = $this->_toFieldname($attribute['name']);
                 }
             }
-
             $this->_makeFields();
-            $this->_write('header');
-            
+            $this->_write('header');            
             // Get Product
             $products = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getExportIds($this->all, $this->all_products, $this->shop);
             $last = end($products);
-
             // Build product line
             if(!empty($products)) {
-
                 foreach($products as $p) {
                     $lengow_product = new Shopware_Plugins_Backend_Lengow_Components_LengowProduct($p['article'], null, $this->shop);
-
                     $is_last = false;
                     if($p['article'] == $last['article']) {
                         $is_last = true;
                     }
-
                     // Export out of stock products
                     if($this->export_out_stock) {
                         $this->_write('data', $this->_make($lengow_product), $is_last);
@@ -378,16 +366,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                             $this->_write('data', $this->_make($lengow_product), $is_last);
                         }                                   
                     } 
-    
+                    // Export variation product
                     if($this->full) {
-                        if($lengow_product->getConfiguratorSet() !== NULL) {
-                            
+                        if($lengow_product->getConfiguratorSet() !== NULL) {    
                             // Get Variations
                             $variations = $lengow_product->getDetails();
                             $total_variations = count($variations);
                             $count = 0;
                             $id_product = $lengow_product->getId();
-
+                            // Get data variations
                             if(!empty($variations)) {
                                 foreach($variations as $variation) {
                                     $count++;
@@ -406,47 +393,48 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                             }
                         }   
                     }
-
                     $lengow_product = null;
-                    // if ($i % 10 == 0) {
-                    //    	Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('export : ' . $i . ' products');
-                    // }
+                    if ($i % 10 == 0) {
+                        Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('export : ' . $i . ' products');
+                    }
                     if (function_exists('gc_collect_cycles')) {
                         gc_collect_cycles();
                     }
                     $i++;
                 }
+                // Create a Lengow Log 
+                $txt = 'Export : ' . $i . ' product(s) from the shop : ' . $this->shop->getName();
+                $log = new Shopware\CustomModels\Lengow\Log();
+                $log->setMessage($txt);
+                Shopware()->Models()->persist($log);
+                Shopware()->Models()->flush();
             }
-
             $this->_write('footer');
             if (!$this->stream) {
                 rename($this->filename_temp, $this->filename);
                 echo $this->_getFileLink($this->format);
             }
-            // Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('write final export file');
-            // Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('export : end');
+            Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('write final export file');
+            Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('export : end');
         } catch (Exception $e) {
             return $e->getMessage();
         }
     }
 
     /**
-     * Make fields to export.
+     * Make fields to export
      */
     private function _makeFields() 
     {
-
         foreach (self::$DEFAULT_FIELDS as $field) {
             $this->fields[$field] = $field;
         }
-
         // Attributes
         if ($this->export_attributes) {
             foreach ($this->attributes as $key => $attr) {
                 $this->fields[$key] = $attr;
             }
         }
-
         //Images
         if ($this->max_images) {
             for ($i = 1; $i <= ($this->max_images); $i++) {
@@ -456,41 +444,38 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     }
 
     /**
-     * Make the export for a product with current format.
-     *
-     * @param object $product The product to export
-     *
+     * Make the export for a product with current format
+     * 
+     * @param object $lengow_product The product to export
+     * @param $id_variation is a id of a variation
      * @return array Product data
      */
     private function _make($lengow_product, $id_variation = null) 
     {
         $array_product = array();
-
         // Default fields
         foreach (self::$DEFAULT_FIELDS as $key => $field) {
             $array_product[$field] = $lengow_product->getData($field, $id_variation);
         }
-
         // Attributes
         foreach($this->attributes as $key => $field) {
             $array_product[$field] = $lengow_product->getAttributeData($key, $id_variation);
         }
-
         // Images
         if ($this->max_images) {
             for ($i = 1; $i <= ($this->max_images); $i++) {
                 $array_product['image_' . $i] = $lengow_product->getData('image_' . $i);
             }
         }
-
         return $array_product;
     }
 
     /**
-     * Write the export on file or screen.
+     * Write the export on file or screen
+     * 
+     * @param string $type
      * @param array $data Produt data
      * @param boolean $last True if product is last
-     *
      * @return mixed
      */
     private function _write($type, $data = null, $last = false) 
@@ -575,7 +560,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 
     /**
      * Open and write data on file
-     *
+     * 
      * @param string $data The data
      */
     private function _writeOnFile($data) 
@@ -590,7 +575,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 
     /**
      * Close export file
-     *
      */
     private function _closeFile()
     {
@@ -600,9 +584,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     }
 
  	/**
-     * Get header.
-     *
-     * @return varchar The header.
+     * Get header
+     * 
+     * @return varchar The header
      */
     private function _getHeader() 
     {
@@ -624,9 +608,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     }
 
     /**
-     * Get footer.
-     *
-     * @return varchar The footer.
+     * Get footer
+     * 
+     * @return varchar The footer
      */
     private function _getFooter() 
     {
@@ -643,11 +627,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     }
 
     /**
-	* For CSV, transform header to uppercase without accent.
-	*
+	* For CSV, transform header to uppercase without accent
+    * 
 	* @param string $str The fieldname
-	*
-	* @return string The formated header.
+	* @return string The formated header
 	*/
 	private function _toUpperCase($str)
 	{
@@ -661,11 +644,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 	}
 
 	/**
-     * For YAML, JSON, XML, transform fieldname without accent and spaces.
-     *
+     * For YAML, JSON, XML, transform fieldname without accent and spaces
+     * 
      * @param string $str The fieldname
-     *
-     * @return string The formated fieldname.
+     * @return string The formated fieldname
      */
     private function _toFieldname($str) 
     {
@@ -679,11 +661,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     }
 
     /**
-     * For YAML, add spaces to have good indentation.
-     *
+     * For YAML, add spaces to have good indentation
+     * 
      * @param string $name The fielname
-     * @param string $maxsize The max spaces
-     *
+     * @param string $size The max spaces
      * @return string Spaces.
      */
     private function _addSpaces($name, $size) 
@@ -698,7 +679,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 
     /**
      * Get export file link
-     *
+     * 
      * @param string $format
      * @return mixed False is stream export, string if file exists
      */

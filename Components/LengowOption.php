@@ -11,20 +11,20 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowOption
 {
 	/**
-     * Option ID.
+     * Option ID
      */
     public $id;
 
     /**
-     * Option name.
+     * Option name
      */
     public $name;
 
     /**
-     * Make a new tracker option.
+     * Make a new tracker option
      *
-     * @param integer $id The tracker type unique ID.
-     * @param varchar $token The tracker type name.
+     * @param integer $id The tracker type unique ID
+     * @param varchar $token The tracker type name
      */
     public function __construct($id, $name) 
     {

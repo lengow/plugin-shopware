@@ -19,8 +19,8 @@ use Shopware\Components\Model\ModelEntity,
 /**
  * Shopware\CustomModels\Lengow\Log
  *
- * @ORM\Table(name="lengow_logs")
  * @ORM\Entity
+ * @ORM\Table(name="lengow_logs")
  */
 class Log extends ModelEntity
 {
@@ -47,6 +47,13 @@ class Log extends ModelEntity
      */
     private $message;
 
+    /**
+    * Construct a new Log.
+    */
+    public function __construct() 
+    {
+        $this->created = new \DateTime();
+    }
 
     /**
      * Get id
