@@ -51,8 +51,13 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
                     region: 'center',
                     articlesStore: me.articlesStore,
                     layout: 'border'
+                },{
+                    title: me.snippets.tab.imports,
+                    xtype: 'lengow-import-imports',
+                    region: 'center',
+                    ordersStore: me.ordersStore,
+                    layout: 'border'
                 },
-                me.createImportsTab(),
                 me.createLogsTab() 
             ]
         });
@@ -65,19 +70,19 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
      * The container will be used as the "imports" tab.
      * @returns { Ext.container.Container }
      */
-    createImportsTab: function() {
-        var me = this;
-        me.importsContainer = Ext.create('Ext.container.Container', {
-            layout: 'border',
-            title: me.snippets.tab.imports,
-            items: {
-                xtype: 'lengow-main-imports',
-                region: 'center',
-                ordersStore: me.ordersStore
-            }
-        });
-        return me.importsContainer;
-    },
+    // createImportsTab: function() {
+    //     var me = this;
+    //     me.importsContainer = Ext.create('Ext.container.Container', {
+    //         layout: 'border',
+    //         title: me.snippets.tab.imports,
+    //         items: {
+    //             xtype: 'lengow-main-imports',
+    //             region: 'center',
+    //             ordersStore: me.ordersStore
+    //         }
+    //     });
+    //     return me.importsContainer;
+    // },
 
     /**
      * Creates a container "logs"

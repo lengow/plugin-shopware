@@ -307,9 +307,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 $price          = 0;
                 // Get the weight and the price of a product
                 if ($id_variation) {
+                    if ($this->variant_product->getShippingFree()) {
+                        return $shippingPrice;
+                    }
                     $weight = (float) $this->variant_product->getWeight();
                     $price = round((float) $this->_getPriceField('price', $id_variation), 2);
                 } else {
+                    if ($this->detail_product->getShippingFree()) {
+                        return $shippingPrice;
+                    }
                     $weight = (float) $this->detail_product->getWeight();
                     $price = round((float) $this->_getPriceField('price'), 2);
                 }

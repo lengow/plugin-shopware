@@ -30,6 +30,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
      */
     public function create()
     {
+        $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
+
         // Get a list of export formats
         $exportFormats = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportFormats();
         $formats = array();
@@ -55,8 +57,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
             $carriers[] = array($value->id, $value->name);  
         }
         // Get export URL
-        $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
         $exportUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Webservice/export.php';
+        
+        // Get a list of order states
+        $importOrderStates = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getAllOrderStates();
+        $orderStates = array();
+        foreach ($importOrderStates as $value) {
+            $orderStates[] = array($value->id,  $value->name);  
+        }
+        // Get a list of payments
+        $importPayments = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getShippingName();
+        $payments = array();
+        foreach ($importPayments as $value) {
+            $payments[] = array($value->id,  $value->name);  
+        }
+        // Get import URL
+        $importUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Webservice/import.php';
 
         // Set the settings plugin
         $this->form->setElement('text', 'lengowIdUser', array(
@@ -83,7 +99,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
         $this->form->setElement('boolean', 'lengowExportAllProducts', array(
             'label' => 'Export all products',
             'value' => true,
-            'description' => 'If don\'t want to export all your available products, select "no" and select yours products in the Lengow plugin.' 
+            'description' => 'If don\'t want to export all your available products, select "no" and select yours products in the Lengow plugin' 
         ));
         $this->form->setElement('boolean', 'lengowExportDisabledProducts', array(
             'label' => 'Export disabled products',
@@ -98,7 +114,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
         $this->form->setElement('boolean', 'lengowExportAttributes', array(
             'label' => 'Export attributes',
             'value' => false,
-            'description' => 'If you select "yes", your product(s) will be exported with attributes.'
+            'description' => 'If you select "yes", your product(s) will be exported with attributes'
         ));
         $this->form->setElement('boolean', 'lengowExportAttributesTitle', array(
             'label' => 'Title + attributes + features',
@@ -108,7 +124,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
         $this->form->setElement('boolean', 'lengowExportOutStock', array(
             'label' => 'Export out of stock product',
             'value' => true,
-            'description' => 'Select this option if you want to export out of stock product.'
+            'description' => 'Select this option if you want to export out of stock product'
         ));
         $this->form->setElement('select', 'lengowExportImageSize', array(
             'label' => 'Image size to export',
@@ -145,10 +161,59 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowForm
             'description' => 'Your default shipping cost',
             'required' => true
         ));
+        $this->form->setElement('select', 'lengowOrderProcess', array(
+            'label' => 'Status of process orders',
+            'store' => $orderStates,
+            'value' => $orderStates[0],
+            'required' => true
+        ));
+        $this->form->setElement('select', 'lengowOrderShipped', array(
+            'label' => 'Status of shipped orders',
+            'store' => $orderStates,
+            'value' => $orderStates[0],
+            'required' => true
+        ));
+        $this->form->setElement('select', 'lengowOrderCancel', array(
+            'label' => 'Status of cancelled orders',
+            'store' => $orderStates,
+            'value' => $orderStates[0],
+            'required' => true
+        ));
+        $this->form->setElement('number', 'lengowImportDays', array(
+            'label' => 'Import from x days', 
+            'minValue' => 0,
+            'value' => 3,
+            'required' => true
+        ));
+        $this->form->setElement('select', 'lengowMethodName', array(
+            'label' => 'Associated payment method',
+            'store' => $payments,
+            'value' => $payments[0],
+            'required' => true
+        ));
+        $this->form->setElement('boolean', 'lengowForcePrice', array(
+            'label' => 'Forced price',
+            'value' => true,
+            'description' => 'This option allows to force the product prices of the marketplace orders during the import'
+        ));
+        $this->form->setElement('boolean', 'lengowReportMail', array(
+            'label' => 'Report email',
+            'value' => true,
+            'description' => 'If enabled, you will receive a report with every import on the email address configured'
+        ));
+        $this->form->setElement('text', 'lengowEmailAddress', array(
+            'label' => 'Send reports to',
+            'description' => 'If report emails are activated, the reports will be send to the specified address. Otherwise it will be your default shop email address'
+        ));
+        $this->form->setElement('text', 'lengowImportUrl', array(
+            'label' => 'Our import URL',
+            'value' => $importUrl,
+            'description' => 'To import, go to this address : ' . $exportUrl
+        ));
         $this->form->setElement('boolean', 'lengowExportCron', array(
-            'label' => 'Active cron',
+            'label' => 'Active import cron',
             'value' => false,
-            'description' => 'If you select "yes", orders will be automatically imported.'
+            'description' => 'If you select "yes", orders will be automatically imported'
         ));
         $this->form->setElement('boolean', 'lengowDebug', array(
             'label' => 'Debug mode',

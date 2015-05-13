@@ -33,10 +33,11 @@ Ext.define('Shopware.apps.Lengow', {
      */
     views: [ 
         'main.Window',
-        'main.Imports',
         'main.Logs',
         'export.Exports',
-        'export.Grid'       
+        'export.Grid',
+        'import.Imports',
+        'import.Grid'       
     ],
 
     /**

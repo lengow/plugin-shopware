@@ -37,54 +37,66 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIP())
     }
 
     if(array_key_exists('all', $_GET)) {
-        if($_GET['all'] == 1)
+        if($_GET['all'] == 1){
             $all = true;
+        }
         elseif($_GET['all'] == 0) {
             $all = false;
         }
     }
 
     if(array_key_exists('all_products', $_GET)) {
-        if($_GET['all_products'] == 1)
+        if($_GET['all_products'] == 1){
             $all_products = true;
+        }
         elseif($_GET['all_products'] == 0) {
             $all_products = false;
         }
     }
 
     if(array_key_exists('fullmode', $_GET)) {
-        if($_GET['fullmode'] == 'full')
+        if($_GET['fullmode'] == 'full'){
             $fullmode = true;
-        elseif($_GET['fullmode'] == 'simple')
+        }
+        elseif($_GET['fullmode'] == 'simple'){
             $fullmode = false;
+        }
     }
 
     if(array_key_exists('export_attributes', $_GET)) {
-        if($_GET['export_attributes'] == 1)
+        if($_GET['export_attributes'] == 1){
             $export_attributes = true;
-        elseif($_GET['export_attributes'] == 0)
+        }
+        elseif($_GET['export_attributes'] == 0){
             $export_attributes = false;
+        }
     }
 
     if(array_key_exists('full_title', $_GET)) {
-        if($_GET['full_title'] == 1)
+        if($_GET['full_title'] == 1){
             $full_title = true;
-        elseif($_GET['full_title'] == 0)
+        }
+        elseif($_GET['full_title'] == 0){
             $full_title = false;
+        }
     }
 
     if(array_key_exists('out_stock', $_GET)) {
-        if($_GET['out_stock'] == 1)
+        if($_GET['out_stock'] == 1){
             $out_stock = true;
-        elseif($_GET['out_stock'] == 0)
+        }
+        elseif($_GET['out_stock'] == 0){
             $out_stock = false;
+        }
     }
 
     if(array_key_exists('stream', $_GET)) {
-        if($_GET['stream'] == 1)
+        if($_GET['stream'] == 1){
             $stream = true;
-        elseif($_GET['stream'] == 0)
+        }
+        elseif($_GET['stream'] == 0){
             $stream = false;
+        }
     }
 
     if (array_key_exists('shop', $_GET) && $_GET['shop'] != '') {

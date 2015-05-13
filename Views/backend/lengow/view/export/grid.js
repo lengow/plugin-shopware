@@ -169,7 +169,8 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
      * @return [Ext.toolbar.Toolbar] grid toolbar
      */
     getToolbar: function() {
-        var me = this, buttons = [];
+        var me = this, 
+            buttons = [];
 
         me.publishProductsBtn = Ext.create('Ext.button.Button', {
             iconCls: 'sprite-plus-circle',
@@ -291,8 +292,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                     { value: '40' },
                     { value: '60' },
                     { value: '80' },
-                    { value: '100' },
-                    { value: '250' }
+                    { value: '100' }
                 ]
             }),
             displayField: 'value',

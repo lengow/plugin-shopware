@@ -336,8 +336,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     public function exec() 
     {
         try {
-            Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('export : init');
-            $i = 0;
+            Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Export : init');
+            
+            $i = 0; // Count Product
+            $y = 0; // Count parent product
+            $z = 0; // Count variant product
+
             //Make header
             $this->max_images = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportImages();           
             if($this->export_attributes) {
@@ -367,8 +371,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                         }                                   
                     } 
                     // Export variation product
-                    if($this->full) {
-                        if($lengow_product->getConfiguratorSet() !== NULL) {    
+                    if($lengow_product->getConfiguratorSet() !== NULL) {
+                        if($this->full) {    
                             // Get Variations
                             $variations = $lengow_product->getDetails();
                             $total_variations = count($variations);
@@ -389,33 +393,35 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                                             $this->_write('data', $this->_make($lengow_variation, $variation->getId()), $is_last);
                                         }                                   
                                     }
+                                $z++;
                                 }
                             }
-                        }   
+                        }
+                        $y++;   
                     }
                     $lengow_product = null;
                     if ($i % 10 == 0) {
-                        Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('export : ' . $i . ' products');
+                        Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Export : ' . $i . ' products');
                     }
                     if (function_exists('gc_collect_cycles')) {
                         gc_collect_cycles();
                     }
                     $i++;
                 }
-                // Create a Lengow Log 
-                $txt = 'Export : ' . $i . ' product(s) from the shop : ' . $this->shop->getName();
-                $log = new Shopware\CustomModels\Lengow\Log();
-                $log->setMessage($txt);
-                Shopware()->Models()->persist($log);
-                Shopware()->Models()->flush();
+                // Create a Lengow Log
+                $txt = 'Export : ' . $i . ' products (' . ($i-$y) . ' simples and ' . $y . ' parents) from the shop : ' . $this->shop->getName();
+                if($this->full) {
+                    $txt = 'Export : ' . $i . ' products (' . ($i-$y) . ' simples, ' . $y . ' parents with ' . $z . ' variants) from the shop : ' . $this->shop->getName();
+                } 
+                Shopware_Plugins_Backend_Lengow_Components_LengowCore::log($txt, false, true);
             }
             $this->_write('footer');
             if (!$this->stream) {
                 rename($this->filename_temp, $this->filename);
                 echo $this->_getFileLink($this->format);
             }
-            Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('write final export file');
-            Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('export : end');
+            Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Write final export file');
+            Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Export : end');
         } catch (Exception $e) {
             return $e->getMessage();
         }

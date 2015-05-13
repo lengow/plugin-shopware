@@ -1,24 +1,23 @@
-//{namespace name="backend/lengow/view/main"}
-//{block name="backend/lengow/view/main/imports"}
-Ext.define('Shopware.apps.Lengow.view.main.Imports', {
+//{namespace name="backend/lengow/view/import"}
+//{block name="backend/lengow/view/import/grid"}
+Ext.define('Shopware.apps.Lengow.view.import.Grid', {
 
     extend:'Ext.grid.Panel',
 
-    alias:'widget.lengow-main-imports',
-
-    border: 0,
-    autoScroll: true,
+    alias:'widget.lengow-import-grid',
 
     snippets: {
         column: {
-            idOrder:        '{s name=imports/column/id_Order}ID{/s}',
+            orderNumber:    '{s name=imports/column/order_number}Order number{/s}',
             orderDate:      '{s name=imports/column/order_date}Order date{/s}',
+            amount:         '{s name=imports/column/amount}Amount{/s}',
+            shipping:       '{s name=imports/column/shipping}Shipping{/s}',
+            shop:           '{s name=imports/column/shop}Shop{/s}',
+            customer:       '{s name=imports/column/customer}Customer{/s}',
+            currentStatus:  '{s name=imports/column/status}Current order status{/s}',
             idOrderLengow:  '{s name=imports/column/id_order_lengow}ID Lengow{/s}',
             idFlux:         '{s name=imports/column/id_flux}ID Flux{/s}',
-            totalPaid:      '{s name=imports/column/total_paid}Price{/s}',
-            marketplace:    '{s name=imports/column/marketplace}Marketplace{/s}',
-            carrier:        '{s name=imports/column/carrier}Carrier{/s}',
-            carrierMethod:  '{s name=imports/column/carrier_method}Carrier Method{/s}'
+            marketplace:    '{s name=imports/column/marketplace}Marketplace{/s}'
         },
         topToolbar: {
             manualImport:   '{s name=imports/topToolbar/manual_import}Manual Import{/s}',
@@ -61,18 +60,54 @@ Ext.define('Shopware.apps.Lengow.view.main.Imports', {
      *  Creates the columns
      */
     getColumns: function(){
-        var me = this;
+        var me = this,
+            actionColumItems = [];
+
+        actionColumItems.push({
+            iconCls:'sprite-plus-circle-frame',
+            action:'viewOrder',
+            tooltip: 'View order',
+            handler: function (view, rowIndex, colIndex, item, opts, record) {
+                Shopware.app.Application.addSubApplication({
+                    name: 'Shopware.apps.Order',
+                    action: 'detail',
+                    params: {
+                        orderId: record.get('orderId')
+                    }
+                });
+            }
+        });
 
         var columns = [
             {
-                header: me.snippets.column.idOrder,
-                dataIndex: 'id',
-                width: 60
+                header: me.snippets.column.orderNumber,
+                dataIndex: 'orderNumber',
+                width: 100
             },{
                 header: me.snippets.column.orderDate,
                 dataIndex: 'orderDate',
                 flex: 3,
                 renderer:  me.modifiedCreated
+            },{
+                header: me.snippets.column.amount,
+                dataIndex: 'invoiceAmount',
+                flex: 2
+            },{
+                header: me.snippets.column.shipping,
+                dataIndex: 'shipping',
+                flex: 4
+            },{
+                header: me.snippets.column.shop,
+                dataIndex: 'nameShop',
+                flex: 3
+            },{
+                header: me.snippets.column.customer,
+                dataIndex: 'nameCustomer',
+                flex: 4
+            },{
+                header: me.snippets.column.currentStatus,
+                dataIndex: 'status',
+                flex: 3
             },{
                 header: me.snippets.column.idOrderLengow,
                 dataIndex: 'idOrderLengow',
@@ -82,21 +117,13 @@ Ext.define('Shopware.apps.Lengow.view.main.Imports', {
                 dataIndex: 'idFlux',
                 width: 60
             },{
-                header: me.snippets.column.totalPaid,
-                dataIndex: 'totalPaid',
-                width: 60
-            },{
                 header: me.snippets.column.marketplace,
                 dataIndex: 'marketplace',
                 flex: 3
-            },{
-                header: me.snippets.column.carrier,
-                dataIndex: 'carrier',
-                flex: 2
-            },{
-                header: me.snippets.column.carrierMethod,
-                dataIndex: 'carrierMethod',
-                flex: 2
+            }, {
+                xtype: 'actioncolumn',
+                width: 26 * actionColumItems.length,
+                items: actionColumItems
             }
         ];
         return columns;
@@ -183,8 +210,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Imports', {
                     { value: '40' },
                     { value: '60' },
                     { value: '80' },
-                    { value: '100' },
-                    { value: '250' }
+                    { value: '100' }
                 ]
             }),
             displayField: 'value',

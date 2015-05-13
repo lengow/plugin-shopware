@@ -36,6 +36,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      */
     public static $log_instance;
 
+    /**
+    * Lengow shipping name.
+    */
+    public static $SHIPPING_LENGOW = array(
+        'lengow' => 'Lengow',
+        'marketplace' => 'Marketplace\'s name',
+    );
+
 	/**
      * Lengow IP.
      */
@@ -105,8 +113,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 		return $array_formats;
 	}
 
-
-
     /**
      * Get all carriers.
      * 
@@ -125,6 +131,39 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
         foreach ($carriers as $value)
             $array_carriers[] = new Shopware_Plugins_Backend_Lengow_Components_LengowOption($value['id'], $value['name']);
         return $array_carriers;
+    }
+
+    /**
+     * The shipping names options.
+     *
+     * @return array Lengow shipping names option
+     */
+    public static function getShippingName() {
+        $array_shipping = array();
+        foreach (self::$SHIPPING_LENGOW as $name => $value) {
+            $array_shipping[] = new Shopware_Plugins_Backend_Lengow_Components_LengowOption($name, $value);
+        }
+        return $array_shipping;
+    }
+
+    /**
+     * Get all order states.
+     * 
+     * @return array order states
+     */
+    public static function getAllOrderStates()
+    {
+        $sql = '
+            SELECT DISTINCT SQL_CALC_FOUND_ROWS 
+            states.id as id, states.description as description
+            FROM s_core_states states
+            WHERE states.group = \'state\'
+        ';
+        $states = Shopware()->Db()->fetchAll($sql);
+        $array_states = array();
+        foreach ($states as $value)
+            $array_states[] = new Shopware_Plugins_Backend_Lengow_Components_LengowOption($value['id'], $value['description']);
+        return $array_states;
     }
 
     /**
@@ -181,9 +220,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      * 
      * @return int
      */
-    public static function getGroupCustomer() 
+    public static function getGroupCustomer($all = true) 
     {
-        return self::getConfig()->get('lengowIdGroup');
+        if ($all) {
+            return self::getConfig()->get('lengowIdGroup');
+        }
+        $group = self::getConfig()->get('lengowIdGroup');
+        $array_group = explode(',', $group);
+        return $array_group[0];
     }
 
     /**
@@ -307,6 +351,54 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     }
 
     /**
+     * Get the Id of new status order.
+     *
+     * @param varchar $version The version to compare
+     * @return integer
+     */
+    public static function getOrderState($state) 
+    {
+        switch ($state) {
+            case 'process' :
+                return self::getConfig()->get('lengowOrderProcess');
+            case 'shipped' :
+                return self::getConfig()->get('lengowOrderShipped');
+            case 'cancel' :
+                return self::getConfig()->get('lengowOrderCancel');
+        }
+        return false;
+    }
+
+    /**
+     * Get number days of import
+     *
+     * @return integer
+     */
+    public static function getCountDaysToImport() 
+    {
+        return self::getConfig()->get('lengowImportDays');
+    }
+
+    /**
+     * Get Payement Method Name
+     *
+     * @return string The method name
+     */
+    public static function getPaymentMethodName()
+    {
+        return self::getConfig()->get('lengowMethodName');
+    }
+
+    /**
+     * Send admin email when order is imported
+     *
+     * @return boolean
+     */
+    public static function sendEmailAdmin() {
+        return (self::getConfig()->get('lengowReportMail') == 1 ? true : false);
+    }
+
+    /**
      * Export with cron
      * 
      * @return boolean
@@ -331,16 +423,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      * 
      * @param string $txt The float to format
      * @param boolean $force_output
+     * @param boolean $force_output
      */
-    public static function log($txt, $force_output = false) {
+    public static function log($txt, $force_output = false, $log_interface = false) {
         $sep = '/';
-        // $debug = self::getConfig()->get('lengowDebug');
-        // if ($force_output !== -1) {
-        //     if ($debug || $force_output) {
-        //         echo date('Y-m-d : H:i:s') . ' - ' . $txt . '<br />' . "\r\n";
-        //         flush();
-        //     }
-        // }
+        $debug = self::getConfig()->get('lengowDebug');
+        if ($force_output !== -1) {
+            if ($debug || $force_output) {
+                echo date('Y-m-d : H:i:s') . ' - ' . $txt . '<br />' . "\r\n";
+                flush();
+            }
+        }
+        if ($log_interface) {
+            $log = new Shopware\CustomModels\Lengow\Log();
+            $log->setMessage($txt);
+            Shopware()->Models()->persist($log);
+            Shopware()->Models()->flush();
+        }
         if (!is_resource(self::$log_instance)) {
             self::$log_instance = fopen(dirname(__FILE__) . $sep . '..' . $sep . 'Logs' . $sep . 'logs-' . date('Y-m-d') . '.txt', 'a+');
         }

@@ -18,8 +18,16 @@ Ext.define('Shopware.apps.Lengow.model.Order', {
         { name: 'totalPaid', type: 'float' },
         { name: 'carrier', type: 'string' },
         { name: 'carrierMethod', type: 'string' },
+        { name: 'orderDateLengow', type: 'date' },
+        { name: 'extra', type: 'string' },
+        { name: 'orderId', type: 'int' },
         { name: 'orderDate', type: 'date' },
-        { name: 'extra', type: 'string' }
+        { name: 'orderNumber', type: 'string' },
+        { name: 'invoiceAmount', type: 'float' },
+        { name: 'nameShop', type: 'string' },
+        { name: 'shipping', type: 'string' },
+        { name: 'status', type: 'string' },
+        { name: 'nameCustomer', type: 'string' }
     ],
 
     /**

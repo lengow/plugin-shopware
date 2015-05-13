@@ -12,77 +12,116 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
 {
 
     /**
-     * Event listener function of the orders store to list Lengow orders
+     * Event listener function of orders store to list Lengow order
      *
      * @return mixed
      */
     public function getListAction()
     {
-        $builder = Shopware()->Models()->createQueryBuilder();
-        $builder->select('orders')
-                ->from('Shopware\CustomModels\Lengow\Order', 'orders');
+        $filterParams = $this->Request()->getParam('filter', array());
+        $filterBy     = $this->Request()->getParam('filterBy');
+        $order        = $this->Request()->getParam('sort', null);
+        $start        = $this->Request()->getParam('start', 0);
+        $limit        = $this->Request()->getParam('limit', 20);
 
-        //If a filter is set
-        if ($this->Request()->getParam('filter')) {
-            //Get the value itself
-            $filters = $this->Request()->getParam('filter');
-            foreach ($filters as $filter) {
-                $builder->andWhere($builder->expr()->orX(
-                        'orders.idOrderLengow LIKE :value'))
-                        ->setParameter('value', "%" . $filter["value"] . "%");
-            }
+        $filters = array();
+        foreach ($filterParams as $singleFilter) {
+            $filters[$singleFilter['property']] = $singleFilter['value'];
         }
 
-        $sort = $this->Request()->getParam('sort');
-        if ($sort) {
-            $sorting = $sort[0];
-            switch ($sorting['property']) {
-                case 'id':
-                    $builder->orderBy('orders.id', $sorting['direction']);
-                    break;
-                case 'idOrderLengow':
-                    $builder->orderBy('orders.idOrderLengow', $sorting['direction']);
-                    break;
-                case 'idFlux':
-                    $builder->orderBy('orders.idFlux', $sorting['direction']);
-                    break;
-                case 'marketplace':
-                    $builder->orderBy('orders.marketplace', $sorting['direction']);
-                    break;
-                case 'totalPaid':
-                    $builder->orderBy('orders.totalPaid', $sorting['direction']);
-                    break;
-                case 'carrier':
-                    $builder->orderBy('orders.carrier', $sorting['direction']);
-                    break;
-                case 'carrierMethod':
-                    $builder->orderBy('orders.carrierMethod', $sorting['direction']);
-                    break;
-                case 'orderDate':
-                    $builder->orderBy('orders.orderDate', $sorting['direction']);
-                    break;
-                case 'extra':
-                    $builder->orderBy('orders.extra', $sorting['direction']);
-                    break;
-                default:
-                    $builder->orderBy('orders.orderDate', 'DESC');
-            }
+        $sqlParams = array();
+
+        $filterSql = 'WHERE 1 = 1';
+        if (isset($filters['search'])) {
+            $filterSql .= " AND (lo.idOrderLengow LIKE :idOrderLengow 
+                OR so.ordernumber LIKE :orderNumber
+                OR sob.company LIKE :company
+                OR sob.firstname LIKE :firstname
+                OR sob.lastname LIKE :lastname)";
+            $searchFilter =  '%' . $filters['search'] . '%';
+            $sqlParams["idOrderLengow"] = $searchFilter;
+            $sqlParams["orderNumber"] = $searchFilter;
+            $sqlParams["company"] = $searchFilter;
+            $sqlParams["firstname"] = $searchFilter;
+            $sqlParams["lastname"] = $searchFilter;
+        }
+
+        // Make sure that whe don't get a cold here
+        $columns = array(
+            'id', 
+            'idOrderLengow', 
+            'idFlux', 
+            'marketplace', 
+            'totalPaid', 
+            'carrier', 
+            'carrierMethod', 
+            'orderDateLengow',  
+            'extra', 
+            'orderId', 
+            'orderDate', 
+            'orderNumber',
+            'invoiceAmount', 
+            'nameShop', 
+            'shipping',
+            'status', 
+            'nameCustomer'
+        );
+
+        $directions = array('ASC', 'DESC');
+        if (null === $order || !in_array($order[0]['property'] , $columns) || !in_array($order[0]['direction'], $directions)) {
+            $order = 'orderDate DESC';
         } else {
-            $builder->orderBy('orders.orderDate', 'DESC');
+            $order = array_shift($order);
+            $order = $order['property'] . ' ' . $order['direction'];
         }
+       
+        $sql = "
+            SELECT DISTINCT SQL_CALC_FOUND_ROWS
+                lo.id as id,
+                lo.idOrderLengow as idOrderLengow,
+                lo.idFlux as idFlux,
+                lo.marketplace as marketplace,
+                lo.totalPaid as totalPaid,
+                lo.carrier as carrier,
+                lo.carrierMethod as carrierMethod,
+                lo.orderDate as orderDateLengow,
+                lo.extra as extra,
+                so.id as orderId,
+                so.ordertime as orderDate,
+                so.ordernumber as orderNumber,
+                so.invoice_amount as invoiceAmount,
+                scs.name as nameShop,
+                spd.name as shipping,
+                scst.description as status,
+                CASE 
+                    WHEN LENGTH(sob.company) > 0 THEN sob.company 
+                    ELSE CONCAT(sob.firstname, ' ', sob.lastname)
+                END as nameCustomer             
+            FROM lengow_orders as lo
+            INNER JOIN s_order as so
+                ON so.id = lo.orderID
+            LEFT JOIN s_core_shops as scs
+                ON scs.id = so.subshopID
+            LEFT JOIN s_premium_dispatch as spd
+                ON spd.id = so.dispatchID
+            LEFT JOIN s_core_states as scst
+                ON scst.id = so.status
+            LEFT JOIN s_order_billingaddress as sob
+                ON sob.orderID = so.id
+            $filterSql
+            ORDER BY $order
+            LIMIT  $start, $limit
+        ";
 
-        $builder->setFirstResult($this->Request()->getParam('start'))
-                ->setMaxResults($this->Request()->getParam('limit'));
+        $articles = Shopware()->Db()->fetchAll($sql, $sqlParams);
 
-        $query = $builder->getQuery();
-
-        $count = Shopware()->Models()->getQueryCount($builder->getQuery());
-        $data = $query->getArrayResult();
+        $sql= "SELECT FOUND_ROWS() as count";
+        $count = Shopware()->Db()->fetchOne($sql);
 
         $this->View()->assign(array(
             'success' => true,
-            'data' => $data,
-            'total' => $count
+            'data'    => $articles,
+            'total'   => $count
         ));
     }
 
@@ -93,11 +132,12 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
      */
     public function importAction()
     {
-        $test = 'Import orders';
+        $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
+        $exportUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Webservice/import.php';
 
         $this->View()->assign(array(
             'success' => true,
-            'data'    => $test
+            'url' => $exportUrl
         ));
     }
 

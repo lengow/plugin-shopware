@@ -192,8 +192,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Logs', {
                     { value: '40' },
                     { value: '60' },
                     { value: '80' },
-                    { value: '100' },
-                    { value: '250' }
+                    { value: '100' }
                 ]
             }),
             displayField: 'value',

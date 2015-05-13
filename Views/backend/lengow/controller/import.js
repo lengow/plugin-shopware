@@ -42,6 +42,10 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
                 method: 'POST',
                 params: {},
                 success: function(response, opts) {
+                    var strJson  = response.responseText;
+                    var obj = Ext.JSON.decode(strJson);
+                    var url = obj.url;
+                    window.open(url, '_blank');
                     store.load({
                         callback: function() {
                             orderGrid.setLoading(false);

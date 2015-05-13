@@ -71,7 +71,17 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         }
 
         // Make sure that whe don't get a cold here
-        $columns = array('number', 'name', 'supplier', 'active', 'inStock', 'price', 'tax', 'activeLengow' );
+        $columns = array(
+            'number', 
+            'name', 
+            'supplier', 
+            'active', 
+            'inStock', 
+            'price', 
+            'tax', 
+            'activeLengow' 
+        );
+        
         $directions = array('ASC', 'DESC');
         if (null === $order || !in_array($order[0]['property'] , $columns) || !in_array($order[0]['direction'], $directions)) {
             $order = 'id DESC';

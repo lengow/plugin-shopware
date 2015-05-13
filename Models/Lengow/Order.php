@@ -90,6 +90,15 @@ class Order extends ModelEntity
      */
     private $extra;
 
+    /**
+     * OWNING SIDE
+     *
+     * @var \Shopware\Models\Order\Order $order
+     * @ORM\OneToOne(targetEntity="Shopware\Models\Order\Order")
+     * @ORM\JoinColumn(name="orderID", referencedColumnName="id")
+     */
+    private $order;
+
 
     /**
      * Get id
@@ -275,6 +284,22 @@ class Order extends ModelEntity
     public function getExtra()
     {
         return $this->extra;
+    }
+
+    /**
+     * @return \Shopware\Models\Order\Order
+     */
+    public function getOrder()
+    {
+        return $this->order;
+    }
+
+    /**
+     * @param \Shopware\Models\Order\Order $order
+     */
+    public function setOrder($order)
+    {
+        $this->order = $order;
     }
 
 }
