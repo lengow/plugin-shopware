@@ -168,6 +168,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     public function __construct($format = null, $all = null , $all_products = null, $fullmode = null, $export_attributes = null, $full_title = null, $out_stock = null, $stream = null, $shop = null)  
     {
         try {
+            $this->setShop($shop);
 			$this->setFormat($format);
 			$this->setProducts($all);
 			$this->setAllProducts($all_products);
@@ -176,7 +177,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $this->setTitle($full_title);
             $this->setExportOutOfStock($out_stock);
 			$this->setStream($stream);
-            $this->setShop($shop);
 		} catch (Exception $e) {
 			return $e->getMessage();
 		}
@@ -204,7 +204,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 			}
 			throw new Exception('Illegal export format');
 		} else {
-			$this->format = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportFormat();
+			$this->format = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportFormat($this->shop->getId());
 		}
 		return false;
 	}
@@ -220,7 +220,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 		if ($all !== null && is_bool($all)) {
 			$this->all = $all;
 		} else {
-			$this->all = Shopware_Plugins_Backend_Lengow_Components_LengowCore::isExportAllProducts();
+			$this->all = Shopware_Plugins_Backend_Lengow_Components_LengowCore::isExportAllProducts($this->shop->getId());
 		}
 	}
 
@@ -235,7 +235,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 		if ($all_products !== null && is_bool($all_products)) {
 			$this->all_products = $all_products;
 		} else {
-			$this->all_products = Shopware_Plugins_Backend_Lengow_Components_LengowCore::exportAllProducts();
+			$this->all_products = Shopware_Plugins_Backend_Lengow_Components_LengowCore::exportAllProducts($this->shop->getId());
 		}
 	}
 
@@ -250,7 +250,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         if ($fullmode !== null) {
             $this->full = $fullmode;
         } else {
-            $this->full = Shopware_Plugins_Backend_Lengow_Components_LengowCore::isExportFullmode();
+            $this->full = Shopware_Plugins_Backend_Lengow_Components_LengowCore::isExportFullmode($this->shop->getId());
         }
     }
 
@@ -265,7 +265,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         if($export_attributes !== null && is_bool($export_attributes)) {
             $this->export_attributes = $export_attributes;
         } else {
-            $this->export_attributes = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportAttributes();
+            $this->export_attributes = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportAttributes($this->shop->getId());
         }
     }
 
@@ -280,7 +280,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         if ($full_title !== null) {
             self::$full_title = $full_title;
         } else {
-            self::$full_title = Shopware_Plugins_Backend_Lengow_Components_LengowCore::exportTitle();
+            self::$full_title = Shopware_Plugins_Backend_Lengow_Components_LengowCore::exportTitle($this->shop->getId());
         }
     }
 
@@ -295,7 +295,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         if ($out_stock != null) {
             $this->export_out_stock = $out_stock;
         } else {
-            $this->export_out_stock = Shopware_Plugins_Backend_Lengow_Components_LengowCore::exportOutOfStockProduct();
+            $this->export_out_stock = Shopware_Plugins_Backend_Lengow_Components_LengowCore::exportOutOfStockProduct($this->shop->getId());
         }
     }
 
@@ -310,7 +310,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 		if ($stream !== null && is_bool($stream)) {
 			$this->stream = $stream;
 		} else {
-			$this->stream = (Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportInFile() ? false : true);
+			$this->stream = (Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportInFile($this->shop->getId()) ? false : true);
 		}
 	}
 
@@ -343,7 +343,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $z = 0; // Count variant product
 
             //Make header
-            $this->max_images = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportImages();           
+            $this->max_images = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportImages($this->shop->getId());           
             if($this->export_attributes) {
                 foreach(Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAttributes() as $attribute) {
                     $this->attributes[$attribute['name']] = $this->_toFieldname($attribute['name']);

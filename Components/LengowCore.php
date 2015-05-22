@@ -65,6 +65,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
         '80.236.15.223'
     );
 
+
+
 	/**
 	 * The images number to export.
      * 
@@ -185,7 +187,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      */
     public static function getConfig()
     {
-        return Shopware()->Plugins()->Backend()->Lengow()->Config();
+       return Shopware()->Plugins()->Backend()->Lengow()->Config();
+    }
+
+    /**
+     * Get the configuration of the module
+     * 
+     * @return int
+     */
+    public static function getSetting($idShop)
+    {
+        $sqlParams['shopId'] = (int) $idShop;
+        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS settings.id 
+                FROM lengow_settings as settings 
+                WHERE settings.shopID = :shopId";
+        $settingId = Shopware()->Db()->fetchOne($sql, $sqlParams);  
+        return Shopware()->Models()->getReference('Shopware\CustomModels\Lengow\Setting', $settingId);
     }
 
     /**
@@ -207,164 +224,209 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
      * Get id Customer
-     * 
+     *
+     * @param integer $idShop
      * @return int
      */
-    public static function getIdCustomer() 
+    public static function getIP($idShop) 
     {
-        return self::getConfig()->get('lengowIdUser');
+        return self::getSetting($idShop)->getLengowAuthorisedIp();
+        // return self::getConfig()->get('lengowIdUser');
+    }
+
+    /**
+     * Get id Customer
+     *
+     * @param integer $idShop
+     * @return int
+     */
+    public static function getIdCustomer($idShop) 
+    {
+        return self::getSetting($idShop)->getLengowIdUser();
+        // return self::getConfig()->get('lengowIdUser');
     }
 
     /**
      * Get group id
-     * 
+     *
+     * @param integer $idShop
      * @return int
      */
-    public static function getGroupCustomer($all = true) 
+    public static function getGroupCustomer($idShop, $all = true)
     {
         if ($all) {
-            return self::getConfig()->get('lengowIdGroup');
+            return self::getSetting($idShop)->getLengowIdGroup();
+            // return self::getConfig()->get('lengowIdGroup');
         }
-        $group = self::getConfig()->get('lengowIdGroup');
+            $group = self::getSetting($idShop)->getLengowIdGroup();
+        // $group = self::getConfig()->get('lengowIdGroup');
         $array_group = explode(',', $group);
         return $array_group[0];
     }
 
     /**
      * Get token API
-     * 
+     *
+     * @param integer $idShop
      * @return string
      */
-    public static function getTokenCustomer() 
+    public static function getTokenCustomer($idShop) 
     {
-        return self::getConfig()->get('lengowApiKey');
+        return self::getSetting($idShop)->getLengowApiKey();
+        // return self::getConfig()->get('lengowApiKey');
     }
 
     /**
      * Export all product or only selected
-     * 
+     *
+     * @param integer $idShop
      * @return boolean
      */
-    public static function isExportAllProducts() 
+    public static function isExportAllProducts($idShop) 
     {
-        return (self::getConfig()->get('lengowExportAllProducts') == 1 ? true : false);
+        return (self::getSetting($idShop)->getLengowExportAllProducts() == 1 ? true : false);
+        // return (self::getConfig()->get('lengowExportAllProducts') == 1 ? true : false);
     }
 
     /**
      * Export all product or only selected
-     * 
+     *
+     * @param integer $idShop
      * @return boolean
      */
-    public static function exportAllProducts() 
+    public static function exportAllProducts($idShop) 
     {
-        return (self::getConfig()->get('lengowExportDisabledProducts') == 1 ? true : false);
+        return (self::getSetting($idShop)->getLengowExportDisabledProducts() == 1 ? true : false);
+        // return (self::getConfig()->get('lengowExportDisabledProducts') == 1 ? true : false);
     }
 
     /**
      * Export variant products
-     * 
+     *
+     * @param integer $idShop
      * @return boolean
      */
-    public static function isExportFullmode() 
+    public static function isExportFullmode($idShop) 
     {
-        return (self::getConfig()->get('lengowExportVariantProducts') == 1 ? true : false);
+        return (self::getSetting($idShop)->getLengowExportVariantProducts() == 1 ? true : false);
+        // return (self::getConfig()->get('lengowExportVariantProducts') == 1 ? true : false);
     }
 
     /**
      * Export attributes
-     * 
+     *
+     * @param integer $idShop
      * @return boolean
      */
-    public static function getExportAttributes() 
+    public static function getExportAttributes($idShop) 
     {
-        return (self::getConfig()->get('lengowExportAttributes') == 1 ? true : false);
+        return (self::getSetting($idShop)->getLengowExportAttributes() == 1 ? true : false);
+        // return (self::getConfig()->get('lengowExportAttributes') == 1 ? true : false);
     }
 
     /**
     * Export only title or title + attribute
-    * 
+    *
+    * @param integer $idShop
     * @return boolean
     */
-    public static function exportTitle()
+    public static function exportTitle($idShop)
     {
-        return (self::getConfig()->get('lengowExportAttributesTitle') == 1 ? true : false);
+        return (self::getSetting($idShop)->getLengowExportAttributesTitle() == 1 ? true : false);
+    //     return (self::getConfig()->get('lengowExportAttributesTitle') == 1 ? true : false);
     }
 
     /**
     * Export out of stock product
-    * 
+    *
+    * @param integer $idShop
     * @return boolean
     */
-    public static function exportOutOfStockProduct()
+    public static function exportOutOfStockProduct($idShop)
     {
-        return (self::getConfig()->get('lengowExportOutStock') == 1 ? true : false);
+        return (self::getSetting($idShop)->getLengowExportOutStock() == 1 ? true : false);
+        // return (self::getConfig()->get('lengowExportOutStock') == 1 ? true : false);
     }
 
     /**
      * Export image size
-     * 
+     *
+     * @param integer $idShop
      * @return string
      */
-    public static function getExportImagesSize() 
+    public static function getExportImagesSize($idShop) 
     {
-        return self::getConfig()->get('lengowExportImageSize');
+        return self::getSetting($idShop)->getLengowExportImageSize();
+        // return self::getConfig()->get('lengowExportImageSize');
     }
 
     /**
      * Export max images
-     * 
+     *
+     * @param integer $idShop
      * @return string
      */
-    public static function getExportImages() 
+    public static function getExportImages($idShop) 
     {
-        return self::getConfig()->get('lengowExportImages');
+        return self::getSetting($idShop)->getLengowExportImages();
+        // return self::getConfig()->get('lengowExportImages');
     }
 
     /**
 	* The export format used
-    * 
+    *
+    * @param integer $idShop
 	* @return varchar Format
 	*/
-	public static function getExportFormat()
+	public static function getExportFormat($idShop)
 	{
-		return self::getConfig()->get('lengowExportFormat');
+        return self::getSetting($idShop)->getLengowExportFormat();
+		// return self::getConfig()->get('lengowExportFormat');
 	}
 
     /**
      * Export product in file
      *
+     * @param integer $idShop
      * @return boolean
      */
-    public static function getExportInFile() 
+    public static function getExportInFile($idShop) 
     {
-        return (self::getConfig()->get('lengowExportFile') == 1 ? true : false);
+        return (self::getSetting($idShop)->getLengowExportFile() == 1 ? true : false);
+        // return (self::getConfig()->get('lengowExportFile') == 1 ? true : false);
     }
 
     /**
      * Default Carrier
-     * 
+     *
+     * @param integer $idShop
      * @return string
      */
-    public static function getDefaultCarrier() 
+    public static function getDefaultCarrier($idShop) 
     {
-        return self::getConfig()->get('lengowCarrierDefault');
+        return self::getSetting($idShop)->getLengowCarrierDefault()->getId();
+        // return self::getConfig()->get('lengowCarrierDefault');
     }
 
     /**
      * Get the Id of new status order.
      *
      * @param varchar $version The version to compare
+     * @param integer $idShop
      * @return integer
      */
-    public static function getOrderState($state) 
+    public static function getOrderState($state, $idShop) 
     {
         switch ($state) {
             case 'process' :
-                return self::getConfig()->get('lengowOrderProcess');
+                return self::getSetting($idShop)->getLengowOrderProcess()->getId();
+                // return self::getConfig()->get('lengowOrderProcess');
             case 'shipped' :
-                return self::getConfig()->get('lengowOrderShipped');
+                return self::getSetting($idShop)->getLengowOrderShipped()->getId();
+                // return self::getConfig()->get('lengowOrderShipped');
             case 'cancel' :
-                return self::getConfig()->get('lengowOrderCancel');
+                return self::getSetting($idShop)->getLengowOrderCancel()->getId();
+                // return self::getConfig()->get('lengowOrderCancel');
         }
         return false;
     }
@@ -372,50 +434,83 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     /**
      * Get number days of import
      *
+     * @param integer $idShop
      * @return integer
      */
-    public static function getCountDaysToImport() 
+    public static function getCountDaysToImport($idShop) 
     {
-        return self::getConfig()->get('lengowImportDays');
+        return self::getSetting($idShop)->getLengowImportDays();
+        // return self::getConfig()->get('lengowImportDays');
     }
 
     /**
      * Get Payement Method Name
      *
+     * @param integer $idShop
      * @return string The method name
      */
-    public static function getPaymentMethodName()
+    public static function getPaymentMethodName($idShop)
     {
-        return self::getConfig()->get('lengowMethodName');
+        return self::getSetting($idShop)->getLengowMethodName();
+        // return self::getConfig()->get('lengowMethodName');
+    }
+
+    /**
+     * Get Force Price
+     *
+     * @param integer $idShop
+     * @return boolean
+     */
+    public static function getForcePrice($idShop)
+    {
+        return (self::getSetting($idShop)->getLengowForcePrice() == 1 ? true : false);
     }
 
     /**
      * Send admin email when order is imported
      *
+     * @param integer $idShop
      * @return boolean
      */
-    public static function sendEmailAdmin() {
-        return (self::getConfig()->get('lengowReportMail') == 1 ? true : false);
+    public static function sendEmailAdmin($idShop)
+    {
+        return (self::getSetting($idShop)->getLengowReportMail() == 1 ? true : false);
+        // return (self::getConfig()->get('lengowReportMail') == 1 ? true : false);
+    }
+
+    /**
+     * The email address for sending
+     *
+     * @param integer $idShop
+     * @return string
+     */
+    public static function getEmailAddress($idShop)
+    {
+        return self::getSetting($idShop)->getLengowEmailAddress();
     }
 
     /**
      * Export with cron
-     * 
+     *
+     * @param integer $idShop
      * @return boolean
      */
-    public static function getExportCron() 
+    public static function getExportCron($idShop) 
     {
-        return (self::getConfig()->get('lengowExportCron') == 1 ? true : false);
+        return (self::getSetting($idShop)->getLengowExportCron() == 1 ? true : false);
+        // return (self::getConfig()->get('lengowExportCron') == 1 ? true : false);
     }
 
     /**
      * Debug mode actived
-     * 
+     *
+     * @param integer $idShop
      * @return boolean
      */
-    public static function isDebug() 
+    public static function isDebug($idShop) 
     {
-        return (self::getConfig()->get('lengowDebug') == 1 ? true : false);
+        return (self::getSetting($idShop)->getLengowDebug() == 1 ? true : false); 
+        // return (self::getConfig()->get('lengowDebug') == 1 ? true : false);
     }
 
     /**

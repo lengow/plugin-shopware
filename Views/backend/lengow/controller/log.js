@@ -1,4 +1,4 @@
-//{namespace name="backend/lengow/view/main"}
+//{namespace name="backend/lengow/controller"}
 //{block name="backend/lengow/controller/log"}
 Ext.define('Shopware.apps.Lengow.controller.Log', {
 
@@ -30,7 +30,6 @@ Ext.define('Shopware.apps.Lengow.controller.Log', {
     },
 
     onDeleteLog: function(record) {
-    	console.log('Delete Log');
         var me      = this,
             store   = me.getLogGrid().getStore(),
             logGrid = me.getLogGrid();    
@@ -55,7 +54,6 @@ Ext.define('Shopware.apps.Lengow.controller.Log', {
     },
 
     onDeleteSelectedLogs: function(records) {
-        console.log('Delete selected Logs');
         var me      = this,
             store   = me.getLogGrid().getStore(),
             logGrid = me.getLogGrid();
@@ -81,8 +79,6 @@ Ext.define('Shopware.apps.Lengow.controller.Log', {
     },
 
     onFlushLogs: function(records) {
-        console.log('Flush Logs');
-
         var me      = this,
             store   = me.getLogGrid().getStore(),
             logGrid = me.getLogGrid();

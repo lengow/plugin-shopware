@@ -11,14 +11,14 @@ Ext.define('Shopware.apps.Lengow.view.main.Logs', {
 
     snippets: {
         column: {
-            idLog:      '{s name=logs/column/id_log}ID{/s}',
-            created:    '{s name=logs/column/created}Created{/s}',
-            message:    '{s name=logs/column/message}Message{/s}'
+            idLog:      '{s name=main/logs/column/id_log}ID{/s}',
+            created:    '{s name=main/logs/column/created}Created{/s}',
+            message:    '{s name=main/logs/column/message}Message{/s}'
         },
         topToolbar: {
-            deleteSelectedLogs: '{s name=logs/topToolbar/delete_selected_logs}Delete selected Logs{/s}',
-            flushLogs:          '{s name=logs/topToolbar/flush_logs}Flush Logs{/s}',
-            searchLogs:         '{s name=logs/topToolbar/search_logs}Search...{/s}'
+            deleteSelectedLogs: '{s name=main/logs/topToolbar/delete_selected_logs}Delete selected Logs{/s}',
+            flushLogs:          '{s name=main/logs/topToolbar/flush_logs}Flush Logs{/s}',
+            searchLogs:         '{s name=main/logs/topToolbar/search_logs}Search...{/s}'
         }
     },
 
@@ -136,7 +136,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Logs', {
             xtype: 'textfield',
             name: 'searchfield',
             action: 'search',
-            width: 170,
+            width: 150,
             cls: 'searchfield',
             enableKeyEvents: true,
             checkChangeBuffer: 500,

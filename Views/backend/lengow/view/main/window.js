@@ -4,15 +4,16 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
 
     extend:'Enlight.app.Window',
 
-    title: '{s name=window/title_window}Lengow{/s}',
+    title: '{s name=main/window/title_window}Lengow{/s}',
 
     alias:'widget.lengow-main-window',
 
     border: false,
     autoShow: true,
-    layout: 'fit',
+    layout: 'border',
     height: '90%',
     width: 1200,
+    tabPanel : null,
 
     /**
      * Contains all snippets for the component
@@ -20,9 +21,9 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
      */
     snippets: {
         tab: {
-            exports:    '{s name=window/tab/exports}Products export{/s}',
-            imports:    '{s name=window/tab/imports}Lengow\'s orders{/s}',
-            logs:       '{s name=window/tab/logs}Logs{/s}'
+            exports:    '{s name=main/window/tab/exports}Products export{/s}',
+            imports:    '{s name=main/window/tab/imports}Lengow\'s orders{/s}',
+            logs:       '{s name=main/window/tab/logs}Logs{/s}'
         }
     },
 
@@ -33,7 +34,11 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
      */
     initComponent: function() {
         var me = this;
-        me.items = me.createTabPanel();
+
+        me.items = [
+            me.createTabPanel()
+        ];
+
         me.callParent(arguments);
     },
 
@@ -44,63 +49,34 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
     createTabPanel: function() {
         var me = this;
         me.tabPanel = Ext.create('Ext.tab.Panel', {
+            region: 'center',
+            split: true,
             items: [ 
                 {
                     title: me.snippets.tab.exports,
                     xtype: 'lengow-export-exports',
-                    region: 'center',
                     articlesStore: me.articlesStore,
                     layout: 'border'
                 },{
                     title: me.snippets.tab.imports,
                     xtype: 'lengow-import-imports',
-                    region: 'center',
                     ordersStore: me.ordersStore,
                     layout: 'border'
-                },
-                me.createLogsTab() 
+                },{
+                    title: me.snippets.tab.logs,
+                    xtype: 'lengow-main-logs',
+                    logsStore: me.logsStore
+                },{
+                    tabConfig: {
+                        xtype: 'tbfill'
+                    }
+                },{
+                    title: 'Settings',
+                    xtype: 'lengow-main-settings' 
+                }
             ]
         });
-
         return me.tabPanel;
-    },
-
-    /**
-     * Creates a container "imports"
-     * The container will be used as the "imports" tab.
-     * @returns { Ext.container.Container }
-     */
-    // createImportsTab: function() {
-    //     var me = this;
-    //     me.importsContainer = Ext.create('Ext.container.Container', {
-    //         layout: 'border',
-    //         title: me.snippets.tab.imports,
-    //         items: {
-    //             xtype: 'lengow-main-imports',
-    //             region: 'center',
-    //             ordersStore: me.ordersStore
-    //         }
-    //     });
-    //     return me.importsContainer;
-    // },
-
-    /**
-     * Creates a container "logs"
-     * The container will be used as the "logs" tab.
-     * @returns { Ext.container.Container }
-     */
-    createLogsTab: function() {
-        var me = this;
-        me.logsContainer = Ext.create('Ext.container.Container', {
-            layout: 'border',
-            title: me.snippets.tab.logs,
-            items: {
-                xtype: 'lengow-main-logs',
-                region: 'center', 
-                logsStore: me.logsStore
-            }
-        });
-        return me.logsContainer;
     }
 
 });

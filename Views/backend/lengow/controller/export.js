@@ -1,4 +1,4 @@
-//{namespace name="backend/lengow/view/main"}
+//{namespace name="backend/lengow/controller"}
 //{block name="backend/lengow/controller/export"}
 Ext.define('Shopware.apps.Lengow.controller.Export', {
 
@@ -35,7 +35,6 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
     },
 
     onPublishProducts: function(records, value) {
-        console.log('Publish Products');
         var me          = this,
             store       = me.getArticleGrid().getStore(),
             articleGrid = me.getArticleGrid(); 
@@ -55,7 +54,6 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
     },
 
     onActiveProduct: function(record, value) {
-        console.log('Active product');
         var me          = this,
             store       = me.getArticleGrid().getStore(),
             articleGrid = me.getArticleGrid(); 
@@ -66,7 +64,6 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
     },
 
     onSaveActiveProduct: function(editor, event, store) {
-        console.log('Save active product');
         var me          = this,
             store       = me.getArticleGrid().getStore(),
             articleGrid = me.getArticleGrid();
@@ -80,8 +77,6 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
     },
 
     onExportProducts: function(record) {
-        console.log('Export products');
-
         var me = this;
         var shop = record.getValue();
 

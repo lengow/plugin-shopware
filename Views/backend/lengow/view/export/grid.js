@@ -18,11 +18,10 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             activeLengow:   '{s name=export/grid/column/activeLengow}Lengow\'s products{/s}'
         },
         topToolbar: {
-            publishProducts:    '{s name=export/grid/topToolbar/publish_products}Publish Lengow\'s products{/s}',
-            unpublishProducts:  '{s name=export/grid/topToolbar/unpublish_products}Unpublish Lengow\'s products{/s}',
-            selectShop:         '{s name=export/grid/topToolbar/select_shop}Choose Shop{/s}',
+            publishProducts:    '{s name=export/grid/topToolbar/publish_products}Publish products{/s}',
+            unpublishProducts:  '{s name=export/grid/topToolbar/unpublish_products}Unpublish products{/s}',
             selectShopEmpty:    '{s name=export/grid/topToolbar/select_shop_empty}Select a shop...{/s}',
-            exportProducts:     '{s name=export/grid/topToolbar/export_products}Export shop products{/s}',
+            exportProducts:     '{s name=export/grid/topToolbar/export_products}Export products{/s}',
             searchProducts:     '{s name=export/grid/topToolbar/search_products}Search...{/s}'
         }
     },
@@ -207,21 +206,19 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
         me.shopCombo = Ext.create('Ext.form.field.ComboBox', {
             triggerAction:'all',
-            fieldLabel: me.snippets.topToolbar.selectShop,
             emptyText: me.snippets.topToolbar.selectShopEmpty,
             store: shopStore,
-            labelWidth: 80,
+            width: 130,
             name: 'shopExport',
             valueField: 'name',
             displayField: 'name',
-            queryMode: 'remote'
+            queryMode: 'remote',
         });
         buttons.push(me.shopCombo);
 
         me.exportProductsBtn = Ext.create('Ext.button.Button', {
             iconCls:'sprite-plus-circle',
             text: me.snippets.topToolbar.exportProducts,
-            width: 150,
             handler: function() {
                 me.fireEvent('exportProducts', me.shopCombo);
             }

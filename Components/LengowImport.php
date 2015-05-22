@@ -26,6 +26,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
      */
     public static $force_log_output = true;
 
+    /**
+     * Instance of shop, the article shop
+     */
+    private $shop = null;
+
+ 	/**
+    * Construct new Lengow import
+    * 
+    * @return Exception Error
+    */
+    public function __construct($shop = null) {
+    	$this->shop = $shop;
+    }
+
 	/**
 	* Construct the import manager
 	*
@@ -75,8 +89,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     private function _setConnector() 
     {
         $this->lengow_connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector(
-			(int) Shopware_Plugins_Backend_Lengow_Components_LengowCore::getIdCustomer(), 
-			Shopware_Plugins_Backend_Lengow_Components_LengowCore::getTokenCustomer()
+			(int) Shopware_Plugins_Backend_Lengow_Components_LengowCore::getIdCustomer($this->shop->getId()), 
+			Shopware_Plugins_Backend_Lengow_Components_LengowCore::getTokenCustomer($this->shop->getId())
 		);
         if($this->lengow_connector->error != '') {
             die($this->lengow_connector->error);
@@ -96,7 +110,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 			$args_order = array(
 				'orderid' => $args['orderid'],
 				'feed_id' => $args['feed_id'],
-				'id_group' => Shopware_Plugins_Backend_Lengow_Components_LengowCore::getGroupCustomer()
+				'id_group' => Shopware_Plugins_Backend_Lengow_Components_LengowCore::getGroupCustomer($this->shop->getId())
 			);
 			self::$force_log_output = -1;
 		}
@@ -105,7 +119,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 			$args_order = array(
 				'dateFrom' => $args['dateFrom'],
 				'dateTo' => $args['dateTo'],
-				'id_group' => Shopware_Plugins_Backend_Lengow_Components_LengowCore::getGroupCustomer(),
+				'id_group' => Shopware_Plugins_Backend_Lengow_Components_LengowCore::getGroupCustomer($this->shop->getId()),
 				'state' => 'plugin'
 			);
 		}

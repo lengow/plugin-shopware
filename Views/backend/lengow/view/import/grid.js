@@ -8,20 +8,20 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
 
     snippets: {
         column: {
-            orderNumber:    '{s name=imports/column/order_number}Order number{/s}',
-            orderDate:      '{s name=imports/column/order_date}Order date{/s}',
-            amount:         '{s name=imports/column/amount}Amount{/s}',
-            shipping:       '{s name=imports/column/shipping}Shipping{/s}',
-            shop:           '{s name=imports/column/shop}Shop{/s}',
-            customer:       '{s name=imports/column/customer}Customer{/s}',
-            currentStatus:  '{s name=imports/column/status}Current order status{/s}',
-            idOrderLengow:  '{s name=imports/column/id_order_lengow}ID Lengow{/s}',
-            idFlux:         '{s name=imports/column/id_flux}ID Flux{/s}',
-            marketplace:    '{s name=imports/column/marketplace}Marketplace{/s}'
+            orderNumber:    '{s name=import/grid/column/order_number}Order number{/s}',
+            orderDate:      '{s name=import/grid/column/order_date}Order date{/s}',
+            amount:         '{s name=import/grid/column/amount}Amount{/s}',
+            shipping:       '{s name=import/grid/column/shipping}Shipping{/s}',
+            shop:           '{s name=import/grid/column/shop}Shop{/s}',
+            customer:       '{s name=import/grid/column/customer}Customer{/s}',
+            currentStatus:  '{s name=import/grid/column/status}Current order status{/s}',
+            idOrderLengow:  '{s name=import/grid/column/id_order_lengow}ID Lengow{/s}',
+            idFlux:         '{s name=import/grid/column/id_flux}ID Flux{/s}',
+            marketplace:    '{s name=import/grid/column/marketplace}Marketplace{/s}'
         },
         topToolbar: {
-            manualImport:   '{s name=imports/topToolbar/manual_import}Manual Import{/s}',
-            searchOrder:    '{s name=imports/topToolbar/search_order}Search...{/s}'
+            manualImport:   '{s name=import/grid/topToolbar/manual_import}Manual Import{/s}',
+            searchOrder:    '{s name=import/grid/topToolbar/search_order}Search...{/s}'
         }
     },
 
@@ -48,9 +48,10 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
     getGridSelModel: function () {
         var me = this;
 
-        return Ext.create('Ext.selection.CheckboxModel', {
+        return Ext.create('Ext.selection.RowModel', {
             listeners:{
-                selectionchange: function (sm, selections) {
+                selectionchange: function (view, selected) {
+                    me.fireEvent('selectOrder', selected[0]);
                 }
             }
         });
@@ -154,7 +155,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             xtype : 'textfield',
             name : 'searchfield',
             action : 'search',
-            width: 170,
+            width: 150,
             cls: 'searchfield',
             enableKeyEvents: true,
             checkChangeBuffer: 500,

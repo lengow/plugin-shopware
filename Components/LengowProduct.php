@@ -87,7 +87,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 }
                 break;
             case 'name_article':
-                if ($id_variation && Shopware_Plugins_Backend_Lengow_Components_LengowCore::exportTitle()) {
+                if ($id_variation && Shopware_Plugins_Backend_Lengow_Components_LengowCore::exportTitle($this->shop->getId())) {
                     $variationName = '';
                     $values = $this->_getOptions($id_variation);
                     foreach ($values as $value) {
@@ -300,7 +300,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 break;
             case 'shipping_price':
                 // Get the default dispatch
-                $idDispatch = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDefaultCarrier(); 
+                $idDispatch = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDefaultCarrier($this->shop->getId()); 
                 $dispatch = Shopware()->Models()->find('Shopware\Models\Dispatch\Dispatch', $idDispatch);
                 $shippingPrice  = 0;
                 $weight         = 0;
@@ -409,7 +409,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 $index = explode('_', $name);
                 $index = $index[1];
                 $imagePath = '';
-                $size = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportImagesSize();
+                $size = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportImagesSize($this->shop->getId());
                 if(isset($this->images[$index - 1]) && $this->images[$index - 1]) {
                     if($this->images[$index - 1]->getMedia() !== null) {
                         $thumbnailPaths = $this->images[$index - 1]->getMedia()->getThumbnailFilePaths();

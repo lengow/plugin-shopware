@@ -1,11 +1,12 @@
-//{namespace name="backend/lengow/view/main"}
+//{namespace name="backend/lengow/controller"}
 //{block name="backend/lengow/controller/import"}
 Ext.define('Shopware.apps.Lengow.controller.Import', {
 
     extend:'Ext.app.Controller',
 
     refs: [
-        { ref: 'orderGrid', selector: 'lengow-main-imports' }
+        { ref: 'orderGrid', selector: 'lengow-import-grid' },
+        { ref: 'importsForm', selector: 'lengow-import-panel' }
     ],
 
     snippets: {
@@ -18,16 +19,27 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
     init:function () {
         var me = this;
         me.control({
-            'lengow-main-imports': {
+            'lengow-import-grid': {
+                selectOrder: me.onSelectOrder,
                 manualImport: me.onManualImport
             }
         });
         me.callParent(arguments);
     },
 
-    onManualImport: function() {
-        console.log('Manual Import');
+    onSelectOrder: function(record) {
+        var me = this,
+            importsForm = me.getImportsForm();
 
+        if (!(record instanceof Ext.data.Model)) {
+            return;
+        }
+
+        importsForm.loadRecord(record);
+
+    },
+
+    onManualImport: function() {
         var me          = this,
             store       = me.getOrderGrid().getStore(),
             orderGrid = me.getOrderGrid();

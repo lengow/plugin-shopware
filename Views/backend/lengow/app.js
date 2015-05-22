@@ -34,10 +34,12 @@ Ext.define('Shopware.apps.Lengow', {
     views: [ 
         'main.Window',
         'main.Logs',
+        'main.Settings',
         'export.Exports',
         'export.Grid',
         'import.Imports',
-        'import.Grid'       
+        'import.Grid',
+        'import.Panel'
     ],
 
     /**
@@ -47,7 +49,12 @@ Ext.define('Shopware.apps.Lengow', {
     stores: [
         'Articles',
         'Orders', 
-        'Logs' 
+        'Logs',
+        'Settings', 
+        'ExportFormats',
+        'ExportImages',
+        'ImageFormats',
+        'PaymentMethods' 
     ],
 
     /**
@@ -57,7 +64,12 @@ Ext.define('Shopware.apps.Lengow', {
     models: [
         'Article',
         'Order', 
-        'Log' 
+        'Log',
+        'Setting',
+        'ExportFormat',
+        'ExportImage',
+        'ImageFormat',
+        'PaymentMethod'  
     ],
 
     /**
@@ -68,7 +80,7 @@ Ext.define('Shopware.apps.Lengow', {
         'Main',
         'Export',
         'Import',
-        'Log' 
+        'Log'
     ],
 
     /**
