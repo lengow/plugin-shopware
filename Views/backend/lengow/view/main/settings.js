@@ -12,6 +12,136 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
 
     autoScroll: true,
 
+    snippets: {
+        topToolbar: {
+            selectShop:      '{s name=main/settings/topToolbar/select_shop}Choose a shop settings{/s}',
+            selectShopEmpty: '{s name=main/settings/topToolbar/select_shop_empty}Select a shop...{/s}'
+        },
+        bottomToolbar: {
+            save: '{s name=main/settings/bottomToolbar/save}Save settings{/s}'
+        },
+        account: {
+            title: '{s name=main/settings/account/title}Account settings{/s}',
+            customerId: {
+                label:      '{s name=main/settings/account/customer_id/label}Customer ID{/s}',
+                support:    '{s name=main/settings/account/customer_id/support}To edit this data, please go at : Configuration / Basic Settings / Additional settings / Lengow{/s}'
+            },
+            groupId: {
+                label:      '{s name=main/settings/account/group_id/label}Group ID{/s}',
+                support:    '{s name=main/settings/account/group_id/support}Your Group ID of Lengow{/s}'
+            },
+            apiKey: {
+                label:      '{s name=main/settings/account/api_key/label}Token API{/s}',
+                support:    '{s name=main/settings/account/api_key/support}To edit this data, please go at : Configuration / Basic Settings / Additional settings / Lengow{/s}'
+            }
+        }, 
+        security: {
+            title: '{s name=main/settings/security/title}Security settings{/s}',
+            authorisedIp: {
+                label:      '{s name=main/settings/security/customer_id/label}IP authorised to export{/s}',
+                support:    '{s name=main/settings/security/customer_id/support}To edit this data, please go at : Configuration / Basic Settings / Additional settings / Lengow{/s}'
+            }
+        },
+        exportation: {
+            title: '{s name=main/settings/exportation/title}Exportation settings{/s}',
+            allProducts: {
+                label:      '{s name=main/settings/exportation/all_products/label}Export all products{/s}',
+                boxLabel:   '{s name=main/settings/exportation/all_products/box_label}Uncheck this option to export only selected products{/s}'
+            },
+            disabledProducts: {
+                label:      '{s name=main/settings/exportation/disabled_products/label}Export disabled products{/s}',
+                boxLabel:   '{s name=main/settings/exportation/disabled_products/box_label}Check this option to export disabled products{/s}'
+            },
+            variantProducts: {
+                label:      '{s name=main/settings/exportation/variant_products/label}Export variant products{/s}',
+                boxLabel:   '{s name=main/settings/exportation/variant_products/box_label}Check this option to export all your products\' variations{/s}'
+            },
+            attributes: {
+                label:      '{s name=main/settings/exportation/attributes/label}Export attributes{/s}',
+                boxLabel:   '{s name=main/settings/exportation/attributes/box_label}Check this option to export your products with attributes{/s}'
+            },
+            attributesTitle: {
+                label:      '{s name=main/settings/exportation/attributes_title/label}Title + attributes + features{/s}',
+                boxLabel:   '{s name=main/settings/exportation/attributes_title/box_label}Check this option if you want a variation product title as title + attributes + feature. By default the title will be the product name{/s}'
+            },
+            outStock: {
+                label:      '{s name=main/settings/exportation/out_stock/label}Export out of stock product{/s}',
+                boxLabel:   '{s name=main/settings/exportation/out_stock/box_label}Check this option to export out of stock product{/s}'
+            },
+            imageSize: {
+                label:      '{s name=main/settings/exportation/image_size/label}Image size to export{/s}',
+                emptyText:  '{s name=main/settings/exportation/image_size/empty_text}Select a format...{/s}'
+            },
+            imageExport: {
+                label:      '{s name=main/settings/exportation/image_export/label}Number of images to export{/s}',
+                emptyText:  '{s name=main/settings/exportation/image_export/empty_text}Select a number...{/s}'
+            },
+            exportFormat: {
+                label:      '{s name=main/settings/exportation/export_format/label}Export format{/s}',
+                emptyText:  '{s name=main/settings/exportation/export_format/empty_text}Select a format...{/s}'
+            },
+            exportFile: {
+                label:      '{s name=main/settings/exportation/export_file/label}Save feed on file{/s}',
+                boxLabel:   '{s name=main/settings/exportation/export_file/box_label}Check this option if you have more than 10,000 products{/s}'
+            },
+            exportUrl: {
+                label:      '{s name=main/settings/exportation/export_url/label}Our export URL{/s}'   
+            }
+        },
+        importation: {
+            title: '{s name=main/settings/importation/title}Importation settings{/s}',
+            carrierDefault: {
+                label:      '{s name=main/settings/importation/carrier_default/label}Default shipping cost{/s}',
+                emptyText:  '{s name=main/settings/importation/carrier_default/empty_text}Select a shipping cost...{/s}'
+            },
+            orderProcess: {
+                label:      '{s name=main/settings/importation/order_process/label}Status of process orders{/s}',
+                emptyText:  '{s name=main/settings/importation/order_process/empty_text}Select a order status...{/s}'
+            },
+            orderShipped: {
+                label:      '{s name=main/settings/importation/order_shipped/label}Status of shipped orders{/s}',
+                emptyText:  '{s name=main/settings/importation/order_shipped/empty_text}Select a order status...{/s}'
+            },
+            orderCancel: {
+                label:      '{s name=main/settings/importation/order_cancel/label}Status of cancel orders{/s}',
+                emptyText:  '{s name=main/settings/importation/order_cancel/empty_text}Select a order status...{/s}'
+            },
+            importDay: {
+                label:      '{s name=main/settings/exportation/import_day/label}Import from x days{/s}'   
+            },
+            methodName: {
+                label:      '{s name=main/settings/importation/method_name/label}Associated payment method{/s}',
+                emptyText:  '{s name=main/settings/importation/method_name/empty_text}Select a payment method...{/s}'
+            },
+            forcedPrice: {
+                label:      '{s name=main/settings/importation/forced_price/label}Forced price{/s}',
+                boxLabel:   '{s name=main/settings/importation/forced_price/box_label}Check this option to force the product prices of the marketplace orders during the import{/s}'
+            },
+            reportMail: {
+                label:      '{s name=main/settings/importation/report_mail/label}Report email{/s}',
+                boxLabel:   '{s name=main/settings/importation/report_mail/box_label}Check this option for receive a report with every import{/s}'
+            },
+            emailAddress: {
+                label:      '{s name=main/settings/importation/email_address/label}Send reports to{/s}',
+                support:    '{s name=main/settings/importation/email_address/support}If report email are activated, the reports will be send to the specified address. Otherwise it will be your default shop email address{/s}'
+            },
+            importUrl: {
+                label:      '{s name=main/settings/importation/import_url/label}Our import URL{/s}'   
+            }, 
+            exportCron: {
+                label:      '{s name=main/settings/importation/export_cron/label}Active import cron{/s}',
+                boxLabel:   '{s name=main/settings/importation/export_cron/box_label}Check this option to import orders automatically{/s}'
+            },
+        },
+        development: {
+            title: '{s name=main/settings/development/title}Development settings{/s}',
+            debugMode: {
+                label: '{s name=main/settings/development/debug_mode/label}Debug mode{/s}',
+                emptyText: '{s name=main/settings/development/debug_mode/box_label}Use it only during tests{/s}'
+            }
+        },
+    },
+
     initComponent: function() {
         var me = this;
 
@@ -39,7 +169,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             me = this;
 
         accountFieldSet = Ext.create('Ext.form.FieldSet', {
-            title: 'Account settings',
+            title: me.snippets.account.title,
             layout: 'anchor',
             defaults: {
                 anchor: '100%'
@@ -55,7 +185,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             me = this;
 
         securityFieldSet = Ext.create('Ext.form.FieldSet', {
-            title: 'Security settings',
+            title: me.snippets.security.title,
             layout: 'anchor',
             defaults: {
                 anchor: '100%'
@@ -71,7 +201,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             me = this;
 
         exportFieldSet = Ext.create('Ext.form.FieldSet', {
-            title: 'Exportation settings',
+            title: me.snippets.exportation.title,
             layout: 'anchor',
             defaults: {
                 anchor: '100%'
@@ -86,7 +216,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             me = this;
 
         importFieldSet = Ext.create('Ext.form.FieldSet', {
-            title: 'Importation settings',
+            title: me.snippets.importation.title,
             layout: 'anchor',
             defaults: {
                 anchor: '100%'
@@ -101,7 +231,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             me = this;
 
         developmentFieldSet = Ext.create('Ext.form.FieldSet', {
-            title: 'Development settings',
+            title: me.snippets.development.title,
             layout: 'anchor',
             defaults: {
                 anchor: '100%'
@@ -116,22 +246,24 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
 
         me.customerIdField = Ext.create('Ext.form.field.Text', {
             name: 'lengowIdUser',
-            fieldLabel: 'Customer ID',
-            supportText: 'Your Customer ID of Lengow',
+            fieldLabel: me.snippets.account.customerId.label,
+            supportText: me.snippets.account.customerId.support,
+            disabled: true,
             labelWidth: 170
         });
 
         me.groupIdField = Ext.create('Ext.form.field.Text', {
             name: 'lengowIdGroup',
-            fieldLabel: 'Group ID',
-            supportText: 'Your Group ID of Lengow',
+            fieldLabel: me.snippets.account.groupId.label,
+            supportText: me.snippets.account.groupId.support,
             labelWidth: 170
         });
 
         me.apiKeyField = Ext.create('Ext.form.field.Text', {
             name: 'lengowApiKey',
-            fieldLabel: 'Token API',
-            supportText: 'Your Token API of Lengow',
+            fieldLabel: me.snippets.account.apiKey.label,
+            supportText: me.snippets.account.apiKey.support,
+            disabled: true,
             labelWidth: 170
         });
 
@@ -147,8 +279,9 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
 
         me.authorisedIpField = Ext.create('Ext.form.field.Text', {
             name: 'lengowAuthorisedIp',
-            fieldLabel: 'IP authorised to export',
-            supportText: 'Authorized access to catalog export by IP, separated by ;',
+            fieldLabel: me.snippets.security.authorisedIp.label,
+            supportText: me.snippets.security.authorisedIp.support,
+            disabled: true,
             labelWidth: 170
         });
 
@@ -160,55 +293,55 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
 
         me.exportAllProductsCheck = Ext.create('Ext.form.field.Checkbox', {
             name: 'lengowExportAllProducts',
-            fieldLabel: 'Export all products',
+            fieldLabel: me.snippets.exportation.allProducts.label,
             inputValue: true,
             uncheckedValue: false,
-            boxLabel: 'If don\'t want to export all your available products, uncheck and select yours products',
+            boxLabel: me.snippets.exportation.allProducts.boxLabel,
             labelWidth: 170
         });
 
         me.exportDisabledProductsCheck = Ext.create('Ext.form.field.Checkbox', {
             name: 'lengowExportDisabledProducts',
-            fieldLabel: 'Export disabled products',
+            fieldLabel: me.snippets.exportation.disabledProducts.label,
             inputValue: true,
             uncheckedValue: false,
-            boxLabel: 'Check this option if you want to export disabled products',
+            boxLabel: me.snippets.exportation.disabledProducts.boxLabel,
             labelWidth: 170
         });
 
         me.exportVariantProductsCheck = Ext.create('Ext.form.field.Checkbox', {
             name: 'lengowExportVariantProducts',
-            fieldLabel: 'Export variant products',
+            fieldLabel: me.snippets.exportation.variantProducts.label,
             inputValue: true,
             uncheckedValue: false,
-            boxLabel: 'Check this option if you want to export all your products\' variations',
+            boxLabel: me.snippets.exportation.variantProducts.boxLabel,
             labelWidth: 170
         });
 
         me.exportAttributesCheck = Ext.create('Ext.form.field.Checkbox', {
             name: 'lengowExportAttributes',
-            fieldLabel: 'Export disabled products',
+            fieldLabel: me.snippets.exportation.attributes.label,
             inputValue: true,
             uncheckedValue: false,
-            boxLabel: 'Check this option if you want to export your products with attributes',
+            boxLabel: me.snippets.exportation.attributes.boxLabel,
             labelWidth: 170
         });
 
         me.exportAttributesTitleCheck = Ext.create('Ext.form.field.Checkbox', {
             name: 'lengowExportAttributesTitle',
-            fieldLabel: 'Title + attributes + features',
+            fieldLabel: me.snippets.exportation.attributesTitle.label,
             inputValue: true,
             uncheckedValue: false,
-            boxLabel: 'Check this option if you want a variation product title as title + attributes + feature. By default the title will be the product name',
+            boxLabel: me.snippets.exportation.attributesTitle.boxLabel,
             labelWidth: 170
         });
 
         me.exportOutStockCheck = Ext.create('Ext.form.field.Checkbox', {
             name: 'lengowExportOutStock',
-            fieldLabel: 'Export out of stock product',
+            fieldLabel: me.snippets.exportation.outStock.label,
             inputValue: true,
             uncheckedValue: false,
-            boxLabel: 'Check this option if you want to export out of stock product',
+            boxLabel: me.snippets.exportation.outStock.boxLabel,
             labelWidth: 170
         });
 
@@ -222,9 +355,9 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             store: imageFormatsStore,
             valueField: 'id',
             displayField: 'name',
-            emptyText: 'Select a format...',
+            emptyText: me.snippets.exportation.imageSize.emptyText,
             allowBlank: false,
-            fieldLabel: 'Image size to export',
+            fieldLabel: me.snippets.exportation.imageSize.label,
             labelWidth: 170
         });
 
@@ -239,9 +372,9 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             store: exportImagesStore,
             valueField: 'id',
             displayField: 'name',
-            emptyText: 'Select a number...',
+            emptyText: me.snippets.exportation.imageExport.emptyText,
             allowBlank: false,
-            fieldLabel: 'Number of images to export',
+            fieldLabel: me.snippets.exportation.imageExport.label,
             labelWidth: 170
         });
 
@@ -255,24 +388,24 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             store: exportFormatsStore,
             valueField: 'id',
             displayField: 'name',
-            emptyText: 'Select a format...',
+            emptyText: me.snippets.exportation.exportFormat.emptyText,
             allowBlank: false,
-            fieldLabel: 'Export format',
+            fieldLabel: me.snippets.exportation.exportFormat.label,
             labelWidth: 170
         });
 
         me.exportFileCheck = Ext.create('Ext.form.field.Checkbox', {
             name: 'lengowExportFile',
-            fieldLabel: 'Save feed on file',
+            fieldLabel: me.snippets.exportation.exportFile.label,
             inputValue: true,
             uncheckedValue: false,
-            boxLabel: 'Check this option if you have more than 10,000 products',
+            boxLabel: me.snippets.exportation.exportFile.boxLabel,
             labelWidth: 170
         });
 
         me.exportUrlDisplay = Ext.create('Ext.form.field.Display', {
             name: 'lengowExportUrl',
-            fieldLabel: 'Our export URL',
+            fieldLabel: me.snippets.exportation.exportUrl.label,
             labelWidth: 170
         });
 
@@ -304,9 +437,9 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             store: dispathStore,
             valueField: 'id',
             displayField: 'name',
-            emptyText: 'Select a shipping cost...',
+            emptyText: me.snippets.importation.carrierDefault.emptyText,
             allowBlank: false,
-            fieldLabel: 'Default shipping cost',
+            fieldLabel: me.snippets.importation.carrierDefault.label,
             labelWidth: 170
         });
 
@@ -320,9 +453,9 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             store: orderStatusStore,
             valueField: 'id',
             displayField: 'description',
-            emptyText: 'Select a order status...',
+            emptyText: me.snippets.importation.orderProcess.emptyText,
             allowBlank: false,
-            fieldLabel: 'Status of process orders',
+            fieldLabel: me.snippets.importation.orderProcess.label,
             labelWidth: 170
         });
 
@@ -332,9 +465,9 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             store: orderStatusStore,
             valueField: 'id',
             displayField: 'description',
-            emptyText: 'Select a state...',
+            emptyText: me.snippets.importation.orderShipped.emptyText,
             allowBlank: false,
-            fieldLabel: 'Status of shipped orders',
+            fieldLabel: me.snippets.importation.orderShipped.label,
             labelWidth: 170
         });
 
@@ -344,15 +477,15 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             store: orderStatusStore,
             valueField: 'id',
             displayField: 'description',
-            emptyText: 'Select a order status...',
+            emptyText: me.snippets.importation.orderCancel.emptyText,
             allowBlank: false,
-            fieldLabel: 'Status of cancelled orders',
+            fieldLabel: me.snippets.importation.orderCancel.label,
             labelWidth: 170
         });
 
         me.importDayNumber = Ext.create('Ext.form.field.Number', {
             name: 'lengowImportDays',
-            fieldLabel: 'Import from x days',
+            fieldLabel: me.snippets.importation.importDay.label,
             maxValue: 99,
             minValue: 1,
             labelWidth: 170 
@@ -367,49 +500,50 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             store: paymentMethodsStore,
             valueField: 'id',
             displayField: 'name',
-            emptyText: 'Select a payment method...',
+            emptyText: me.snippets.importation.methodName.emptyText,
             allowBlank: false,
-            fieldLabel: 'Associated payment method',
+            fieldLabel: me.snippets.importation.methodName.label,
             labelWidth: 170
         });
 
         me.forcedPriceCheck = Ext.create('Ext.form.field.Checkbox', {
             name: 'lengowForcePrice',
-            fieldLabel: 'Forced price',
+            fieldLabel: me.snippets.importation.forcedPrice.label,
             inputValue: true,
             uncheckedValue: false,
-            boxLabel: 'Check this option to force the product prices of the marketplace orders during the import',
+            boxLabel: me.snippets.importation.forcedPrice.boxLabel,
             labelWidth: 170
         });
 
         me.reportMailCheck = Ext.create('Ext.form.field.Checkbox', {
             name: 'lengowReportMail',
-            fieldLabel: 'Report email',
+            fieldLabel: me.snippets.importation.reportMail.label,
             inputValue: true,
             uncheckedValue: false,
-            boxLabel: 'Check this option for receive a report with every import on the email address configured',
+            boxLabel: me.snippets.importation.reportMail.boxLabel,
             labelWidth: 170
         });
 
         me.emailAddressField = Ext.create('Ext.form.field.Text', {
             name: 'lengowEmailAddress',
-            fieldLabel: 'Send reports to',
-            supportText: 'If report emails are activated, the reports will be send to the specified address. Otherwise it will be your default shop email address',
+            fieldLabel: me.snippets.importation.emailAddress.label,
+            supportText: me.snippets.importation.emailAddress.support,
+            vtype: 'email',
             labelWidth: 170
         });
 
         me.importUrlDisplay = Ext.create('Ext.form.field.Display', {
             name: 'lengowImportUrl',
-            fieldLabel: 'Our import URL',
+            fieldLabel: me.snippets.importation.importUrl.label,
             labelWidth: 170
         });
 
         me.exportCronCheck = Ext.create('Ext.form.field.Checkbox', {
             name: 'lengowExportCron',
-            fieldLabel: 'Active import cron',
+            fieldLabel: me.snippets.importation.exportCron.label,
             inputValue: true,
             uncheckedValue: false,
-            boxLabel: 'Check this option to import orders automatically',
+            boxLabel: me.snippets.importation.exportCron.boxLabel,
             labelWidth: 170
         });
 
@@ -433,10 +567,10 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
 
         me.debugModeCheck = Ext.create('Ext.form.field.Checkbox', {
             name: 'lengowDebug',
-            fieldLabel: 'Debug mode',
+            fieldLabel: me.snippets.development.debugMode.label,
             inputValue: true,
             uncheckedValue: false,
-            boxLabel: 'Use it only during tests.',
+            boxLabel: me.snippets.development.debugMode.boxLabel,
             labelWidth: 170
         });
 
@@ -461,10 +595,10 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
         });
 
         me.shopCombo = Ext.create('Ext.form.field.ComboBox', {
-            fieldLabel: 'Choose a shop for settings',
+            fieldLabel: me.snippets.topToolbar.selectShop,
             labelWidth: 150,
             triggerAction:'all',
-            emptyText: 'select a shop...',
+            emptyText: me.snippets.topToolbar.selectShopEmpty,
             store: shopStore,
             name: 'shopSetting',
             valueField: 'id',
@@ -503,7 +637,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
 
         me.saveSettingButton = Ext.create('Ext.button.Button', {
             cls: 'primary',
-            text: 'Save',
+            text: me.snippets.bottomToolbar.save,
             formBind: true,
             handler: function() {
                 me.fireEvent('saveSettings');

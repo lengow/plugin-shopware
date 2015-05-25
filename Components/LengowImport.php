@@ -89,8 +89,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     private function _setConnector() 
     {
         $this->lengow_connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector(
-			(int) Shopware_Plugins_Backend_Lengow_Components_LengowCore::getIdCustomer($this->shop->getId()), 
-			Shopware_Plugins_Backend_Lengow_Components_LengowCore::getTokenCustomer($this->shop->getId())
+			(int) Shopware_Plugins_Backend_Lengow_Components_LengowCore::getIdCustomer(), 
+			Shopware_Plugins_Backend_Lengow_Components_LengowCore::getTokenCustomer()
 		);
         if($this->lengow_connector->error != '') {
             die($this->lengow_connector->error);

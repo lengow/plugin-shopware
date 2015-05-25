@@ -10,12 +10,8 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
 
     snippets: {
         message: {
-            exportProductsTitleFirst:   '{s name=export/message/export_products_title_first}Export the {/s}',
-            exportProductsTitleEnd:     '{s name=export/message/export_products_title_end} shop?{/s}',
-            exportProductsFirst:        '{s name=export/message/export_products_first}Are you sure you want to export the {/s}',
-            exportProductsEnd:          '{s name=export/message/export_products_end} shop product(s)?{/s}',
-            alertExportTitle:           '{s name=export/message/alert_export_title}Export shop product(s)!{/s}',
-            alertExport:                '{s name=export/message/alert_export}Thank you to choose a shop for export.{/s}',
+            alertExportTitle:   '{s name=export/message/alert_export_title}Export shop product(s)!{/s}',
+            alertExport:        '{s name=export/message/alert_export}Please choose a shop to export.{/s}'
         }
     },
 
@@ -77,29 +73,21 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
     },
 
     onExportProducts: function(record) {
-        var me = this;
-        var shop = record.getValue();
+        var me      = this,
+            shop    = record.getValue();
 
         if (shop) {
-            Ext.MessageBox.confirm(
-            me.snippets.message.exportProductsTitleFirst + shop + me.snippets.message.exportProductsTitleEnd,
-            me.snippets.message.exportProductsFirst + shop + me.snippets.message.exportProductsEnd,
-            function (response) {
-                if ( response !== 'yes' ) {
-                    return;
+            Ext.Ajax.request({
+                url: '{url controller="LengowExport" action="export"}',
+                method: 'POST',
+                params: {},
+                success: function(response, opts) {
+                    var strJson  = response.responseText;
+                    var obj = Ext.JSON.decode(strJson);
+                    var url = obj.url;
+                    window.open(url + '?shop=' + shop, '_blank');
                 }
-                Ext.Ajax.request({
-                    url: '{url controller="LengowExport" action="export"}',
-                    method: 'POST',
-                    params: {},
-                    success: function(response, opts) {
-                        var strJson  = response.responseText;
-                        var obj = Ext.JSON.decode(strJson);
-                        var url = obj.url;
-                        window.open(url + '?shop=' + shop, '_blank');
-                    }
-                });   
-            });
+            });   
         } else {
             Ext.MessageBox.alert(me.snippets.message.alertExportTitle, me.snippets.message.alertExport);
         }

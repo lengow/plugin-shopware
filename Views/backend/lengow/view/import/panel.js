@@ -7,11 +7,11 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
     alias: 'widget.lengow-import-panel',
 
     snippets: {
-        fieldsetTitle:    '{s name=import/panel/fieldset_title}The order information{/s}',
-        orderJson:    '{s name=import/panel/order_json}Order Json{/s}'
+        title:          '{s name=import/panel/panel_title}Additional information{/s}',
+        fieldsetTitle:  '{s name=import/panel/fieldset_title}Order\'s information{/s}',
+        orderJson:      '{s name=import/panel/order_json}Order JSON{/s}'
     },
 
-    title: '{s name=import/panel/panel_title}Additional information{/s}',
     collapsed: true,
     collapsible: true,
     flex: 1,
@@ -27,6 +27,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
     initComponent: function() {
         var me = this;
 
+        me.title = me.snippets.title;
         me.items = [
             me.createItems()
         ];

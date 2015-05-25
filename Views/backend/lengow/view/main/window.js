@@ -4,8 +4,6 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
 
     extend:'Enlight.app.Window',
 
-    title: '{s name=main/window/title_window}Lengow{/s}',
-
     alias:'widget.lengow-main-window',
 
     border: false,
@@ -20,25 +18,26 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
      * @object
      */
     snippets: {
+        titleWindow: '{s name=main/window/title_window}Lengow{/s}',
         tab: {
             exports:    '{s name=main/window/tab/exports}Products export{/s}',
             imports:    '{s name=main/window/tab/imports}Lengow\'s orders{/s}',
-            logs:       '{s name=main/window/tab/logs}Logs{/s}'
+            logs:       '{s name=main/window/tab/logs}Logs{/s}',
+            settings:   '{s name=main/window/tab/settings}Plugin settings{/s}'
         }
     },
 
     /**
      * Initializes the component and builds up the main interface
-     *
      * @return void
      */
     initComponent: function() {
         var me = this;
 
+        me.title = me.snippets.titleWindow;
         me.items = [
             me.createTabPanel()
         ];
-
         me.callParent(arguments);
     },
 
@@ -71,7 +70,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
                         xtype: 'tbfill'
                     }
                 },{
-                    title: 'Settings',
+                    title: me.snippets.tab.settings,
                     xtype: 'lengow-main-settings' 
                 }
             ]

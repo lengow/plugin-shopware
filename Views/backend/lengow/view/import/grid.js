@@ -20,8 +20,9 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             marketplace:    '{s name=import/grid/column/marketplace}Marketplace{/s}'
         },
         topToolbar: {
-            manualImport:   '{s name=import/grid/topToolbar/manual_import}Manual Import{/s}',
-            searchOrder:    '{s name=import/grid/topToolbar/search_order}Search...{/s}'
+            selectShopEmpty:    '{s name=import/grid/topToolbar/select_shop_empty}Select a shop...{/s}',
+            manualImport:       '{s name=import/grid/topToolbar/manual_import}Manual Import{/s}',
+            searchOrder:        '{s name=import/grid/topToolbar/search_order}Search...{/s}'
         }
     },
 
@@ -135,14 +136,29 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
      * @return [Ext.toolbar.Toolbar] grid toolbar
      */
     getToolbar: function() {
-        var me = this,
+        var me      = this,
             buttons = [];
+
+        var shopStore = Ext.create('Shopware.apps.Base.store.Shop');
+        shopStore.filters.clear();
+
+        me.shopCombo = Ext.create('Ext.form.field.ComboBox', {
+            triggerAction:'all',
+            emptyText: me.snippets.topToolbar.selectShopEmpty,
+            store: shopStore,
+            width: 130,
+            name: 'shopImport',
+            valueField: 'name',
+            displayField: 'name',
+            queryMode: 'remote',
+        });
+        buttons.push(me.shopCombo);
 
         me.manualImportBtn = Ext.create('Ext.button.Button',{
             iconCls: 'sprite-plus-circle',
             text: me.snippets.topToolbar.manualImport,
             handler: function() {
-                me.fireEvent('manualImport');
+                me.fireEvent('manualImport', me.shopCombo);
             }
         });
         buttons.push(me.manualImportBtn);
@@ -237,8 +253,9 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
      * @return void
      */
     onPageSizeChange: function(combo, records) {
-        var record = records[0],
-            me = this;
+        var me      = this,
+            record  = records[0];
+
         me.store.pageSize = record.get('value');
         me.store.loadPage(1);
     },

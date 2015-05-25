@@ -34,32 +34,11 @@ class Setting extends ModelEntity
     private $id;
 
     /**
-     * @var string $lengowIdUser
-     *
-     * @ORM\Column(name="lengowIdUser", type="string", length=100, nullable=true)
-     */
-    private $lengowIdUser;
-
-    /**
      * @var string $lengowIdGroup
      *
      * @ORM\Column(name="lengowIdGroup", type="string", length=255, nullable=true)
      */
     private $lengowIdGroup;
-
-    /**
-     * @var string $lengowApiKey
-     *
-     * @ORM\Column(name="lengowApiKey", type="string", length=100, nullable=true)
-     */
-    private $lengowApiKey;
-
-    /**
-     * @var string $lengowAuthorisedIp
-     *
-     * @ORM\Column(name="lengowAuthorisedIp", type="string", length=255, nullable=true)
-     */
-    private $lengowAuthorisedIp;
 
     /**
      * @var integer $lengowExportAllProducts
@@ -245,28 +224,6 @@ class Setting extends ModelEntity
     }
 
     /**
-     * Set lengowIdUser
-     *
-     * @param string $lengowIdUser
-     * @return Setting
-     */
-    public function setLengowIdUser($lengowIdUser)
-    {
-        $this->lengowIdUser = $lengowIdUser;
-        return $this;
-    }
-
-    /**
-     * Get lengowIdUser
-     *
-     * @return string
-     */
-    public function getLengowIdUser()
-    {
-        return $this->lengowIdUser;
-    }
-
-    /**
      * Set lengowIdGroup
      *
      * @param string $lengowIdGroup
@@ -286,50 +243,6 @@ class Setting extends ModelEntity
     public function getLengowIdGroup()
     {
         return $this->lengowIdGroup;
-    }
-
-    /**
-     * Set lengowApiKey
-     *
-     * @param string $lengowApiKey
-     * @return Setting
-     */
-    public function setLengowApiKey($lengowApiKey)
-    {
-        $this->lengowApiKey = $lengowApiKey;
-        return $this;
-    }
-
-    /**
-     * Get lengowApiKey
-     *
-     * @return string
-     */
-    public function getLengowApiKey()
-    {
-        return $this->lengowApiKey;
-    }
-
-    /**
-     * Set lengowAuthorisedIp
-     *
-     * @param string $lengowAuthorisedIp
-     * @return Setting
-     */
-    public function setLengowAuthorisedIp($lengowAuthorisedIp)
-    {
-        $this->lengowAuthorisedIp = $lengowAuthorisedIp;
-        return $this;
-    }
-
-    /**
-     * Get lengowAuthorisedIp
-     *
-     * @return string
-     */
-    public function getLengowAuthorisedIp()
-    {
-        return $this->lengowAuthorisedIp;
     }
 
     /**

@@ -50,7 +50,7 @@ Ext.define('Shopware.apps.Lengow', {
         'Articles',
         'Orders', 
         'Logs',
-        'Settings', 
+        'Settings',
         'ExportFormats',
         'ExportImages',
         'ImageFormats',

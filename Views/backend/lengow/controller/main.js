@@ -19,6 +19,13 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
         { ref: 'lengowImportDays', selector: 'lengow-main-settings field[name=lengowImportDays]' }
     ],
 
+    snippets: {
+        message: {
+            saveSettingsTitle:  '{s name=main/message/save_settings_title}Save Lengow\'s settings{/s}',
+            saveSetting:        '{s name=main/message/save_setting}Configuration was saved{/s}'
+        }
+    },
+
     /**
      * A template method that is called when your application boots.
      *
@@ -64,28 +71,18 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                 setTimeout(function() {
                     formPanel.setLoading(false);
                 }, 250);
-                if (record) {
-                    formPanel.loadRecord(record);
-                } else {
-                    me.loadNewSetting(shopId);
+                formPanel.loadRecord(record);
+                if (record.get('newSetting')) {
+                    me.getLengowExportImages().setValue();
+                    me.getLengowCarrierDefault().setValue();
+                    me.getLengowOrderProcess().setValue();
+                    me.getLengowOrderShipped().setValue();
+                    me.getLengowOrderCancel().setValue();
+                    me.getLengowImportDays().setValue(3);
+                    me.getShopCombo().setValue(shopId);
                 }
             }
         });
-    },
-
-    loadNewSetting: function(shopId) {
-        var me = this,
-            formPanel = me.getSettingsForm(),
-            iRecord = Ext.create('Shopware.apps.Lengow.model.Setting');
-            formPanel.loadRecord(iRecord);
-            me.getLengowExportImages().setValue();
-            me.getLengowAuthorisedIp().setValue('127.0.0.1');
-            me.getLengowCarrierDefault().setValue();
-            me.getLengowOrderProcess().setValue();
-            me.getLengowOrderShipped().setValue();
-            me.getLengowOrderCancel().setValue();
-            me.getLengowImportDays().setValue(3);
-            me.getShopCombo().setValue(shopId);
     },
 
     onChangeShop: function() {
@@ -103,15 +100,13 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
         }
 
         form.updateRecord(record);
-
         record.save({
             callback: function() {
-                Shopware.Notification.createGrowlMessage('Save', 'Configuration was saved');
+                Shopware.Notification.createGrowlMessage(me.snippets.message.saveSettingsTitle, me.snippets.message.saveSetting);
                 me.loadRecord();
             }
         });
     }
-
 
 });
 //{/block}

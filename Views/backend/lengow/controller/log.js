@@ -11,9 +11,9 @@ Ext.define('Shopware.apps.Lengow.controller.Log', {
     snippets: {
         message: {
             deleteLogTitle: '{s name=log/message/delete_log_title}Delete selected Log(s)?{/s}',
-            deleteLog: '{s name=log/message/delete_log}Are you sure you want to delete the selected Log(s)?{/s}',
+            deleteLog:      '{s name=log/message/delete_log}Are you sure you want to delete the selected Log(s)?{/s}',
             flushLogsTitle: '{s name=log/message/flush_logs_title}Flush Logs?{/s}',
-            flushLogs: '{s name=log/message/flush_logs}Are you sure you want to delete all Logs?{/s}'
+            flushLogs:      '{s name=log/message/flush_logs}Are you sure you want to delete all Logs?{/s}'
         }
     },
 

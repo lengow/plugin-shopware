@@ -11,23 +11,17 @@
 class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_ExtJs
 {
 
-
     /**
      * Event listener function of settings store
      * 
      * @return mixed
      */
     public function getSettingsAction()
-    {
-         
+    {        
         $sqlParams['shopId'] = $this->Request()->getParam('shopId');
-
         $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS
                     settings.id,
-                    settings.lengowIdUser,
                     settings.lengowIdGroup,
-                    settings.lengowApiKey,
-                    settings.lengowAuthorisedIp,
                     settings.lengowExportAllProducts,
                     settings.lengowExportDisabledProducts,
                     settings.lengowExportVariantProducts,
@@ -65,6 +59,16 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
                 WHERE shops.id = :shopId";
         $data = Shopware()->Db()->fetchAll($sql, $sqlParams);
 
+        if (!$data) {
+            $data[0]['newSetting'] = true;
+        } else {
+            $data[0]['newSetting'] = false;
+        }
+
+        $data[0]['lengowIdUser'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getIdCustomer();
+        $data[0]['lengowApiKey'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getTokenCustomer();
+        $data[0]['lengowAuthorisedIp'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getIPs();
+        
         $this->View()->assign(array(
             'success' => true,
             'data' => $data
@@ -92,7 +96,6 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
             $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
             $exportUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Webservice/export.php?shop=';
             $importUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Webservice/import.php?shop=';
-
             $setting = new Shopware\CustomModels\Lengow\Setting;
             $setting->setShop($shop)
                     ->setLengowExportUrl($exportUrl)
@@ -105,11 +108,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
         $orderProcessStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', (int) $settingsParams['lengowOrderProcess']);
         $orderShippedStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', (int) $settingsParams['lengowOrderShipped']);
         $orderCancelStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', (int) $settingsParams['lengowOrderCancel']);
-
-        $setting->setLengowIdUser($settingsParams['lengowIdUser'])
-                ->setLengowIdGroup($settingsParams['lengowIdGroup'])
-                ->setLengowApiKey($settingsParams['lengowApiKey'])
-                ->setLengowAuthorisedIp($settingsParams['lengowAuthorisedIp'])
+        $setting->setLengowIdGroup($settingsParams['lengowIdGroup'])
                 ->setLengowExportAllProducts($settingsParams['lengowExportAllProducts'])
                 ->setLengowExportDisabledProducts($settingsParams['lengowExportDisabledProducts'])
                 ->setLengowExportVariantProducts($settingsParams['lengowExportVariantProducts'])
@@ -219,7 +218,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
         foreach ($importPayments as $value) {
             $payments[] = array('id' =>  $value->id, 'name' => $value->name);  
         }
-
+        
         $count = count($payments);
 
         $this->View()->assign(array(

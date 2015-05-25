@@ -12,7 +12,8 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
     snippets: {
         message: {
             manualImportTitle:    '{s name=import/message/manual_import_title}Import order(s)?{/s}',
-            manualImport:         '{s name=import/message/manual_import}Are you sure you want to import order(s) from marketplaces?{/s}'
+            manualImport:         '{s name=import/message/manual_import}Are you sure you want to import order(s) from marketplaces?{/s}',
+            alertImport:          '{s name=import/message/alert_import}Please choose a shop to import.{/s}'
         }
     },
 
@@ -39,33 +40,31 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
 
     },
 
-    onManualImport: function() {
-        var me          = this,
-            store       = me.getOrderGrid().getStore(),
-            orderGrid = me.getOrderGrid();
+    onManualImport: function(record) {
+        var me      = this,
+            store   = me.getOrderGrid().getStore(),
+            shop    = record.getValue();
 
-        Ext.MessageBox.confirm(me.snippets.message.manualImportTitle, me.snippets.message.manualImport, function (response) {
-            if ( response !== 'yes' ) {
-                return;
-            }
-            orderGrid.setLoading(true);
-            Ext.Ajax.request({
-                url: '{url controller="LengowImport" action="import"}',
-                method: 'POST',
-                params: {},
-                success: function(response, opts) {
-                    var strJson  = response.responseText;
-                    var obj = Ext.JSON.decode(strJson);
-                    var url = obj.url;
-                    window.open(url, '_blank');
-                    store.load({
-                        callback: function() {
-                            orderGrid.setLoading(false);
-                        }
-                    }); 
+        if(shop) {
+            Ext.MessageBox.confirm(me.snippets.message.manualImportTitle, me.snippets.message.manualImport, function (response) {
+                if ( response !== 'yes' ) {
+                    return;
                 }
+                Ext.Ajax.request({
+                    url: '{url controller="LengowImport" action="import"}',
+                    method: 'POST',
+                    params: {},
+                    success: function(response, opts) {
+                        var strJson  = response.responseText;
+                        var obj = Ext.JSON.decode(strJson);
+                        var url = obj.url;
+                        window.open(url + '?shop=' + shop, '_blank');
+                    }
+                });
             });
-        });
+        } else {
+            Ext.MessageBox.alert(me.snippets.message.manualImportTitle, me.snippets.message.alertImport);
+        }
     }
 
 });

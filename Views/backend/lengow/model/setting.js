@@ -41,7 +41,8 @@ Ext.define('Shopware.apps.Lengow.model.Setting', {
         { name: 'lengowEmailAddress', type: 'string' },
         { name: 'lengowImportUrl', type: 'string' },
         { name: 'lengowExportCron', type: 'boolean' },
-        { name: 'lengowDebug', type: 'boolean' }
+        { name: 'lengowDebug', type: 'boolean' },
+        { name: 'newSetting', type: 'boolean' }
     ],
 
     /**
@@ -52,7 +53,6 @@ Ext.define('Shopware.apps.Lengow.model.Setting', {
         type: 'ajax',   
         api: {
             read: '{url controller="Lengow" action="getSettings"}',
-            create: '{url controller="Lengow" action="updateSettings"}',
             update: '{url controller="Lengow" action="updateSettings"}'
         },
         reader: {

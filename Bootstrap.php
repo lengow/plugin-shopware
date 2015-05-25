@@ -143,8 +143,23 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     private function _createConfiguration()
     {
         try {
-            $form = new Shopware_Plugins_Backend_Lengow_Components_LengowForm($this->Form());
-            $form->create();
+            $form = $this->Form();
+            $form->setElement('text', 'lengowIdUser', array(
+                'label' => 'Customer ID', 
+                'required' => true,
+                'description' => 'Your Customer ID of Lengow'
+            ));
+            $form->setElement('text', 'lengowApiKey', array(
+                'label' => 'Token API', 
+                'required' => true,
+                'description' => 'Your Token API of Lengow'
+            ));
+            $form->setElement('text', 'lengowAuthorisedIp', array(
+                'label' => 'IP authorised to export', 
+                'required' => true,
+                'value' => '127.0.0.1',
+                'description' => 'Authorized access to catalog export by IP, separated by ;'
+            ));
         } catch (Exception $exception) {
             Shopware()->Log()->Err("There was an error creating the plugin configuration. " . $exception->getMessage());
             throw new Exception("There was an error creating the plugin configuration. " . $exception->getMessage());
@@ -294,8 +309,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 $dispatch = Shopware()->Models()->getReference('Shopware\Models\Dispatch\Dispatch', $exportCarriers[0]->id);
                 $orderStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', $importOrderStates[0]->id);
                 $setting = new Shopware\CustomModels\Lengow\Setting();
-                $setting->setLengowAuthorisedIp('127.0.0.1')
-                        ->setLengowExportAllProducts(true)
+                $setting->setLengowExportAllProducts(true)
                         ->setLengowExportDisabledProducts(false)
                         ->setLengowExportVariantProducts(true)
                         ->setLengowExportAttributes(false)

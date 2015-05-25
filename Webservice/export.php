@@ -97,7 +97,7 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIP())
         elseif($_GET['stream'] == 0){
             $stream = false;
         }
-    }
+    } 
 
     if (array_key_exists('shop', $_GET) && $_GET['shop'] != '') {
         

@@ -87,13 +87,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     */
     public static function getImagesSize()
     {
-        $sql = '
-            SELECT DISTINCT SQL_CALC_FOUND_ROWS 
-            album.id as id
-            FROM s_media_album album
-            WHERE album.name = \'Artikel\'
-        ';
-        $idAlbum = Shopware()->Db()->fetchOne($sql);
+        $sqlParams['name'] = 'Artikel';
+        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS album.id as id
+                FROM s_media_album album
+                WHERE album.name = :name";
+        $idAlbum = Shopware()->Db()->fetchOne($sql, $sqlParams);
         $articleAlbum = Shopware()->Models()->find('Shopware\Models\Media\Album', $idAlbum);
         $imageSizes = $articleAlbum->getSettings()->getThumbnailSize();
         $array_ImageSize = array();
@@ -122,13 +120,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      */
     public static function getCarriers()
     {
-        $sql = '
-            SELECT DISTINCT SQL_CALC_FOUND_ROWS 
-            dispatch.id as id, dispatch.name as name
-            FROM s_premium_dispatch dispatch
-            WHERE dispatch.active = 1
-        ';
-        $carriers = Shopware()->Db()->fetchAll($sql);
+        $sqlParams['active'] = 1;
+        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS dispatch.id as id, dispatch.name as name
+                FROM s_premium_dispatch dispatch
+                WHERE dispatch.active = :active";
+        $carriers = Shopware()->Db()->fetchAll($sql, $sqlParams);
         $array_carriers = array();
         foreach ($carriers as $value)
             $array_carriers[] = new Shopware_Plugins_Backend_Lengow_Components_LengowOption($value['id'], $value['name']);
@@ -155,13 +151,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      */
     public static function getAllOrderStates()
     {
-        $sql = '
-            SELECT DISTINCT SQL_CALC_FOUND_ROWS 
-            states.id as id, states.description as description
-            FROM s_core_states states
-            WHERE states.group = \'state\'
-        ';
-        $states = Shopware()->Db()->fetchAll($sql);
+        $sqlParams['group'] = 'state';
+        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS states.id as id, states.description as description
+                FROM s_core_states states
+                WHERE states.group = :group";
+        $states = Shopware()->Db()->fetchAll($sql, $sqlParams);
         $array_states = array();
         foreach ($states as $value)
             $array_states[] = new Shopware_Plugins_Backend_Lengow_Components_LengowOption($value['id'], $value['description']);
@@ -226,40 +220,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      * Get id Customer
      *
      * @param integer $idShop
-     * @return int
+     * @return string
      */
-    public static function getIP($idShop) 
+    public static function getIdCustomer() 
     {
-        return self::getSetting($idShop)->getLengowAuthorisedIp();
-        // return self::getConfig()->get('lengowIdUser');
-    }
-
-    /**
-     * Get id Customer
-     *
-     * @param integer $idShop
-     * @return int
-     */
-    public static function getIdCustomer($idShop) 
-    {
-        return self::getSetting($idShop)->getLengowIdUser();
-        // return self::getConfig()->get('lengowIdUser');
+        // return self::getSetting($idShop)->getLengowIdUser();
+        return self::getConfig()->get('lengowIdUser');
     }
 
     /**
      * Get group id
      *
      * @param integer $idShop
-     * @return int
+     * @return string
      */
     public static function getGroupCustomer($idShop, $all = true)
     {
         if ($all) {
             return self::getSetting($idShop)->getLengowIdGroup();
-            // return self::getConfig()->get('lengowIdGroup');
         }
-            $group = self::getSetting($idShop)->getLengowIdGroup();
-        // $group = self::getConfig()->get('lengowIdGroup');
+        $group = self::getSetting($idShop)->getLengowIdGroup();
         $array_group = explode(',', $group);
         return $array_group[0];
     }
@@ -270,10 +250,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      * @param integer $idShop
      * @return string
      */
-    public static function getTokenCustomer($idShop) 
+    public static function getTokenCustomer() 
     {
-        return self::getSetting($idShop)->getLengowApiKey();
-        // return self::getConfig()->get('lengowApiKey');
+        return self::getConfig()->get('lengowApiKey');
+    }
+
+    /**
+     * Get IPs Authorised
+     *
+     * @return string
+     */
+    public static function getIPs() 
+    {
+        return self::getConfig()->get('lengowAuthorisedIp');
     }
 
     /**
@@ -285,7 +274,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static function isExportAllProducts($idShop) 
     {
         return (self::getSetting($idShop)->getLengowExportAllProducts() == 1 ? true : false);
-        // return (self::getConfig()->get('lengowExportAllProducts') == 1 ? true : false);
     }
 
     /**
@@ -297,7 +285,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static function exportAllProducts($idShop) 
     {
         return (self::getSetting($idShop)->getLengowExportDisabledProducts() == 1 ? true : false);
-        // return (self::getConfig()->get('lengowExportDisabledProducts') == 1 ? true : false);
     }
 
     /**
@@ -309,7 +296,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static function isExportFullmode($idShop) 
     {
         return (self::getSetting($idShop)->getLengowExportVariantProducts() == 1 ? true : false);
-        // return (self::getConfig()->get('lengowExportVariantProducts') == 1 ? true : false);
     }
 
     /**
@@ -321,7 +307,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static function getExportAttributes($idShop) 
     {
         return (self::getSetting($idShop)->getLengowExportAttributes() == 1 ? true : false);
-        // return (self::getConfig()->get('lengowExportAttributes') == 1 ? true : false);
     }
 
     /**
@@ -333,7 +318,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static function exportTitle($idShop)
     {
         return (self::getSetting($idShop)->getLengowExportAttributesTitle() == 1 ? true : false);
-    //     return (self::getConfig()->get('lengowExportAttributesTitle') == 1 ? true : false);
     }
 
     /**
@@ -345,7 +329,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static function exportOutOfStockProduct($idShop)
     {
         return (self::getSetting($idShop)->getLengowExportOutStock() == 1 ? true : false);
-        // return (self::getConfig()->get('lengowExportOutStock') == 1 ? true : false);
     }
 
     /**
@@ -357,7 +340,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static function getExportImagesSize($idShop) 
     {
         return self::getSetting($idShop)->getLengowExportImageSize();
-        // return self::getConfig()->get('lengowExportImageSize');
     }
 
     /**
@@ -369,7 +351,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static function getExportImages($idShop) 
     {
         return self::getSetting($idShop)->getLengowExportImages();
-        // return self::getConfig()->get('lengowExportImages');
     }
 
     /**
@@ -381,7 +362,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 	public static function getExportFormat($idShop)
 	{
         return self::getSetting($idShop)->getLengowExportFormat();
-		// return self::getConfig()->get('lengowExportFormat');
 	}
 
     /**
@@ -393,7 +373,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static function getExportInFile($idShop) 
     {
         return (self::getSetting($idShop)->getLengowExportFile() == 1 ? true : false);
-        // return (self::getConfig()->get('lengowExportFile') == 1 ? true : false);
     }
 
     /**
@@ -405,7 +384,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static function getDefaultCarrier($idShop) 
     {
         return self::getSetting($idShop)->getLengowCarrierDefault()->getId();
-        // return self::getConfig()->get('lengowCarrierDefault');
     }
 
     /**
@@ -420,13 +398,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
         switch ($state) {
             case 'process' :
                 return self::getSetting($idShop)->getLengowOrderProcess()->getId();
-                // return self::getConfig()->get('lengowOrderProcess');
             case 'shipped' :
                 return self::getSetting($idShop)->getLengowOrderShipped()->getId();
-                // return self::getConfig()->get('lengowOrderShipped');
             case 'cancel' :
                 return self::getSetting($idShop)->getLengowOrderCancel()->getId();
-                // return self::getConfig()->get('lengowOrderCancel');
         }
         return false;
     }
@@ -440,7 +415,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static function getCountDaysToImport($idShop) 
     {
         return self::getSetting($idShop)->getLengowImportDays();
-        // return self::getConfig()->get('lengowImportDays');
     }
 
     /**
@@ -452,7 +426,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static function getPaymentMethodName($idShop)
     {
         return self::getSetting($idShop)->getLengowMethodName();
-        // return self::getConfig()->get('lengowMethodName');
     }
 
     /**
@@ -475,7 +448,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static function sendEmailAdmin($idShop)
     {
         return (self::getSetting($idShop)->getLengowReportMail() == 1 ? true : false);
-        // return (self::getConfig()->get('lengowReportMail') == 1 ? true : false);
     }
 
     /**
@@ -498,7 +470,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static function getExportCron($idShop) 
     {
         return (self::getSetting($idShop)->getLengowExportCron() == 1 ? true : false);
-        // return (self::getConfig()->get('lengowExportCron') == 1 ? true : false);
     }
 
     /**
@@ -509,8 +480,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      */
     public static function isDebug($idShop) 
     {
-        return (self::getSetting($idShop)->getLengowDebug() == 1 ? true : false); 
-        // return (self::getConfig()->get('lengowDebug') == 1 ? true : false);
+        return (self::getSetting($idShop)->getLengowDebug() == 1 ? true : false);
     }
 
     /**
