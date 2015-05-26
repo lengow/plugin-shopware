@@ -27,6 +27,7 @@ Ext.define('Shopware.apps.Lengow.model.Setting', {
         { name: 'lengowExportOutStock', type: 'boolean' },
         { name: 'lengowExportImageSize', type: 'string' },
         { name: 'lengowExportImages', type: 'int' },
+        { name: 'lengowShippingCostDefault', type: 'int' },
         { name: 'lengowExportFormat', type: 'string' },
         { name: 'lengowExportFile', type: 'boolean' },
         { name: 'lengowExportUrl', type: 'string' },

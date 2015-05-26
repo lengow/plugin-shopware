@@ -17,6 +17,11 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             stock:          '{s name=export/grid/column/stock}Stock{/s}',
             activeLengow:   '{s name=export/grid/column/activeLengow}Lengow\'s products{/s}'
         },
+        tooltip: {
+            activeProduct:      '{s name=export/grid/tooltip/active_product}Publish product{/s}',
+            desactiveProduct:   '{s name=export/grid/tooltip/desactive_product}Unpublish product{/s}',
+            seeProduct:         '{s name=export/grid/tooltip/see_product}See product{/s}'
+        },
         topToolbar: {
             publishProducts:    '{s name=export/grid/topToolbar/publish_products}Publish products{/s}',
             unpublishProducts:  '{s name=export/grid/topToolbar/unpublish_products}Unpublish products{/s}',
@@ -91,7 +96,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         actionColumItems.push({
             iconCls:'sprite-plus-circle-frame',
             action:'activeProduct',
-            tooltip: 'Publish product',
+            tooltip: me.snippets.tooltip.activeProduct,
             handler: function (view, rowIndex, colIndex, item, opts, record) {
                 var value = true;
                 me.fireEvent('activeProduct', record, value);
@@ -101,10 +106,25 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         actionColumItems.push({
             iconCls:'sprite-minus-circle-frame',
             action:'desactiveProduct',
-            tooltip: 'Unpublish Product',
+            tooltip: me.snippets.tooltip.desactiveProduct,
             handler: function (view, rowIndex, colIndex, item, opts, record) {
                 var value = false;
                 me.fireEvent('desactiveProduct', record, value);
+            }
+        });
+
+        actionColumItems.push({
+            iconCls:'sprite-pencil',
+            action:'seeProduct',
+            tooltip: me.snippets.tooltip.seeProduct,
+            handler: function (view, rowIndex, colIndex, item, opts, record) {
+                Shopware.app.Application.addSubApplication({
+                    name: 'Shopware.apps.Article',
+                    action: 'detail',
+                    params: {
+                        articleId: record.get('articleId')
+                    }
+                });
             }
         });
 

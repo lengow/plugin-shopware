@@ -137,6 +137,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 	protected function _getImportOrders($lengow_connector, $args_order, $args)
 	{
 		$orders = $lengow_connector->api('commands', $args_order);
+		print_r($orders);
 		if (!is_object($orders)) {
 			Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Error on lengow webservice', self::$force_log_output, true);
 			// Shopware_Plugins_Backend_Lengow_Components_LengowCore::setImportEnd();

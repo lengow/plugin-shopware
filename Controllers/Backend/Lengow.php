@@ -31,8 +31,9 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
                     settings.lengowExportImageSize,
                     settings.lengowExportImages,
                     settings.lengowExportFormat,
+                    dscd.id as lengowShippingCostDefault,
                     settings.lengowExportFile,
-                    dispatchs.id as lengowCarrierDefault,
+                    dcd.id as lengowCarrierDefault,
                     sp.id as lengowOrderProcess,
                     ssh.id as lengowOrderShipped,
                     sc.id as lengowOrderCancel,
@@ -48,8 +49,10 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
                 FROM lengow_settings as settings
                 LEFT JOIN s_core_shops as shops
                     ON settings.shopID = shops.id
-                LEFT JOIN s_premium_dispatch as dispatchs
-                    ON settings.lengowCarrierDefault = dispatchs.id
+                LEFT JOIN s_premium_dispatch as dscd
+                    ON settings.lengowShippingCostDefault = dscd.id
+                LEFT JOIN s_premium_dispatch as dcd
+                    ON settings.lengowCarrierDefault = dcd.id
                 LEFT JOIN s_core_states as sp
                     ON settings.lengowOrderProcess = sp.id
                 LEFT JOIN s_core_states as ssh
@@ -60,9 +63,23 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
         $data = Shopware()->Db()->fetchAll($sql, $sqlParams);
 
         if (!$data) {
+            $exportFormats = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportFormats();
+            $dispatchs = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDispatch();
+            $orderStates = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getAllOrderStates();
+            $importPayments = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getShippingName();
             $data[0]['newSetting'] = true;
-        } else {
-            $data[0]['newSetting'] = false;
+            $data[0]['lengowExportAllProducts'] = true; 
+            $data[0]['lengowExportVariantProducts'] = true; 
+            $data[0]['lengowExportAttributesTitle'] = true;
+            $data[0]['lengowExportFormat'] = $exportFormats[0]->id;
+            $data[0]['lengowShippingCostDefault'] = $dispatchs[0]->id;
+            $data[0]['lengowCarrierDefault'] = $dispatchs[0]->id;
+            $data[0]['lengowOrderProcess'] = $orderStates[0]->id;
+            $data[0]['lengowOrderShipped'] = $orderStates[0]->id;
+            $data[0]['lengowOrderCancel'] = $orderStates[0]->id;
+            $data[0]['lengowImportDays'] = 3;
+            $data[0]['lengowMethodName'] = $importPayments[0]->id;
+            $data[0]['lengowReportMail'] = true;
         }
 
         $data[0]['lengowIdUser'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getIdCustomer();
@@ -104,7 +121,8 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
             $setting = Shopware()->Models()->getReference('Shopware\CustomModels\Lengow\Setting', $settingId);
         } 
 
-        $dispatch = Shopware()->Models()->getReference('Shopware\Models\Dispatch\Dispatch', (int) $settingsParams['lengowCarrierDefault']);
+        $shippingCost = Shopware()->Models()->getReference('Shopware\Models\Dispatch\Dispatch', (int) $settingsParams['lengowShippingCostDefault']);
+        $carrier = Shopware()->Models()->getReference('Shopware\Models\Dispatch\Dispatch', (int) $settingsParams['lengowCarrierDefault']);
         $orderProcessStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', (int) $settingsParams['lengowOrderProcess']);
         $orderShippedStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', (int) $settingsParams['lengowOrderShipped']);
         $orderCancelStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', (int) $settingsParams['lengowOrderCancel']);
@@ -118,14 +136,14 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
                 ->setLengowExportImageSize($settingsParams['lengowExportImageSize'])
                 ->setLengowExportImages((int) $settingsParams['lengowExportImages'])
                 ->setLengowExportFormat($settingsParams['lengowExportFormat'])
+                ->setLengowShippingCostDefault($shippingCost)
                 ->setLengowExportFile($settingsParams['lengowExportFile'])
-                ->setLengowCarrierDefault($dispatch)
+                ->setLengowCarrierDefault($carrier)
                 ->setLengowOrderProcess($orderProcessStatus)
                 ->setLengowOrderShipped($orderShippedStatus)
                 ->setLengowOrderCancel($orderCancelStatus)
                 ->setLengowImportDays((int) $settingsParams['lengowImportDays'])
                 ->setLengowMethodName($settingsParams['lengowMethodName'])
-                ->setLengowForcePrice($settingsParams['lengowForcePrice'])
                 ->setLengowReportMail($settingsParams['lengowReportMail'])
                 ->setLengowEmailAddress($settingsParams['lengowEmailAddress'])
                 ->setLengowExportCron($settingsParams['lengowExportCron'])

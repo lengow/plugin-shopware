@@ -80,9 +80,13 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
                 label:      '{s name=main/settings/exportation/export_format/label}Export format{/s}',
                 emptyText:  '{s name=main/settings/exportation/export_format/empty_text}Select a format...{/s}'
             },
+            shippingCost: {
+                label:      '{s name=main/settings/exportation/shipping_cost/label}Default shipping cost{/s}',
+                emptyText:  '{s name=main/settings/exportation/shipping_cost/empty_text}Select a shipping cost...{/s}'
+            },
             exportFile: {
                 label:      '{s name=main/settings/exportation/export_file/label}Save feed on file{/s}',
-                boxLabel:   '{s name=main/settings/exportation/export_file/box_label}Check this option if you have more than 10,000 products{/s}'
+                boxLabel:   '{s name=main/settings/exportation/export_file/box_label}Check this option if you have more than 3,000 products{/s}'
             },
             exportUrl: {
                 label:      '{s name=main/settings/exportation/export_url/label}Our export URL{/s}'   
@@ -91,8 +95,8 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
         importation: {
             title: '{s name=main/settings/importation/title}Importation settings{/s}',
             carrierDefault: {
-                label:      '{s name=main/settings/importation/carrier_default/label}Default shipping cost{/s}',
-                emptyText:  '{s name=main/settings/importation/carrier_default/empty_text}Select a shipping cost...{/s}'
+                label:      '{s name=main/settings/importation/carrier_default/label}Default carrier{/s}',
+                emptyText:  '{s name=main/settings/importation/carrier_default/empty_text}Select a carrier...{/s}'
             },
             orderProcess: {
                 label:      '{s name=main/settings/importation/order_process/label}Status of process orders{/s}',
@@ -107,16 +111,16 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
                 emptyText:  '{s name=main/settings/importation/order_cancel/empty_text}Select a order status...{/s}'
             },
             importDay: {
-                label:      '{s name=main/settings/exportation/import_day/label}Import from x days{/s}'   
+                label:      '{s name=main/settings/importation/import_day/label}Import from x days{/s}'   
             },
             methodName: {
                 label:      '{s name=main/settings/importation/method_name/label}Associated payment method{/s}',
                 emptyText:  '{s name=main/settings/importation/method_name/empty_text}Select a payment method...{/s}'
             },
-            forcedPrice: {
-                label:      '{s name=main/settings/importation/forced_price/label}Forced price{/s}',
-                boxLabel:   '{s name=main/settings/importation/forced_price/box_label}Check this option to force the product prices of the marketplace orders during the import{/s}'
-            },
+            // forcedPrice: {
+            //     label:      '{s name=main/settings/importation/forced_price/label}Forced price{/s}',
+            //     boxLabel:   '{s name=main/settings/importation/forced_price/box_label}Check this option to force the product prices of the marketplace orders during the import{/s}'
+            // },
             reportMail: {
                 label:      '{s name=main/settings/importation/report_mail/label}Report email{/s}',
                 boxLabel:   '{s name=main/settings/importation/report_mail/box_label}Check this option for receive a report with every import{/s}'
@@ -145,6 +149,8 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
     initComponent: function() {
         var me = this;
 
+        me.createStores();
+
         me.items = [ 
             me.createAccountFieldSet(),
             me.createSecurityFieldSet(),
@@ -162,6 +168,23 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
         ); 
 
         me.callParent(arguments);
+    },
+
+    createStores: function() {
+        var me = this;
+   
+        me.dispathStore = Ext.create('Shopware.apps.Base.store.Dispatch');
+        me.dispathStore.load();
+        me.orderStatusStore = Ext.create('Shopware.apps.Base.store.OrderStatus');
+        me.orderStatusStore.load();
+        me.imageFormatsStore = Ext.create('Shopware.apps.Lengow.store.ImageFormats');
+        me.imageFormatsStore.load();
+        me.exportImagesStore = Ext.create('Shopware.apps.Lengow.store.ExportImages');
+        me.exportImagesStore.load();
+        me.exportFormatsStore = Ext.create('Shopware.apps.Lengow.store.ExportFormats');
+        me.exportFormatsStore.load();  
+        me.paymentMethodsStore = Ext.create('Shopware.apps.Lengow.store.PaymentMethods');
+        me.paymentMethodsStore.load(); 
     },
 
     createAccountFieldSet: function() {
@@ -345,14 +368,10 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             labelWidth: 170
         });
 
-        var imageFormatsStore = Ext.create('Shopware.apps.Lengow.store.ImageFormats');
-        imageFormatsStore.filters.clear();
-        imageFormatsStore.load();
-
         me.imageSizeCombo = Ext.create('Ext.form.field.ComboBox', {
             name: 'lengowExportImageSize',
             queryMode: 'remote',
-            store: imageFormatsStore,
+            store: me.imageFormatsStore,
             valueField: 'id',
             displayField: 'name',
             emptyText: me.snippets.exportation.imageSize.emptyText,
@@ -361,15 +380,11 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             labelWidth: 170
         });
 
-        var exportImagesStore = Ext.create('Shopware.apps.Lengow.store.ExportImages');
-        exportImagesStore.filters.clear();
-        exportImagesStore.load();
-
         me.imageExportCombo = Ext.create('Ext.form.field.ComboBox', {
             name: 'lengowExportImages',
             triggerAction:'all',
             queryMode: 'remote',
-            store: exportImagesStore,
+            store: me.exportImagesStore,
             valueField: 'id',
             displayField: 'name',
             emptyText: me.snippets.exportation.imageExport.emptyText,
@@ -378,19 +393,27 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             labelWidth: 170
         });
 
-        var exportFormatsStore = Ext.create('Shopware.apps.Lengow.store.ExportFormats');
-        exportFormatsStore.filters.clear();
-        exportFormatsStore.load();
-
         me.exportFormatCombo = Ext.create('Ext.form.field.ComboBox', {
             name: 'lengowExportFormat',
             queryMode: 'remote',
-            store: exportFormatsStore,
+            store: me.exportFormatsStore,
             valueField: 'id',
             displayField: 'name',
             emptyText: me.snippets.exportation.exportFormat.emptyText,
             allowBlank: false,
             fieldLabel: me.snippets.exportation.exportFormat.label,
+            labelWidth: 170
+        });
+
+        me.shippingCostDefaultCombo = Ext.create('Ext.form.field.ComboBox', {
+            name: 'lengowShippingCostDefault',
+            queryMode: 'remote',
+            store: me.dispathStore,
+            valueField: 'id',
+            displayField: 'name',
+            emptyText: me.snippets.exportation.shippingCost.emptyText,
+            allowBlank: false,
+            fieldLabel: me.snippets.exportation.shippingCost.label,
             labelWidth: 170
         });
 
@@ -419,6 +442,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             me.imageSizeCombo,
             me.imageExportCombo,
             me.exportFormatCombo,
+            me.shippingCostDefaultCombo,
             me.exportFileCheck,
             me.exportUrlDisplay 
         ];
@@ -427,14 +451,10 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
     createImportField: function() {
         var me = this;
 
-        var dispathStore = Ext.create('Shopware.apps.Base.store.Dispatch');
-        dispathStore.filters.clear();
-        dispathStore.load();
-
         me.carrierDefaultCombo = Ext.create('Ext.form.field.ComboBox', {
             name: 'lengowCarrierDefault',
             queryMode: 'remote',
-            store: dispathStore,
+            store: me.dispathStore,
             valueField: 'id',
             displayField: 'name',
             emptyText: me.snippets.importation.carrierDefault.emptyText,
@@ -443,14 +463,10 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             labelWidth: 170
         });
 
-        var orderStatusStore = Ext.create('Shopware.apps.Base.store.OrderStatus');
-        orderStatusStore.filters.clear();
-        orderStatusStore.load();
-
         me.orderProcessCombo = Ext.create('Ext.form.field.ComboBox', {
             name: 'lengowOrderProcess',
             queryMode: 'remote',
-            store: orderStatusStore,
+            store: me.orderStatusStore,
             valueField: 'id',
             displayField: 'description',
             emptyText: me.snippets.importation.orderProcess.emptyText,
@@ -462,7 +478,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
         me.orderShippedCombo = Ext.create('Ext.form.field.ComboBox', {
             name: 'lengowOrderShipped',
             queryMode: 'remote',
-            store: orderStatusStore,
+            store: me.orderStatusStore,
             valueField: 'id',
             displayField: 'description',
             emptyText: me.snippets.importation.orderShipped.emptyText,
@@ -474,7 +490,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
         me.orderCancelCombo = Ext.create('Ext.form.field.ComboBox', {
             name: 'lengowOrderCancel',
             queryMode: 'remote',
-            store: orderStatusStore,
+            store: me.orderStatusStore,
             valueField: 'id',
             displayField: 'description',
             emptyText: me.snippets.importation.orderCancel.emptyText,
@@ -491,13 +507,10 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             labelWidth: 170 
         });
 
-        var paymentMethodsStore = Ext.create('Shopware.apps.Lengow.store.PaymentMethods');
-        paymentMethodsStore.filters.clear();
-
         me.methodNameCombo = Ext.create('Ext.form.field.ComboBox', {
             name: 'lengowMethodName',
             queryMode: 'remote',
-            store: paymentMethodsStore,
+            store: me.paymentMethodsStore,
             valueField: 'id',
             displayField: 'name',
             emptyText: me.snippets.importation.methodName.emptyText,
@@ -506,14 +519,14 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             labelWidth: 170
         });
 
-        me.forcedPriceCheck = Ext.create('Ext.form.field.Checkbox', {
-            name: 'lengowForcePrice',
-            fieldLabel: me.snippets.importation.forcedPrice.label,
-            inputValue: true,
-            uncheckedValue: false,
-            boxLabel: me.snippets.importation.forcedPrice.boxLabel,
-            labelWidth: 170
-        });
+        // me.forcedPriceCheck = Ext.create('Ext.form.field.Checkbox', {
+        //     name: 'lengowForcePrice',
+        //     fieldLabel: me.snippets.importation.forcedPrice.label,
+        //     inputValue: true,
+        //     uncheckedValue: false,
+        //     boxLabel: me.snippets.importation.forcedPrice.boxLabel,
+        //     labelWidth: 170
+        // });
 
         me.reportMailCheck = Ext.create('Ext.form.field.Checkbox', {
             name: 'lengowReportMail',
@@ -554,7 +567,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             me.orderCancelCombo,
             me.importDayNumber,
             me.methodNameCombo,
-            me.forcedPriceCheck,
+            // me.forcedPriceCheck,
             me.reportMailCheck,
             me.emailAddressField,
             me.importUrlDisplay,

@@ -120,37 +120,6 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIP())
                     WHERE settings.shopID = :shopId ";
             $settingId = Shopware()->Db()->fetchOne($sql, $sqlParamSetting);
 
-            // $settings = array();
-
-            // $settings['TestIP'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getIp($idShop);
-            // $settings['lengowIdUser'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getIdCustomer($idShop);
-            // $settings['lengowIdGroup'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getGroupCustomer(true, $idShop);
-            // $settings['lengowApiKey'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getTokenCustomer($idShop); 
-            // $settings['lengowExportAllProducts'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::isExportAllProducts($idShop);
-            // $settings['lengowExportDisabledProducts'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::exportAllProducts($idShop);
-            // $settings['lengowExportVariantProducts'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::isExportFullmode($idShop);
-            // $settings['lengowExportAttributes'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportAttributes($idShop);
-            // $settings['lengowExportAttributesTitle'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::exportTitle($idShop);
-            // $settings['lengowExportOutStock'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::exportOutOfStockProduct($idShop);
-            // $settings['lengowExportImageSize'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportImagesSize($idShop);
-            // $settings['lengowExportImages'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportImages($idShop);
-            // $settings['lengowExportFormat'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportFormat($idShop);
-            // $settings['lengowExportFile'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportInFile($idShop);
-            // $settings['lengowCarrierDefault'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDefaultCarrier($idShop);
-            // $settings['lengowOrderProcess'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getOrderState('process', $idShop);
-            // $settings['lengowOrderShipped'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getOrderState('shipped', $idShop);
-            // $settings['lengowOrderCancel'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getOrderState('cancel', $idShop);
-            // $settings['lengowImportDays'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getCountDaysToImport($idShop);
-            // $settings['lengowMethodName'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPaymentMethodName($idShop);
-            // $settings['lengowForcePrice'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getForcePrice($idShop);
-            // $settings['lengowReportMail'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::sendEmailAdmin($idShop);
-            // $settings['lengowEmailAddress'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getEmailAddress($idShop);
-            // $settings['lengowExportCron'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportCron($idShop);
-            // $settings['lengowDebug'] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::isDebug($idShop);
-            // print_r($settings);
-
-            // die();
-
             if (!$settingId) {
                 die('For export, the settings must be completed for the shop '. $_GET['shop'] );
             }

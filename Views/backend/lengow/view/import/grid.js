@@ -17,7 +17,10 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             currentStatus:  '{s name=import/grid/column/status}Current order status{/s}',
             idOrderLengow:  '{s name=import/grid/column/id_order_lengow}ID Lengow{/s}',
             idFlux:         '{s name=import/grid/column/id_flux}ID Flux{/s}',
-            marketplace:    '{s name=import/grid/column/marketplace}Marketplace{/s}'
+            marketplace:    '{s name=import/grid/column/marketplace}Marketplace{/s}' 
+        },
+        tooltip: {
+            seeOrder:       '{s name=import/grid/tooltip/see_order}See order{/s}'
         },
         topToolbar: {
             selectShopEmpty:    '{s name=import/grid/topToolbar/select_shop_empty}Select a shop...{/s}',
@@ -66,9 +69,9 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             actionColumItems = [];
 
         actionColumItems.push({
-            iconCls:'sprite-plus-circle-frame',
-            action:'viewOrder',
-            tooltip: 'View order',
+            iconCls:'sprite-pencil',
+            action:'seeOrder',
+            tooltip: me.snippets.tooltip.seeOrder,
             handler: function (view, rowIndex, colIndex, item, opts, record) {
                 Shopware.app.Application.addSubApplication({
                     name: 'Shopware.apps.Order',

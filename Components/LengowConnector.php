@@ -295,6 +295,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
 	*/
 	protected function _makeRequest($url)
 	{
+		return file_get_contents(dirname(__FILE__).'/api_test.xml');
 		Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Connector '.$url, -1, true);
 		$ch = curl_init();
 		// Options

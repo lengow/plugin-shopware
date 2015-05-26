@@ -114,11 +114,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 	}
 
     /**
-     * Get all carriers.
+     * Get all dispatch (Shipping cost and carrier).
      * 
-     * @return array Carriers
+     * @return array Dispatch
      */
-    public static function getCarriers()
+    public static function getDispatch()
     {
         $sqlParams['active'] = 1;
         $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS dispatch.id as id, dispatch.name as name
@@ -365,6 +365,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 	}
 
     /**
+     * Default Shipping Cost
+     *
+     * @param integer $idShop
+     * @return int
+     */
+    public static function getDefaultShippingCost($idShop) 
+    {
+        return self::getSetting($idShop)->getLengowShippingCostDefault()->getId();
+    }
+
+    /**
      * Export product in file
      *
      * @param integer $idShop
@@ -379,7 +390,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      * Default Carrier
      *
      * @param integer $idShop
-     * @return string
+     * @return int
      */
     public static function getDefaultCarrier($idShop) 
     {

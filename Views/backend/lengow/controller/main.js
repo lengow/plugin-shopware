@@ -74,12 +74,6 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                 formPanel.loadRecord(record);
                 if (record.get('newSetting')) {
                     me.getLengowExportImages().setValue();
-                    me.getLengowCarrierDefault().setValue();
-                    me.getLengowOrderProcess().setValue();
-                    me.getLengowOrderShipped().setValue();
-                    me.getLengowOrderCancel().setValue();
-                    me.getLengowImportDays().setValue(3);
-                    me.getShopCombo().setValue(shopId);
                 }
             }
         });

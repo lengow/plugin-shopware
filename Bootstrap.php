@@ -35,7 +35,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         return 'Lengow';
     }
 
-
     /**
      * Version of the plugin
      * @return string
@@ -160,6 +159,52 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'value' => '127.0.0.1',
                 'description' => 'Authorized access to catalog export by IP, separated by ;'
             ));
+
+            $shopRepository = Shopware()->Models()->getRepository('\Shopware\Models\Shop\Locale');
+            //contains all translations
+            $translations = array(
+                'de_DE' => array(
+                    'lengowIdUser' => array(
+                        'label' => 'Benutzer-ID',
+                        'description' => 'Ihre Benutzer-ID Lengow'
+                    ), 
+                    'lengowApiKey' => array(
+                        'label' => 'Token API',
+                        'description' => 'Ihre Token API Lengow'
+                    ),
+                    'lengowAuthorisedIp' => array(
+                        'label' => 'IP für den Export zugelassen',
+                        'description' => 'IP erlaubt, um den Katalog zu exportieren, getrennt durch ;'
+                    )
+                )
+            );
+            //iterate the languages
+            foreach($translations as $locale => $snippets) {
+                $localeModel = $shopRepository->findOneBy(array(
+                    'locale' => $locale
+                ));
+                //not found? continue with next language
+                if($localeModel === null){
+                    continue;
+                }
+                //iterate all snippets of the current language
+                foreach($snippets as $element => $snippet) {
+                    //get the form element by name
+                    $elementModel = $form->getElement($element);
+                    //not found? continue with next snippet
+                    if($elementModel === null) {
+                        continue;
+                    }  
+                    //create new translation model
+                    $translationModel = new \Shopware\Models\Config\ElementTranslation();
+                    $translationModel->setDescription($snippet['description']);
+                    $translationModel->setLabel($snippet['label']);
+                    $translationModel->setLocale($localeModel);
+                    //add the translation to the form element
+                    $elementModel->addTranslation($translationModel);
+                }
+            }
+
         } catch (Exception $exception) {
             Shopware()->Log()->Err("There was an error creating the plugin configuration. " . $exception->getMessage());
             throw new Exception("There was an error creating the plugin configuration. " . $exception->getMessage());
@@ -200,13 +245,13 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         try {
             $this->_removeDatabaseTables();
             $this->Application()->Models()->removeAttribute(
-                's_articles_attributes',
-                'lengow',
-                'lengowActive'
-            );
-            $this->getEntityManager()->generateAttributeModels(array(
-                's_articles_attributes'
-            ));
+                 's_articles_attributes',
+                 'lengow',
+                 'lengowActive'
+             );
+             $this->getEntityManager()->generateAttributeModels(array(
+                 's_articles_attributes'
+             ));
             return array('success' => true, 'invalidateCache' => array('backend'));
         } catch (Exception $e) {
             return array('success' => false, 'message' => $e->getMessage());
@@ -296,7 +341,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $exportFormats = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportFormats();
         $exportImages = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getImagesCount();
         $exportImagesSize = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getImagesSize();
-        $exportCarriers = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getCarriers();
+        $dispatchs = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDispatch();
         $importOrderStates = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getAllOrderStates();
         $importPayments = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getShippingName();
         $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
@@ -306,7 +351,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         foreach ($shops as $idShop) {
             if (!in_array($idShop['id'], $settingIDs)) {
                 $shop = Shopware()->Models()->getReference('Shopware\Models\Shop\Shop', $idShop['id']);
-                $dispatch = Shopware()->Models()->getReference('Shopware\Models\Dispatch\Dispatch', $exportCarriers[0]->id);
+                $dispatch = Shopware()->Models()->getReference('Shopware\Models\Dispatch\Dispatch', $dispatchs[0]->id);
                 $orderStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', $importOrderStates[0]->id);
                 $setting = new Shopware\CustomModels\Lengow\Setting();
                 $setting->setLengowExportAllProducts(true)
@@ -318,6 +363,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                         ->setLengowExportImageSize($exportImagesSize[0]->id)
                         ->setLengowExportImages($exportImages[0]->id)
                         ->setLengowExportFormat($exportFormats[0]->id)
+                        ->setLengowShippingCostDefault($dispatch)
                         ->setLengowExportFile(false)
                         ->setLengowExportUrl($exportUrl)
                         ->setLengowCarrierDefault($dispatch)

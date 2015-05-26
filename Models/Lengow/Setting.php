@@ -104,6 +104,14 @@ class Setting extends ModelEntity
     private $lengowExportFormat;
 
     /**
+     * @var \Shopware\Models\Dispatch\Dispatch $lengowShippingCostDefault
+     * 
+     * @ORM\ManyToOne(targetEntity="Shopware\Models\Dispatch\Dispatch")
+     * @ORM\JoinColumn(name="lengowShippingCostDefault", referencedColumnName="id")
+     */
+    private $lengowShippingCostDefault;
+
+    /**
      * @var integer $lengowExportFile
      *
      * @ORM\Column(name="lengowExportFile", type="boolean", nullable=false)
@@ -168,7 +176,7 @@ class Setting extends ModelEntity
      *
      * @ORM\Column(name="lengowForcePrice", type="boolean", nullable=false)
      */
-    private $lengowForcePrice;
+    private $lengowForcePrice = true;
 
     /**
      * @var integer $lengowReportMail
@@ -441,6 +449,28 @@ class Setting extends ModelEntity
     public function getLengowExportFormat()
     {
         return $this->lengowExportFormat;
+    }
+
+    /**
+     * Set lengowShippingCostDefault
+     *
+     * @param \Shopware\Models\Dispatch\Dispatch $lengowShippingCostDefault
+     * @return Setting
+     */
+    public function setLengowShippingCostDefault($lengowShippingCostDefault)
+    {
+        $this->lengowShippingCostDefault = $lengowShippingCostDefault;
+        return $this;
+    }
+
+    /**
+     * Get lengowShippingCostDefault
+     *
+     * @return \Shopware\Models\Dispatch\Dispatch
+     */
+    public function getLengowShippingCostDefault()
+    {
+        return $this->lengowShippingCostDefault;
     }
 
     /**
