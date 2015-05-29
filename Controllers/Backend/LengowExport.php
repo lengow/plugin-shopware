@@ -90,8 +90,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             $order = $order['property'] . ' ' . $order['direction'];
         }
        
-        $sql = "
-            SELECT DISTINCT SQL_CALC_FOUND_ROWS
+        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS
                    details.id as id,
                    articles.id as articleId,
                    articles.name as name,
@@ -103,24 +102,23 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                    ROUND(prices.price*(100+tax.tax)/100,2) as `price`,
                    tax.tax as tax,
                    attributes.lengow_lengowActive as activeLengow
-            FROM s_articles as articles
-            INNER JOIN s_articles_details as details
-                ON articles.main_detail_id = details.id
-            LEFT JOIN s_articles_supplier as suppliers
-                ON articles.supplierID = suppliers.id
-            LEFT JOIN s_articles_attributes as attributes
-                ON attributes.articleID = articles.id
-            LEFT JOIN s_articles_prices prices
-                ON prices.articledetailsID = details.id
-                AND prices.`to`= 'beliebig'
-                AND prices.pricegroup='EK'
-            LEFT JOIN s_core_tax AS tax
-                ON tax.id = articles.taxID
-            $categorySql
-            $filterSql
-            ORDER BY $order, details.ordernumber ASC
-            LIMIT  $start, $limit
-        ";
+                FROM s_articles as articles
+                INNER JOIN s_articles_details as details
+                    ON articles.main_detail_id = details.id
+                LEFT JOIN s_articles_supplier as suppliers
+                    ON articles.supplierID = suppliers.id
+                LEFT JOIN s_articles_attributes as attributes
+                    ON attributes.articleID = articles.id
+                LEFT JOIN s_articles_prices prices
+                    ON prices.articledetailsID = details.id
+                    AND prices.`to`= 'beliebig'
+                    AND prices.pricegroup='EK'
+                LEFT JOIN s_core_tax AS tax
+                    ON tax.id = articles.taxID
+                $categorySql
+                $filterSql
+                ORDER BY $order, details.ordernumber ASC
+                LIMIT  $start, $limit";
 
         $articles = Shopware()->Db()->fetchAll($sql, $sqlParams);
 

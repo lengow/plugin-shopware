@@ -126,6 +126,13 @@ class Setting extends ModelEntity
     private $lengowExportUrl;
 
     /**
+     * @var integer $lengowExportCron
+     *
+     * @ORM\Column(name="lengowExportCron", type="boolean", nullable=false)
+     */
+    private $lengowExportCron;
+
+    /**
      * @var \Shopware\Models\Dispatch\Dispatch $lengowCarrierDefault
      * 
      * @ORM\ManyToOne(targetEntity="Shopware\Models\Dispatch\Dispatch")
@@ -200,18 +207,11 @@ class Setting extends ModelEntity
     private $lengowImportUrl;
 
     /**
-     * @var integer $lengowExportCron
+     * @var integer $lengowImportCron
      *
-     * @ORM\Column(name="lengowExportCron", type="boolean", nullable=false)
+     * @ORM\Column(name="lengowImportCron", type="boolean", nullable=false)
      */
-    private $lengowExportCron;
-
-    /**
-     * @var integer $lengowDebug
-     *
-     * @ORM\Column(name="lengowDebug", type="boolean", nullable=false)
-     */
-    private $lengowDebug;
+    private $lengowImportCron;
 
     /**
      * OWNING SIDE
@@ -518,6 +518,28 @@ class Setting extends ModelEntity
     }
 
     /**
+     * Set lengowExportCron
+     *
+     * @param bool $lengowExportCron
+     * @return Setting
+     */
+    public function setLengowExportCron($lengowExportCron)
+    {
+        $this->lengowExportCron = $lengowExportCron;
+        return $this;
+    }
+
+    /**
+     * Get lengowExportCron
+     *
+     * @return bool
+     */
+    public function getLengowExportCron()
+    {
+        return $this->lengowExportCron;
+    }
+
+    /**
      * Set lengowCarrierDefault
      *
      * @param \Shopware\Models\Dispatch\Dispatch $lengowCarrierDefault
@@ -738,47 +760,25 @@ class Setting extends ModelEntity
     }
 
     /**
-     * Set lengowExportCron
+     * Set lengowImportCron
      *
-     * @param bool $lengowExportCron
+     * @param bool $lengowImportCron
      * @return Setting
      */
-    public function setLengowExportCron($lengowExportCron)
+    public function setLengowImportCron($lengowImportCron)
     {
-        $this->lengowExportCron = $lengowExportCron;
+        $this->lengowImportCron = $lengowImportCron;
         return $this;
     }
 
     /**
-     * Get lengowExportCron
+     * Get lengowImportCron
      *
      * @return bool
      */
-    public function getLengowExportCron()
+    public function getLengowImportCron()
     {
-        return $this->lengowExportCron;
-    }
-
-    /**
-     * Set lengowDebug
-     *
-     * @param bool $lengowDebug
-     * @return Setting
-     */
-    public function setLengowDebug($lengowDebug)
-    {
-        $this->lengowDebug = $lengowDebug;
-        return $this;
-    }
-
-    /**
-     * Get lengowDebug
-     *
-     * @return bool
-     */
-    public function getLengowDebug()
-    {
-        return $this->lengowDebug;
+        return $this->lengowImportCron;
     }
 
     /**

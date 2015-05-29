@@ -33,6 +33,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
                     settings.lengowExportFormat,
                     dscd.id as lengowShippingCostDefault,
                     settings.lengowExportFile,
+                    settings.lengowExportCron,
                     dcd.id as lengowCarrierDefault,
                     sp.id as lengowOrderProcess,
                     ssh.id as lengowOrderShipped,
@@ -42,8 +43,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
                     settings.lengowForcePrice,
                     settings.lengowReportMail,
                     settings.lengowEmailAddress,
-                    settings.lengowExportCron,
-                    settings.lengowDebug,
+                    settings.lengowImportCron,
                     CONCAT( settings.lengowExportUrl, shops.name ) as lengowExportUrl,
                     CONCAT( settings.lengowImportUrl, shops.name ) as lengowImportUrl 
                 FROM lengow_settings as settings
@@ -109,7 +109,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
         $settingId = Shopware()->Db()->fetchOne($sql, $sqlParams);      
 
         if (!$settingId) {
-            $shop = Shopware()->Models()->getReference('Shopware\Models\Shop\Shop', (int) $settingsParams['shopId']);
+            $shop = Shopware()->Models()->getReference('Shopware\Models\Shop\Shop',(int) $settingsParams['shopId']);
             $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
             $exportUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Webservice/export.php?shop=';
             $importUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Webservice/import.php?shop=';
@@ -118,7 +118,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
                     ->setLengowExportUrl($exportUrl)
                     ->setLengowImportUrl($importUrl);
         } else {
-            $setting = Shopware()->Models()->getReference('Shopware\CustomModels\Lengow\Setting', $settingId);
+            $setting = Shopware()->Models()->getReference('Shopware\CustomModels\Lengow\Setting',(int) $settingId);
         } 
 
         $shippingCost = Shopware()->Models()->getReference('Shopware\Models\Dispatch\Dispatch', (int) $settingsParams['lengowShippingCostDefault']);
@@ -138,6 +138,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
                 ->setLengowExportFormat($settingsParams['lengowExportFormat'])
                 ->setLengowShippingCostDefault($shippingCost)
                 ->setLengowExportFile($settingsParams['lengowExportFile'])
+                ->setLengowExportCron($settingsParams['lengowExportCron'])  
                 ->setLengowCarrierDefault($carrier)
                 ->setLengowOrderProcess($orderProcessStatus)
                 ->setLengowOrderShipped($orderShippedStatus)
@@ -146,8 +147,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
                 ->setLengowMethodName($settingsParams['lengowMethodName'])
                 ->setLengowReportMail($settingsParams['lengowReportMail'])
                 ->setLengowEmailAddress($settingsParams['lengowEmailAddress'])
-                ->setLengowExportCron($settingsParams['lengowExportCron'])
-                ->setLengowDebug($settingsParams['lengowDebug']);      
+                ->setLengowImportCron($settingsParams['lengowImportCron']);    
         Shopware()->Models()->persist($setting);
         Shopware()->Models()->flush();
 

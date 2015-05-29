@@ -38,17 +38,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 
     /**
     * Construct new Lengow product
-    * 
-    * @return Exception Error
     */
     public function __construct($id_product = null, $id_variation = null, $shop = null) 
     {
         // Get the product and its detail
-        $this->product = Shopware()->Models()->find('Shopware\Models\Article\Article', $id_product);
-        $this->detail_product = Shopware()->Models()->find('Shopware\Models\Article\Detail', $this->product->getMainDetail()->getId());
+        $this->product = Shopware()->Models()->getReference('Shopware\Models\Article\Article', (int) $id_product);
+        $this->detail_product = Shopware()->Models()->getReference('Shopware\Models\Article\Detail', (int) $this->product->getMainDetail()->getId());
         // Get the variation product
         if ($id_variation) {
-            $this->variant_product = Shopware()->Models()->find('Shopware\Models\Article\Detail', $id_variation);
+            $this->variant_product = Shopware()->Models()->getReference('Shopware\Models\Article\Detail', (int) $id_variation);
         } 
         // Get images of a product
         if ($id_variation) {
@@ -125,7 +123,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                         $breadcrumb = $category->getName();
                         $idCategory = (int) $category->getParentId();
                         for ($i=0; $i < count($pathCategory) - 2 ; $i++) { 
-                            $category = Shopware()->Models()->find('Shopware\Models\Category\Category', $idCategory);
+                            $category = Shopware()->Models()->getReference('Shopware\Models\Category\Category',(int) $idCategory);
                             $breadcrumb = $category->getName() . ' > ' . $breadcrumb;
                             $idCategory = (int) $category->getParentId();
                         }
@@ -136,7 +134,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 break;
             case 'category_parent':
                 $idCategoryParent = $this->shop->getCategory()->getId();
-                $categoryParent = Shopware()->Models()->find('Shopware\Models\Category\Category', $idCategoryParent);
+                $categoryParent = Shopware()->Models()->getReference('Shopware\Models\Category\Category',(int) $idCategoryParent);
                 return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml($categoryParent->getName());
                 break;
             case 'price':
@@ -301,7 +299,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             case 'shipping_price':
                 // Get the default dispatch
                 $idDispatch = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDefaultShippingCost($this->shop->getId()); 
-                $dispatch = Shopware()->Models()->find('Shopware\Models\Dispatch\Dispatch', $idDispatch);
+                $dispatch = Shopware()->Models()->getReference('Shopware\Models\Dispatch\Dispatch',(int) $idDispatch);
                 $shippingPrice  = 0;
                 $weight         = 0;
                 $price          = 0;
@@ -446,15 +444,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 $LengowProduct = ' LEFT JOIN s_articles_attributes AS attributes ON attributes.articleID = article.id ';
                 $filterSql .= ' AND attributes.lengow_lengowActive = 1 ';
             }
-            $sql = '
-                SELECT DISTINCT SQL_CALC_FOUND_ROWS article.id as article
-                FROM s_articles as article
-                LEFT JOIN s_articles_categories_ro ac
-                ON ac.articleID = article.id '
-                . $LengowProduct
-                . $filterSql
-                . ' ORDER BY article.id ASC
-            ';
+            $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS article.id as article
+                    FROM s_articles as article
+                    LEFT JOIN s_articles_categories_ro ac
+                    ON ac.articleID = article.id
+                    $LengowProduct
+                    $filterSql
+                    ORDER BY article.id ASC";
             return Shopware()->Db()->fetchAll($sql);
         } else {
             return array();
@@ -468,11 +464,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     */
     public static function getAttributes() 
     {
-        $sql = '
-            SELECT DISTINCT SQL_CALC_FOUND_ROWS 
-            groups.id as id, groups.name as name
-            FROM s_article_configurator_groups as groups
-        ';
+        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS groups.id as id, groups.name as name
+                FROM s_article_configurator_groups as groups";
         return Shopware()->Db()->fetchAll($sql);
     }
 
@@ -499,14 +492,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             }   
         }      
         $sqlParams["nameAttribute"] = $name;
-        $sql = '
-            SELECT DISTINCT SQL_CALC_FOUND_ROWS o.name AS name
-            FROM s_article_configurator_options o
-            LEFT JOIN s_article_configurator_groups g ON g.id = o.group_id
-            LEFT JOIN s_article_configurator_option_relations r ON r.option_id = o.id
-            WHERE r.article_id = :idProduct
-            AND g.name = :nameAttribute
-        ';
+        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS o.name AS name
+                FROM s_article_configurator_options o
+                LEFT JOIN s_article_configurator_groups g ON g.id = o.group_id
+                LEFT JOIN s_article_configurator_option_relations r ON r.option_id = o.id
+                WHERE r.article_id = :idProduct
+                AND g.name = :nameAttribute";
         return Shopware()->Db()->fetchOne($sql, $sqlParams);  
     }
 
@@ -586,14 +577,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         $sqlParams = array();
         $sqlParams["idProduct"] = $id_product;
-        $sql = '
-            SELECT DISTINCT SQL_CALC_FOUND_ROWS
-            o.name AS value, g.name AS name
-            FROM s_article_configurator_options o
-            LEFT JOIN s_article_configurator_option_relations r ON r.option_id = o.id
-            LEFT JOIN s_article_configurator_groups g ON g.id = o.group_id
-            WHERE r.article_id = :idProduct
-        ';
+        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS
+                o.name AS value, g.name AS name
+                FROM s_article_configurator_options o
+                LEFT JOIN s_article_configurator_option_relations r ON r.option_id = o.id
+                LEFT JOIN s_article_configurator_groups g ON g.id = o.group_id
+                WHERE r.article_id = :idProduct";
         return Shopware()->Db()->fetchAll($sql, $sqlParams);
     }
 
@@ -608,14 +597,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         $sqlParams = array();
         $sqlParams["customerGroupKey"] = $this->shop->getCustomerGroup()->getKey();
-        $sql = '
-            SELECT DISTINCT SQL_CALC_FOUND_ROWS '
-            . $field
-            . ' FROM s_articles_prices prices
-            WHERE prices.to = \'beliebig\'
-            AND prices.pricegroup = :customerGroupKey
-            AND prices.articledetailsID = :detailId
-        ';
+        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS $field
+                FROM s_articles_prices prices
+                WHERE prices.to = 'beliebig'
+                AND prices.pricegroup = :customerGroupKey
+                AND prices.articledetailsID = :detailId ";
         if ($id_variation) {
             $detailId = $this->variant_product->getId();
         } else {

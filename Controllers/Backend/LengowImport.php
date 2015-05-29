@@ -75,43 +75,41 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             $order = $order['property'] . ' ' . $order['direction'];
         }
        
-        $sql = "
-            SELECT DISTINCT SQL_CALC_FOUND_ROWS
-                lo.id as id,
-                lo.idOrderLengow as idOrderLengow,
-                lo.idFlux as idFlux,
-                lo.marketplace as marketplace,
-                lo.totalPaid as totalPaid,
-                lo.carrier as carrier,
-                lo.carrierMethod as carrierMethod,
-                lo.orderDate as orderDateLengow,
-                lo.extra as extra,
-                so.id as orderId,
-                so.ordertime as orderDate,
-                so.ordernumber as orderNumber,
-                so.invoice_amount as invoiceAmount,
-                scs.name as nameShop,
-                spd.name as shipping,
-                scst.description as status,
-                CASE 
-                    WHEN LENGTH(sob.company) > 0 THEN sob.company 
-                    ELSE CONCAT(sob.firstname, ' ', sob.lastname)
-                END as nameCustomer             
-            FROM lengow_orders as lo
-            INNER JOIN s_order as so
-                ON so.id = lo.orderID
-            LEFT JOIN s_core_shops as scs
-                ON scs.id = so.subshopID
-            LEFT JOIN s_premium_dispatch as spd
-                ON spd.id = so.dispatchID
-            LEFT JOIN s_core_states as scst
-                ON scst.id = so.status
-            LEFT JOIN s_order_billingaddress as sob
-                ON sob.orderID = so.id
-            $filterSql
-            ORDER BY $order
-            LIMIT  $start, $limit
-        ";
+        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS
+                    lo.id as id,
+                    lo.idOrderLengow as idOrderLengow,
+                    lo.idFlux as idFlux,
+                    lo.marketplace as marketplace,
+                    lo.totalPaid as totalPaid,
+                    lo.carrier as carrier,
+                    lo.carrierMethod as carrierMethod,
+                    lo.orderDate as orderDateLengow,
+                    lo.extra as extra,
+                    so.id as orderId,
+                    so.ordertime as orderDate,
+                    so.ordernumber as orderNumber,
+                    so.invoice_amount as invoiceAmount,
+                    scs.name as nameShop,
+                    spd.name as shipping,
+                    scst.description as status,
+                    CASE 
+                        WHEN LENGTH(sob.company) > 0 THEN sob.company 
+                        ELSE CONCAT(sob.firstname, ' ', sob.lastname)
+                    END as nameCustomer             
+                FROM lengow_orders as lo
+                INNER JOIN s_order as so
+                    ON so.id = lo.orderID
+                LEFT JOIN s_core_shops as scs
+                    ON scs.id = so.subshopID
+                LEFT JOIN s_premium_dispatch as spd
+                    ON spd.id = so.dispatchID
+                LEFT JOIN s_core_states as scst
+                    ON scst.id = so.status
+                LEFT JOIN s_order_billingaddress as sob
+                    ON sob.orderID = so.id
+                $filterSql
+                ORDER BY $order
+                LIMIT  $start, $limit";
 
         $articles = Shopware()->Db()->fetchAll($sql, $sqlParams);
 

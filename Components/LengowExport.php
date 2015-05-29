@@ -572,8 +572,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     private function _writeOnFile($data) 
     {
         if (!$this->handle) {
-            $this->filename_temp = Shopware()->Plugins()->Backend()->Lengow()->Path() . 'Export/flux-temp.' . $this->format;
-            $this->filename = Shopware()->Plugins()->Backend()->Lengow()->Path() . 'Export/flux.' . $this->format;
+            $folder = mb_strtolower(str_replace(' ', '_', $this->shop->getName()));
+            if (!file_exists(Shopware()->Plugins()->Backend()->Lengow()->Path() . 'Export/' . $folder)) {
+                mkdir(Shopware()->Plugins()->Backend()->Lengow()->Path() . 'Export/' . $folder);
+            }
+            $this->filename_temp = Shopware()->Plugins()->Backend()->Lengow()->Path() . 'Export/' . $folder . '/flux-temp.' . $this->format;
+            $this->filename = Shopware()->Plugins()->Backend()->Lengow()->Path() . 'Export/' . $folder . '/flux.' . $this->format;
             $this->handle = fopen($this->filename_temp, 'w+');
         }
         fwrite($this->handle, $data);
@@ -693,10 +697,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     {
         if(!$this->stream) {
             $format = ($format == null) ? Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportFormat() : $format;
-            $fileExist = file_exists(Shopware()->Plugins()->Backend()->Lengow()->Path() . 'Export/flux.' . $format);
+            $folder = mb_strtolower(str_replace(' ', '_', $this->shop->getName()));
+            $fileExist = file_exists(Shopware()->Plugins()->Backend()->Lengow()->Path() . 'Export/' . $folder . '/flux.' . $format);
             if ($fileExist) {
                 $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
-                $fileExportUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Export/flux.' . $format;
+                $fileExportUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Export/' . $folder . '/flux.' . $format;
                 return ('Your export file is available here') . ' : <a href="' . $fileExportUrl . '" target="_blank">' . $fileExportUrl . '</a>';
             } else {
                 return ('Your file export is not yet created. Click on the link below to generate it.');

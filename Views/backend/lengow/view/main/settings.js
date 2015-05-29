@@ -65,8 +65,8 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
                 boxLabel:   '{s name=main/settings/exportation/attributes_title/box_label}Check this option if you want a variation product title as title + attributes + feature. By default the title will be the product name{/s}'
             },
             outStock: {
-                label:      '{s name=main/settings/exportation/out_stock/label}Export out of stock product{/s}',
-                boxLabel:   '{s name=main/settings/exportation/out_stock/box_label}Check this option to export out of stock product{/s}'
+                label:      '{s name=main/settings/exportation/out_stock/label}Export out of stock products{/s}',
+                boxLabel:   '{s name=main/settings/exportation/out_stock/box_label}Check this option to export out of stock products{/s}'
             },
             imageSize: {
                 label:      '{s name=main/settings/exportation/image_size/label}Image size to export{/s}',
@@ -90,6 +90,10 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             },
             exportUrl: {
                 label:      '{s name=main/settings/exportation/export_url/label}Our export URL{/s}'   
+            },
+            exportCron: {
+                label:      '{s name=main/settings/exportation/export_cron/label}Active export cron{/s}',
+                boxLabel:   '{s name=main/settings/exportation/export_cron/box_label}Check this option to export products automatically{/s}'
             }
         },
         importation: {
@@ -132,18 +136,11 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             importUrl: {
                 label:      '{s name=main/settings/importation/import_url/label}Our import URL{/s}'   
             }, 
-            exportCron: {
-                label:      '{s name=main/settings/importation/export_cron/label}Active import cron{/s}',
-                boxLabel:   '{s name=main/settings/importation/export_cron/box_label}Check this option to import orders automatically{/s}'
-            },
-        },
-        development: {
-            title: '{s name=main/settings/development/title}Development settings{/s}',
-            debugMode: {
-                label: '{s name=main/settings/development/debug_mode/label}Debug mode{/s}',
-                emptyText: '{s name=main/settings/development/debug_mode/box_label}Use it only during tests{/s}'
+            importCron: {
+                label:      '{s name=main/settings/importation/import_cron/label}Active import cron{/s}',
+                boxLabel:   '{s name=main/settings/importation/import_cron/box_label}Check this option to import orders automatically{/s}'
             }
-        },
+        }
     },
 
     initComponent: function() {
@@ -155,8 +152,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             me.createAccountFieldSet(),
             me.createSecurityFieldSet(),
             me.createExportFieldSet(), 
-            me.createImportFieldSet(),
-            me.createDevelopmentFieldSet()
+            me.createImportFieldSet()
         ]; 
 
         me.tbar = me.getTopToolbar();
@@ -247,21 +243,6 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             items: me.createImportField()
         });
         return importFieldSet;
-    },
-
-    createDevelopmentFieldSet: function() {
-        var developmentFieldSet,
-            me = this;
-
-        developmentFieldSet = Ext.create('Ext.form.FieldSet', {
-            title: me.snippets.development.title,
-            layout: 'anchor',
-            defaults: {
-                anchor: '100%'
-            },  
-            items: me.createDevelopmentField()
-        });
-        return developmentFieldSet;
     },
 
     createAccountField: function() {
@@ -432,6 +413,15 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             labelWidth: 170
         });
 
+        me.exportCronCheck = Ext.create('Ext.form.field.Checkbox', {
+            name: 'lengowExportCron',
+            fieldLabel: me.snippets.exportation.exportCron.label,
+            inputValue: true,
+            uncheckedValue: false,
+            boxLabel: me.snippets.exportation.exportCron.boxLabel,
+            labelWidth: 170
+        });
+
         return [
             me.exportAllProductsCheck,
             me.exportDisabledProductsCheck,
@@ -444,7 +434,8 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             me.exportFormatCombo,
             me.shippingCostDefaultCombo,
             me.exportFileCheck,
-            me.exportUrlDisplay 
+            me.exportUrlDisplay,
+            me.exportCronCheck 
         ];
     },
 
@@ -551,12 +542,12 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             labelWidth: 170
         });
 
-        me.exportCronCheck = Ext.create('Ext.form.field.Checkbox', {
-            name: 'lengowExportCron',
-            fieldLabel: me.snippets.importation.exportCron.label,
+        me.importCronCheck = Ext.create('Ext.form.field.Checkbox', {
+            name: 'lengowImportCron',
+            fieldLabel: me.snippets.importation.importCron.label,
             inputValue: true,
             uncheckedValue: false,
-            boxLabel: me.snippets.importation.exportCron.boxLabel,
+            boxLabel: me.snippets.importation.importCron.boxLabel,
             labelWidth: 170
         });
 
@@ -571,25 +562,9 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             me.reportMailCheck,
             me.emailAddressField,
             me.importUrlDisplay,
-            me.exportCronCheck
+            me.importCronCheck
         ];
     },
-
-    createDevelopmentField: function() {
-        var me = this;
-
-        me.debugModeCheck = Ext.create('Ext.form.field.Checkbox', {
-            name: 'lengowDebug',
-            fieldLabel: me.snippets.development.debugMode.label,
-            inputValue: true,
-            uncheckedValue: false,
-            boxLabel: me.snippets.development.debugMode.boxLabel,
-            labelWidth: 170
-        });
-
-        return [ me.debugModeCheck ];
-    },
-
 
     getTopToolbar: function() {
         var me = this, 

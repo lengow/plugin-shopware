@@ -31,6 +31,7 @@ Ext.define('Shopware.apps.Lengow.model.Setting', {
         { name: 'lengowExportFormat', type: 'string' },
         { name: 'lengowExportFile', type: 'boolean' },
         { name: 'lengowExportUrl', type: 'string' },
+        { name: 'lengowExportCron', type: 'boolean' },
         { name: 'lengowCarrierDefault', type: 'int' },
         { name: 'lengowOrderProcess', type: 'int' },
         { name: 'lengowOrderShipped', type: 'int' },
@@ -41,8 +42,7 @@ Ext.define('Shopware.apps.Lengow.model.Setting', {
         { name: 'lengowReportMail', type: 'boolean' },
         { name: 'lengowEmailAddress', type: 'string' },
         { name: 'lengowImportUrl', type: 'string' },
-        { name: 'lengowExportCron', type: 'boolean' },
-        { name: 'lengowDebug', type: 'boolean' },
+        { name: 'lengowImportCron', type: 'boolean' },
         { name: 'newSetting', type: 'boolean' }
     ],
 

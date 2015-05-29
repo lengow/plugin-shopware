@@ -17,6 +17,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     const VERSION = '1.0.0';
 
     /**
+    * Registers.
+    */
+    public static $registers = array();
+
+    /**
 	 * Lengow export format.
 	 */
 	public static $FORMAT_LENGOW = array(
@@ -37,12 +42,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static $log_instance;
 
     /**
+     * integer life of log files in days
+     */
+    public static $LOG_LIFE = 7;
+
+    /**
     * Lengow shipping name.
     */
     public static $SHIPPING_LENGOW = array(
         'lengow' => 'Lengow',
         'marketplace' => 'Marketplace\'s name',
     );
+
+    /**
+    * Lengow XML Marketplace configuration.
+    */
+    public static $MP_CONF_LENGOW = 'http://kml.lengow.com/mp.xml';
 
 	/**
      * Lengow IP.
@@ -64,8 +79,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
         '80.14.226.127',
         '80.236.15.223'
     );
-
-
 
 	/**
 	 * The images number to export.
@@ -92,7 +105,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
                 FROM s_media_album album
                 WHERE album.name = :name";
         $idAlbum = Shopware()->Db()->fetchOne($sql, $sqlParams);
-        $articleAlbum = Shopware()->Models()->find('Shopware\Models\Media\Album', $idAlbum);
+        $articleAlbum = Shopware()->Models()->getReference('Shopware\Models\Media\Album',(int) $idAlbum);
         $imageSizes = $articleAlbum->getSettings()->getThumbnailSize();
         $array_ImageSize = array();
         foreach ($imageSizes as $value)
@@ -136,7 +149,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      *
      * @return array Lengow shipping names option
      */
-    public static function getShippingName() {
+    public static function getShippingName() 
+    {
         $array_shipping = array();
         foreach (self::$SHIPPING_LENGOW as $name => $value) {
             $array_shipping[] = new Shopware_Plugins_Backend_Lengow_Components_LengowOption($name, $value);
@@ -185,7 +199,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     }
 
     /**
-     * Get the configuration of the module
+     * Get settings of the module
      * 
      * @return int
      */
@@ -196,7 +210,31 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
                 FROM lengow_settings as settings 
                 WHERE settings.shopID = :shopId";
         $settingId = Shopware()->Db()->fetchOne($sql, $sqlParams);  
-        return Shopware()->Models()->getReference('Shopware\CustomModels\Lengow\Setting', $settingId);
+        return Shopware()->Models()->getReference('Shopware\CustomModels\Lengow\Setting',(int) $settingId);
+    }
+
+    /**
+     * Get Lengow Configuration of the module
+     *
+     * @param integer $name
+     * @return mixed
+     */
+    public static function getConfigLengow($name)
+    {
+        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS $name FROM lengow_config WHERE id = 1";
+        return Shopware()->Db()->fetchOne($sql);  
+    }
+
+    /**
+     * Set Lengow Configuration of the module
+     *
+     * @param integer $name
+     */
+    public static function setConfigLengow($name, $value)
+    {
+        $sqlParams['value'] = htmlspecialchars($value);
+        $sql = "UPDATE lengow_config SET $name = :value WHERE id = 1";
+        Shopware()->Db()->query($sql, $sqlParams);  
     }
 
     /**
@@ -217,6 +255,25 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     }
 
     /**
+    * Check and update xml of marketplace's configuration.
+    *
+    * @return boolean.
+    */
+    public static function updateMarketPlaceConfiguration()
+    {
+        $sep = '/';
+        $mp_update = self::getConfigLengow('LENGOW_MP_CONF');
+        if (!$mp_update || $mp_update != date('Y-m-d')) {
+            if ($xml = fopen(self::$MP_CONF_LENGOW, 'r')) {
+                $handle = fopen(dirname(__FILE__).$sep.'..'.$sep.'Config'.$sep.Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace::$XML_MARKETPLACES.'', 'w');
+                stream_copy_to_stream($xml, $handle);
+                fclose($handle);
+                self::setConfigLengow('LENGOW_MP_CONF', date('Y-m-d'));
+            }
+        }
+    }
+
+    /**
      * Get id Customer
      *
      * @param integer $idShop
@@ -224,7 +281,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      */
     public static function getIdCustomer() 
     {
-        // return self::getSetting($idShop)->getLengowIdUser();
         return self::getConfig()->get('lengowIdUser');
     }
 
@@ -365,6 +421,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 	}
 
     /**
+     * Export with cron
+     *
+     * @param integer $idShop
+     * @return boolean
+     */
+    public static function getExportCron($idShop) 
+    {
+        return (self::getSetting($idShop)->getLengowExportCron() == 1 ? true : false);
+    }
+
+    /**
      * Default Shipping Cost
      *
      * @param integer $idShop
@@ -478,9 +545,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      * @param integer $idShop
      * @return boolean
      */
-    public static function getExportCron($idShop) 
+    public static function getImportCron($idShop) 
     {
-        return (self::getSetting($idShop)->getLengowExportCron() == 1 ? true : false);
+        return (self::getSetting($idShop)->getLengowImportCron() == 1 ? true : false);
     }
 
     /**
@@ -489,9 +556,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      * @param integer $idShop
      * @return boolean
      */
-    public static function isDebug($idShop) 
+    public static function isDebug() 
     {
-        return (self::getSetting($idShop)->getLengowDebug() == 1 ? true : false);
+        return (self::getConfig()->get('lengowDebugMode') == 1 ? true : false);
+    }
+
+    /**
+     * The shipping names options.
+     *
+     * @return array Lengow shipping names option
+     */
+    public static function getMarketplaceSingleton($name)
+    {
+        if (!isset(self::$registers[$name]))
+            self::$registers[$name] = new Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace($name);
+        return self::$registers[$name];
     }
 
     /**
@@ -501,9 +580,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      * @param boolean $force_output
      * @param boolean $force_output
      */
-    public static function log($txt, $force_output = false, $log_interface = false) {
+    public static function log($txt, $force_output = false, $log_interface = false) 
+    {
         $sep = '/';
-        $debug = self::getConfig()->get('lengowDebug');
+        $debug = self::getConfig()->get('lengowDebugMode');
         if ($force_output !== -1) {
             if ($debug || $force_output) {
                 echo date('Y-m-d : H:i:s') . ' - ' . $txt . '<br />' . "\r\n";
@@ -520,6 +600,63 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
             self::$log_instance = fopen(dirname(__FILE__) . $sep . '..' . $sep . 'Logs' . $sep . 'logs-' . date('Y-m-d') . '.txt', 'a+');
         }
         fwrite(self::$log_instance, date('Y-m-d : H:i:s - ') . $txt . "\r\n");
+    }
+
+    /**
+     * Suppress log files when too old.
+     */
+    public static function cleanLog() 
+    {
+        $sep = '/';
+        $days = array();
+        $days[] = 'logs-'.date('Y-m-d').'.txt';
+        for ($i = 1; $i < self::$LOG_LIFE; $i++) {
+            $days[] = 'logs-'.date('Y-m-d', strtotime('-'.$i.'day')).'.txt';
+        }
+        if ($handle = opendir(dirname(__FILE__) . $sep . '..' . $sep . 'Logs' . $sep)) {
+            while (false !== ($entry = readdir($handle))) {
+                if ($entry != "." && $entry != "..") {
+                    if (!in_array($entry, $days))
+                        unlink(dirname(__FILE__) . $sep . '..' . $sep . 'Logs' . $sep . $entry);
+                }
+            }
+            closedir($handle);
+        }
+    }
+
+    /**
+     * Export Cron
+     */
+    public static function exportCron() 
+    {
+        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS shops.id AS id FROM s_core_shops shops";
+        $shops = Shopware()->Db()->fetchAll($sql);
+        foreach ($shops as $shop) {
+            if(self::getExportCron($shop['id'])) {
+                $shop = Shopware()->Models()->getReference('Shopware\Models\Shop\Shop',(int) $shop['id']); 
+                $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport(null, null, null, null, null, null, null, null, $shop);
+                $export->exec();
+            }
+        }   
+    }
+
+    /**
+     * Import Cron
+     */
+    public static function importCron() 
+    {
+        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS shops.id AS id FROM s_core_shops shops";
+        $shops = Shopware()->Db()->fetchAll($sql);
+        foreach ($shops as $shop) {
+            if(self::getImportCron($shop['id'])) {
+                $shop = Shopware()->Models()->getReference('Shopware\Models\Shop\Shop',(int) $shop['id']); 
+                $date_to = date('Y-m-d');
+                $days = (int) Shopware_Plugins_Backend_Lengow_Components_LengowCore::getCountDaysToImport($shop->getId());
+                $date_from = date('Y-m-d', strtotime(date('Y-m-d').' -'.$days.'days'));
+                $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport($shop);
+                $import->exec('orders', array('dateFrom' => $date_from, 'dateTo' => $date_to));
+            }
+        }   
     }
 
     /**

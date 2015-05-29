@@ -92,6 +92,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             $this->_createDefaultConfiguration();
             $this->_createMenu();
             $this->_createEvents();
+            $this->_registerCronJobs();
             $this->Plugin()->setActive(true);
             return array('success' => true, 'invalidateCache' => array('backend'));
         } catch (Exception $e) {
@@ -113,9 +114,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         );
         try {
             $tool->createSchema($classes);
+
+            $sql = "CREATE TABLE IF NOT EXISTS lengow_config("
+               . "id int(1) NOT NULL UNIQUE,"
+               . "LENGOW_MP_CONF varchar(100)) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
+               . "INSERT IGNORE INTO lengow_config (id, LENGOW_MP_CONF) VALUES(1, NULL);";
+            Shopware()->Db()->query($sql);
+            
         } catch (\Doctrine\ORM\Tools\ToolsException $e) {
             // ignore
-        }
+        }  
     }
 
     /**
@@ -159,6 +167,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'value' => '127.0.0.1',
                 'description' => 'Authorized access to catalog export by IP, separated by ;'
             ));
+            $form->setElement('boolean', 'lengowDebugMode', array(
+                'label' => 'Debug mode', 
+                'value' => false,
+                'description' => 'Use it only during tests'
+            ));
 
             $shopRepository = Shopware()->Models()->getRepository('\Shopware\Models\Shop\Locale');
             //contains all translations
@@ -175,6 +188,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                     'lengowAuthorisedIp' => array(
                         'label' => 'IP für den Export zugelassen',
                         'description' => 'IP erlaubt, um den Katalog zu exportieren, getrennt durch ;'
+                    ),
+                    'lengowDebugMode' => array(
+                        'label' => 'Debug mode',
+                        'description' => 'Verwenden Sie nur bei Test'
                     )
                 )
             );
@@ -237,21 +254,27 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $this->subscribeEvent('Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowLog', 'lengowBackendControllerLog');
     }
 
+    private function _registerCronJobs()
+    {
+        $this->subscribeEvent('Shopware_CronJob_LengowCron', 'onRunLengowCronJob');
+        $this->createCronJob('Lengow', 'LengowCron', 86400, true);
+    }
+
     /**
      * Uninstall the plugin - Remove attribute and re-generate articles models
      * @return array
      */
     public function uninstall() {
         try {
-            $this->_removeDatabaseTables();
-            $this->Application()->Models()->removeAttribute(
-                 's_articles_attributes',
-                 'lengow',
-                 'lengowActive'
-             );
-             $this->getEntityManager()->generateAttributeModels(array(
-                 's_articles_attributes'
-             ));
+            // $this->_removeDatabaseTables();
+            // $this->Application()->Models()->removeAttribute(
+            //      's_articles_attributes',
+            //      'lengow',
+            //      'lengowActive'
+            //  );
+            //  $this->getEntityManager()->generateAttributeModels(array(
+            //      's_articles_attributes'
+            //  ));
             return array('success' => true, 'invalidateCache' => array('backend'));
         } catch (Exception $e) {
             return array('success' => false, 'message' => $e->getMessage());
@@ -350,9 +373,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
         foreach ($shops as $idShop) {
             if (!in_array($idShop['id'], $settingIDs)) {
-                $shop = Shopware()->Models()->getReference('Shopware\Models\Shop\Shop', $idShop['id']);
-                $dispatch = Shopware()->Models()->getReference('Shopware\Models\Dispatch\Dispatch', $dispatchs[0]->id);
-                $orderStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', $importOrderStates[0]->id);
+                $shop = Shopware()->Models()->getReference('Shopware\Models\Shop\Shop',(int) $idShop['id']);
+                $dispatch = Shopware()->Models()->getReference('Shopware\Models\Dispatch\Dispatch',(int) $dispatchs[0]->id);
+                $orderStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status',(int) $importOrderStates[0]->id);
                 $setting = new Shopware\CustomModels\Lengow\Setting();
                 $setting->setLengowExportAllProducts(true)
                         ->setLengowExportDisabledProducts(false)
@@ -366,6 +389,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                         ->setLengowShippingCostDefault($dispatch)
                         ->setLengowExportFile(false)
                         ->setLengowExportUrl($exportUrl)
+                        ->setLengowExportCron(false)
                         ->setLengowCarrierDefault($dispatch)
                         ->setLengowOrderProcess($orderStatus)
                         ->setLengowOrderShipped($orderStatus)
@@ -375,13 +399,21 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                         ->setLengowForcePrice(true)
                         ->setLengowReportMail(true)
                         ->setLengowImportUrl($importUrl)
-                        ->setLengowExportCron(false)
-                        ->setLengowDebug(false)
+                        ->setLengowImportCron(false)
                         ->setShop($shop);       
                 Shopware()->Models()->persist($setting);
                 Shopware()->Models()->flush();
             }
         }     
+    }
+
+    public function onRunLengowCronJob(Shopware_Components_Cron_CronJob $job)
+    {
+        Shopware_Plugins_Backend_Lengow_Components_LengowCore::updateMarketPlaceConfiguration();
+        Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanLog();
+        Shopware_Plugins_Backend_Lengow_Components_LengowCore::exportCron();
+        Shopware_Plugins_Backend_Lengow_Components_LengowCore::importCron();
+        return true;
     }
 
 }

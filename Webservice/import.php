@@ -29,7 +29,7 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIP())
         $idShop = Shopware()->Db()->fetchOne($sql, $sqlParams);
        
         if ($idShop) {
-            $shop = Shopware()->Models()->find('Shopware\Models\Shop\Shop', $idShop);    
+            $shop = Shopware()->Models()->getReference('Shopware\Models\Shop\Shop',(int) $idShop);    
 
             // Checking if the settings exist
             $sqlParamSetting = array();
@@ -64,7 +64,6 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIP())
 				}
 
 				$date_from = date('Y-m-d', strtotime(date('Y-m-d').' -'.$days.'days'));
-
 
 				$import->exec('orders', array(
 					'dateFrom' => $date_from,

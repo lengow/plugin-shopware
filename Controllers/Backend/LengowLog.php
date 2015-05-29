@@ -84,7 +84,7 @@ class Shopware_Controllers_Backend_LengowLog extends Shopware_Controllers_Backen
             ));
         }
 
-        $log = Shopware()->Models()->find('\Shopware\CustomModels\Lengow\Log',(int) $logId);
+        $log = Shopware()->Models()->getReference('\Shopware\CustomModels\Lengow\Log',(int) $logId);
 
         if (!($log instanceof \Shopware\CustomModels\Lengow\Log)) {
             $this->View()->assign(array(
