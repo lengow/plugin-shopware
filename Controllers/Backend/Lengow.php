@@ -110,9 +110,10 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
 
         if (!$settingId) {
             $shop = Shopware()->Models()->getReference('Shopware\Models\Shop\Shop',(int) $settingsParams['shopId']);
+            $host = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl();
             $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
-            $exportUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Webservice/export.php?shop=';
-            $importUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Webservice/import.php?shop=';
+            $exportUrl = $host . $pathPlugin . 'Webservice/export.php?shop=';
+            $importUrl = $host . $pathPlugin . 'Webservice/import.php?shop=';
             $setting = new Shopware\CustomModels\Lengow\Setting;
             $setting->setShop($shop)
                     ->setLengowExportUrl($exportUrl)

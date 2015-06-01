@@ -700,8 +700,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $folder = mb_strtolower(str_replace(' ', '_', $this->shop->getName()));
             $fileExist = file_exists(Shopware()->Plugins()->Backend()->Lengow()->Path() . 'Export/' . $folder . '/flux.' . $format);
             if ($fileExist) {
+                $host = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl();
                 $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
-                $fileExportUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Export/' . $folder . '/flux.' . $format;
+                $fileExportUrl = $host . $pathPlugin . 'Export/' . $folder . '/flux.' . $format;
                 return ('Your export file is available here') . ' : <a href="' . $fileExportUrl . '" target="_blank">' . $fileExportUrl . '</a>';
             } else {
                 return ('Your file export is not yet created. Click on the link below to generate it.');

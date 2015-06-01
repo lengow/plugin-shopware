@@ -266,15 +266,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function uninstall() {
         try {
-            // $this->_removeDatabaseTables();
-            // $this->Application()->Models()->removeAttribute(
-            //      's_articles_attributes',
-            //      'lengow',
-            //      'lengowActive'
-            //  );
-            //  $this->getEntityManager()->generateAttributeModels(array(
-            //      's_articles_attributes'
-            //  ));
+            $this->_removeDatabaseTables();
+            $this->Application()->Models()->removeAttribute(
+                 's_articles_attributes',
+                 'lengow',
+                 'lengowActive'
+             );
+             $this->getEntityManager()->generateAttributeModels(array(
+                 's_articles_attributes'
+             ));
             return array('success' => true, 'invalidateCache' => array('backend'));
         } catch (Exception $e) {
             return array('success' => false, 'message' => $e->getMessage());
@@ -367,9 +367,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $dispatchs = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDispatch();
         $importOrderStates = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getAllOrderStates();
         $importPayments = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getShippingName();
+        $host = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl();
         $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
-        $exportUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Webservice/export.php?shop=';
-        $importUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Webservice/import.php?shop=';
+        $exportUrl = $host . $pathPlugin . 'Webservice/export.php?shop=';
+        $importUrl = $host . $pathPlugin . 'Webservice/import.php?shop=';
 
         foreach ($shops as $idShop) {
             if (!in_array($idShop['id'], $settingIDs)) {

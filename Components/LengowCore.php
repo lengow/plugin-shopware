@@ -177,7 +177,27 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     }
 
     /**
-     * Get the path of the module
+     * Get the base url of the plugin
+     * 
+     * @return string
+     */
+    public static function getBaseUrl()
+    {
+        $sqlParams['default'] = 1;
+        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS shop.id 
+                FROM s_core_shops as shop 
+                WHERE shop.default = :default";
+        $shopId = Shopware()->Db()->fetchOne($sql, $sqlParams);  
+        $shop = Shopware()->Models()->getReference('Shopware\Models\Shop\Shop',(int) $shopId);
+        $is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '';
+        $host = $shop->getHost();
+        $path = ($shop->getBasePath() ? $shop->getBasePath() : '');
+        $url = 'http' . $is_https . '://' . $host . $path;
+        return $url;
+    }
+
+    /**
+     * Get the path of the plugin
      * 
      * @return string
      */

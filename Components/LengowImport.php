@@ -178,6 +178,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 				continue;
 			}
 
+			$test = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl();
+			print_r($test);
+
+			die();
+
+
+
 			// Update order state if already imported
 			$order_id = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderIdFromLengowOrders($lengow_id, $feed_id);
 

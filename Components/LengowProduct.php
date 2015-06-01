@@ -222,7 +222,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             case 'url_article':
                 $sep = '/';
                 $idProduct = $this->product->getId();
-                $host = ($this->shop->getMain() ? $host = $this->shop->getMain()->getHost() : $host = $this->shop->getHost());
+                $host = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl();
                 $baseUrl = ($this->shop->getBaseUrl() ? $this->shop->getBaseUrl() : '');
                 $idCategoryParent = $this->shop->getCategory()->getId();
                 $categories = $this->product->getCategories();
@@ -233,7 +233,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                         break;
                     }
                 }
-                return 'http://' . $host . $baseUrl .$sep.'detail'.$sep.'index'.$sep.'sArticle'.$sep.$idProduct.$sep.'sCategory'.$sep.$idCategory; 
+                return $host . $baseUrl .$sep.'detail'.$sep.'index'.$sep.'sArticle'.$sep.$idProduct.$sep.'sCategory'.$sep.$idCategory; 
                 break;  
             case 'meta_title':
                 return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml($this->product->getMetaTitle());
@@ -411,8 +411,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 if(isset($this->images[$index - 1]) && $this->images[$index - 1]) {
                     if($this->images[$index - 1]->getMedia() !== null) {
                         $thumbnailPaths = $this->images[$index - 1]->getMedia()->getThumbnailFilePaths();
+                        $host = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl();
                         $path = $thumbnailPaths[$size];
-                        $imagePath = 'http://' . $_SERVER['SERVER_NAME'] . $sep . $path;
+                        $imagePath = $host . $sep . $path;
                     }
                 }
                 return $imagePath;

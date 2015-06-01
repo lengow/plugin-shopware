@@ -130,8 +130,9 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
      */
     public function importAction()
     {
+        $host = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl();
         $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
-        $exportUrl = 'http://' . $_SERVER['SERVER_NAME'] . $pathPlugin . 'Webservice/import.php';
+        $exportUrl = $host . $pathPlugin . 'Webservice/import.php';
 
         $this->View()->assign(array(
             'success' => true,
