@@ -38,8 +38,8 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
         security: {
             title: '{s name=main/settings/security/title}Security settings{/s}',
             authorisedIp: {
-                label:      '{s name=main/settings/security/customer_id/label}IP authorised to export{/s}',
-                support:    '{s name=main/settings/security/customer_id/support}To edit this data, please go at : Configuration / Basic Settings / Additional settings / Lengow{/s}'
+                label:      '{s name=main/settings/security/authorised_ip/label}IP authorised to export{/s}',
+                support:    '{s name=main/settings/security/authorised_ip/support}To edit this data, please go at : Configuration / Basic Settings / Additional settings / Lengow{/s}'
             }
         },
         exportation: {
@@ -171,7 +171,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
    
         me.dispathStore = Ext.create('Shopware.apps.Base.store.Dispatch');
         me.dispathStore.load();
-        me.orderStatusStore = Ext.create('Shopware.apps.Base.store.OrderStatus');
+        me.orderStatusStore = Ext.create('Shopware.apps.Lengow.store.StatusOrders');
         me.orderStatusStore.load();
         me.imageFormatsStore = Ext.create('Shopware.apps.Lengow.store.ImageFormats');
         me.imageFormatsStore.load();
@@ -179,8 +179,8 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
         me.exportImagesStore.load();
         me.exportFormatsStore = Ext.create('Shopware.apps.Lengow.store.ExportFormats');
         me.exportFormatsStore.load();  
-        me.paymentMethodsStore = Ext.create('Shopware.apps.Lengow.store.PaymentMethods');
-        me.paymentMethodsStore.load(); 
+        // me.paymentMethodsStore = Ext.create('Shopware.apps.Lengow.store.PaymentMethods');
+        // me.paymentMethodsStore.load(); 
     },
 
     createAccountFieldSet: function() {
@@ -459,7 +459,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             queryMode: 'remote',
             store: me.orderStatusStore,
             valueField: 'id',
-            displayField: 'description',
+            displayField: 'name',
             emptyText: me.snippets.importation.orderProcess.emptyText,
             allowBlank: false,
             fieldLabel: me.snippets.importation.orderProcess.label,
@@ -471,7 +471,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             queryMode: 'remote',
             store: me.orderStatusStore,
             valueField: 'id',
-            displayField: 'description',
+            displayField: 'name',
             emptyText: me.snippets.importation.orderShipped.emptyText,
             allowBlank: false,
             fieldLabel: me.snippets.importation.orderShipped.label,
@@ -483,7 +483,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             queryMode: 'remote',
             store: me.orderStatusStore,
             valueField: 'id',
-            displayField: 'description',
+            displayField: 'name',
             emptyText: me.snippets.importation.orderCancel.emptyText,
             allowBlank: false,
             fieldLabel: me.snippets.importation.orderCancel.label,
@@ -498,17 +498,17 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             labelWidth: 170 
         });
 
-        me.methodNameCombo = Ext.create('Ext.form.field.ComboBox', {
-            name: 'lengowMethodName',
-            queryMode: 'remote',
-            store: me.paymentMethodsStore,
-            valueField: 'id',
-            displayField: 'name',
-            emptyText: me.snippets.importation.methodName.emptyText,
-            allowBlank: false,
-            fieldLabel: me.snippets.importation.methodName.label,
-            labelWidth: 170
-        });
+        // me.methodNameCombo = Ext.create('Ext.form.field.ComboBox', {
+        //     name: 'lengowMethodName',
+        //     queryMode: 'remote',
+        //     store: me.paymentMethodsStore,
+        //     valueField: 'id',
+        //     displayField: 'name',
+        //     emptyText: me.snippets.importation.methodName.emptyText,
+        //     allowBlank: false,
+        //     fieldLabel: me.snippets.importation.methodName.label,
+        //     labelWidth: 170
+        // });
 
         // me.forcedPriceCheck = Ext.create('Ext.form.field.Checkbox', {
         //     name: 'lengowForcePrice',
@@ -557,7 +557,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Settings', {
             me.orderShippedCombo,
             me.orderCancelCombo,
             me.importDayNumber,
-            me.methodNameCombo,
+            // me.methodNameCombo,
             // me.forcedPriceCheck,
             me.reportMailCheck,
             me.emailAddressField,

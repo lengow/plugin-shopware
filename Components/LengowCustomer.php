@@ -17,7 +17,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCustomer
      */
     private $customer = null;
 
-
     /**
     * Construct new Lengow order
     */
@@ -27,18 +26,29 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCustomer
         $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS user.id
                 FROM s_user as user 
                 WHERE user.email = :mail";
-        $id_customer = Shopware()->Db()->fetchOne($sql, $sqlParams);  
-		if ($id_customer) {
-			$this->customer = Shopware()->Models()->getReference('Shopware\Models\Customer\Customer', (int) $id_customer);
-		} else {
+        $idCustomer = Shopware()->Db()->fetchOne($sql, $sqlParams); 
+
+		if (!$idCustomer) {
 			$this->customer = new Shopware\Models\Customer\Customer();
+		} else {
+			$this->customer = Shopware()->Models()->getReference('Shopware\Models\Customer\Customer', (int) $idCustomer);		
 		}
     }
+
+    /**
+	 * Get customer Shopware
+	 * 
+	 * @return object customer Shopware 
+	 */
+	public function getCustomer()
+	{
+		return $this->customer;
+	}
 
  	/**
 	 * Get ID of a user Shopware
 	 * 
-	 * @return mixed 
+	 * @return int 
 	 */
 	public function getId()
 	{
@@ -46,24 +56,42 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCustomer
 	}
 
 	/**
-	 * @see iLengowObject::assign()
+	 * Get Number of a user Shopware
+	 * 
+	 * @return string 
 	 */
-	public function assign($data = array())
+	public function getNumber()
 	{
-		$this->customer->setEmail($data['email']);
-		$this->customer->onSave();
+		return $this->customer->getBilling()->getNumber();
 	}
 
 	/**
-	 * Save a new user Shopware
-	 *
+	 * Create a new customer Shopware
+	 * 
+	 * @param array $billingData billing address data 
+	 * @param array $shippingData shipping address data 
+	 * @param object $shop shop Shopware
 	 */
-	public function save()
+	public function assign($billingData = array(), $shippingData = array(), $shop)
 	{
+		$type = 'customer';
+		// Creation of shipping and billing addresses
+		$billingAddress = Shopware_Plugins_Backend_Lengow_Components_LengowAddress::createAddress($billingData, $type, 'billing');
+		$shippingAddress = Shopware_Plugins_Backend_Lengow_Components_LengowAddress::createAddress($shippingData, $type, 'shipping');
+		$customerAttribute = new Shopware\Models\Attribute\Customer();
+		// Set all data for a new customer Shopware 	
+		$this->customer->setEmail($billingData['email']);
+		$this->customer->setBilling($billingAddress);
+		$this->customer->setShipping($shippingAddress);
+		$this->customer->setShop($shop);
+		$this->customer->setGroup($shop->getCustomerGroup());
+		$this->customer->setPaymentId(Shopware_Plugins_Backend_Lengow_Components_LengowCore::getLengowPayment()->getId());
+		$this->customer->setAttribute($customerAttribute);
+		// Set firstLogin and lastLogin
+		$this->customer->onSave();
+		// Saves the customer data
 		Shopware()->Models()->persist($this->customer);
-        Shopware()->Models()->flush();
+        Shopware()->Models()->flush();;
 	}
-
-
 
 }

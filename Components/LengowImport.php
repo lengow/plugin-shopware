@@ -64,7 +64,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 	 *
 	 * @param array $args The arguments to request at the API
 	 */
-	protected function _importOrders($args = array())
+	private function _importOrders($args = array())
 	{
 		// $this->_setDebug();
 		// LengowCore::setImportProcessing();
@@ -104,19 +104,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 	 * @param array $args
 	 * @return array
 	 */
-	protected function _setArgsOrder($args)
+	private function _setArgsOrder($args)
 	{
-		if (array_key_exists('orderid', $args) && $args['orderid'] != '' && array_key_exists('feed_id', $args) && $args['feed_id'] != '')
-		{
+		if (array_key_exists('orderid', $args) && $args['orderid'] != '' && array_key_exists('feed_id', $args) && $args['feed_id'] != '') {
 			$args_order = array(
 				'orderid' => $args['orderid'],
 				'feed_id' => $args['feed_id'],
 				'id_group' => Shopware_Plugins_Backend_Lengow_Components_LengowCore::getGroupCustomer($this->shop->getId())
 			);
 			self::$force_log_output = -1;
-		}
-		else
-		{
+		} else {
 			$args_order = array(
 				'dateFrom' => $args['dateFrom'],
 				'dateTo' => $args['dateTo'],
@@ -135,7 +132,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 	 * @param array $args
 	 * @return array
 	 */
-	protected function _getImportOrders($lengow_connector, $args_order, $args)
+	private function _getImportOrders($lengow_connector, $args_order, $args)
 	{
 		$orders = $lengow_connector->api('commands', $args_order);
 		if (!is_object($orders)) {
@@ -162,92 +159,149 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 	 * 
 	 * @param SimpleXmlElement $orders API orders
 	 */
-	protected function _insertOrders($orders)
+	private function _insertOrders($orders)
 	{
-		$count_orders_updated = 0;
-		$count_orders_added = 0;
+		$countOrdersUpdated = 0;
+		$countOrdersAdded = 0;
 		foreach ($orders->order as $order_data) {
-			
-			$lengow_id = (string) $order_data->order_id;
-			$feed_id = (string) $order_data->idFlux;
+			$lengowId = (string) $order_data->order_id;
+			$feedId = (string) $order_data->idFlux;
+			// Check whether the file marketplace.xml is up to date
+			Shopware_Plugins_Backend_Lengow_Components_LengowCore::updateMarketPlaceConfiguration();
 			$marketplace = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getMarketplaceSingleton((string) $order_data->marketplace);
-			$order_state = (string) $order_data->order_status->marketplace;
-
-			if (!self::checkState($order_state, $marketplace)) {
-				Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('current order\'s state [' . $order_state . '] makes it unavailable to import', self::$force_log_output, true, $lengow_id);
+			$orderState = (string) $order_data->order_status->marketplace;
+			// Update order state if already imported
+			$orderId = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderIdFromLengowOrders($lengowId, $feedId);		
+			if ($orderId) {
+				$order = new Shopware_Plugins_Backend_Lengow_Components_LengowOrder($orderId);
+				try {
+					$idOrderState = $marketplace->getStateLengow((string)$order_data->order_status->marketplace);
+					if ($order->updateState($marketplace, $idOrderState, $this->shop, (string) $order_data->tracking_informations->tracking_number)) {
+						$stateName = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getOrderState($idOrderState, $this->shop->getId())->getDescription();
+						Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Order ' . $lengowId . ': order\'s state has been updated to "'.$stateName.'"', self::$force_log_output, true);
+						$countOrdersUpdated++;
+					}
+				}
+				catch (Exception $e) {
+					Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Order ' . $lengowId . ': error while updating state: ' . $e->getMessage(), self::$force_log_output, true);
+				}
+				unset($order);
 				continue;
 			}
-
-			$test = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl();
-			print_r($test);
-
-			die();
-
-
-
-			// Update order state if already imported
-			$order_id = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderIdFromLengowOrders($lengow_id, $feed_id);
-
+			// Checks if status is good for import
+			if (!self::checkState($orderState, $marketplace)) {
+				Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Order ' . $lengowId . ': order\'s state [' . $orderState . '] makes it unavailable to import', self::$force_log_output);
+				continue;
+			} 
 			// Get billing data
-			$billing_data = Shopware_Plugins_Backend_Lengow_Components_LengowAddress::extractAddressDataFromAPI(
+			$billingData = Shopware_Plugins_Backend_Lengow_Components_LengowAddress::extractAddressDataFromAPI(
 				$order_data->billing_address, 
 				Shopware_Plugins_Backend_Lengow_Components_LengowAddress::BILLING
 			);
-			if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::isDebug() || empty($billing_data['email'])) {
-				$billing_data['email'] = 'generated-email+'.$lengow_id.'@lengow.com';
+			if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::isDebug() || empty($billingData['email'])) {
+				$billingData['email'] = 'generated-email+' . $lengowId . '@' . Shopware_Plugins_Backend_Lengow_Components_LengowCore::getHost();
 				if (!Shopware_Plugins_Backend_Lengow_Components_LengowCore::isDebug()) {
-					Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Order ' . $lengow_id . ' generate unique email : '.$billing_data['email'], false);
+					Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Order ' . $lengowId . ' generate unique email : ' . $billingData['email'], false);
 				}
 			}
 			// Get shipping data
-			$shipping_data = Shopware_Plugins_Backend_Lengow_Components_LengowAddress::extractAddressDataFromAPI(
-				$order_data->billing_address, 
+			$shippingData = Shopware_Plugins_Backend_Lengow_Components_LengowAddress::extractAddressDataFromAPI(
+				$order_data->delivery_address, 
 				Shopware_Plugins_Backend_Lengow_Components_LengowAddress::SHIPPING
 			);
-			// Create customer based on billing data
-			$customer = self::getCustomer($billing_data, $shipping_data);
-
-			// $customer->save();
-
-			print_r($customer);
-
-
+			// Create customer based on billing and shipping data
+			$customer = $this->_getCustomer($billingData, $shippingData);
+			// Get Shopware order state from Lengow Order state
+			$orderStateLengow = $marketplace->getStateLengow((string) $order_data->order_status->marketplace);
+			$shopwareOrderState = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getOrderState($orderStateLengow, $this->shop->getId());
+			// Create new order
+			$order = $this->_createOrder($customer, $billingData, $shippingData, $shopwareOrderState);		
+			// Create a new Lengow Order
+			$this->_createLengowOrder($order_data, $order);
+			
+			$countOrdersAdded++;
+			unset($billingData);
+			unset($shippingData);
+			unset($customer);
+			unset($shopwareOrderState);
+			unset($order);
 		}
-		// Shopware_Plugins_Backend_Lengow_Components_LengowCore::log($count_orders_added.' order(s) imported', self::$force_log_output, true);
-		// Shopware_Plugins_Backend_Lengow_Components_LengowCore::log($count_orders_updated.' order(s) updated', self::$force_log_output, true);
+		Shopware_Plugins_Backend_Lengow_Components_LengowCore::log($countOrdersAdded . ' order(s) imported', self::$force_log_output, true);
+		Shopware_Plugins_Backend_Lengow_Components_LengowCore::log($countOrdersUpdated . ' order(s) updated', self::$force_log_output, true);
 	}
 
 	/**
 	 * Create or load customer based on API data
 	 * 
-	 * @param array $customer_data 	API data
+	 * @param array $billingData 	API data
+	 * @param array $shippingData 	API data
 	 * @param bool  $debug 			debug mode
 	 * @return LengowCustomer 
 	 */
-	protected static function getCustomer($billing_data = array(), $shipping_data = array(), $debug = false)
+	private function _getCustomer($billingData = array(), $shippingData = array(), $debug = false)
 	{
-		$customer = new Shopware_Plugins_Backend_Lengow_Components_LengowCustomer($billing_data['email']);
+		$customer = new Shopware_Plugins_Backend_Lengow_Components_LengowCustomer($billingData['email']);
 		if ($customer->getId()) {
 		 	return $customer;
 		}
 		// create new customer
-		$customer->assign($billing_data, $shipping_data);
+		$customer->assign($billingData, $shippingData, $this->shop);
 		return $customer;
 	}
+
+	/**
+	 * Create order based on API data
+	 *	
+	 * @param object $customer				LengowCustomer
+	 * @param array  $billingData 			API data
+	 * @param array  $shippingData 			API data
+	 * @param object $shopwareOrderState 	status Shopware
+	 * @return LengowOrder
+	 */
+	private function _createOrder($customer, $billingData, $shippingData, $shopwareOrderState)
+	{
+		$order = new Shopware_Plugins_Backend_Lengow_Components_LengowOrder();
+		// create new order
+		$order->assign($customer, $billingData, $shippingData, $this->shop, $shopwareOrderState);
+		return $order;
+	}
+
+	/**
+	 * Create a new Lengow Order
+	 *	
+	 * @param SimpleXmlElement 	$order_data 	API order
+	 * @param object 			$order 			LengowOrder
+	 */
+	private function _createLengowOrder($order_data, $order)
+	{
+	 	$lengowOrder = new Shopware\CustomModels\Lengow\Order();
+		$orderDate = new \DateTime(trim($order_data->order_purchase_date . ' ' . $order_data->order_purchase_heure));
+        $lengowOrder->setIdOrderLengow((string) $order_data->order_id)
+           			->setIdFlux((string) $order_data->idFlux)
+           			->setMarketplace((string) $order_data->marketplace)
+           			->setTotalPaid((float) $order_data->order_amount)
+           			->setCarrier((string) $order_data->tracking_informations->tracking_carrier)
+           			->setTrackingNumber((string) $order_data->tracking_informations->tracking_number)
+           			->setOrderDate($orderDate)
+           			->setExtra(json_encode($order_data))
+           			->setOrder($order->getOrder());
+        Shopware()->Models()->persist($lengowOrder);
+        Shopware()->Models()->flush();
+    }
 	
 	/**
 	 * Check if order status is valid and is available for import
 	 * 
-	 * @param string $order_state
-	 * @param LengowMarketplace	$marketplace
+	 * @param SimpleXmlElement 	$orderState
+	 * @param object 			$marketplace LengowMarketplace
 	 * @return bool
 	 */
-	protected static function checkState($order_state, $marketplace)
+	public static function checkState($orderState, $marketplace)
 	{
-		if (empty($order_state)) {
+		if (empty($orderState)) {
 			return false;
 		}
-		if ($marketplace->getStateLengow($order_state) != 'processing' && $marketplace->getStateLengow($order_state) != 'shipped') {
+		if ($marketplace->getStateLengow($orderState) != 'processing' && $marketplace->getStateLengow($orderState) != 'shipped') {
 			return false;
 		}
 		return true;

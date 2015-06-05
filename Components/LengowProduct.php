@@ -298,8 +298,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 break;
             case 'shipping_price':
                 // Get the default dispatch
-                $idDispatch = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDefaultShippingCost($this->shop->getId()); 
-                $dispatch = Shopware()->Models()->getReference('Shopware\Models\Dispatch\Dispatch',(int) $idDispatch);
+                $dispatch = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDefaultShippingCost($this->shop->getId()); 
                 $shippingPrice  = 0;
                 $weight         = 0;
                 $price          = 0;

@@ -154,7 +154,6 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
 
         $this->View()->assign(array(
             'data' => $settingsParams['shopId'],
-            'test' => $settingId, 
             'success' => true
         ));    
     }
@@ -243,6 +242,28 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
         $this->View()->assign(array(
             'success' => true,
             'data'    => $payments,
+            'total'   => $count
+        ));
+    }
+
+    /**
+     * Event listener function of status_orders store
+     * 
+     * @return mixed
+     */
+    public function getOrderStatusAction()
+    {
+        $orderStatus = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getAllOrderStates();
+        $status = array();
+        foreach ($orderStatus as $value) {
+            $status[] = array('id' =>  $value->id, 'name' => $value->name);  
+        }
+        
+        $count = count($status);
+
+        $this->View()->assign(array(
+            'success' => true,
+            'data'    => $status,
             'total'   => $count
         ));
     }

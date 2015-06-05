@@ -69,11 +69,11 @@ class Order extends ModelEntity
     private $carrier;
 
     /**
-     * @var string $carrierMethod
+     * @var string $trackingNumber
      *
-     * @ORM\Column(name="carrierMethod", type="string", length=100, nullable=false)
+     * @ORM\Column(name="trackingNumber", type="string", length=100, nullable=false)
      */
-    private $carrierMethod;
+    private $trackingNumber;
 
     /**
      * @var \DateTime $orderDate
@@ -221,25 +221,25 @@ class Order extends ModelEntity
     }
 
     /**
-     * Set carrierMethod
+     * Set trackingNumber
      *
-     * @param string $carrierMethod
+     * @param string $trackingNumber
      * @return Order
      */
-    public function setCarrierMethod($carrierMethod)
+    public function setTrackingNumber($trackingNumber)
     {
-        $this->carrierMethod = $carrierMethod;
+        $this->trackingNumber = $trackingNumber;
         return $this;
     }
 
     /**
-     * Get carrierMethod
+     * Get trackingNumber
      *
      * @return string
      */
-    public function getCarrierMethod()
+    public function getTrackingNumber()
     {
-        return $this->carrierMethod;
+        return $this->trackingNumber;
     }
 
     /**

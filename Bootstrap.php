@@ -93,6 +93,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             $this->_createMenu();
             $this->_createEvents();
             $this->_registerCronJobs();
+            $this->createPaymentMeans();
             $this->Plugin()->setActive(true);
             return array('success' => true, 'invalidateCache' => array('backend'));
         } catch (Exception $e) {
@@ -261,20 +262,43 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
+     * Creates the payment method
+     *
+     * @throws Exception
+     * @return void
+     */
+    protected function createPaymentMeans()
+    {
+        try {
+            $this->createPayment(
+                array(
+                    'active' => 0,
+                    'name' => 'Lengow',
+                    'description' => 'Lengow',
+                    'additionalDescription' => 'Payment by default to Lengow' 
+                )
+            );
+        } catch (Exception $exception) {
+            Shopware()->Log()->Err("There was an error creating the payment means. " . $exception->getMessage());
+            throw new Exception("There was an error creating the payment means. " . $exception->getMessage());
+        }
+    }
+
+    /**
      * Uninstall the plugin - Remove attribute and re-generate articles models
      * @return array
      */
     public function uninstall() {
         try {
-            $this->_removeDatabaseTables();
-            $this->Application()->Models()->removeAttribute(
-                 's_articles_attributes',
-                 'lengow',
-                 'lengowActive'
-             );
-             $this->getEntityManager()->generateAttributeModels(array(
-                 's_articles_attributes'
-             ));
+            // $this->_removeDatabaseTables();
+            // $this->Application()->Models()->removeAttribute(
+            //      's_articles_attributes',
+            //      'lengow',
+            //      'lengowActive'
+            //  );
+            //  $this->getEntityManager()->generateAttributeModels(array(
+            //      's_articles_attributes'
+            //  ));
             return array('success' => true, 'invalidateCache' => array('backend'));
         } catch (Exception $e) {
             return array('success' => false, 'message' => $e->getMessage());

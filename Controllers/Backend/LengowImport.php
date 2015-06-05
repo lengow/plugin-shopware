@@ -34,12 +34,14 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $filterSql = 'WHERE 1 = 1';
         if (isset($filters['search'])) {
             $filterSql .= " AND (lo.idOrderLengow LIKE :idOrderLengow 
+                OR lo.idFlux LIKE :idFlux
                 OR so.ordernumber LIKE :orderNumber
                 OR sob.company LIKE :company
                 OR sob.firstname LIKE :firstname
                 OR sob.lastname LIKE :lastname)";
             $searchFilter =  '%' . $filters['search'] . '%';
             $sqlParams["idOrderLengow"] = $searchFilter;
+            $sqlParams["idFlux"] = $searchFilter;
             $sqlParams["orderNumber"] = $searchFilter;
             $sqlParams["company"] = $searchFilter;
             $sqlParams["firstname"] = $searchFilter;
@@ -54,7 +56,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             'marketplace', 
             'totalPaid', 
             'carrier', 
-            'carrierMethod', 
+            'trackingNumber', 
             'orderDateLengow',  
             'extra', 
             'orderId', 
@@ -82,7 +84,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                     lo.marketplace as marketplace,
                     lo.totalPaid as totalPaid,
                     lo.carrier as carrier,
-                    lo.carrierMethod as carrierMethod,
+                    lo.trackingNumber as trackingNumber,
                     lo.orderDate as orderDateLengow,
                     lo.extra as extra,
                     so.id as orderId,

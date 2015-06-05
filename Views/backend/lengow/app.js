@@ -54,7 +54,8 @@ Ext.define('Shopware.apps.Lengow', {
         'ExportFormats',
         'ExportImages',
         'ImageFormats',
-        'PaymentMethods' 
+        'PaymentMethods',
+        'StatusOrders' 
     ],
 
     /**
@@ -69,7 +70,8 @@ Ext.define('Shopware.apps.Lengow', {
         'ExportFormat',
         'ExportImage',
         'ImageFormat',
-        'PaymentMethod'  
+        'PaymentMethod',
+        'StatusOrder'  
     ],
 
     /**
