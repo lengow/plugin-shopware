@@ -135,9 +135,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
 		$address->setSalutation(self::getGender($data));
 		$address->setFirstName($data['firstname']);
 		$address->setLastName($data['lastname']);
-		$postalAddress = self::prepareFieldAddress($data); 
-		$address->setStreetNumber($postalAddress['number']);
-		$address->setStreet($postalAddress['street']);
+		$address->setStreet(self::prepareFieldAddress($data));
 		$address->setZipCode($data['zipcode']);
 		$address->setCity(preg_replace('/[!<>?=+@{}_$%]/sim', '', $data['city']));
 		$address->setAttribute($addressAttribute);		
@@ -152,24 +150,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
 	 */
 	public static function prepareFieldAddress($data = array()) 
 	{
-		$dataAddress = array();
-		$dataAddress['number'] = '';
-		$address = explode(' ', $data['address']);
-		foreach ($address as $value) {
-			if (is_numeric($value)) {
-				$dataAddress['number'] = $value;
-				break;
-			}
-		}
-		$address1 = preg_replace('/[!<>?=+@{}_$%]/sim', '', $data['address']);
-		$dataAddress['street'] = str_replace($dataAddress['number'], "", $address1);
+		$address = preg_replace('/[!<>?=+@{}_$%]/sim', '', $data['address']);
 		if (!empty($data['address_2'])) {
-			$dataAddress['street'] .= ' ' . preg_replace('/[!<>?=+@{}_$%]/sim', '', $data['address_2']);
+			$address .= ' ' . preg_replace('/[!<>?=+@{}_$%]/sim', '', $data['address_2']);
 		}
 		if (!empty($data['address_complement'])) {
-			$dataAddress['street'] .= ' ' . preg_replace('/[!<>?=+@{}_$%]/sim', '', $data['address_complement']);
+			$address .= ' ' . preg_replace('/[!<>?=+@{}_$%]/sim', '', $data['address_complement']);
 		}
-		return $dataAddress;
+		return $address;
 	}
 
 	/**

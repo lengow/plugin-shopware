@@ -290,15 +290,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function uninstall() {
         try {
-            // $this->_removeDatabaseTables();
-            // $this->Application()->Models()->removeAttribute(
-            //      's_articles_attributes',
-            //      'lengow',
-            //      'lengowActive'
-            //  );
-            //  $this->getEntityManager()->generateAttributeModels(array(
-            //      's_articles_attributes'
-            //  ));
+            $this->_removeDatabaseTables();
+            $this->Application()->Models()->removeAttribute(
+                 's_articles_attributes',
+                 'lengow',
+                 'lengowActive'
+             );
+             $this->getEntityManager()->generateAttributeModels(array(
+                 's_articles_attributes'
+             ));
             return array('success' => true, 'invalidateCache' => array('backend'));
         } catch (Exception $e) {
             return array('success' => false, 'message' => $e->getMessage());
