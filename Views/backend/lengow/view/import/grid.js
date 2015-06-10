@@ -17,6 +17,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             currentStatus:  '{s name=import/grid/column/status}Current order status{/s}',
             idOrderLengow:  '{s name=import/grid/column/id_order_lengow}ID Lengow{/s}',
             idFlux:         '{s name=import/grid/column/id_flux}ID Flux{/s}',
+            cost:           '{s name=import/grid/column/cost}Cost{/s}',
             marketplace:    '{s name=import/grid/column/marketplace}Marketplace{/s}' 
         },
         tooltip: {
@@ -125,6 +126,10 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                 header: me.snippets.column.marketplace,
                 dataIndex: 'marketplace',
                 flex: 3
+            },{
+                header: me.snippets.column.cost,
+                dataIndex: 'cost',
+                flex: 2
             }, {
                 xtype: 'actioncolumn',
                 width: 26 * actionColumItems.length,

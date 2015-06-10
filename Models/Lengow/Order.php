@@ -78,12 +78,18 @@ class Order extends ModelEntity
     /**
      * @var \DateTime $orderDate
      *
-     *
      * @ORM\Column(name="orderDate", type="datetime", nullable=false)
      */
     private $orderDate;
 
-     /**
+    /**
+     * @var float $cost
+     *
+     * @ORM\Column(name="cost", type="float", nullable=false)
+     */   
+    private $cost;
+
+    /**
      * @var string $extra
      *
      * @ORM\Column(name="extra", type="text", nullable=true)
@@ -262,6 +268,28 @@ class Order extends ModelEntity
     public function getOrderDate()
     {
         return $this->orderDate;
+    }
+
+    /**
+     * Set cost
+     *
+     * @param float $cost
+     * @return Order
+     */
+    public function setCost($cost)
+    {
+        $this->cost = $cost;
+        return $this;
+    }
+
+    /**
+     * Get cost
+     *
+     * @return float
+     */
+    public function getCost()
+    {
+        return $this->cost;
     }
 
     /**

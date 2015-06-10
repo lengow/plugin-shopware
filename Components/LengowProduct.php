@@ -12,17 +12,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 {
 
     /**
-     * Instance of article
+     * Instance of Shopware Article
      */
     private $product = null;
 
     /**
-     * Instance of article_detail, the main detail
+     * Instance of Shopware Article\Detail, the main detail
      */
     private $detail_product = null;
 
     /**
-     * Instance of article_detail
+     * Instance of Shopware Article\Detail
      */
     private $variant_product = null;
 
@@ -35,6 +35,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     * Images of produtcs
     */
     private $images;
+
+    /**
+     * API nodes containing relevant data
+     */
+    public static $PRODUCT_API_NODES = array(
+                                'idLengow',
+                                'idMP',
+                                'sku',
+                                'ean',
+                                'order_lineid',
+                                'quantity',
+                                'price',
+                                'price_unit',
+                                'shipping_price',
+                                'status',
+                                );
 
     /**
     * Construct new Lengow product
@@ -87,7 +103,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             case 'name_article':
                 if ($id_variation && Shopware_Plugins_Backend_Lengow_Components_LengowCore::exportTitle($this->shop->getId())) {
                     $variationName = '';
-                    $values = $this->_getOptions($id_variation);
+                    $values = self::getOptions($id_variation);
                     foreach ($values as $value) {
                         $variationName .= ' - ' . $value['name'] . ' : ' . $value['value'];
                     }
@@ -394,7 +410,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                         $idProduct = $this->product->getId();
                     }
                 }
-                $values = $this->_getOptions($idProduct);
+                $values = self::getOptions($idProduct);
                 foreach ($values as $value) {
                     $variantOption .= $value['name'] . ' - ';
                 }   
@@ -502,13 +518,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     }
 
     /**
-     * Get the ID product
+     * Get ID product
      * 
      * @return int id
      */
     public function getId() 
     {
         return $this->product->getId();
+    }
+
+    /**
+     * Get name product
+     * 
+     * @return string name product
+     */
+    public function getName() 
+    {
+        return $this->product->getName();
     }
 
     /**
@@ -519,6 +545,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     public function getConfiguratorSet() 
     {
         return $this->product->getConfiguratorSet();
+    }
+
+    /**
+     * Get main detail product
+     * 
+     * @return 
+     */
+    public function getMainDetail() 
+    {
+        return $this->detail_product;
     }
 
     /**
@@ -573,7 +609,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      * @param int $id_product
      * @return array
      */
-    private function _getOptions($id_product) 
+    public static function getOptions($id_product) 
     {
         $sqlParams = array();
         $sqlParams["idProduct"] = $id_product;
@@ -610,6 +646,215 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $sqlParams["customerGroupKey"] = $this->shop->getCustomerGroup()->getKey();
         $sqlParams["detailId"] = $detailId;
         return Shopware()->Db()->fetchOne($sql, $sqlParams);
+    }
+
+    /**
+     * Extract cart data from API
+     *
+     * @param SimpleXmlElement $api API nodes containing the data
+     * @return array
+     */
+    public static function extractProductDataFromAPI($api)
+    {
+        $temp = array();
+        foreach (self::$PRODUCT_API_NODES as $node) {
+            $temp[$node] = (string) $api->{$node};
+        }
+        return $temp;
+    }
+
+    /**
+     * Retrieves the product sku
+     * 
+     * @param string $attributeName
+     * @param string $attributeValue
+     * @param array $apiData
+     * @return mixes
+     */
+    public static function matchProduct($attributeName, $attributeValue, $apiData = array())
+    {
+        if (empty($attributeValue) || empty($attributeName)) {
+            return false;
+        }
+        switch (strtolower($attributeName)) {
+            case 'reference_product':
+            case 'reference':
+                return self::findProduct('ordernumber', $attributeValue);
+                break;
+            case 'ean':
+                return self::findProduct('ean', $attributeValue);
+                break;
+            default:
+                $sku = str_replace('\_', '_', $attributeValue);
+                $sku = str_replace('X', '_', $sku);
+                $sku = explode('_', $sku);
+                $productIds['idProduct'] = $sku[0];
+                if (isset($sku[1])) {
+                    $productIds['idProductDetail'] = $sku[1];
+                }
+                $idBool = self::checkProductId($productIds['idProduct'], $apiData);
+                $idAttBool = false;
+                if (isset($productIds['idProductDetail'])) {
+                    $idAttBool = self::checkProductAttributeId($productIds['idProduct'], $productIds['idProductDetail']);
+                }
+                if ($idBool && $idAttBool) {
+                    return $productIds;
+                }
+                return false;
+        }
+    }
+
+    /**
+     * Search a product by its reference, ean, upc and id
+     * 
+     * @param string $attributeValue
+     * @param  array $apiIds            product ids from the API
+     * @return int
+     */
+    public static function advancedSearch($attributeValue, $apiData)
+    {
+        $attributes = array('reference', 'ean', 'id'); // Product class attribute to search
+        $product_ids = array();
+        $find = false;
+        $i = 0;
+        $count = count($attributes);
+        while (!$find && $i < $count) {
+            $productIds = self::matchProduct($attributes[$i], $attributeValue, $apiData);
+            if (!empty($productIds)) {
+                $find = true;
+            }
+            $i++;
+        }
+        if ($find) {
+            return $productIds;
+        }
+    }
+
+    /**
+     * Return the product and its attribute ids
+     * 
+     * @param string $key   field name
+     * @param string $value value
+     * 
+     * @return int
+     */
+    public static function findProduct($key, $value)
+    {
+        if (empty($key) || empty($value)) {
+            return false;
+        }
+        $sqlParams = array();
+        $sqlParams["value"] = $value;
+        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS ad.id as idProductDetail, ad.articleID as idProduct
+                FROM s_articles_details ad
+                WHERE $key = :value ";
+        return Shopware()->Db()->fetchRow($sql, $sqlParams);
+    }
+
+    /**
+     * Check if product id found is correct
+     * 
+     * @param int   $productId product id to be checked
+     * @param array $apiIds    product ids from the API
+     * @return bool
+     */
+    public static function checkProductId($productId, $apiData)
+    {
+        if (empty($productId)) {
+            return false;
+        }
+        try {
+            $product = new Shopware_Plugins_Backend_Lengow_Components_LengowProduct($productId);
+            if ($product->getName() == '' || !self::isValidId($product, $apiData)) {
+                return false;
+            }
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Check if the product detail exists
+     * 
+     * @param string $product LengowProduct
+     * @param string $productDetailId 
+     * @return bool
+     */
+    protected static function checkProductAttributeId($productId, $productDetailId)
+    {
+        if ($productDetailId != 0 && is_numeric($productDetailId)) {
+            if (is_numeric($productId)) {
+                try {
+                    $product = new Shopware_Plugins_Backend_Lengow_Components_LengowProduct($productId);
+                    foreach ($product->getDetails() as $detail) {
+                        if ((int) $productDetailId === (int) $detail->getId()) {
+                            return true;
+                        }
+                    }
+                } catch (Exception $e) {
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+    * Compares found id with API ids and checks if they match
+    *
+    * @param object   $productId    LengowProduct
+    * @param array    $apiIds       product ids from the API
+    * @return bool
+    */
+    public static function isValidId($product, $apiData)
+    {
+        $attributes = array('number', 'ean', 'id');
+        if ($product->getConfiguratorSet() !== NULL) {
+            foreach ($product->getDetails() as $variation) {
+                foreach ($attributes as $attributeName) {
+                    foreach ($apiData as $apiId) {    
+                        if (!empty($apiId)) {
+                            if ($attributeName == 'id') {
+                                $id = str_replace('\_', '_', $apiId);
+                                $id = str_replace('X', '_', $apiId);
+                                $ids = explode('_', $id);
+                                $id = $ids[0];
+                                if (is_numeric($id) && $product->getId() == $id) {
+                                    return true;
+                                }
+                            } elseif ($attributeName == 'ean' && $variation->getEan() == $apiId) {
+                                return true; 
+                            } elseif ($attributeName == 'number' && $variation->getNumber() == $apiId) {
+                                return true; 
+                            }
+                        }
+                    }
+                }
+            }
+        } else { 
+            $mainDetail = $product->getMainDetail();
+            foreach ($attributes as $attributeName) {
+                foreach ($apiData as $apiId) {
+                    if (!empty($apiId)) { 
+                        if ($attributeName == 'id') {
+                            $id = str_replace('\_', '_', $apiId);
+                            $id = str_replace('X', '_', $apiId);
+                            $ids = explode('_', $id);
+                            $id = $ids[0];
+                            if ($id == $product->getId()) {
+                                return true;
+                            }
+                        } elseif ($attributeName == 'ean' && $mainDetail->getEan() == $apiId) {
+                            return true; 
+                        } elseif ($attributeName == 'number' && $mainDetail->getNumber() == $apiId) {
+                            return true; 
+                        }
+                    }
+                }    
+            }
+        }
+        return false;
     }
 
 }

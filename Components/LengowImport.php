@@ -190,7 +190,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 			}
 			// Checks if status is good for import
 			if (!self::checkState($orderState, $marketplace)) {
-				Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Order ' . $lengowId . ': order\'s state [' . $orderState . '] makes it unavailable to import', self::$force_log_output);
+				Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Order ' . $lengowId . ': order\'s state [' . $orderState . '] makes it unavailable to import', self::$force_log_output, true);
+				continue;
+			} 
+			// Get and check the products of the order
+			$products = self::getProducts($order_data->cart, $marketplace, $lengowId, $this->shop->getId());
+			if (count($products) == 0) {
+				Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Order ' . $lengowId . ': no valid product to import', self::$force_log_output, true);
 				continue;
 			} 
 			// Get billing data
@@ -215,11 +221,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 			$orderStateLengow = $marketplace->getStateLengow((string) $order_data->order_status->marketplace);
 			$shopwareOrderState = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getOrderState($orderStateLengow, $this->shop->getId());
 			// Create new order
-			$order = $this->_createOrder($customer, $billingData, $shippingData, $shopwareOrderState);		
-			// Create a new Lengow Order
+			$order = new Shopware_Plugins_Backend_Lengow_Components_LengowOrder();
+			$order->assign($customer, $this->shop, $shopwareOrderState, $order_data, $billingData, $shippingData);
+			// add products to order
+			$order->addProducts($products, $this->shop);
+			// Create a new LengowPayment
+			$lengowPayment = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getLengowPayment();
+			$payment = new Shopware_Plugins_Backend_Lengow_Components_LengowPayment();
+			$payment->assign($order->getOrder(), $customer->getCustomer(), $lengowPayment, $billingData);
+			// Create a new LengowOrder
 			$this->_createLengowOrder($order_data, $order);
 			
 			$countOrdersAdded++;
+
 			unset($billingData);
 			unset($shippingData);
 			unset($customer);
@@ -250,23 +264,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 	}
 
 	/**
-	 * Create order based on API data
-	 *	
-	 * @param object $customer				LengowCustomer
-	 * @param array  $billingData 			API data
-	 * @param array  $shippingData 			API data
-	 * @param object $shopwareOrderState 	status Shopware
-	 * @return LengowOrder
-	 */
-	private function _createOrder($customer, $billingData, $shippingData, $shopwareOrderState)
-	{
-		$order = new Shopware_Plugins_Backend_Lengow_Components_LengowOrder();
-		// create new order
-		$order->assign($customer, $billingData, $shippingData, $this->shop, $shopwareOrderState);
-		return $order;
-	}
-
-	/**
 	 * Create a new Lengow Order
 	 *	
 	 * @param SimpleXmlElement 	$order_data 	API order
@@ -283,11 +280,79 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
            			->setCarrier((string) $order_data->tracking_informations->tracking_carrier)
            			->setTrackingNumber((string) $order_data->tracking_informations->tracking_number)
            			->setOrderDate($orderDate)
+           			->setCost((float) $order_data->order_commission)
            			->setExtra(json_encode($order_data))
            			->setOrder($order->getOrder());
         Shopware()->Models()->persist($lengowOrder);
         Shopware()->Models()->flush();
     }
+
+    /**
+	 * Get products from API data
+	 * 
+	 * @param SimpleXMLElement	$cart_data		API cart data
+	 * @param LengowMarketplace	$marketplace	order marketplace
+	 * @param string			$lengowId		lengow order id
+ 	 * 
+	 * @return array list of products
+	 */
+	protected static function getProducts($cart_data, $marketplace, $lengowId, $idShop)
+	{
+		$products = array();
+		foreach ($cart_data->products as $product) {
+			$product = $product->product;
+			$productData = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::extractProductDataFromAPI($product);
+			if (!empty($productData['status'])) {
+				if ($marketplace->getStateLengow((string) $productData['status']) == 'canceled') {
+					continue;
+				}
+			}
+			$ids = false;
+			$productIds = array(
+				(string)$product->sku['field'] => $productData['sku'],
+				'sku' => $productData['sku'],
+				'idLengow' => $productData['idLengow'],
+				'idMP' => $productData['idMP'],
+				'ean' => $productData['ean'],
+			);
+			$found = false;
+			foreach ($productIds as $attributeName => $attributeValue) {
+				if (empty($attributeValue)) {
+					continue;
+				}
+				$ids = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::matchProduct($attributeName, $attributeValue, $productIds);
+				// no product found in the "classic" way => use advanced search
+				if (!$ids) {
+					Shopware_Plugins_Backend_Lengow_Components_LengowCore::log(
+						'Order ' . $lengowId . ': product not found with field ' .$attributeName.' ('.$attributeValue.'). Using advanced search.', false
+					);
+					$ids = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::advancedSearch($attributeValue, $productIds);
+				}
+				if ($ids) {
+					$idFull = $ids['idProduct'];
+					if (!isset($ids['idProductDetail'])) {
+						$p = new LengowProduct($ids['idProduct']);
+						if ($p->hasAttributes()) {
+							throw new LengowImportException('product '.$p->id.' is a parent ID. Product variation needed');
+						}
+					}
+					$idFull .= isset($ids['idProductDetail']) ? '_'.$ids['idProductDetail'] : '';
+					$products[$idFull] = $productData;
+					Shopware_Plugins_Backend_Lengow_Components_LengowCore::log(
+						'Order ' . $lengowId . ': product id ' . $idFull . ' found with field ' . $attributeName . ' (' . $attributeValue . ')', false
+					);
+					$found = true;
+					break;				
+				}	
+			}
+			if (!$found) {
+				Shopware_Plugins_Backend_Lengow_Components_LengowCore::log(
+					'Order ' . $lengowId . ': product ' . $productData['sku'] . ' could not be found', true, true
+				);
+			}
+		}
+		return $products;
+	}
 	
 	/**
 	 * Check if order status is valid and is available for import

@@ -49,7 +49,7 @@ class Shopware_Controllers_Backend_LengowLog extends Shopware_Controllers_Backen
                     $builder->orderBy('logs.created', 'DESC');
             }
         } else {
-            $builder->orderBy('logs.created', 'DESC');
+            $builder->orderBy('logs.id', 'DESC');
         }
 
         $builder->setFirstResult($this->Request()->getParam('start'))

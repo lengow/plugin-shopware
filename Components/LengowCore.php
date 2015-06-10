@@ -179,6 +179,24 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     }
 
     /**
+     * Get all admin users
+     * 
+     * @return array  
+     */
+    public static function getAllAdminUsers()
+    {
+        $sqlParams = array();
+        $sqlParams['name'] = 'local_admins';
+        $sqlParams['active'] = 1;
+        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS sca.id, sca.username, sca.name, sca.email
+                FROM s_core_auth sca
+                LEFT JOIN s_core_auth_roles scar ON sca.roleID = scar.id
+                WHERE sca.active = :active
+                AND scar.name = :name ";
+        return Shopware()->Db()->fetchAll($sql, $sqlParams);
+    }
+
+    /**
      * Get host for generated email.
      *
      * @return string Hostname

@@ -19,6 +19,7 @@ Ext.define('Shopware.apps.Lengow.model.Order', {
         { name: 'carrier', type: 'string' },
         { name: 'trackingNumber', type: 'string' },
         { name: 'orderDateLengow', type: 'date'},
+        { name: 'cost', type: 'float' },
         { name: 'extra', type: 'string' },
         { name: 'orderId', type: 'int' },
         { name: 'orderDate', type: 'date' },

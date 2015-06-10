@@ -28,7 +28,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     private $orderLengow = null;
 
  	/**
-    * Construct new Lengow order
+    * Construct a new LengowOrder
     */
     public function __construct($idOrder = null) 
     {
@@ -49,41 +49,58 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
 		return $this->order;
 	}
 
+	/**
+	 * Save order Shopware
+	 */
+	private function _saveOrder()
+	{
+		Shopware()->Models()->persist($this->order);
+        Shopware()->Models()->flush();
+	}
+
     /**
 	 * Create a new order Shopware
 	 *
-	 * @param object 	$customer 		LengowCustomer 
-	 * @param array  	$billingData 	billing address data 
-	 * @param array  	$shippingData 	billing address data 
-	 * @param object 	$shop 			shop Shopware
-	 * @param object 	$orderStatus 	states Shopware
+	 * @param object 			$customer 		LengowCustomer 
+	 * @param object 			$shop 			shop Shopware
+	 * @param object 			$orderStatus 	states Shopware
+	 * @param SimpleXmlElement 	$order_data 	API order
+	 * @param array  			$billingData 	billing address data 
+	 * @param array  			$shippingData 	billing address data 
 	 */
-	public function assign($customer, $billingData = array(), $shippingData = array(), $shop, $orderStatus)
+	public function assign($customer, $shop, $orderStatus, $order_data, $billingData = array(), $shippingData = array())
 	{
+		// Get the default carrier with its tax 
+		$dispatch = $this->_getDispatch((string) $order_data->tracking_informations->tracking_carrier, $shop);
+		$taxDispatch = $this->_getTaxDispatch($dispatch);
+		$tax = (float) $taxDispatch->getTax();
+		// Create a temporary order
 		$orderParams = array(
-            'ordernumber'          => $this->_getOrderNumber(),
-            'userID'               => (int) $customer->getCustomer()->getId(),
-            'invoice_amount'       => '',
-            'invoice_amount_net'   => '',
-            'invoice_shipping'     => '',
-            'invoice_shipping_net' => '',
-            'ordertime'            => new Zend_Db_Expr('NOW()'),
-            'status'               => (int) $orderStatus->getId(),
-            'cleared'              => 12,
-            'paymentID'            => (int) Shopware_Plugins_Backend_Lengow_Components_LengowCore::getLengowPayment()->getId(),
-            'transactionID'        => '',
-            'customercomment'      => '',
-            'net'                  => '',
-            'taxfree'              => '',
-            'partnerID'            => '',
-            'temporaryID'          => '',
-            'referer'              => '',
-            'language'             => $shop->getId(),
-            'dispatchID'           => (int) $this->_getDispatch($shop)->getId(),
-            'currency'             => (string) $shop->getCurrency()->getCurrency(),
-            'currencyFactor'       => $shop->getCurrency()->getFactor(),
-            'subshopID'            => (int) $shop->getId(),
-            'remote_addr'          => (string) $_SERVER['REMOTE_ADDR']
+            'ordernumber'          	=> $this->_getOrderNumber(),
+            'userID'               	=> (int) $customer->getCustomer()->getId(),
+            'invoice_amount'       	=> '',
+            'invoice_amount_net'   	=> '',
+            'invoice_shipping'     	=> (float) $order_data->order_shipping,
+            'invoice_shipping_net' 	=> (float) $order_data->order_shipping*((100-$tax)/100),
+            'ordertime'            	=> new Zend_Db_Expr('NOW()'),
+            'status'               	=> (int) $orderStatus->getId(),
+            'cleared'              	=> 12,
+            'paymentID'            	=> (int) Shopware_Plugins_Backend_Lengow_Components_LengowCore::getLengowPayment()->getId(),
+            'transactionID'        	=> '',
+            'customercomment'      	=> '',
+            'net'                  	=> '',
+            'taxfree'              	=> '',
+            'partnerID'            	=> '',
+            'temporaryID'          	=> '',
+            'referer'              	=> '',
+            'cleareddate'		   	=> new Zend_Db_Expr('NOW()'),
+            'trackingcode'         	=> (string) $order_data->tracking_informations->tracking_number,
+            'language'             	=> $shop->getId(),
+            'dispatchID'           	=> (int) $dispatch->getId(),
+            'currency'             	=> (string) $shop->getCurrency()->getCurrency(),
+            'currencyFactor'      	=> $shop->getCurrency()->getFactor(),
+            'subshopID'            	=> (int) $shop->getId(),
+            'remote_addr'          	=> (string) $_SERVER['REMOTE_ADDR']
         );
 		Shopware()->Db()->insert('s_order', $orderParams);
 		$this->order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')->findOneBy(array('number' => $this->_getOrderNumber()));
@@ -125,7 +142,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
 				$this->_createOrderHistory($apiState);
         		// Import tracking number
 				if (!empty($trackingNumber)) {
+					$this->order->setTrackingCode($trackingNumber);
 					$this->orderLengow->setTrackingNumber($trackingNumber);
+					Shopware()->Models()->persist($this->order);
 					Shopware()->Models()->persist($this->orderLengow);
         			Shopware()->Models()->flush();
 				}
@@ -146,6 +165,36 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Add product to order
+	 * 
+	 * @param array   $products List of products to be added
+	 * @param object  $shop 	Shopware Shop\Shop
+	 * @return bool 
+	 */
+	public function addProducts($products, $shop)
+	{
+		if (!$products) {
+			throw new Exception('No products to be added to order');
+		}
+		
+		foreach ($products as $id => $product) {
+			$ids = explode('_', $id);
+			if (count($ids) > 2) {
+				throw new Exception('Cannot add product ' . $id . ' to order (ID format invalid)');
+			}
+			$productId = $ids[0];
+			$productdetailId = isset($ids[1]) ? $ids[1] : null;
+			// Create a new LengowOrderDetail
+			$orderDetail = new Shopware_Plugins_Backend_Lengow_Components_LengowOrderDetail();
+			$orderDetail->assign($this->order, $productId, $productdetailId, $product, $shop);	
+		}
+
+        Shopware()->Models()->flush();
+
+		return true;
 	}
 
 	/**
@@ -190,10 +239,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
 	/**
 	 * Create an order history with a new order status
 	 *
-	 * @param object @apiState Status Shopware
+	 * @param object @newStatus Shopware Order\Status
 	 */
 	private function _createOrderHistory($newStatus) 
-	{
+	{				
 		$paymentStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', 12);
 		$history = new Shopware\Models\Order\History();
 		$history->setOrder($this->order)
@@ -202,18 +251,58 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
 				->setPreviousPaymentStatus($paymentStatus)
 				->setPaymentStatus($paymentStatus)
 				->setChangeDate(new \datetime());
+		// Get admin user
+		$users = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getAllAdminUsers();
+		if(count($users) !== 0) {
+			$user = Shopware()->Models()->getReference('Shopware\Models\User\User', $users[0]['id']);
+			$history->setUser($user);
+		}
+		// Persit and flush order history
 		Shopware()->Models()->persist($history);
 		Shopware()->Models()->flush();
 	}
 
 	/**
-	 * Load carrier calibrated by the user
+	 * Get carrier calibrated by the user
 	 *
-	 * @return Dispatch Shopware
+	 * @param string $nameCarrier 	name of the carrier
+	 * @param object $shop 			Shopware Shop\Shop
+	 * @return object Shopware Dispatch\Dispatch
 	 */
-	private function _getDispatch($shop)
+	private function _getDispatch($nameCarrier, $shop)
 	{
+		// Check the carrier
+		$builder = Shopware()->Models()->createQueryBuilder();
+        $query = $builder->select('dispatches')
+        				->from('Shopware\Models\Dispatch\Dispatch', 'dispatches')
+        				->where('dispatches.name LIKE :value')
+                        ->setParameter('value', "%" . $nameCarrier . "%")
+        				->getQuery();
+        $carriers = $query->getArrayResult();
+  		if (count($carriers) !== 0) {
+  			return shopware()->Models()->getReference('Shopware\Models\Dispatch\Dispatch', (int) $carriers[0]['id']);
+  		}
+  		// Get default carrier
 		return Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDefaultCarrier($shop->getId());
+	}
+
+	/**
+	 * Get tax associated with a carrier
+	 *
+	 * @param object $dispatch Shopware Dispatch\Dispatch
+	 * @return object Shopware Tax\Tax
+	 */
+	private function _getTaxDispatch($dispatch)
+	{
+		if ($dispatch->getTaxCalculation() !== 0 ) {
+			$idTax = (int) $dispatch->getTaxCalculation(); 
+		} else {
+			$sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS sct.id 
+	     		FROM s_core_tax as sct
+	            WHERE sct.tax = ( SELECT MAX(tax) from s_core_tax )";
+	    	$idTax = Shopware()->Db()->fetchOne($sql);
+		}
+		return Shopware()->Models()->getReference('Shopware\Models\Tax\Tax', $idTax);
 	}
 
 	/**
