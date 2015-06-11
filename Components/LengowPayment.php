@@ -42,14 +42,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowPayment
      * @param object  $paymentMean  Shopware Payment\Payment
      * @param array   $data         API nodes name
      */
-    public function assign($order, $customer, $paymentMean, $data = array())
+    public function assign($order, $customer, $paymentMean, $data = array(), $orderId)
     {
         $this->payment_instance->setOrder($order);
         $this->payment_instance->setCustomer($customer);
         $this->payment_instance->setPaymentMean($paymentMean);
         $this->payment_instance->setFirstName($data['firstname']);
         $this->payment_instance->setLastName($data['lastname']);
-        $this->payment_instance->setAddress(Shopware_Plugins_Backend_Lengow_Components_LengowAddress::prepareFieldAddress($data));
+        $this->payment_instance->setAddress(Shopware_Plugins_Backend_Lengow_Components_LengowAddress::prepareFieldAddress($data, $orderId));
         $this->payment_instance->setZipCode($data['zipcode']);
         $this->payment_instance->setCity(preg_replace('/[!<>?=+@{}_$%]/sim', '', $data['city']));
         $this->payment_instance->setAmount((float) $order->getInvoiceAmount());

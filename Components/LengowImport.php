@@ -194,7 +194,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 				continue;
 			} 
 			// Get and check the products of the order
-			$products = self::getProducts($order_data->cart, $marketplace, $lengowId, $this->shop->getId());
+			$products = $this->_getProducts($order_data->cart, $marketplace, $lengowId, $this->shop->getId());
 			if (count($products) == 0) {
 				Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Order ' . $lengowId . ': no valid product to import', self::$force_log_output, true);
 				continue;
@@ -216,7 +216,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 				Shopware_Plugins_Backend_Lengow_Components_LengowAddress::SHIPPING
 			);
 			// Create customer based on billing and shipping data
-			$customer = $this->_getCustomer($billingData, $shippingData);
+			$customer = $this->_getCustomer($billingData, $shippingData, $lengowId);
 			// Get Shopware order state from Lengow Order state
 			$orderStateLengow = $marketplace->getStateLengow((string) $order_data->order_status->marketplace);
 			$shopwareOrderState = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getOrderState($orderStateLengow, $this->shop->getId());
@@ -228,7 +228,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 			// Create a new LengowPayment
 			$lengowPayment = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getLengowPayment();
 			$payment = new Shopware_Plugins_Backend_Lengow_Components_LengowPayment();
-			$payment->assign($order->getOrder(), $customer->getCustomer(), $lengowPayment, $billingData);
+			$payment->assign($order->getOrder(), $customer->getCustomer(), $lengowPayment, $billingData, $lengowId);
 			// Create a new LengowOrder
 			$this->_createLengowOrder($order_data, $order);
 			
@@ -247,19 +247,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 	/**
 	 * Create or load customer based on API data
 	 * 
-	 * @param array $billingData 	API data
-	 * @param array $shippingData 	API data
-	 * @param bool  $debug 			debug mode
-	 * @return LengowCustomer 
+	 * @param array    $billingData   	API data
+	 * @param array    $shippingData 	API data
+	 * @param string   $lengowID  	 	Order number Lengow
+	 * @param boolean  $debug 			Debug mode
+	 * @return object LengowCustomer 	
 	 */
-	private function _getCustomer($billingData = array(), $shippingData = array(), $debug = false)
+	private function _getCustomer($billingData = array(), $shippingData = array(), $lengowId, $debug = false)
 	{
 		$customer = new Shopware_Plugins_Backend_Lengow_Components_LengowCustomer($billingData['email']);
 		if ($customer->getId()) {
 		 	return $customer;
 		}
 		// create new customer
-		$customer->assign($billingData, $shippingData, $this->shop);
+		$customer->assign($billingData, $shippingData, $lengowId, $this->shop);
 		return $customer;
 	}
 
@@ -290,13 +291,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     /**
 	 * Get products from API data
 	 * 
-	 * @param SimpleXMLElement	$cart_data		API cart data
-	 * @param LengowMarketplace	$marketplace	order marketplace
-	 * @param string			$lengowId		lengow order id
+	 * @param SimpleXMLElement	 $cart_data		API cart data
+	 * @param LengowMarketplace	 $marketplace	order marketplace
+	 * @param string			 $lengowId		lengow order id
  	 * 
 	 * @return array list of products
 	 */
-	protected static function getProducts($cart_data, $marketplace, $lengowId, $idShop)
+	private function _getProducts($cart_data, $marketplace, $lengowId, $idShop)
 	{
 		$products = array();
 		foreach ($cart_data->products as $product) {

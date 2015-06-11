@@ -50,12 +50,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
 	}
 
 	/**
-	 * Save order Shopware
+	 * Get order number
+	 * 
+	 * @return string
 	 */
-	private function _saveOrder()
+	public function getOrderNumber()
 	{
-		Shopware()->Models()->persist($this->order);
-        Shopware()->Models()->flush();
+		return $this->order->getNumber();
 	}
 
     /**
@@ -107,8 +108,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
 		// The type for the address
 		$type = 'order';
 		// Creation of all objects related to an order
-		$billingAddress = Shopware_Plugins_Backend_Lengow_Components_LengowAddress::createAddress($billingData, $type, 'billing', $customer);
-		$shippingAddress = Shopware_Plugins_Backend_Lengow_Components_LengowAddress::createAddress($shippingData, $type, 'shipping', $customer);
+		$billingAddress = Shopware_Plugins_Backend_Lengow_Components_LengowAddress::createAddress($billingData, $type, 'billing', $customer, (string) $order_data->order_id);
+		$shippingAddress = Shopware_Plugins_Backend_Lengow_Components_LengowAddress::createAddress($shippingData, $type, 'shipping', $customer, (string) $order_data->order_id);
 		$orderAttribute = new Shopware\Models\Attribute\Order();
 		// Set the order data
 		$this->order->setShipping($shippingAddress);

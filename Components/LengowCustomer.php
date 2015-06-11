@@ -68,16 +68,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCustomer
 	/**
 	 * Create a new customer Shopware
 	 * 
-	 * @param array $billingData billing address data 
-	 * @param array $shippingData shipping address data 
-	 * @param object $shop shop Shopware
+	 * @param array  $billingData  	Billing address data
+	 * @param array  $shippingData 	Shipping address data
+	 * @param string $orderId 		Order number Lengow
+	 * @param object $shop 		 	Shopware Shop\Shop
 	 */
-	public function assign($billingData = array(), $shippingData = array(), $shop)
+	public function assign($billingData = array(), $shippingData = array(), $orderId, $shop)
 	{
 		$type = 'customer';
 		// Creation of shipping and billing addresses
-		$billingAddress = Shopware_Plugins_Backend_Lengow_Components_LengowAddress::createAddress($billingData, $type, 'billing');
-		$shippingAddress = Shopware_Plugins_Backend_Lengow_Components_LengowAddress::createAddress($shippingData, $type, 'shipping');
+		$billingAddress = Shopware_Plugins_Backend_Lengow_Components_LengowAddress::createAddress($billingData, $type, 'billing', null, $orderId);
+		$shippingAddress = Shopware_Plugins_Backend_Lengow_Components_LengowAddress::createAddress($shippingData, $type, 'shipping', null, $orderId);
 		$customerAttribute = new Shopware\Models\Attribute\Customer();
 		// Set all data for a new customer Shopware 	
 		$this->customer->setEmail($billingData['email']);

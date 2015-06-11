@@ -72,7 +72,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
 
 	const SHIPPING = 'delivery';
 
-
 	/**
 	 * Extract address data from API
 	 * 
@@ -84,21 +83,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
 	{
 		$temp = array();
 		foreach (self::$ADDRESS_API_NODES as $node) {
-			$temp[$node] = (string) $api->{$type.'_'.$node};
+			$temp[$node] = (string) $api->{$type . '_' . $node};
 		}
 		return $temp;
 	}
 
 	/**
 	 * Create Billing Address
-	 * 
-	 * @param array  $data  	  API nodes name
-	 * @param string $type        Type of object (customer or order)
-	 * @param string $typeAddress Address type (billing or shipping)
-	 * @param object $customer 	  LengowCustomer
-	 * @return address Shopware
+	 * 	
+	 * @param array   $data  	  	API nodes name
+	 * @param string  $type        	Type of object (customer or order)
+	 * @param string  $typeAddress 	Address type (billing or shipping)
+	 * @param object  $customer 	LengowCustomer
+	 * @param string  $orderId 		Order number Lengow
+	 * @return object Shopware Address
 	 */
-	public static function createAddress($data = array(), $type, $typeAddress, $customer = null)
+	public static function createAddress($data = array(), $type, $typeAddress, $customer = null, $orderId)
 	{
 		switch ($type) {
 			case 'customer':
@@ -135,7 +135,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
 		$address->setSalutation(self::getGender($data));
 		$address->setFirstName($data['firstname']);
 		$address->setLastName($data['lastname']);
-		$address->setStreet(self::prepareFieldAddress($data));
+		$address->setStreet(self::prepareFieldAddress($data, $orderId));
 		$address->setZipCode($data['zipcode']);
 		$address->setCity(preg_replace('/[!<>?=+@{}_$%]/sim', '', $data['city']));
 		$address->setAttribute($addressAttribute);		
@@ -145,19 +145,33 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
 	/**
 	 * Prepares fields postal address
 	 * 
-	 * @param array $data 
+	 * @param array   $data 	Address data
+	 * @param string  $orderId 	Order number Lengow
 	 * @return array
 	 */
-	public static function prepareFieldAddress($data = array()) 
+	public static function prepareFieldAddress($data = array(), $orderId) 
 	{
-		$address = preg_replace('/[!<>?=+@{}_$%]/sim', '', $data['address']);
-		if (!empty($data['address_2'])) {
-			$address .= ' ' . preg_replace('/[!<>?=+@{}_$%]/sim', '', $data['address_2']);
+		if (empty($data['address']) && empty($data['address_2'])) {
+			return 'no address';
+		} else {
+			$address = preg_replace('/[!<>?=+@{}_$%]/sim', '', $data['address']);
+			if (!empty($data['address_2'])) {
+				$address .= ' ' . preg_replace('/[!<>?=+@{}_$%]/sim', '', $data['address_2']);
+			}
+			if (!empty($data['address_complement'])) {
+				$address .= ' ' . preg_replace('/[!<>?=+@{}_$%]/sim', '', $data['address_complement']);
+			}
+			// Check if the address is less than 100 caracters
+			if (strlen($address) > 100) {
+				$address = substr($address, 0, 100);
+				Shopware_Plugins_Backend_Lengow_Components_LengowCore::log(
+					'Order ' . $orderId . ': (Warning) Address line too long. It has been truncated to 100 caracters', 
+					Shopware_Plugins_Backend_Lengow_Components_LengowImport::$force_log_output, 
+					true
+				);
+			}
+			return $address;
 		}
-		if (!empty($data['address_complement'])) {
-			$address .= ' ' . preg_replace('/[!<>?=+@{}_$%]/sim', '', $data['address_complement']);
-		}
-		return $address;
 	}
 
 	/**

@@ -204,7 +204,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static function getHost()
     {   
         $shop = Shopware()->Models()->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
-        $domain = $shop->getHost();
+        $domain = $shop->getHost() ? $shop->getHost() : $_SERVER['SERVER_NAME'];
         preg_match('`([a-zàâäéèêëôöùûüîïç0-9-]+\.[a-z]+$)`', $domain, $out);
         if ($out[1]) {
             return $out[1];
@@ -221,8 +221,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     {
         $shop = Shopware()->Models()->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
         $is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '';
-        $host = $shop->getHost();
-        $path = ($shop->getBasePath() ? $shop->getBasePath() : '');
+        $host = $shop->getHost() ? $shop->getHost() : $_SERVER['SERVER_NAME'];
+        $path = $shop->getBasePath() ? $shop->getBasePath() : '';
         $url = 'http' . $is_https . '://' . $host . $path;
         return $url;
     }
