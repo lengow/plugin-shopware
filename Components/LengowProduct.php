@@ -84,6 +84,67 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     }
 
     /**
+     * Get ID product
+     * 
+     * @return int id
+     */
+    public function getId() 
+    {
+        return $this->product->getId();
+    }
+
+    /**
+     * Get name product
+     * 
+     * @return string name product
+     */
+    public function getName() 
+    {
+        return $this->product->getName();
+    }
+
+    /**
+     * Get Configuration set for variation of one product
+     * 
+     * @return integer
+     */
+    public function getConfiguratorSet() 
+    {
+        return $this->product->getConfiguratorSet();
+    }
+
+    /**
+     * Get main detail product
+     * 
+     * @return 
+     */
+    public function getMainDetail() 
+    {
+        return $this->detail_product;
+    }
+
+    /**
+     * Get all variations product
+     * 
+     * @return 
+     */
+    public function getDetails() 
+    {
+        return $this->product->getDetails();
+    }
+
+    /**
+    * Get max number of images
+    * 
+    * @return int max number of images for one product
+    */
+    public function getMaxImages()
+    {
+        $images = $this->product->getImages();
+        return count($images);
+    }
+
+    /**
      * Get data of product
      * 
      * @param string $name
@@ -515,67 +576,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 WHERE r.article_id = :idProduct
                 AND g.name = :nameAttribute";
         return Shopware()->Db()->fetchOne($sql, $sqlParams);  
-    }
-
-    /**
-     * Get ID product
-     * 
-     * @return int id
-     */
-    public function getId() 
-    {
-        return $this->product->getId();
-    }
-
-    /**
-     * Get name product
-     * 
-     * @return string name product
-     */
-    public function getName() 
-    {
-        return $this->product->getName();
-    }
-
-    /**
-     * Get Configuration set for variation of one product
-     * 
-     * @return integer
-     */
-    public function getConfiguratorSet() 
-    {
-        return $this->product->getConfiguratorSet();
-    }
-
-    /**
-     * Get main detail product
-     * 
-     * @return 
-     */
-    public function getMainDetail() 
-    {
-        return $this->detail_product;
-    }
-
-    /**
-     * Get all variations product
-     * 
-     * @return 
-     */
-    public function getDetails() 
-    {
-        return $this->product->getDetails();
-    }
-
-    /**
-    * Get max number of images
-    * 
-    * @return int max number of images for one product
-    */
-    public function getMaxImages()
-    {
-        $images = $this->product->getImages();
-        return count($images);
     }
 
     /**

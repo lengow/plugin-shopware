@@ -149,7 +149,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
 					Shopware()->Models()->persist($this->orderLengow);
         			Shopware()->Models()->flush();
 				}
-				Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Order ' . $this->orderLengow->getIdOrderLengow() . ': state updated to shipped', true, true);
+				Shopware_Plugins_Backend_Lengow_Components_LengowCore::log(
+					'Order ' . $this->orderLengow->getIdOrderLengow() . ': state updated to shipped', true, true
+				);
 				return true;
 			}
 			// Change state process or shipped to cancel
@@ -161,10 +163,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
 				$this->_updateOrderStatus($this->order->getId(), $apiState->getId()); 
 				// Create an order history with new order status
 				$this->_createOrderHistory($apiState);
-				Shopware_Plugins_Backend_Lengow_Components_LengowCore::log('Order ' . $this->orderLengow->getIdOrderLengow() . ': state updated to cancel', true, true);
+				Shopware_Plugins_Backend_Lengow_Components_LengowCore::log(
+					'Order ' . $this->orderLengow->getIdOrderLengow() . ': state updated to cancel', true, true
+				);
 				return true;
 			}
 		}
+		Shopware_Plugins_Backend_Lengow_Components_LengowCore::log(
+			'Order ' . $this->orderLengow->getIdOrderLengow() . ': already imported in Shopware with order ID '. $this->order->getNumber(), true, true
+		);
 		return false;
 	}
 
