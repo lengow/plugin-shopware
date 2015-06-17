@@ -216,7 +216,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 				Shopware_Plugins_Backend_Lengow_Components_LengowAddress::SHIPPING
 			);
 			// Create customer based on billing and shipping data
-			$customer = $this->_getCustomer($billingData, $shippingData, $lengowId);
+			$customer = $this->_getCustomer($billingData, $shippingData);
 			// Get Shopware order state from Lengow Order state
 			$orderStateLengow = $marketplace->getStateLengow((string) $order_data->order_status->marketplace);
 			$shopwareOrderState = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getOrderState($orderStateLengow, $this->shop->getId());
@@ -228,7 +228,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 			// Create a new LengowPayment
 			$lengowPayment = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getLengowPayment();
 			$payment = new Shopware_Plugins_Backend_Lengow_Components_LengowPayment();
-			$payment->assign($order->getOrder(), $customer->getCustomer(), $lengowPayment, $billingData, $lengowId);
+			$payment->assign($order->getOrder(), $customer->getCustomer(), $lengowPayment, $billingData);
 			// Create a new LengowOrder
 			$this->_createLengowOrder($order_data, $order);
 			
@@ -253,14 +253,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 	 * @param boolean  $debug 			Debug mode
 	 * @return object LengowCustomer 	
 	 */
-	private function _getCustomer($billingData = array(), $shippingData = array(), $lengowId, $debug = false)
+	private function _getCustomer($billingData = array(), $shippingData = array(), $debug = false)
 	{
 		$customer = new Shopware_Plugins_Backend_Lengow_Components_LengowCustomer($billingData['email']);
 		if ($customer->getId()) {
 		 	return $customer;
 		}
 		// create new customer
-		$customer->assign($billingData, $shippingData, $lengowId, $this->shop);
+		$customer->assign($billingData, $shippingData, $this->shop);
 		return $customer;
 	}
 

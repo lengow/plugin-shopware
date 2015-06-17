@@ -98,7 +98,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
 	 * @param string  $orderId 		Order number Lengow
 	 * @return object Shopware Address
 	 */
-	public static function createAddress($data = array(), $type, $typeAddress, $customer = null, $orderId)
+	public static function createAddress($data = array(), $type, $typeAddress, $customer = null, $orderId = null)
 	{
 		switch ($type) {
 			case 'customer':
@@ -135,7 +135,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
 		$address->setSalutation(self::getGender($data));
 		$address->setFirstName($data['firstname']);
 		$address->setLastName($data['lastname']);
-		$address->setStreet(self::prepareFieldAddress($data, $orderId));
+		$address->setStreet(self::prepareFieldAddress($data, $type, $typeAddress, $orderId));
 		$address->setZipCode($data['zipcode']);
 		$address->setCity(preg_replace('/[!<>?=+@{}_$%]/sim', '', $data['city']));
 		$address->setAttribute($addressAttribute);		
@@ -145,11 +145,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
 	/**
 	 * Prepares fields postal address
 	 * 
-	 * @param array   $data 	Address data
-	 * @param string  $orderId 	Order number Lengow
+	 * @param array   $data 		Address data
+	 * @param string  $type        	Type of object (customer or order)
+	 * @param string  $typeAddress 	Address type (billing or shipping)
+	 * @param string  $orderId 		Order number Lengow
 	 * @return array
 	 */
-	public static function prepareFieldAddress($data = array(), $orderId) 
+	public static function prepareFieldAddress($data = array(), $type = null, $typeAddress = null, $orderId = null ) 
 	{
 		if (empty($data['address']) && empty($data['address_2'])) {
 			return 'no address';
@@ -164,11 +166,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
 			// Check if the address is less than 100 caracters
 			if (strlen($address) > 100) {
 				$address = substr($address, 0, 100);
-				Shopware_Plugins_Backend_Lengow_Components_LengowCore::log(
-					'Order ' . $orderId . ': (Warning) Address line too long. It has been truncated to 100 caracters', 
-					Shopware_Plugins_Backend_Lengow_Components_LengowImport::$force_log_output, 
-					true
-				);
+				if ($type === 'order') {
+					Shopware_Plugins_Backend_Lengow_Components_LengowCore::log(
+						'Order ' . $orderId . ': (Warning) Too long ' . $typeAddress . ' address. It has been truncated to 100 caracters', 
+						Shopware_Plugins_Backend_Lengow_Components_LengowImport::$force_log_output, 
+						true
+					);
+				}
 			}
 			return $address;
 		}
