@@ -1,11 +1,11 @@
-/**
- * Created by nicolasmaugendre on 17/06/16.
- */
 
-Ext.define('Shopware.apps.Lengow.store.Logs', {
+Ext.define('Shopware.apps.Lengow.store.Article', {
     extend:'Shopware.store.Listing',
-    alias:  'store.article-logs',
-    model: 'Shopware.apps.Lengow.model.Logs',
+    alias:  'store.article-store',
+    model: 'Shopware.apps.Lengow.model.Article',
+
+    // List articles when the window is displayed
+    autoLoad: true,
 
     configure: function() {
         return { controller: 'Lengow' };
@@ -18,7 +18,7 @@ Ext.define('Shopware.apps.Lengow.store.Logs', {
     proxy: {
         type: 'ajax',
         api: {
-            read: '{url controller="Lengow" action="getLogsFiles"}'
+            read: '{url controller="Lengow" action="getList"}'
         },
         reader: {
             type: 'json',

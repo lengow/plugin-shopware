@@ -1,175 +1,16 @@
 <?php
 
-/**
- * Created by PhpStorm.
- * User: nicolasmaugendre
- * Date: 10/06/16
- * Time: 16:44
- */
-class Shopware_Plugins_Backend_Lengow_Components_LengowCore
+class Shopware_Plugins_Backend_Lengow_Components_LengowMain
 {
 
-    /**
-     * Lengow Authorized IPs
-     */
-    protected static $IPS_LENGOW = array(
-        '46.19.183.204',
-        '46.19.183.218',
-        '46.19.183.222',
-        '89.107.175.172',
-        '89.107.175.186',
-        '185.61.176.129',
-        '185.61.176.130',
-        '185.61.176.131',
-        '185.61.176.132',
-        '185.61.176.133',
-        '185.61.176.134',
-        '185.61.176.137',
-        '185.61.176.138',
-        '185.61.176.139',
-        '185.61.176.140',
-        '185.61.176.141',
-        '185.61.176.142',
-        '95.131.137.18',
-        '95.131.137.19',
-        '95.131.137.21',
-        '95.131.137.26',
-        '95.131.137.27',
-        '88.164.17.227',
-        '88.164.17.216',
-        '109.190.78.5',
-        '95.131.141.168',
-        '95.131.141.169',
-        '95.131.141.170',
-        '95.131.141.171',
-        '82.127.207.67',
-        '80.14.226.127',
-        '80.236.15.223',
-        '92.135.36.234',
-        '81.64.72.170',
-        '80.11.36.123',
-        '127.0.0.1'
-    );
-
-    /**
-     * Get the configuration of the module
-     *
-     * @return int
-     */
-    public static function getConfig()
+	/**
+	 * Get Lengow folder path
+	 *
+	 * @return string Module path
+	 */
+    public static function getLengowFolder()
     {
-        return Shopware()->Plugins()->Backend()->Lengow()->Config();
-    }
-
-    /**
-     *
-     */
-    public static function getSettings()
-    {
-    }
-
-    /**
-     * Check if current IP is authorized.
-     *
-     * @return boolean true if user is authorized
-     */
-    public static function checkIp()
-    {
-        $ips = self::getConfig()->get('lengowAuthorisedIp');
-        $ips = trim(str_replace(array("\r\n", ',', '-', '|', ' '), ';', $ips), ';');
-        $ips = explode(';', $ips);
-        $authorizedIps = array_merge($ips, self::$IPS_LENGOW);
-        $hostnameIp = $_SERVER['REMOTE_ADDR'];
-        if (in_array($hostnameIp, $authorizedIps)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Get the base url of the plugin
-     *
-     * @return string
-     */
-    public static function getBaseUrl()
-    {
-        $shop = Shopware()->Models()->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
-        $is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '';
-        $host = $shop->getHost() ? $shop->getHost() : $_SERVER['SERVER_NAME'];
-        $path = $shop->getBasePath() ? $shop->getBasePath() : '';
-        $url = 'http' . $is_https . '://' . $host . $path;
-        return $url;
-    }
-
-    /**
-     * Get value of a config setting
-     * @param $name String Name of the config element
-     * @param $shopId integer Shop id
-     * @return mixed Value of the config element for this shop
-     */
-    public static function getConfigValue($name, $shopId)
-    {
-        $select = array(
-            'values.value',
-        );
-
-        $builder = Shopware()->Models()->createQueryBuilder();
-        $builder->select($select)
-            ->from('Shopware\Models\Config\Element', 'elements')
-            ->leftJoin('elements.values', 'values')
-            ->where('values.shopId = :shopId')
-            ->andWhere('elements.name = :name')
-            ->setParameter('shopId', $shopId)
-            ->setParameter('name', $name);
-
-        if ($builder->getQuery()->getArrayResult() != null) {
-            return $builder->getQuery()->getArrayResult()[0]['value'];
-        } else {
-            return '';
-        }
-    }
-
-    /**
-     * Default Shipping Cost
-     *
-     * @param integer $idShop
-     * @return object Dispatch Shopware
-     */
-    public static function getDefaultShippingCost($idShop) 
-    {
-        return self::getSetting($idShop)->getLengowShippingCostDefault();
-    }
-
-    /**
-     * v3
-     * Clean html
-     *
-     * @param string $html The html content
-     *
-     * @return string Text cleaned.
-     */
-    public static function cleanHtml($html)
-    {
-        $string = str_replace('<br />', '', nl2br($html));
-        $string = trim(strip_tags(htmlspecialchars_decode($string)));
-        $string = preg_replace('`[\s]+`sim', ' ', $string);
-        $string = preg_replace('`"`sim', '', $string);
-        $string = nl2br($string);
-        $pattern = '@<[\/\!]*?[^<>]*?>@si'; //nettoyage du code HTML
-        $string = preg_replace($pattern, ' ', $string);
-        $string = preg_replace('/[\s]+/', ' ', $string); //nettoyage des espaces multiples
-        $string = trim($string);
-        $string = str_replace('&nbsp;', ' ', $string);
-        $string = str_replace('|', ' ', $string);
-        $string = str_replace('"', '\'', $string);
-        $string = str_replace('’', '\'', $string);
-        $string = str_replace('&#39;', '\' ', $string);
-        $string = str_replace('&#150;', '-', $string);
-        $string = str_replace(chr(9), ' ', $string);
-        $string = str_replace(chr(10), ' ', $string);
-        $string = str_replace(chr(13), ' ', $string);
-        return $string;
+        return Shopware()->Plugins()->Backend()->Lengow()->Path();
     }
 
     /**
@@ -238,14 +79,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
         return $value;
     }
 
-    /**
-     * Replace all accented chars by their equivalent non accented chars.
-     *
-     * @param string $str string to have its characters replaced
-     *
-     * @return string
-     */
-    public static function replaceAccentedChars($str)
+	public static function replaceAccentedChars($str)
     {
         /* One source among others:
           http://www.tachyonsoft.com/uc0000.htm

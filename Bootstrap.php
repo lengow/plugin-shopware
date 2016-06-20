@@ -1,74 +1,62 @@
 <?php
-
-/**
- * Bootstrap.php
- *
- * @category   Shopware
- * @package    Shopware_Plugins
- * @subpackage Lengow
- * @author     Lengow
- */
-
 class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plugin_Bootstrap
 {
-
-    /**
-     * Define the actions that must be carried for the plugin
-     * @return array
-     */
-    public function getCapabilities() 
-    {
-        return array(
-            'install' => true,
-            'update' => true,
-            'enable' => true
-        );
+    public function getVersion() {
+        $info = json_decode(file_get_contents(__DIR__ . DIRECTORY_SEPARATOR .'plugin.json'), true);
+        if ($info) {
+            return $info['currentVersion'];
+        } else {
+            throw new Exception('The plugin has an invalid version file.');
+        }
     }
 
-    /**
-     * Name of the plugin
-     *
-     * @return string
-     */
     public function getLabel()
     {
         return 'Lengow';
     }
 
     /**
-     * Version of the plugin
-     * @return string
+     * @inheritdoc
      */
-    public function getVersion() 
+    public function getInfo()
     {
-        return '1.0.0';
-    }
-
-    /**
-     * Information of the plugin
-     * @return array
-     */
-    public function getInfo() 
-    {   
         return array(
             'version' => $this->getVersion(),
             'label' => $this->getLabel(),
+            'source' => $this->getSource(),
             'author' => 'Lengow',
             'supplier' => 'Lengow',
-            'description' => '<h2>The new module of Lengow for Shopware.</h2>',
-            'support' => 'Lengow',
-            'copyright' => 'Copyright (c) 2015, Lengow',
-            'link' => 'http://www.lengow.fr'
+            'copyright' => 'Copyright (c) 2016, Lengow',
+            'description' => '',
+            'support' => 'support.lengow.zendesk@lengow.com',
+            'link' => 'http://lengow.com'
         );
     }
 
-    /**
-     * After init event of the bootstrap class.
-     * The afterInit function registers the custom plugin models.
-     */
-    public function afterInit()
+    public function install()
     {
-        $this->registerCustomModels();
+        if (!$this->assertMinimumVersion('4.0.0')) {
+            throw new \RuntimeException('At least Shopware 4.0.0 is required');
+        }
+
+        $this->createMenuItem(array(
+            'label' => 'Lengow',
+            'controller' => 'Lengow',
+            'action' => 'Index',
+            'active' => 1,
+            'parent' => $this->Menu()->findOneBy('label', 'Marketing'),
+			'class' => 'lengow--icon'
+        ));
+        $this->createConfig();
+        $this->updateSchema();
+        $this->registerMyEvents();
+        $this->Plugin()->setActive(true);
+        return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
+    }
+
+    public function update($oldVersion)
+    {
+        return true;
     }
 
     /**
@@ -79,66 +67,29 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         return Shopware()->Models();
     }
 
-    /**
-     * Install the plugin
-     * @return array
-     */
-    public function install() 
-    {   
-        try {
-            $this->_createDatabase();
-            $this->_createAttribute();
-            $this->_createConfiguration();
-            $this->_createDefaultConfiguration();
-            $this->_createMenu();
-            $this->_createEvents();
-            $this->_registerCronJobs();
-            $this->createPaymentMeans();
-            $this->Plugin()->setActive(true);
-            return array('success' => true, 'invalidateCache' => array('backend'));
-        } catch (Exception $e) {
-            return array('success' => false, 'message' => $e->getMessage());
-        }
-    }
-
-    /**
-     * Creates the plugin database tables over the doctrine schema tool.
-     */
-    private function _createDatabase()
+    public function uninstall()
     {
-        $em = $this->Application()->Models();
-        $tool = new \Doctrine\ORM\Tools\SchemaTool($em);
-        $classes = array(
-            $em->getClassMetadata('Shopware\CustomModels\Lengow\Order'),
-            $em->getClassMetadata('Shopware\CustomModels\Lengow\Log'),
-            $em->getClassMetadata('Shopware\CustomModels\Lengow\Setting')
+        $this->Application()->Models()->removeAttribute(
+            's_articles_attributes',
+            'lengow',
+            'lengowActive'
         );
-        try {
-            $tool->createSchema($classes);
 
-            $sql = "CREATE TABLE IF NOT EXISTS lengow_config("
-               . "id int(1) NOT NULL UNIQUE,"
-               . "LENGOW_MP_CONF varchar(100)) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
-               . "INSERT IGNORE INTO lengow_config (id, LENGOW_MP_CONF) VALUES(1, NULL);";
-            Shopware()->Db()->query($sql);
-            
-        } catch (\Doctrine\ORM\Tools\ToolsException $e) {
-            // ignore
-        }  
+        $this->getEntityManager()->generateAttributeModels(array(
+            's_articles_attributes'
+        ));
+        return true;
     }
 
-    /**
-     * create additional attributes in s_user_attributes and re-generate attribute models
-     */
-    private function _createAttribute()
+    protected function updateSchema()
     {
         $this->Application()->Models()->addAttribute(
             's_articles_attributes',
             'lengow',
             'lengowActive',
-            'int(1)',
+            'boolean',
             true,
-            0
+            '0'
         );
         $this->getEntityManager()->generateAttributeModels(array(
             's_articles_attributes'
@@ -146,180 +97,83 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * Creates the plugin configuration.
+     * This callback function is triggered at the very beginning of the dispatch process and allows
+     * us to register additional events on the fly. This way you won't ever need to reinstall you
+     * plugin for new events - any event and hook can simply be registerend in the event subscribers
      */
-    private function _createConfiguration()
+    public function onStartDispatch(Enlight_Event_EventArgs $args)
     {
-        try {
-            $form = $this->Form();
-            $form->setElement('text', 'lengowIdUser', array(
-                'label' => 'Customer ID', 
-                'required' => true,
-                'description' => 'Your Customer ID of Lengow'
-            ));
-            $form->setElement('text', 'lengowApiKey', array(
-                'label' => 'Token API', 
-                'required' => true,
-                'description' => 'Your Token API of Lengow'
-            ));
-            $form->setElement('text', 'lengowAuthorisedIp', array(
-                'label' => 'IP authorised to export', 
-                'required' => true,
-                'value' => '127.0.0.1',
-                'description' => 'Authorized access to catalog export by IP, separated by ;'
-            ));
-            $form->setElement('boolean', 'lengowDebugMode', array(
-                'label' => 'Debug mode', 
-                'value' => false,
-                'description' => 'Use it only during tests'
-            ));
+        $this->registerMyComponents();
+        $this->registerCustomModels();
+        $this->registerMyTemplateDir();
+        $this->registerMySnippets();
+        $this->registerMyEvents();
+    }
 
-            $shopRepository = Shopware()->Models()->getRepository('\Shopware\Models\Shop\Locale');
-            //contains all translations
-            $translations = array(
-                'de_DE' => array(
-                    'lengowIdUser' => array(
-                        'label' => 'Benutzer-ID',
-                        'description' => 'Ihre Benutzer-ID Lengow'
-                    ), 
-                    'lengowApiKey' => array(
-                        'label' => 'Token API',
-                        'description' => 'Ihre Token API Lengow'
-                    ),
-                    'lengowAuthorisedIp' => array(
-                        'label' => 'IP für den Export zugelassen',
-                        'description' => 'IP erlaubt, um den Katalog zu exportieren, getrennt durch ;'
-                    ),
-                    'lengowDebugMode' => array(
-                        'label' => 'Debug mode',
-                        'description' => 'Verwenden Sie nur bei Test'
-                    )
-                )
-            );
-            //iterate the languages
-            foreach($translations as $locale => $snippets) {
-                $localeModel = $shopRepository->findOneBy(array(
-                    'locale' => $locale
-                ));
-                //not found? continue with next language
-                if($localeModel === null){
-                    continue;
-                }
-                //iterate all snippets of the current language
-                foreach($snippets as $element => $snippet) {
-                    //get the form element by name
-                    $elementModel = $form->getElement($element);
-                    //not found? continue with next snippet
-                    if($elementModel === null) {
-                        continue;
-                    }  
-                    //create new translation model
-                    $translationModel = new \Shopware\Models\Config\ElementTranslation();
-                    $translationModel->setDescription($snippet['description']);
-                    $translationModel->setLabel($snippet['label']);
-                    $translationModel->setLocale($localeModel);
-                    //add the translation to the form element
-                    $elementModel->addTranslation($translationModel);
-                }
-            }
-
-        } catch (Exception $exception) {
-            Shopware()->Log()->Err("There was an error creating the plugin configuration. " . $exception->getMessage());
-            throw new Exception("There was an error creating the plugin configuration. " . $exception->getMessage());
-        }
+    public function onPostDispatchBackendIndex(Enlight_Controller_ActionEventArgs $args)
+    {
+        $ctrl = $args->getSubject();
+        $view = $ctrl->View();
+        $view->extendsTemplate('backend/plugins/lengow/index/header.tpl');
     }
 
     /**
-     * Creates the Lengow backend menu item.
+     * Registers the template directory, needed for templates in frontend an backend
      */
-    private function _createMenu()
+    private function registerMyTemplateDir()
     {
-        $this->createMenuItem(array(
-            'label' => 'Lengow',
-            'controller' => 'Lengow',
-            'class' => 'sprite-star',
-            'action' => 'Index',
-            'active' => 1,
-            'parent' => $this->Menu()->findOneBy(array('label' => 'Einstellungen'))
-        ));
+        Shopware()->Template()->addTemplateDir($this->Path() . 'Views');
     }
 
     /**
-     * Create Events
+     * Registers the snippet directory, needed for backend snippets
      */
-    private function _createEvents()
+    private function registerMySnippets()
     {
-        $this->subscribeEvent('Enlight_Controller_Dispatcher_ControllerPath_Backend_Lengow', 'onGetControllerPath');
-        $this->subscribeEvent('Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowExport', 'lengowBackendControllerExport');
-        $this->subscribeEvent('Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowImport', 'lengowBackendControllerImport');
-        $this->subscribeEvent('Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowLog', 'lengowBackendControllerLog');
-    }
-
-    private function _registerCronJobs()
-    {
-        $this->subscribeEvent('Shopware_CronJob_LengowCron', 'onRunLengowCronJob');
-        $this->createCronJob('Lengow', 'LengowCron', 86400, true);
-    }
-
-    /**
-     * Creates the payment method
-     *
-     * @throws Exception
-     * @return void
-     */
-    protected function createPaymentMeans()
-    {
-        try {
-            $this->createPayment(
-                array(
-                    'active' => 0,
-                    'name' => 'Lengow',
-                    'description' => 'Lengow',
-                    'additionalDescription' => 'Payment by default to Lengow' 
-                )
-            );
-        } catch (Exception $exception) {
-            Shopware()->Log()->Err("There was an error creating the payment means. " . $exception->getMessage());
-            throw new Exception("There was an error creating the payment means. " . $exception->getMessage());
-        }
-    }
-
-    /**
-     * Uninstall the plugin - Remove attribute and re-generate articles models
-     * @return array
-     */
-    public function uninstall() {
-        try {
-            $this->_removeDatabaseTables();
-            $this->Application()->Models()->removeAttribute(
-                 's_articles_attributes',
-                 'lengow',
-                 'lengowActive'
-             );
-             $this->getEntityManager()->generateAttributeModels(array(
-                 's_articles_attributes'
-             ));
-            return array('success' => true, 'invalidateCache' => array('backend'));
-        } catch (Exception $e) {
-            return array('success' => false, 'message' => $e->getMessage());
-        }
-    }
-
-    /**
-     * Removes the plugin database tables
-     */
-    private function _removeDatabaseTables()
-    {
-        $em = $this->Application()->Models();
-        $tool = new \Doctrine\ORM\Tools\SchemaTool($em);
-        $classes = array(
-            $em->getClassMetadata('Shopware\CustomModels\Lengow\Order'),
-            $em->getClassMetadata('Shopware\CustomModels\Lengow\Log'),
-            $em->getClassMetadata('Shopware\CustomModels\Lengow\Setting')
+        $this->Application()->Snippets()->addConfigDir(
+            $this->Path() . 'Snippets/'
         );
-        $tool->dropSchema($classes);
     }
 
+    private function registerMyComponents()
+    {
+        $this->Application()->Loader()->registerNamespace(
+            'Shopware\Lengow',
+            $this->Path()
+        );
+        $this->Application()->Loader()->registerNamespace(
+            'Shopware\Lengow\Components',
+            $this->Path() . 'Components/'
+        );
+    }
+
+    /**
+     * Register events
+     */
+    private function registerMyEvents()
+    {
+        $this->subscribeEvent(
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_Lengow',
+            'onGetControllerPath'
+        );
+
+        $this->subscribeEvent(
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_Iframe',
+            'onGetControllerIframePath'
+        );
+
+
+        $this->subscribeEvent(
+            'Enlight_Controller_Front_DispatchLoopStartup',
+            'onStartDispatch'
+        );
+
+        // Backend events
+        $this->subscribeEvent(
+            'Enlight_Controller_Action_PostDispatch_Backend_Index',
+            'onPostDispatchBackendIndex'
+        );
+    }
 
     /**
      * Returns the path to the controller Lengow
@@ -327,118 +181,151 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function onGetControllerPath()
     {
-        $this->Application()->Snippets()->addConfigDir($this->Path() . 'Snippets/');
-        $this->Application()->Template()->addTemplateDir($this->Path() . 'Views/');
         return $this->Path(). 'Controllers/Backend/Lengow.php';
     }
 
-    /**
-     * Returns the path to the controller LengowExport
-     * @return string
-     */
-    public function lengowBackendControllerExport()
+    public function onGetControllerIframePath()
     {
-        $this->Application()->Snippets()->addConfigDir($this->Path() . 'Snippets/');
-        $this->Application()->Template()->addTemplateDir($this->Path() . 'Views/');
-        return $this->Path(). 'Controllers/Backend/LengowExport.php';
+        return $this->Path(). 'Controllers/Backend/Iframe.php';
     }
 
     /**
-     * Returns the path to the controller LengowImport
-     * @return string
+     * Create basic settings for the plugin
+     * Accessible in Configuration/Basic Settings/Additional settings menu
      */
-    public function lengowBackendControllerImport()
+    private function createConfig()
     {
-        $this->Application()->Snippets()->addConfigDir($this->Path() . 'Snippets/');
-        $this->Application()->Template()->addTemplateDir($this->Path() . 'Views/');
-        return $this->Path(). 'Controllers/Backend/LengowImport.php';
+        $mainForm = $this->Form();
+
+        // Main settings form
+        $mainSettingForm = new \Shopware\Models\Config\Form;
+        $mainSettingForm->setName('lengowMainSettings');
+        $mainSettingForm->setLabel('Main settings');
+        $mainSettingForm->setDescription('Set settings for Lengow');
+        $mainSettingForm->setParent($mainForm);
+
+        $mainSettingForm->setElement(
+            'checkbox',
+            'lengowDebugMode',
+            array(
+                'label' => 'Enable shop',
+                'value' => true,
+                'description' => 'Enable this shop for Lengow',
+                'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
+            )
+        );
+        $mainSettingForm->setElement(
+            'text',
+            'lengowAccountId',
+            array(
+                'label'     => '{s name=settings_main_account_label}Account ID{/s}',
+                'required'  => true,
+                'description' => '{s name=settings_main_account_description}Your account ID of Lengow{/s}'
+            )
+        );
+        $mainSettingForm->setElement(
+            'text',
+            'lengowAccessToken',
+            array(
+                'label'     => '{s name=settings_main_access_label}Access token{/s}',
+                'required'  => true,
+                'description' => 'Your access token'
+            )
+        );
+        $mainSettingForm->setElement(
+            'text',
+            'lengowSecretToken',
+            array(
+                'label'     => 'Secret token',
+                'required'  => true,
+                'description' => 'Your secret token'
+            )
+        );
+        $mainSettingForm->setElement(
+            'text',
+            'lengowAuthorizedIps',
+            array(
+                'label'     => 'IP authorised to export',
+                'required'  => true,
+                'value' => '127.0.0.1',
+                'description' => 'Authorized access to catalog export by IP, separated by ";"'
+            )
+        );
+
+        // Import form
+        $importForm = new \Shopware\Models\Config\Form;
+        $importForm->setName('lengowImportSettings');
+        $importForm->setLabel('Import settings');
+        $importForm->setParent($mainForm);
+
+        $importForm->setElement(
+            'checkbox',
+            'lengowDefaultCarrier',
+            array(
+                'label'     => 'I want to decrease my stock',
+                'required'  => false,
+                'description' => 'Use this option to take into account your marketplaces orders on your stock in your Shopware backoffice',
+                'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
+            )
+        );
+
+        // Export form
+        $exportForm = new \Shopware\Models\Config\Form;
+        $exportForm->setName('lengowExportSettings');
+        $exportForm->setLabel('Export settings');
+        $exportForm->setParent($mainForm);
+
+        $exportForm->setElement(
+            'boolean',
+            'lengowExportVariation',
+            array(
+                'label' => 'Export variant products',
+                'required' => true,
+                'value' => true,
+                'description' => 'Export variant products',
+                'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
+            )
+        );
+        $exportForm->setElement(
+            'checkbox',
+            'lengowExportOutOfStock',
+            array(
+                'label' => 'Export out of stock products',
+                'required' => true,
+                'value' => false,
+                'description' => 'Export out of stock products',
+                'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
+            )
+        );
+        $exportForm->setElement(
+            'checkbox',
+            'lengowExportDisabledProduct',
+            array(
+                'label' => 'Export inactive products',
+                'required' => true,
+                'value' => false,
+                'description' => 'Export disabled products',
+                'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
+            )
+        );
+        $exportForm->setElement(
+            'checkbox',
+            'lengowExportLengowSelection',
+            array(
+                'label' => 'Export Lengow products',
+                'required' => true,
+                'value' => false,
+                'description' => 'Export products that you have selected in Lengow',
+                'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
+            )
+        );
+
+        $forms = array(
+            $mainSettingForm,
+            $importForm,
+            $exportForm
+        );
+
+        $mainForm->setChildren($forms);
     }
-
-    /**
-     * Returns the path to the controller LengowLog
-     * @return string
-     */
-    public function lengowBackendControllerLog()
-    {
-        $this->Application()->Snippets()->addConfigDir($this->Path() . 'Snippets/');
-        $this->Application()->Template()->addTemplateDir($this->Path() . 'Views/');
-        return $this->Path(). 'Controllers/Backend/LengowLog.php';
-    }
-
-    /**
-     * Create default confuguration for all shops
-     */
-    private function _createDefaultConfiguration()
-    {
-        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS shops.id AS id 
-                FROM s_core_shops shops
-        ";
-        $shops = Shopware()->Db()->fetchAll($sql);
-
-        $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS setting.shopID AS id 
-                FROM lengow_settings setting
-        ";
-        $settingShopIDs = Shopware()->Db()->fetchAll($sql);
-        
-        $settingIDs = array();
-        foreach ($settingShopIDs as $value) {
-            $settingIDs[] = $value['id'];
-        }
-
-        $exportFormats = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getExportFormats();
-        $exportImages = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getImagesCount();
-        $exportImagesSize = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getImagesSize();
-        $dispatchs = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDispatch();
-        $importOrderStates = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getAllOrderStates();
-        $importPayments = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getShippingName();
-        $host = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl();
-        $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
-        $exportUrl = $host . $pathPlugin . 'Webservice/export.php?shop=';
-        $importUrl = $host . $pathPlugin . 'Webservice/import.php?shop=';
-
-        foreach ($shops as $idShop) {
-            if (!in_array($idShop['id'], $settingIDs)) {
-                $shop = Shopware()->Models()->getReference('Shopware\Models\Shop\Shop',(int) $idShop['id']);
-                $dispatch = Shopware()->Models()->getReference('Shopware\Models\Dispatch\Dispatch',(int) $dispatchs[0]->id);
-                $orderStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status',(int) $importOrderStates[0]->id);
-                $setting = new Shopware\CustomModels\Lengow\Setting();
-                $setting->setLengowExportAllProducts(true)
-                        ->setLengowExportDisabledProducts(false)
-                        ->setLengowExportVariantProducts(true)
-                        ->setLengowExportAttributes(false)
-                        ->setLengowExportAttributesTitle(true)
-                        ->setLengowExportOutStock(false)
-                        ->setLengowExportImageSize($exportImagesSize[0]->id)
-                        ->setLengowExportImages($exportImages[0]->id)
-                        ->setLengowExportFormat($exportFormats[0]->id)
-                        ->setLengowShippingCostDefault($dispatch)
-                        ->setLengowExportFile(false)
-                        ->setLengowExportUrl($exportUrl)
-                        ->setLengowExportCron(false)
-                        ->setLengowCarrierDefault($dispatch)
-                        ->setLengowOrderProcess($orderStatus)
-                        ->setLengowOrderShipped($orderStatus)
-                        ->setLengowOrderCancel($orderStatus)
-                        ->setLengowImportDays(3)
-                        ->setLengowMethodName($importPayments[0]->id)
-                        ->setLengowForcePrice(true)
-                        ->setLengowReportMail(true)
-                        ->setLengowImportUrl($importUrl)
-                        ->setLengowImportCron(false)
-                        ->setShop($shop);       
-                Shopware()->Models()->persist($setting);
-                Shopware()->Models()->flush();
-            }
-        }     
-    }
-
-    public function onRunLengowCronJob(Shopware_Components_Cron_CronJob $job)
-    {
-        Shopware_Plugins_Backend_Lengow_Components_LengowCore::updateMarketPlaceConfiguration();
-        Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanLog();
-        Shopware_Plugins_Backend_Lengow_Components_LengowCore::exportCron();
-        Shopware_Plugins_Backend_Lengow_Components_LengowCore::importCron();
-        return true;
-    }
-
 }

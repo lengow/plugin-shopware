@@ -1,0 +1,179 @@
+<?php
+
+/**
+ * Created by PhpStorm.
+ * User: nicolasmaugendre
+ * Date: 17/06/16
+ * Time: 16:32
+ */
+class Shopware_Plugins_Backend_Lengow_Components_LengowFile
+{
+    /**
+     * @var string file name
+     */
+    public $file_name;
+
+    /**
+     * @var string folder name that contains the file
+     */
+    public $folder_name;
+
+    /**
+     * @var ressource file hande
+     */
+    public $instance;
+
+
+    public function __construct($folder_name, $file_name = null, $mode = 'a+')
+    {
+        $this->file_name = $file_name;
+        $this->folder_name = $folder_name;
+
+        $this->instance = self::getRessource($this->getPath(), $mode);
+        if (!is_resource($this->instance)) {
+        }
+    }
+
+    /**
+     * Write content in file
+     *
+     * @param string $txt text to be written
+     */
+    public function write($txt)
+    {
+        if (!$this->instance) {
+            $this->instance = fopen($this->getPath(), 'a+');
+        }
+        fwrite($this->instance, $txt);
+    }
+
+    /**
+     * Delete file
+     */
+    public function delete()
+    {
+        if ($this->exists()) {
+            if ($this->instance) {
+                $this->close();
+            }
+            unlink($this->getPath());
+        }
+    }
+
+    /**
+     * Get resource of a given stream
+     *
+     * @param string $path path to the file
+     * @param string $mode type of access
+     *
+     * @return resource
+     */
+    public static function getRessource($path, $mode = 'a+')
+    {
+        return fopen($path, $mode);
+    }
+
+    /**
+     * v3
+     * Get file link
+     *
+     * @return string
+     */
+    public function getLink()
+    {
+        if (empty($this->link)) {
+            if (!$this->exists()) {
+                $this->link = null;
+            }
+            $base = Shopware()->Plugins()->Backend()->Lengow()->Path();
+            $this->link = $base.$this->folder_name.'/'.$this->file_name;
+        }
+        return $this->link;
+
+    }
+
+    /**
+     * Get file path
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        $sep = DIRECTORY_SEPARATOR;
+        return Shopware()->Plugins()->Backend()->Lengow()->Path() . $sep . $this->folder_name . $sep . $this->file_name;
+    }
+
+    /**
+     * Get folder path of current file
+     *
+     * @return string
+     */
+    public function getFolderPath()
+    {
+        $sep = DIRECTORY_SEPARATOR;
+        return Shopware()->Plugins()->Backend()->Lengow()->Path() . $sep . $this->folder_name;
+    }
+
+    public function __destruct()
+    {
+        $this->close();
+    }
+
+    /**
+     * Rename file
+     *
+     * @return boolean
+     */
+    public function rename($new_name)
+    {
+        return rename($this->getPath(), $new_name);
+    }
+
+    /**
+     * Close file handle
+     */
+    public function close()
+    {
+        if (is_resource($this->instance)) {
+            fclose($this->instance);
+        }
+    }
+
+    /**
+     * Check if current file exists
+     *
+     * @return bool
+     */
+    public function exists()
+    {
+        return file_exists($this->getPath());
+    }
+
+
+    /**
+     * v3
+     * Get a file list for a given folder
+     *
+     * @param string $folder folder name
+     *
+     * @return array
+     */
+    public static function getFilesFromFolder($folder)
+    {
+        $sep = DIRECTORY_SEPARATOR;
+        $folder_path = Shopware()->Plugins()->Backend()->Lengow()->Path() . $folder;
+
+        if (!file_exists($folder_path)) {
+            return false;
+        }
+
+        $folder_content = scandir($folder_path);
+        $files = array();
+        foreach ($folder_content as $file) {
+            if (!preg_match('/^\.[a-zA-Z\.]+$|^\.$|index\.php/', $file)) {
+                $files[] = new Shopware_Plugins_Backend_Lengow_Components_LengowFile($folder, $file);
+            }
+        }
+        return $files;
+    }
+}

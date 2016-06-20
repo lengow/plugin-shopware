@@ -1,8 +1,8 @@
 
-Ext.define('Shopware.apps.Lengow', {
+Ext.define('Shopware.apps.Iframe', {
     extend: 'Enlight.app.SubApplication',
 
-    name:'Shopware.apps.Lengow',
+    name:'Shopware.apps.Iframe',
 
     loadPath: '{url action=load}',
     bulkLoad: true,
@@ -10,19 +10,14 @@ Ext.define('Shopware.apps.Lengow', {
     controllers: [ 'Main' ],
 
     views: [
-        'main.Window',
-        'export.CategoryTree',
-        'export.Container',
-        'export.Grid'
+        'Main'
     ],
 
     models: [
-        'Article',
-        'Logs'
+        'Article'
     ],
     stores: [
-        'Article',
-        'Logs'
+        'Article'
     ],
 
     launch: function() {
