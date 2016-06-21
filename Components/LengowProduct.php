@@ -1,15 +1,25 @@
 <?php
-
 /**
- * Created by PhpStorm.
- * User: nicolasmaugendre
- * Date: 09/06/16
- * Time: 17:12
+ * Copyright 2016 Lengow SAS.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
+ * @author    Team Connector <team-connector@lengow.com>
+ * @copyright 2016 Lengow SAS
+ * @license   http://www.apache.org/licenses/LICENSE-2.0
  */
-class Shopware_Plugins_Backend_Lengow_Components_Product
+class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 {
-//            if (version_compare($sw::VERSION, '5.1', '>=')) {
-
     // Shopware article
     protected $product;
     // Is this article a simple product (true) or a variation (false)
@@ -24,19 +34,8 @@ class Shopware_Plugins_Backend_Lengow_Components_Product
         $this->shop = $shop;
         $this->attributes = array();
 
-        $this->checkIsVariation();
+        $this->isVariation = $this->details->getKind() != 1 ? true : false;
         $this->getOptions();
-    }
-
-    /**
-     * Check if the product is a simple product
-     * or a variation
-     */
-    private function checkIsVariation()
-    {
-        if ($this->details->getKind() != 1) {
-            $this->isVariation = true;
-        }
     }
 
     public function getData($name)
@@ -65,12 +64,7 @@ class Shopware_Plugins_Backend_Lengow_Components_Product
                 return $this->getBreadcrumb();
                 break;
             case 'status':
-                if ($this->isVariation) {
-                    // TODO : return "Enabled" or "Disabled"
-                    return $this->details->getActive();
-                } else {
-                    return $this->product->getActive();
-                }
+                return $this->details->getActive() ? 'Enabled' : 'Disabled';
                 break;
             case 'url':
                 $sep = '/';
@@ -91,13 +85,15 @@ class Shopware_Plugins_Backend_Lengow_Components_Product
             case 'price_excl_tax':
                 $productPrice = $this->details->getPrices()[0];
                 $price = $productPrice->getPrice();
-                return round($price, 2);
+                $priceExclTax = round($price, 2);
+                return number_format($priceExclTax, 2);
                 break;
             case 'price_incl_tax':
                 $productPrice = $this->details->getPrices()[0];
                 $price = $productPrice->getPrice();
                 $tax = $this->product->getTax()->getTax();
-                return round($price*(100+$tax)/100, 2);
+                $priceInclTax = round($price*(100+$tax)/100, 2);
+                return number_format($priceInclTax, 2);
                 break;
             case 'discount_percent':
                 $productPrice = $this->details->getPrices()[0];

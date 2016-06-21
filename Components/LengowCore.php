@@ -1,14 +1,25 @@
 <?php
-
 /**
- * Created by PhpStorm.
- * User: nicolasmaugendre
- * Date: 10/06/16
- * Time: 16:44
+ * Copyright 2016 Lengow SAS.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
+ * @author    Team Connector <team-connector@lengow.com>
+ * @copyright 2016 Lengow SAS
+ * @license   http://www.apache.org/licenses/LICENSE-2.0
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 {
-
     /**
      * Lengow Authorized IPs
      */
@@ -75,11 +86,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      */
     public static function checkIp()
     {
-        $ips = self::getConfig()->get('lengowAuthorisedIp');
+        $ips = self::getConfigValue('lengowAuthorizedIps');
         $ips = trim(str_replace(array("\r\n", ',', '-', '|', ' '), ';', $ips), ';');
         $ips = explode(';', $ips);
         $authorizedIps = array_merge($ips, self::$IPS_LENGOW);
         $hostnameIp = $_SERVER['REMOTE_ADDR'];
+
         if (in_array($hostnameIp, $authorizedIps)) {
             return true;
         } else {
@@ -108,26 +120,39 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      * @param $shopId integer Shop id
      * @return mixed Value of the config element for this shop
      */
-    public static function getConfigValue($name, $shopId)
+    public static function getConfigValue($name, $shopId = null)
     {
-        $select = array(
-            'values.value',
-        );
+        $em = Shopware()->Models();
+        $settings = array();
 
-        $builder = Shopware()->Models()->createQueryBuilder();
-        $builder->select($select)
-            ->from('Shopware\Models\Config\Element', 'elements')
-            ->leftJoin('elements.values', 'values')
-            ->where('values.shopId = :shopId')
-            ->andWhere('elements.name = :name')
-            ->setParameter('shopId', $shopId)
-            ->setParameter('name', $name);
-
-        if ($builder->getQuery()->getArrayResult() != null) {
-            return $builder->getQuery()->getArrayResult()[0]['value'];
-        } else {
-            return '';
+        // Get settings from the shop
+        if ($shopId != null) {
+            $builder = $em->createQueryBuilder();
+            $builder->select('values.value')
+                ->from('Shopware\Models\Config\Element', 'elements')
+                ->leftJoin('elements.values', 'values')
+                ->where('values.shopId = :shopId')
+                ->andWhere('elements.name = :name')
+                ->setParameter('shopId', $shopId)
+                ->setParameter('name', $name);
+            $result = $builder->getQuery()->getArrayResult();
+            if (!empty($result)) {
+                $settings = $result[0]['value'];
+            }
         }
+
+        // If no settings has been found, get the default value
+        if (empty($settings)) {
+            $element = $em->getRepository('Shopware\Models\Config\Element')->findOneBy(array('name' => $name));
+            $values = $element->getValues();
+            if (count($values) > 0) {
+                $settings = $values[0]->getValue();
+            } else {
+                $settings = $element->getValue();
+            }
+        }
+
+        return $settings;
     }
 
     /**

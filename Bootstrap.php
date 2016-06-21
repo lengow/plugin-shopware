@@ -1,6 +1,28 @@
 <?php
+/**
+ * Copyright 2016 Lengow SAS.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
+ * @author    Team Connector <team-connector@lengow.com>
+ * @copyright 2016 Lengow SAS
+ * @license   http://www.apache.org/licenses/LICENSE-2.0
+ */
 class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plugin_Bootstrap
 {
+    /**
+     * @inheritdoc
+     */
     public function getVersion() {
         $info = json_decode(file_get_contents(__DIR__ . DIRECTORY_SEPARATOR .'plugin.json'), true);
         if ($info) {
@@ -10,6 +32,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         }
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getLabel()
     {
         return 'Lengow';
@@ -33,6 +58,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         );
     }
 
+    /**
+     * @inheritdoc
+     */
     public function install()
     {
         if (!$this->assertMinimumVersion('4.0.0')) {
@@ -44,7 +72,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'controller' => 'Lengow',
             'action' => 'Index',
             'active' => 1,
-            'parent' => $this->Menu()->findOneBy('label', 'Marketing'),
+            'parent' => $this->Menu()->findOneBy('label', 'Einstellungen'),
 			'class' => 'lengow--icon'
         ));
         $this->createConfig();
@@ -54,12 +82,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
     }
 
+    /**
+     * @inheritdoc
+     */
     public function update($oldVersion)
     {
         return true;
     }
 
     /**
+     * Get Shopware entity manager
      * @return \Shopware\Components\Model\ModelManager
      */
     protected function getEntityManager()
@@ -67,6 +99,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         return Shopware()->Models();
     }
 
+    /**
+     * @inheritdoc
+     */
     public function uninstall()
     {
         $this->Application()->Models()->removeAttribute(
@@ -78,9 +113,14 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $this->getEntityManager()->generateAttributeModels(array(
             's_articles_attributes'
         ));
+
         return true;
     }
 
+    /**
+     * Update Shopware models.
+     * Add lengowActive attribute in Attributes model
+     */
     protected function updateSchema()
     {
         $this->Application()->Models()->addAttribute(
@@ -118,7 +158,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * Registers the template directory, needed for templates in frontend an backend
+     * Registers templates
      */
     private function registerMyTemplateDir()
     {
@@ -126,7 +166,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * Registers the snippet directory, needed for backend snippets
+     * Registers snippets
      */
     private function registerMySnippets()
     {
@@ -135,6 +175,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         );
     }
 
+    /**
+     * Registers components
+     */
     private function registerMyComponents()
     {
         $this->Application()->Loader()->registerNamespace(
@@ -176,7 +219,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * Returns the path to the controller Lengow
+     * Returns the path to Lengow main controller
      * @return string
      */
     public function onGetControllerPath()
@@ -184,6 +227,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         return $this->Path(). 'Controllers/Backend/Lengow.php';
     }
 
+    /**
+     * Returns the path to the login iframe controller
+     * @return string
+     */
     public function onGetControllerIframePath()
     {
         return $this->Path(). 'Controllers/Backend/Iframe.php';
@@ -209,7 +256,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'lengowDebugMode',
             array(
                 'label' => 'Enable shop',
-                'value' => true,
+                'value' => false,
                 'description' => 'Enable this shop for Lengow',
                 'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
             )
@@ -218,16 +265,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'text',
             'lengowAccountId',
             array(
-                'label'     => '{s name=settings_main_account_label}Account ID{/s}',
+                'label'     => 'Account ID',
                 'required'  => true,
-                'description' => '{s name=settings_main_account_description}Your account ID of Lengow{/s}'
+                'description' => 'Your account ID of Lengow'
             )
         );
         $mainSettingForm->setElement(
             'text',
             'lengowAccessToken',
             array(
-                'label'     => '{s name=settings_main_access_label}Access token{/s}',
+                'label'     => 'Access token',
                 'required'  => true,
                 'description' => 'Your access token'
             )
@@ -260,7 +307,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
         $importForm->setElement(
             'checkbox',
-            'lengowDefaultCarrier',
+            'lengowDecreaseStock',
             array(
                 'label'     => 'I want to decrease my stock',
                 'required'  => false,
@@ -322,8 +369,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
         $forms = array(
             $mainSettingForm,
-            $importForm,
-            $exportForm
+            $exportForm,
+            $importForm
         );
 
         $mainForm->setChildren($forms);

@@ -1,4 +1,23 @@
 <?php
+/**
+ * Copyright 2016 Lengow SAS.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
+ * @author    Team Connector <team-connector@lengow.com>
+ * @copyright 2016 Lengow SAS
+ * @license   http://www.apache.org/licenses/LICENSE-2.0
+ */
 
 use Shopware\Kernel;
 use Shopware\Components\HttpCache\AppCache;
@@ -15,11 +34,13 @@ if ($kernel->isHttpCacheEnabled()) {
 
 require_once('../Components/LengowCore.php');
 require_once('../Components/LengowExport.php');
-//require_once('../Components/Product.php');
+require_once('../Components/LengowFeed.php');
+require_once('../Components/LengowMain.php');
+require_once('../Components/LengowProduct.php');
 
-if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIP())
+if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIp())
 {
-    $format             = isset($_REQUEST["format"]) ? $_REQUEST["format"] : null;
+    $format             = isset($_REQUEST["format"]) ? $_REQUEST["format"] : 'csv';
     $languageId         = isset($_REQUEST["languageId"]) ? $_REQUEST["lang"] : null;
     $mode               = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : null;
     $productsIds        = isset($_REQUEST["product_ids"]) ? $_REQUEST["product_ids"] : null;
@@ -30,73 +51,44 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIP())
     $exportVariation    = isset($_REQUEST["export_variation"]) ? (bool)$_REQUEST["export_variation"] : null;
     $exportLengowSelection = isset($_REQUEST["selection"]) ? (bool)$_REQUEST["selection"] : null;
     $exportDisabledProduct = isset($_REQUEST["show_inactive_product"]) ? (bool)$_REQUEST["show_inactive_product"] : null;
-    $shop = isset($_REQUEST['shop']) ? $_REQUEST['shop'] : null;
+    $shopName = isset($_REQUEST['shop']) ? $_REQUEST['shop'] : null;
 
-    // If the shop hasn't been filled
-    if ($shop) {
-        $builder = Shopware()->Models()->createQueryBuilder();
+    // If shop name has been filled
+    if ($shopName) {
+        $em = Shopware()->Models();
+        $shop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('name' => $shopName));
 
-        $builder->select(array('shop.id'));
-        $builder->from('Shopware\Models\Shop\Shop', 'shop');
-        $builder->where('shop.name = :shop');
-        $builder->setParameter('shop', $shop);
+        // A shop with this name exist
+        if ($shop) {
+            $selectedProducts = array();
 
-        $shopId = $builder->getQuery()->getResult()[0]['id'];
+            if ($productsIds) {
+                $ids    = str_replace(array(';','|',':'), ',', $productsIds);
+                $ids    = preg_replace('/[^0-9\,]/', '', $ids);
+                $selectedProducts  = explode(',', $ids);
+            }
 
-        // If the shop exists
-        if ($shopId) {
-            $shop = Shopware()->Models()->getReference('Shopware\Models\Shop\Shop',(int) $shopId);
+            $params = array(
+                'format' => $format,
+                'mode' => $mode,
+                'stream' => $stream,
+                'productIds' => $selectedProducts,
+                'limit' => $limit,
+                'offset' => $offset,
+                'exportOutOfStock' => $outStock,
+                'exportVariation' => $exportVariation,
+                'exportDisabledProduct' => $exportDisabledProduct,
+                'exportLengowSelection' => $exportLengowSelection,
+                'languageId' => $languageId
+            );
 
-            /*$builder = Shopware()->Models()->createQueryBuilder();
-            $builder->select(array('settings.id'));
-            $builder->from('Shopware\CustomModels\Lengow\Setting', 'settings');
-            $builder->where('settings.shop = :shopId');
-            $builder->setParameter('shopId', $shopId);
+            $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, $params);
 
-            $settingId = $builder->getQuery()->getResult()[0]['id'];
-
-            if (!$settingId) {
-                die('For export, the settings must be completed for the shop '. $_GET['shop'] );
-            }*/
-        } else {
-            die('Invalid Shop for '. $_GET['shop'] );
-        }
-    }
-
-    $selectedProducts = array();
-
-    if ($productsIds) {
-        $ids    = str_replace(array(';','|',':'), ',', $productsIds);
-        $ids    = preg_replace('/[^0-9\,]/', '', $ids);
-        $selectedProducts  = explode(',', $ids);
-    }
-
-    if ($shop) {
-        $params = array(
-            'format' => $format,
-            'mode' => $mode,
-            'stream' => $stream,
-            'productIds' => $selectedProducts,
-            'limit' => $limit,
-            'offset' => $offset,
-            'exportOutOfStock' => $outStock,
-            'exportVariation' => $exportVariation,
-            'exportDisabledProduct' => $exportDisabledProduct,
-            'exportLengowSelection' => $exportLengowSelection,
-            'language_id' => $languageId
-        );
-
-        $export = new LengowExport($shop, $params);
-
-        if ($mode == 'size') {
-            echo $export->exec();
-        } else {
             $export->exec();
+        } else {
+            die('The following shop (' . $shopName . ') does not exist. Please specify a valid shop name (ie: ?shop=Deutsch)');
         }
-    } else {
-        die('Thank you to specify the name of the shop to export like this : export.php?shop=Deutsch for example.');
     }
-
 } else {
     die('Unauthorized access for IP : '.$_SERVER['REMOTE_ADDR']);
 }

@@ -274,8 +274,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     {
         $this->write('footer');
         if (!$this->stream) {
-            $old_file_name = 'flux-' . Context::getContext()->language->iso_code . '.' . $this->format;
-            $old_file = new LengowFile($this->export_folder, $old_file_name);
+            //TODO : put iso_code in file name
+            // ex. Prestashop : -'.Context::getContext()->language->iso_code.'
+            $old_file_name = 'flux.' . $this->format;
+            $old_file = new Shopware_Plugins_Backend_Lengow_Components_LengowFile($this->export_folder, $old_file_name);
 
             if ($old_file->exists()) {
                 $old_file_path = $old_file->getPath();

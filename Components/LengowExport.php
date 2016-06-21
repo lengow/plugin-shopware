@@ -1,25 +1,35 @@
 <?php
-
 /**
- * LengowExport.php
+ * Copyright 2016 Lengow SAS.
  *
- * @category   Shopware
- * @package    Shopware_Plugins
- * @subpackage Lengow
- * @author     Lengow
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
+ * @author    Team Connector <team-connector@lengow.com>
+ * @copyright 2016 Lengow SAS
+ * @license   http://www.apache.org/licenses/LICENSE-2.0
  */
-class LengowExport
+class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 {
 
     /**
      * Default fields.
      */
     public static $DEFAULT_FIELDS = array(
-        'id'    => 'id',
-        'sku'   => 'sku',
-        'ean'   => 'ean',
-        'name'  => 'name',
-        'quantity'  => 'quantity',
+        'id' => 'id',
+        'sku' => 'sku',
+        'ean' => 'ean',
+        'name' => 'name',
+        'quantity' => 'quantity',
         'breadcrumb' => 'breadcrumb',
         'status' => 'status',
         'url' => 'url',
@@ -57,14 +67,14 @@ class LengowExport
     );
 
     /**
-     * File ressource
+     * Config elements
+     * Refer to createConfig() in Bootstrap.php
      */
-    private $fields = array();
-
     private $configFields = array(
         'exportVariation',
         'exportOutOfStock',
-        'exportDisabledProduct'
+        'exportDisabledProduct',
+        'exportLengowSelection'
     );
 
     /**
@@ -77,24 +87,54 @@ class LengowExport
      */
     private $stream;
 
+    /**
+     * List of articles to display
+     */
     private $productIds = array();
 
+    /**
+     * Limit number of results
+     */
     private $limit = 0;
 
+    /**
+     * Get results from specific index
+     */
     private $offset = 0;
 
+    /**
+     * Export out of stock articles
+     */
     private $exportOutOfStock;
 
+    /**
+     * Export variant articles
+     */
     private $exportVariation;
 
+    /**
+     * Export Lengow products only
+     */
     private $exportLengowSelection;
 
+    /**
+     * Language 
+     */
     private $languageId;
 
+    /**
+     * Export disabled articles
+     */
     private $exportDisabledProduct;
 
+    /**
+     * Export mode (size|null)
+     */
     private $mode;
 
+    /**
+     * Feed to display/write data
+     */
     private $feed = null;
 
     /**
@@ -118,11 +158,11 @@ class LengowExport
      * Check whether or not the format exists
      * If not specified (null), get the default format of the configuration
      * @return bool true if specified format is supported
-     * @throws Exception If the format isn't supported by Lengow
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException If the format isn't supported by Lengow
      */
     private function setFormat()
     {
-        if (!in_array($this->format, Shopware_Plugins_Backend_Lengow_Components_LengowFeed::$AVAILABLE_FORMATS)) {
+       if (!in_array($this->format, Shopware_Plugins_Backend_Lengow_Components_LengowFeed::$AVAILABLE_FORMATS)) {
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log.export.error_illegal_export_format')
                 );
@@ -131,7 +171,7 @@ class LengowExport
     }
 
     /**
-     * Get default values if params has not been set
+     * Get values from shop config if params have not been set
      */
     private function loadDefaultConfig()
     {
@@ -147,97 +187,80 @@ class LengowExport
     }
 
     /**
-     * @throws Exception
-     * @throws \Doctrine\ORM\ORMException
-     */
+     * Export process
+     * Get products to export from the params and create the feed
+     *
+    */
     public function exec()
     {
-        $shop = Shopware()->Models()->getReference('Shopware\Models\Shop\Shop', $this->shop->getId());
+        $products = $this->exportIds();
 
-        // If the shop exists
-        if ($shop) {
+        if ($this->mode != 'size') {
 
-            $products = $this->exportIds();
+            /*LengowMain::log('Export', LengowMain::setLogMessage('log.export.start'), $this->log_output);
+            LengowMain::log(
+                'Export',
+                LengowMain::setLogMessage('log.export.start_for_shop', array(
+                    'name_shop' => $this->shop->getName(),
+                    'id_shop'   => $this->shop->getId()
+                )),
+                $this->log_output
+            );*/
 
-            if ($this->mode != 'size') {
+            $this->feed = new Shopware_Plugins_Backend_Lengow_Components_LengowFeed(
+                $this->stream,
+                $this->format,
+                $this->shop->getName()
+            );
 
-                /*LengowMain::log('Export', LengowMain::setLogMessage('log.export.start'), $this->log_output);
-                LengowMain::log(
-                    'Export',
-                    LengowMain::setLogMessage('log.export.start_for_shop', array(
-                        'name_shop' => $this->shop->getName(),
-                        'id_shop'   => $this->shop->getId()
-                    )),
-                    $this->log_output
-                );*/
+            $header = array_keys(self::$DEFAULT_FIELDS);
+            $this->feed->write('header', $header);
 
-                $this->feed = new Shopware_Plugins_Backend_Lengow_Components_LengowFeed(
-                    $this->stream,
-                    $this->format,
-                    $this->shop->getName()
+            /*LengowMain::log(
+                'Export',
+                LengowMain::setLogMessage('log.export.nb_product_found', array("nb_product" => count($products))),
+                $this->log_output
+            );*/
+
+            foreach ($products as $product) {
+                $details = Shopware()->Models()->getReference(
+                    'Shopware\Models\Article\Detail',
+                    $product['detailId']
                 );
 
-                $header = array_keys(self::$DEFAULT_FIELDS);
-                $this->feed->write('header', $header);
-
-                $numberOfProducts = 0;
-
-                /*LengowMain::log(
-                    'Export',
-                    LengowMain::setLogMessage('log.export.nb_product_found', array("nb_product" => count($products))),
-                    $this->log_output
-                );*/
-
-                foreach ($products as $product) {
-                    $details = Shopware()->Models()->getReference(
-                        'Shopware\Models\Article\Detail',
-                        $product['detailId']
-                    );
-
-                    $lengowProduct = new Shopware_Plugins_Backend_Lengow_Components_Product(
-                        $details,
-                        $this->shop
-                    );
-                    $data = $this->getFields($lengowProduct);
-                    $this->feed->write('body', $data, false);
-                }
-
-                $this->feed->write('footer');
-
-                /*LengowMain::log(
-                    'Export',
-                    LengowMain::setLogMessage('log.export.end'),
-                    $this->log_output
-                );*/
-            } else {
-                return count($products);
+                $lengowProduct = new Shopware_Plugins_Backend_Lengow_Components_LengowProduct(
+                    $details,
+                    $this->shop
+                );
+                $data = $this->getFields($lengowProduct);
+                $this->feed->write('body', $data, false);
             }
+
+            $this->feed->write('footer');
+
+            /*LengowMain::log(
+                'Export',
+                LengowMain::setLogMessage('log.export.end'),
+                $this->log_output
+            );*/
+        } else {
+            echo count($products);
         }
     }
 
-    private function export($products, $fields)
-    {
-
-        foreach ($products as $p) {
-            $article = Shopware()->Models()->getReference(
-                'Shopware\Models\Article\Details',
-                $p['articleId']
-            );
-
-            $lengowProduct = new Shopware_Plugins_Backend_Lengow_Components_Product(
-                $article,
-                $shop
-            );
-            $data = $this->getFields($lengowProduct);
-
-            $this->feed->write('body', $data, false);
-        }
-    }
-
+    /**
+     * Build the query from the params
+     *
+     * @return array List of ids to export
+    */
     private function exportIds()
     {
+        $selection = array(
+            'details.id AS detailId'
+        );
+
         $builder = Shopware()->Models()->createQueryBuilder();
-        $builder->select(array('articles.id AS articleId', 'details.id AS detailId'))
+        $builder->select($selection)
             ->from('Shopware\Models\Shop\Shop', 'shop')
             ->leftJoin('shop.category', 'categories')
             ->leftJoin('categories.allArticles', 'articles')
@@ -246,19 +269,26 @@ class LengowExport
             ->where('shop.id = :shopId')
             ->setParameter('shopId', $this->shop->getId());
 
-        $condition = '(';
-        $idx = 0;
-        foreach ($this->productIds as $productId) {
-            $condition.= ' articles.id = ' . $productId;
-            if ($idx < count($this->productIds)) {
-                $condition.= ' OR ';
-            }
-            $idx++;
-        }
+        // Product ids selection
+        if (count($this->productIds) > 0) {
+            $condition = '(';
+            $idx = 0;
 
-        if ($condition != '(') {
+            foreach ($this->productIds as $productId) {
+                $condition.= 'articles.id = ' . $productId;
+                if ($idx < (count($this->productIds) - 1)) {
+                    $condition.= ' OR ';
+                }
+                $idx++;
+            }
+
             $condition.= ')';
             $builder->andWhere($condition);
+        }
+
+        // Export disabled product
+        if (!$this->exportDisabledProduct) {
+            $builder->andWhere('details.active = 1');
         }
 
         // Export only Lengow products
@@ -293,33 +323,25 @@ class LengowExport
     }
 
     /**
-     * Make the export for a product with current format
+     * Get default fields and attribute values for a given product
      *
-     * @param object $lengow_product The product to export
+     * @param object $lengowProduct The product to export
      * @return array Product data
      */
-    private function getFields($lengow_product = null)
+    private function getFields($lengowProduct = null)
     {
         $array_product = array();
         // Default fields
         foreach (self::$DEFAULT_FIELDS as $key => $field) {
-            if ($lengow_product->getData('sku') == 'SW10170') {
-                var_dump($lengow_product->getData($field));
-            }
-            $array_product[$field] = $lengow_product->getData($field);
+            $array_product[$field] = $lengowProduct->getData($field);
         }
 
         // Product attributes
-        foreach ($lengow_product->getAttributes() as $attribute) {
+        foreach ($lengowProduct->getAttributes() as $attribute) {
             // Make sure to replace whitespaces for custom attributes
-            $name = $attribute['name'];
+            $name = Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanData($attribute['name']);
             $array_product[$name] = $attribute['value'];
         }
         return $array_product;
-    }
-
-    public function getFileName()
-    {
-        return $this->feed->getFilename();
     }
 }
