@@ -1,3 +1,4 @@
+//{namespace name="backend/lengow/view/export"}
 Ext.define('Shopware.apps.Lengow.view.export.CategoryTree', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.category-tree',
@@ -13,7 +14,7 @@ Ext.define('Shopware.apps.Lengow.view.export.CategoryTree', {
         me.items = me.getPanels();
 
         me.addEvents(
-                'filterByCategory'
+            'filterByCategory'
         );
 
         me.callParent(arguments);
@@ -123,12 +124,20 @@ Ext.define('Shopware.apps.Lengow.view.export.CategoryTree', {
                 itemclick: {
                     fn: function (view, record) {
                         var me = this,
-                                showVariants,
-                                categoryId = record.get('id') === 'root' ? 0 : record.get('id');
+                            store =  me.store;
+                        console.log(record.get('id'));
 
-                        showVariants = me.up().down('checkbox').getValue();
+                        if (record.get('id') === 'root') {
+                            store.getProxy().extraParams.categoryId = null;
+                        } else {
+                            store.getProxy().extraParams.categoryId = record.get('id');
+                        }
 
-                        me.fireEvent('filterByCategory', categoryId, showVariants);
+                        //scroll the store to first page
+                        store.currentPage = 1;
+                        store.load();
+
+                        //me.fireEvent('filterByCategory', categoryId, showVariants);
                     }
                 },
                 scope: me

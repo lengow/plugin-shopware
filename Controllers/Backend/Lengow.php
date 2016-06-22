@@ -78,7 +78,6 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
             $builder->andWhere('attributes.lengowLengowActive = 1');
         }
 
-
         // Active product only
         if ($filterBy == 'activeProduct') {
             $builder->andWhere('articles.active = 1');
@@ -88,10 +87,17 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
             $builder->leftJoin('articles.allCategories', 'allCategories')
                 ->andWhere('allCategories.id IS NULL');
         } elseif (!empty($categoryId) && $categoryId !== 'NaN') {
+            $category = Shopware()->Models()->getReference(
+                    'Shopware\Models\Category\Category',
+                    $categoryId
+            );
+
+            // Construct where clause with selected category children 
+            $where = $this->getAllCategoriesClause($category);
+
             $builder->leftJoin('articles.categories', 'categories')
-                ->leftJoin('articles.allCategories', 'allCategories')
-                ->andWhere('categories.id = :categoryId')
-                ->setParameter('categoryId', $categoryId);
+                ->innerJoin('articles.allCategories', 'allCategories')
+                ->andWhere($where);
         }
 
         // Make sure that whe don't get a cold here
@@ -151,75 +157,29 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
         ));
     }
 
+    /**
+     * Generate where clause used to list articles from a selected category
+     * @param $selectedCategory Shopware\Models\Category\Category List of children of the selected category
+     * @return string Exclusive clause which contains all sub-categories ids
+     */
+    private function getAllCategoriesClause($selectedCategory)
+    {
+        $children = $selectedCategory->getChildren();
+        $where = 'categories.id = ' . $selectedCategory->getId();
+
+        foreach ($children as $child) {
+            if ($child->isLeaf()) {
+                $where.= ' OR categories.id = ' . $child->getId();
+            } else {
+                $where.= ' OR ' . $this->getAllCategoriesClause($child);
+            }
+        }
+
+        return $where;
+    }
+
     public function downloadLogAction($fileName = null)
     {
         Shopware_Plugins_Backend_Lengow_Components_LengowLog::download($fileName);
-    }
-
-    public function getAccountsAction()
-    {
-        /* @var \Shopware\Models\Shop\Repository $repository */
-        $repository = Shopware()->Models()->getRepository('Shopware\Models\Shop\Shop');
-        if (method_exists($repository, 'getActiveShops')) {
-            $result = $repository->getActiveShops(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
-        } else {
-            // SW 4.0 does not have the `getActiveShops` method, so we fall back
-            // on manually building the query.
-            $result = $repository->createQueryBuilder('shop')
-                ->where('shop.active = 1')
-                ->getQuery()
-                ->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
-        }
-        $helper = new Shopware_Plugins_Frontend_NostoTagging_Components_Account();
-        $identity = Shopware()->Auth()->getIdentity();
-        /*$setting = Shopware()
-            ->Models()
-            ->getRepository('\Shopware\CustomModels\Nosto\Setting\Setting')
-            ->findOneBy(array('name' => 'oauthParams'));*/
-        if (!is_null($setting)) {
-            $oauthParams = json_decode($setting->getValue(), true);
-            Shopware()->Models()->remove($setting);
-            Shopware()->Models()->flush();
-        }
-
-        $data = array();
-        $i = 0;
-        foreach ($result as $row) {
-            $i++;
-            $params = array();
-            $shop = $repository->getActiveById($row['id']);
-            if (is_null($shop)) {
-                continue;
-            }
-            $shop->registerResources(Shopware()->Bootstrap());
-            /*$account = $helper->findAccount($shop);
-            if (isset($oauthParams[$shop->getId()])) {
-                $params = $oauthParams[$shop->getId()];
-            }*/
-            $accountData = array(
-                'url' => '',//$helper->buildAccountIframeUrl($shop, $identity->locale, $account, $identity, $params),
-                'shopId' => $i,
-                'shopName' => "Shop" + $i,
-            );
-            if (!is_null($account)) {
-                $accountData['id'] = $i++;
-                $accountData['name'] = $account->getName();
-            }
-            $data[] = $accountData;
-        }
-
-        $this->View()->assign(array('success' => true, 'data' => $data, 'total' => count($data)));
-    }
-
-    public function loadSettingsAction()
-    {
-        $this->View()->assign(
-            array(
-                'success' => true,
-                'data' => array(
-                    'postMessageOrigin' => '(https:\/\/shopware-([a-z0-9]+)\.hub\.nosto\.com)|(https:\/\/my\.nosto\.com)'
-                )
-            )
-        );
     }
 }

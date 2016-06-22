@@ -196,16 +196,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         $products = $this->exportIds();
 
         if ($this->mode != 'size') {
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                'Export', 
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log.export.start'), 
+                $this->logOutput
+            );
 
-            /*LengowMain::log('Export', LengowMain::setLogMessage('log.export.start'), $this->log_output);
-            LengowMain::log(
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                 'Export',
-                LengowMain::setLogMessage('log.export.start_for_shop', array(
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log.export.start_for_shop', array(
                     'name_shop' => $this->shop->getName(),
                     'id_shop'   => $this->shop->getId()
                 )),
-                $this->log_output
-            );*/
+                $this->logOutput
+            );
 
             $this->feed = new Shopware_Plugins_Backend_Lengow_Components_LengowFeed(
                 $this->stream,
@@ -216,13 +220,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $header = array_keys(self::$DEFAULT_FIELDS);
             $this->feed->write('header', $header);
 
-            /*LengowMain::log(
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                 'Export',
-                LengowMain::setLogMessage('log.export.nb_product_found', array("nb_product" => count($products))),
-                $this->log_output
-            );*/
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log.export.nb_product_found', 
+                    array("nb_product" => count($products))
+                ),
+                $this->logOutput
+            );
+
+            $product_count = 0;
+            $isFirst = true; // Used for json format
 
             foreach ($products as $product) {
+                $product_count++;
                 $details = Shopware()->Models()->getReference(
                     'Shopware\Models\Article\Detail',
                     $product['detailId']
@@ -232,17 +243,30 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                     $details,
                     $this->shop
                 );
+
+                // Log each time 10 products are exported
+                if ($product_count > 0 && $product_count % 10 == 0) {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                        'Export',
+                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log.export.count_product', array(
+                            'product_count' => $product_count
+                        )),
+                        $this->logOutput
+                    );
+                }
+
                 $data = $this->getFields($lengowProduct);
-                $this->feed->write('body', $data, false);
+                $this->feed->write('body', $data, $isFirst);
+                $isFirst = false;
             }
 
             $this->feed->write('footer');
 
-            /*LengowMain::log(
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                 'Export',
-                LengowMain::setLogMessage('log.export.end'),
-                $this->log_output
-            );*/
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log.export.end'),
+                $this->logOutput
+            );
         } else {
             echo count($products);
         }

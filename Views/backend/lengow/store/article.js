@@ -7,6 +7,9 @@ Ext.define('Shopware.apps.Lengow.store.Article', {
     // List articles when the window is displayed
     autoLoad: true,
 
+     // Define how much rows loaded with one request
+    pageSize: 40,
+
     configure: function() {
         return { controller: 'Lengow' };
     },

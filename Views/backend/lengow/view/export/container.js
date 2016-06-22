@@ -11,7 +11,9 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
      */
     configure: function() {
         return {
-            controller: 'LengowExport'
+            controller: 'LengowExport',
+            category_tree: 'Shopware.apps.Lengow.view.export.CategoryTree',
+            grid: 'Shopware.apps.Lengow.view.export.Grid'
         };
     },
 
@@ -25,6 +27,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
             {
                 xtype: 'category-tree',
                 region: 'west',
+                store: me.store,
                 width: 300,
                 layout: 'fit'
             },
@@ -44,6 +47,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
         var grid = Ext.create('Shopware.apps.Lengow.view.export.Grid', {
             region: 'center',
             margins: '2 0 2 0',
+            store: me.store,
             layout: 'fit',
             bodyStyle: 'background:#fff;',
             listeners: {

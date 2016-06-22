@@ -242,6 +242,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     private function createConfig()
     {
+        $selectOptions = array(
+                array(1, 'Yes'),
+                array(0, 'No')
+        );
+
         $mainForm = $this->Form();
 
         // Main settings form
@@ -252,11 +257,13 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $mainSettingForm->setParent($mainForm);
 
         $mainSettingForm->setElement(
-            'checkbox',
+            'select',
             'lengowDebugMode',
             array(
                 'label' => 'Enable shop',
-                'value' => false,
+                'editable' => false,
+                'store' => $selectOptions,
+                'value' => 0,
                 'description' => 'Enable this shop for Lengow',
                 'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
             )
@@ -306,10 +313,13 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $importForm->setParent($mainForm);
 
         $importForm->setElement(
-            'checkbox',
+            'select',
             'lengowDecreaseStock',
             array(
                 'label'     => 'I want to decrease my stock',
+                'editable' => false,
+                'store'     => $selectOptions,
+                'value'     => 0,
                 'required'  => false,
                 'description' => 'Use this option to take into account your marketplaces orders on your stock in your Shopware backoffice',
                 'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
@@ -323,45 +333,53 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $exportForm->setParent($mainForm);
 
         $exportForm->setElement(
-            'boolean',
+            'select',
             'lengowExportVariation',
             array(
                 'label' => 'Export variant products',
                 'required' => true,
-                'value' => true,
+                'editable' => false,
+                'store' => $selectOptions,
+                'value' => 1,
                 'description' => 'Export variant products',
                 'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
             )
         );
         $exportForm->setElement(
-            'checkbox',
+            'select',
             'lengowExportOutOfStock',
             array(
                 'label' => 'Export out of stock products',
                 'required' => true,
-                'value' => false,
+                'editable' => false,
+                'store' => $selectOptions,
+                'value' => 0,
                 'description' => 'Export out of stock products',
                 'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
             )
         );
         $exportForm->setElement(
-            'checkbox',
+            'select',
             'lengowExportDisabledProduct',
             array(
                 'label' => 'Export inactive products',
                 'required' => true,
-                'value' => false,
+                'editable' => false,
+                'store' => $selectOptions,
+                'value' => 0,
                 'description' => 'Export disabled products',
                 'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
             )
         );
         $exportForm->setElement(
-            'checkbox',
+            'select',
             'lengowExportLengowSelection',
             array(
                 'label' => 'Export Lengow products',
                 'required' => true,
-                'value' => false,
+                'editable' => false,
+                'store' => $selectOptions,
+                'value' => 0,
                 'description' => 'Export products that you have selected in Lengow',
                 'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
             )

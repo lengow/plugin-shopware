@@ -50,10 +50,12 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
                 {
                     title: '{s name="main.window.tab.export"}Export products{/s}',
                     xtype: 'product-export-container',
+                    store: me.store,
                     layout: 'border'
                 }
             ]
         });
+
         return me.tabPanel;
     }
 });

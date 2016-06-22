@@ -6,9 +6,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
     configure: function() {
         var me = this;
-        me.store = Ext.create('store.article-store');
-
-        me.addCustomFields();
 
         return {
             addButton: false,
@@ -18,6 +15,8 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
     initComponent: function() {
         var me = this;
+
+        me.addCustomFields();
 
         me.callParent(arguments);
     },
@@ -29,13 +28,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         var me = this;
         var articleModel = me.store.model,
             fields = articleModel.prototype.fields.getRange();
-
-        fields.push({
-            name: 'activeLengow',
-            type: 'boolean',
-            sortable: false,
-            active: { width: 60, flex: 0 }
-        });
 
         articleModel.setFields(fields);
     }

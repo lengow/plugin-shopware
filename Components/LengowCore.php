@@ -73,13 +73,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     }
 
     /**
-     *
-     */
-    public static function getSettings()
-    {
-    }
-
-    /**
      * Check if current IP is authorized.
      *
      * @return boolean true if user is authorized

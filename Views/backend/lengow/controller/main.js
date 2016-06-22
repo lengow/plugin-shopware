@@ -5,7 +5,9 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
     init: function() {
         var me = this;
 
-        me.mainWindow = me.getView('main.Window').create({ }).show();
+        me.mainWindow = me.getView('main.Window').create({
+            store: Ext.create('Shopware.apps.Lengow.store.Article').load()
+        }).show();
         me.mainWindow.maximize();
         me.callParent(arguments);
     }

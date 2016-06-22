@@ -3,6 +3,16 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowMain
 {
 
+    /**
+     * @var LengowLog Lengow log file instance
+     */
+    public static $log;
+
+    /**
+     * @var integer    life of log files in days
+     */
+    public static $LOG_LIFE = 20;
+
 	/**
 	 * Get Lengow folder path
 	 *
@@ -11,6 +21,55 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static function getLengowFolder()
     {
         return Shopware()->Plugins()->Backend()->Lengow()->Path();
+    }
+
+    /**
+     * Get log Instance
+     *
+     * @return LengowLog
+     */
+    public static function getLogInstance()
+    {
+        if (is_null(self::$log)) {
+            self::$log = new Shopware_Plugins_Backend_Lengow_Components_LengowLog();
+        }
+        return self::$log;
+    }
+
+    /**
+     * Writes log
+     *
+     * @param string $category Category log
+     * @param string $txt log message
+     * @param boolean $force_output output on screen
+     * @param string $marketplace_sku lengow marketplace sku
+     */
+    public static function log($category, $txt, $force_output = false, $marketplace_sku = null)
+    {
+        $log = self::getLogInstance();
+        $log->write($category, $txt, $force_output, $marketplace_sku);
+    }
+
+    /**
+     * Set message with params for translation
+     *
+     * @param string $key
+     * @param array  $params
+     *
+     * @return string
+     */
+    public static function setLogMessage($key, $params = null)
+    {
+        if (is_null($params) || (is_array($params) && count($params) == 0)) {
+            return $key;
+        }
+        $all_params = array();
+        foreach ($params as $param => $value) {
+            $value = str_replace(array('|', '=='), array('', ''), $value);
+            $all_params[] = $param.'=='.$value;
+        }
+        $message = $key.'['.join('|', $all_params).']';
+        return $message;
     }
 
     /**

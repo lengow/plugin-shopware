@@ -112,7 +112,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
     public function getPath()
     {
         $sep = DIRECTORY_SEPARATOR;
-        return Shopware()->Plugins()->Backend()->Lengow()->Path() . $sep . $this->folder_name . $sep . $this->file_name;
+        return Shopware()->Plugins()->Backend()->Lengow()->Path() . $this->folder_name . $sep . $this->file_name;
     }
 
     /**
@@ -123,7 +123,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
     public function getFolderPath()
     {
         $sep = DIRECTORY_SEPARATOR;
-        return Shopware()->Plugins()->Backend()->Lengow()->Path() . $sep . $this->folder_name;
+        return Shopware()->Plugins()->Backend()->Lengow()->Path() . $this->folder_name;
     }
 
     public function __destruct()
