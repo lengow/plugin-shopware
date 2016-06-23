@@ -52,7 +52,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
             bodyStyle: 'background:#fff;',
             listeners: {
                 itemclick: function(dv, record, item, index, e) {
-                    console.log("show");
                 }
             }
         });

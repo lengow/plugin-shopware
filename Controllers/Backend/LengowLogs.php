@@ -8,21 +8,19 @@ use Doctrine\ORM\Query\QueryExpressionVisitor;
 
 class Shopware_Controllers_Backend_LengowLogs extends Shopware_Controllers_Backend_ExtJs
 {
+	private $downloadAllLabel = 'All';
 	public function listAction()
 	{
-		$logFiles = Shopware_Plugins_Backend_Lengow_Components_LengowLog::getFiles();
+		$files = Shopware_Plugins_Backend_Lengow_Components_LengowLog::getFiles();
 
 		$result = array(
-			array(	'path'	=> '',
-					'name'	=> 'All'
+			array(	'id'	=> '',
+					'name'	=> $this->downloadAllLabel
 				)
 		);
 
-		foreach ($logFiles as $logFile) {
-			$result[] = array(
-					'path'	=> $logFile->getPath(),
-					'name'	=> $logFile->file_name
-				);
+		foreach ($files as $logFile) {
+			$result[] = array('name' => $logFile->file_name);
 		}
 
         $this->View()->assign(array(
@@ -32,4 +30,9 @@ class Shopware_Controllers_Backend_LengowLogs extends Shopware_Controllers_Backe
         ));
 	}
 
+	public function downloadAction()
+	{
+		$fileName = $this->Request()->getParam('fileName');
+		Shopware_Plugins_Backend_Lengow_Components_LengowLog::download($fileName);
+	}
 }

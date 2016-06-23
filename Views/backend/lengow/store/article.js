@@ -4,9 +4,6 @@ Ext.define('Shopware.apps.Lengow.store.Article', {
     alias:  'store.article-store',
     model: 'Shopware.apps.Lengow.model.Article',
 
-    // List articles when the window is displayed
-    autoLoad: true,
-
      // Define how much rows loaded with one request
     pageSize: 40,
 

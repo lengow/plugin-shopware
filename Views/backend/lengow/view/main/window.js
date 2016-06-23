@@ -47,7 +47,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
                 // Log tab
                 {
                     title: '{s name="main.window.tab.log"}Lengow logs{/s}',
-                    xtype: 'lengow-logs-panel',
+                    xtype: 'lengow-logs-container',
                     store: me.logStore,
                     layout: 'border'
                 }

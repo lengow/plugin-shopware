@@ -56,38 +56,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                         });
                     }
                 }),
-                // Log button
-                Ext.create('Ext.button.Button', {
-                    text: 'Download Log',
-                    layout: 'fit',
-                    region: 'top',
-                    renderTo: Ext.getBody(),
-                    handler: function() {
-                        var config = config || {};
-                        var url = 'Lengow?action=downloadLog',
-                            method = config.method || 'POST',// Either GET or POST. Default is POST.
-                            params = config.params || {};
-
-                        // Create form panel. It contains a basic form that we need for the file download.
-                        var form = Ext.create('Ext.form.Panel', {
-                            standardSubmit: true,
-                            url: url,
-                            method: method
-                        });
-
-                        // Call the submit to begin the file download.
-                        form.submit({
-                            target: '_blank', // Avoids leaving the page.
-                            params: params
-                        });
-
-                        // Clean-up the form after 100 milliseconds.
-                        // Once the submit is called, the browser does not care anymore with the form object.
-                        Ext.defer(function(){
-                            form.close();
-                        }, 100);
-                    }
-                }),
                 me.createTree()
             ]
         });

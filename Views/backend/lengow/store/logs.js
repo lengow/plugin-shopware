@@ -3,15 +3,9 @@
  */
 
 Ext.define('Shopware.apps.Lengow.store.Logs', {
-    extend:'Ext.data.TreeStore',
+    extend:'Ext.data.Store',
     alias: 'store.lengow-logs',
     model: 'Shopware.apps.Lengow.model.Logs',
-
-    id: 'lengow-logs',
-
-    defaultRootId: 1,
-    autoLoad: true, 
-    autoSync: true,
 
     configure: function() {
         return { controller: 'LengowLogs' };

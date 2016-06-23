@@ -42,8 +42,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
         $this->folder_name = $folder_name;
 
         $this->instance = self::getRessource($this->getPath(), $mode);
-        if (!is_resource($this->instance)) {
-        }
     }
 
     /**

@@ -4,6 +4,5 @@
 
 Ext.define('Shopware.apps.Lengow.model.Logs', {
     extend: 'Ext.data.Model',
-    fields: ['id', 'login', 'name', 'leaf']
+    fields: ['name']
 });
-

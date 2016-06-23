@@ -4,64 +4,74 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
 
     layout: 'fit',
 
-    title: '{s name=categories}Logs{/s}',
-
     initComponent: function () {
         var me = this;
 
-        me.items = me.getPanels();
+        me.store.load();
 
-        me.callParent(arguments);
-    },
-
-    /**
-     * Returns the tree panel with and a toolbar
-     */
-    getPanels: function () {
-        var me = this;
-
-        me.treePanel = Ext.create('Ext.panel.Panel', {
+        me.items = Ext.create('Ext.panel.Panel', {
             border: false,
-            width: 300,
             layout: {
                 type: 'vbox',
                 pack: 'start',
                 align: 'stretch'
             },
             items: [
-                me.createTree()
+                me.getComboBox(),
+                me.getDownloadButton()
             ]
         });
 
-        return [me.treePanel];
+        me.callParent(arguments);
     },
 
-    /**
-     * Creates the category tree
-     *
-     * @return [Ext.tree.Panel]
-     */
-    createTree: function () {
-        var me = this,
-                tree;
+    getComboBox: function () {
+        var me = this;
 
-        me.categoryStore = Ext.create('Shopware.apps.Lengow.store.Logs');
+        me.comboBox = Ext.create('Ext.form.field.ComboBox', {
+            id: 'selectedName',
+            fieldLabel: 'Select a log',
+            displayField: 'name',
+            layout: 'fit',
+            store: me.store,
+            queryMode: 'local'
+        });
 
-        tree = Ext.create('Ext.tree.Panel', {
-            border: true,
-            rootVisible: true,
-            expanded: true,
-            useArrows: false,
-            flex: 1,
-            store: me.categoryStore,
-            root: {
-                text: '{s name=categories}Categories{/s}',
-                expanded: true
+        return me.comboBox;
+    },
+
+    getDownloadButton: function () {
+        var me = this;
+
+        var downloadButton = Ext.create('Ext.button.Button', {
+            text: 'Download log',
+            handler: function(e) {
+                var selectedFile = Ext.getCmp('selectedName').getRawValue();
+                var url = '{url controller="LengowLogs" action="download"}';
+
+                // Create form panel. It contains a basic form that we need for the file download.
+                var form = Ext.create('Ext.form.Panel', {
+                    standardSubmit: true,
+                    url: url,
+                    method: 'POST'
+                });
+
+                // Call the submit to begin the file download.
+                form.submit({
+                    target: '_blank', // Avoids leaving the page.
+                    params: {
+                        fileName: selectedFile
+                    }
+                });
+
+                // Clean-up the form after 100 milliseconds.
+                // Once the submit is called, the browser does not care anymore with the form object.
+                Ext.defer(function(){
+                    form.close();
+                }, 100);
             }
         });
 
-        me.categoryStore.load();
-
-        return tree;
+        return downloadButton;
     }
 });
