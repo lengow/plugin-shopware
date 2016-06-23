@@ -1,8 +1,6 @@
-//{namespace name="backend/lengow/view/export"}
-Ext.define('Shopware.apps.Lengow.view.export.CategoryTree', {
+Ext.define('Shopware.apps.Lengow.view.export.Panel', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.category-tree',
-
+    alias: 'widget.lengow-category-panel',
 
     layout: 'fit',
 
@@ -125,7 +123,6 @@ Ext.define('Shopware.apps.Lengow.view.export.CategoryTree', {
                     fn: function (view, record) {
                         var me = this,
                             store =  me.store;
-                        console.log(record.get('id'));
 
                         if (record.get('id') === 'root') {
                             store.getProxy().extraParams.categoryId = null;
@@ -136,8 +133,6 @@ Ext.define('Shopware.apps.Lengow.view.export.CategoryTree', {
                         //scroll the store to first page
                         store.currentPage = 1;
                         store.load();
-
-                        //me.fireEvent('filterByCategory', categoryId, showVariants);
                     }
                 },
                 scope: me

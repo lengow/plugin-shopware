@@ -49,8 +49,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'version' => $this->getVersion(),
             'label' => $this->getLabel(),
             'source' => $this->getSource(),
-            'author' => 'Lengow',
-            'supplier' => 'Lengow',
+            'author' => 'Lengow SAS',
+            'supplier' => 'Lengow SAS',
             'copyright' => 'Copyright (c) 2016, Lengow',
             'description' => '',
             'support' => 'support.lengow.zendesk@lengow.com',
@@ -63,6 +63,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function install()
     {
+        $this->log('Install', 'log.install.start');
+
         if (!$this->assertMinimumVersion('4.0.0')) {
             throw new \RuntimeException('At least Shopware 4.0.0 is required');
         }
@@ -75,11 +77,17 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'parent' => $this->Menu()->findOneBy('label', 'Einstellungen'),
 			'class' => 'lengow--icon'
         ));
+
+        $this->log('Install', 'log.install.menu');
+
         $this->createConfig();
         $this->updateSchema();
         $this->registerMyEvents();
         $this->Plugin()->setActive(true);
-        return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
+
+        $this->log('Install', 'log.install.complete');
+
+        return array('success' => true, 'invalidateCache' => array('backend'));
     }
 
     /**
@@ -104,6 +112,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function uninstall()
     {
+        $this->log('Install', 'log.uninstall.attribute', array('name' => 's_articles_attributes', 'value' => 'lengowActive'));
+
         $this->Application()->Models()->removeAttribute(
             's_articles_attributes',
             'lengow',
@@ -114,6 +124,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             's_articles_attributes'
         ));
 
+        $this->log('Install', 'log.uninstall.complete');
+
         return true;
     }
 
@@ -123,6 +135,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     protected function updateSchema()
     {
+        $this->log('Install', 'log.install.attribute', array('name' => 's_articles_attributes', 'value' => 'lengowActive'));
+
         $this->Application()->Models()->addAttribute(
             's_articles_attributes',
             'lengow',
@@ -131,6 +145,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             true,
             '0'
         );
+
         $this->getEntityManager()->generateAttributeModels(array(
             's_articles_attributes'
         ));
@@ -195,16 +210,29 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     private function registerMyEvents()
     {
+        // Main controller
         $this->subscribeEvent(
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_Lengow',
-            'onGetControllerPath'
+            'onGetMainControllerPath'
         );
 
+        // Export controller
+        $this->subscribeEvent(
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowExport',
+            'onGetExportControllerPath'
+        );
+
+        // Iframe
         $this->subscribeEvent(
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_Iframe',
-            'onGetControllerIframePath'
+            'onGetSubscribeControllerPath'
         );
 
+        // Log controller
+        $this->subscribeEvent(
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowLogs',
+            'onGetLogControllerPath'
+        );
 
         $this->subscribeEvent(
             'Enlight_Controller_Front_DispatchLoopStartup',
@@ -222,16 +250,34 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      * Returns the path to Lengow main controller
      * @return string
      */
-    public function onGetControllerPath()
+    public function onGetMainControllerPath()
     {
         return $this->Path(). 'Controllers/Backend/Lengow.php';
+    }
+
+    /**
+     * Returns the path to Lengow export controller
+     * @return string
+     */
+    public function onGetExportControllerPath()
+    {
+        return $this->Path(). 'Controllers/Backend/LengowExport.php';
+    }
+
+    /**
+     * Returns the path to Lengow log controller
+     * @return string
+     */
+    public function onGetLogControllerPath()
+    {
+        return $this->Path(). 'Controllers/Backend/LengowLogs.php';
     }
 
     /**
      * Returns the path to the login iframe controller
      * @return string
      */
-    public function onGetControllerIframePath()
+    public function onGetSubscribeControllerPath()
     {
         return $this->Path(). 'Controllers/Backend/Iframe.php';
     }
@@ -242,6 +288,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     private function createConfig()
     {
+        // Workaround for checkbox form
+        // Avoid having 'Inherited' option
         $selectOptions = array(
                 array(1, 'Yes'),
                 array(0, 'No')
@@ -306,6 +354,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             )
         );
 
+        $this->log('Install', 'log.install.settings', array('name' => $mainSettingForm->getName()));
+
         // Import form
         $importForm = new \Shopware\Models\Config\Form;
         $importForm->setName('lengowImportSettings');
@@ -325,6 +375,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
             )
         );
+
+        $this->log('Install', 'log.install.settings', array('name' => $importForm->getName()));
 
         // Export form
         $exportForm = new \Shopware\Models\Config\Form;
@@ -385,6 +437,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             )
         );
 
+        $this->log('Install', 'log.install.settings', array('name' => $exportForm->getName()));
+
         $forms = array(
             $mainSettingForm,
             $exportForm,
@@ -392,5 +446,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         );
 
         $mainForm->setChildren($forms);
+
+        $this->log('Install', 'log.install.form', array('name' => $this->getName()));
+    }
+
+    protected function log($category, $key, $params = array())
+    {
+        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+            $category,
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage($key, $params)
+        );
     }
 }

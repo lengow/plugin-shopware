@@ -1,8 +1,6 @@
 /**
  * Created by nicolasmaugendre on 26/05/16.
  */
-
-//{namespace name=backend/view/translation}
 Ext.define('Shopware.apps.Lengow.view.main.Window', {
     extend: 'Enlight.app.Window',
 
@@ -28,13 +26,6 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
         me.callParent(arguments);
     },
 
-
-    configure: function() {
-        return {
-            exportGrid: 'Shopware.apps.Lengow.view.export.Container'
-        };
-    },
-
     /**
      * Create Lengow's tabs
      * @returns { Ext.tab.Panel } List of tabs used by the module
@@ -49,8 +40,15 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
                 // Export tab
                 {
                     title: '{s name="main.window.tab.export"}Export products{/s}',
-                    xtype: 'product-export-container',
-                    store: me.store,
+                    xtype: 'lengow-export-container',
+                    store: me.exportStore,
+                    layout: 'border'
+                },
+                // Log tab
+                {
+                    title: '{s name="main.window.tab.log"}Lengow logs{/s}',
+                    xtype: 'lengow-logs-panel',
+                    store: me.logStore,
                     layout: 'border'
                 }
             ]

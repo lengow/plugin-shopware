@@ -10,8 +10,10 @@ Ext.define('Shopware.apps.Lengow.store.Article', {
      // Define how much rows loaded with one request
     pageSize: 40,
 
+    defaultRootId: 1,
+
     configure: function() {
-        return { controller: 'Lengow' };
+        return { controller: 'LengowExport' };
     },
 
     /**
@@ -21,7 +23,8 @@ Ext.define('Shopware.apps.Lengow.store.Article', {
     proxy: {
         type: 'ajax',
         api: {
-            read: '{url controller="Lengow" action="getList"}'
+            read: '{url controller="LengowExport" action="getList"}',
+            update:  '{url controller="LengowExport" action="update"}'
         },
         reader: {
             type: 'json',

@@ -122,8 +122,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 break;
             case 'variation':
                 $result = '';
-                foreach ($this->attributes as $variation) {
-                    $result.= $variation['name'] . ', ';
+                foreach ($this->attributes as $key => $variation) {
+                    $result.= $key . ', ';
                 }
                 return $result;
                 break;
@@ -160,7 +160,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 return $this->product->getKeywords();
                 break;
             default:
-                return '';
+                $result = '';
+                if (array_key_exists($name, $this->attributes)) {
+                    $result = $this->attributes[$name];
+                }
+                return $result;
                 break;
         }
     }
@@ -218,7 +222,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             ->where('articles.id = :productId')
             ->setParameter('productId', $this->details->getId());
 
-        $this->attributes = $builder->getQuery()->getArrayResult();
+        $result = $builder->getQuery()->getArrayResult();
+
+        foreach ($result as $options) {
+            $this->attributes[$options['name']] = $options['value'];
+        }
     }
 
     public function getAttributes()

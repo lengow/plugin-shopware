@@ -5,15 +5,19 @@ Ext.define('Shopware.apps.Lengow', {
     name:'Shopware.apps.Lengow',
 
     loadPath: '{url action=load}',
-    bulkLoad: true,
 
-    controllers: [ 'Main' ],
+    controllers: [
+        'Main',
+        'Export',
+        'Logs'
+    ],
 
     views: [
         'main.Window',
-        'export.CategoryTree',
+        'export.Panel',
         'export.Container',
-        'export.Grid'
+        'export.Grid',
+        'logs.Panel'
     ],
 
     models: [

@@ -1,4 +1,3 @@
-
 Ext.define('Shopware.apps.Lengow.controller.Main', {
     extend: 'Enlight.app.Controller',
 
@@ -6,8 +5,10 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
         var me = this;
 
         me.mainWindow = me.getView('main.Window').create({
-            store: Ext.create('Shopware.apps.Lengow.store.Article').load()
+            exportStore: Ext.create('Shopware.apps.Lengow.store.Article'),
+            logStore: Ext.create('Shopware.apps.Lengow.store.Logs')
         }).show();
+
         me.mainWindow.maximize();
         me.callParent(arguments);
     }

@@ -1,8 +1,6 @@
-
-
-Ext.define('Shopware.apps.Lengow.view.export.Grid', {
+Ext.define('Shopware.apps.Lengow.view.logs.Grid', {
     extend: 'Shopware.grid.Panel',
-    alias:  'widget.product-listing-grid',
+    alias:  'widget.lengow-log-grid',
 
     configure: function() {
         var me = this;
@@ -15,7 +13,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
     initComponent: function() {
         var me = this;
-
         me.callParent(arguments);
     }
 });
