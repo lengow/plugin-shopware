@@ -10,37 +10,25 @@ class Shopware_Controllers_Backend_LengowLogs extends Shopware_Controllers_Backe
 {
 	public function listAction()
 	{
+		$logFiles = Shopware_Plugins_Backend_Lengow_Components_LengowLog::getFiles();
+
 		$result = array(
-			array(
-				'id'	=> 1,
-				'allowDrag'	=> false,
-				'name'	=> 'oto',
-				'active'=> true,
-				'childrenCount'	=> 0,
-				'cls'	=> 'folder',
-				'leaf'	=> false,
-				'parentId'	=> 1,
-				'position'	=> 0,
-				'text'		=> 'test'
-			),
-			array(
-				'id'	=> 2,
-				'allowDrag'	=> false,
-				'name'	=> 'yrteyryry',
-				'active'=> true,
-				'childrenCount'	=> 0,
-				'cls'	=> 'folder',
-				'leaf'	=> false,
-				'parentId'	=> 1,
-				'position'	=> 0,
-				'text'		=> 'yretyreyry'
-			)
+			array(	'path'	=> '',
+					'name'	=> 'All'
+				)
 		);
+
+		foreach ($logFiles as $logFile) {
+			$result[] = array(
+					'path'	=> $logFile->getPath(),
+					'name'	=> $logFile->file_name
+				);
+		}
 
         $this->View()->assign(array(
             'success' => true,
             'data'    => $result,
-            'total'   => 1
+            'total'   => count($result)
         ));
 	}
 

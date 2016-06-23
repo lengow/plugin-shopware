@@ -60,7 +60,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             case 'quantity':
                 return $this->details->getInStock();
                 break;
-            case 'breadcrumb':
+            case 'category':
                 return $this->getBreadcrumb();
                 break;
             case 'status':
@@ -94,6 +94,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 $tax = $this->product->getTax()->getTax();
                 $priceInclTax = round($price*(100+$tax)/100, 2);
                 return number_format($priceInclTax, 2);
+                break;
+            case 'price_before_discount':
+                // TODO : return article default price
+                return '';
                 break;
             case 'discount_percent':
                 $productPrice = $this->details->getPrices()[0];
