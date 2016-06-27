@@ -32,6 +32,22 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                 align: 'stretch'
             },
             items: [
+                // List of available shops
+                Ext.create('Ext.form.field.ComboBox', {
+                    id: 'shopId',
+                    fieldLabel: 'Export shop',
+                    displayField: 'name',
+                    layout: 'fit',
+                    editable: false,
+                    store: Ext.create('Shopware.apps.Base.store.Shop').load(),
+                    listeners: {
+                        select: function() {
+                            Ext.getCmp('exportButton').enable();
+                        }
+                    }
+                }),
+                me.getExportButton(),
+                me.createTree(),
                 // Settings button 
                 Ext.create('Ext.button.Button', {
                     text: 'Configure Lengow',
@@ -55,8 +71,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                             name: 'Shopware.apps.Iframe'
                         });
                     }
-                }),
-                me.createTree()
+                })
             ]
         });
 
@@ -81,9 +96,10 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
             useArrows: false,
             layout: 'fit',
             flex: 1,
+            bodyStyle: 'background:#fff;',
             store: me.categoryStore,
             root: {
-                text: '{s name=categories}Categories{/s}',
+                text: '{s name=categories}Shops{/s}',
                 expanded: true
             },
             listeners: {
@@ -108,6 +124,20 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
         });
 
         return tree;
+    },
+
+    getExportButton: function() {
+        var me = this;
+        return Ext.create('Ext.button.Button', {
+            id: 'exportButton',
+            text: 'Export shop',
+            enabled: false,
+            disabled:true,
+            handler: function(e) {
+                var selectedShop = Ext.getCmp('shopId').getRawValue();
+                me.fireEvent('exportShop', selectedShop);
+            }
+        });
     }
 
 });

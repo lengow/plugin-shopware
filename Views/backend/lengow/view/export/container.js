@@ -11,9 +11,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
      */
     configure: function() {
         return {
-            controller: 'Main',
-            category_tree: 'Shopware.apps.Lengow.view.export.Panel',
-            grid: 'Shopware.apps.Lengow.view.export.Grid'
+            controller: 'Main'
         };
     },
 
@@ -31,7 +29,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
                 width: 300,
                 layout: 'fit'
             },
-            me.productListPanel()
+            me.productGrid()
         ];
 
         me.callParent(arguments);
@@ -41,19 +39,15 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
      * Constructs the list where articles are displayed
      * @returns [Ext.panel.Panel]
      */
-    productListPanel: function() {
+    productGrid: function() {
         var me = this;
 
         var grid = Ext.create('Shopware.apps.Lengow.view.export.Grid', {
+            id: 'exportGrid',
             region: 'center',
-            margins: '2 0 2 0',
             store: me.store,
             layout: 'fit',
-            bodyStyle: 'background:#fff;',
-            listeners: {
-                itemclick: function(dv, record, item, index, e) {
-                }
-            }
+            bodyStyle: 'background:#fff;'
         });
 
         return grid;

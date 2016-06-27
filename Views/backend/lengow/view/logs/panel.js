@@ -33,6 +33,7 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
             fieldLabel: 'Select a log',
             displayField: 'name',
             layout: 'fit',
+            editable: false,
             store: me.store,
             queryMode: 'local'
         });

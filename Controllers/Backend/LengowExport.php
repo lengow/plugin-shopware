@@ -21,7 +21,6 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $order        = $this->Request()->getParam('sort', null);
         $start        = $this->Request()->getParam('start', 0);
         $limit        = $this->Request()->getParam('limit', 20);
-        $variant      = $this->Request()->getParam('variant') == 'true' ? true : false;
 
         $filters = array();
         foreach ($filterParams as $singleFilter) {
@@ -68,37 +67,34 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                 ->setParameter('searchFilter', $searchFilter);
         }
 
-        // In stock products only
-        if ($filterBy == 'inStock') {
-            $builder->andWhere('details.inStock > 0');
-        }
+        // // In stock products only
+        // if ($filterBy == 'inStock') {
+        //     $builder->andWhere('details.inStock > 0');
+        // }
 
-        // Lengow selection
-        if ($filterBy == 'lengowProduct') {
-            $builder->andWhere('attributes.lengowLengowActive = 1');
-        }
+        // // Lengow selection
+        // if ($filterBy == 'lengowProduct') {
+        //     $builder->andWhere('attributes.lengowLengowActive = 1');
+        // }
 
-        // Active product only
-        if ($filterBy == 'activeProduct') {
-            $builder->andWhere('articles.active = 1');
-        }
+        // // Active product only
+        // if ($filterBy == 'activeProduct') {
+        //     $builder->andWhere('articles.active = 1');
+        // }
 
-        if ($filterBy == 'noCategory') {
-            $builder->leftJoin('articles.allCategories', 'allCategories')
-                ->andWhere('allCategories.id IS NULL');
-        } elseif (!empty($categoryId) && $categoryId !== 'NaN') {
-            $category = Shopware()->Models()->getReference(
-                    'Shopware\Models\Category\Category',
-                    $categoryId
-            );
+        // if (!empty($categoryId) && $categoryId !== 'NaN') {
+        //     $category = Shopware()->Models()->getReference(
+        //             'Shopware\Models\Category\Category',
+        //             $categoryId
+        //     );
 
-            // Construct where clause with selected category children 
-            $where = $this->getAllCategoriesClause($category);
+        //     // Construct where clause with selected category children 
+        //     $where = $this->getAllCategoriesClause($category);
 
-            $builder->leftJoin('articles.categories', 'categories')
-                ->innerJoin('articles.allCategories', 'allCategories')
-                ->andWhere($where);
-        }
+        //     $builder->leftJoin('articles.categories', 'categories')
+        //         ->innerJoin('articles.allCategories', 'allCategories')
+        //         ->andWhere($where);
+        // }
 
         // Make sure that whe don't get a cold here
         $columns = array(
@@ -178,8 +174,54 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         return $where;
     }
 
-    public function downloadLogAction($fileName = null)
+    /**
+     * Event listener function of articles store to export a list of products
+     * 
+     * @return mixed
+     */
+    public function exportAction()
+    {   
+        $host = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl(); 
+        $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
+        $exportUrl = $host . $pathPlugin . 'Webservice/export.php';
+
+        $this->View()->assign(array(
+            'success' => true,
+            'url' => $exportUrl
+        ));
+    }
+
+    /**
+     * Set Lengow status for an article
+     *
+     */
+    public function setStatusInLengowAction()
     {
-        Shopware_Plugins_Backend_Lengow_Components_LengowLog::download($fileName);
+        $articleId = $this->Request()->getParam('articleId');
+        $status = $this->Request()->getParam('status', false);
+        $active = $status == 'true' ? true : false;
+
+        $em = Shopware()->Models();
+        $article = $em->getReference('Shopware\Models\Article\Article', $articleId);
+
+        if ($article) {
+            $attribute = $article->getAttribute();
+            $attribute->setLengowLengowActive($active);
+            $em->persist($attribute);
+            $em->flush($attribute);
+        }
+    }
+
+    public function getNumberOfExportedProductsAction()
+    {
+        $em = Shopware()->Models();
+        $products = $em->getRepository('Shopware\Models\Attribute\Article')->findBy(array('lengowLengowActive' => 1));
+        $size = count($products);
+
+        $this->View()->assign(array(
+            'success' => true,
+            'size' => $size,
+            'total' => 100
+        ));
     }
 }

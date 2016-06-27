@@ -93,6 +93,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     }
 
     /**
+     * Get the path of the plugin
+     * 
+     * @return string
+     */
+    public static function getPathPlugin()
+    {
+        $path = Shopware()->Plugins()->Backend()->Lengow()->Path();
+        $index = strpos($path, '/engine');
+        return substr($path, $index);
+    }
+
+    /**
      * Get the base url of the plugin
      *
      * @return string

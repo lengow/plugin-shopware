@@ -8,9 +8,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
 
     // Window properties
     border: false,
-    autoShow: true,
     layout: 'border',
-    tabPanel : null,
 
     /**
      * Init main component; set main title and tabs for the window

@@ -2,6 +2,7 @@
 Ext.define('Shopware.apps.Lengow.model.Article', {
     extend: 'Shopware.data.Model',
     alias:  'model.article',
+    idProperty: 'id',
 
     // Fields displayed in the grid
     fields: [
@@ -13,7 +14,7 @@ Ext.define('Shopware.apps.Lengow.model.Article', {
         { name : 'price', type: 'float' },
         { name : 'vat', type: 'int' },
         { name : 'inStock', type: 'int' },
-        { name : 'activeLengow', type: 'boolean' }
+        { name : 'activeLengow', type: 'boolean'}
     ]
 });
 

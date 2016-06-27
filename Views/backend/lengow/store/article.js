@@ -27,5 +27,5 @@ Ext.define('Shopware.apps.Lengow.store.Article', {
             type: 'json',
             root: 'data'
         }
-    },
+    }
 });
