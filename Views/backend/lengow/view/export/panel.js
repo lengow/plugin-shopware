@@ -116,7 +116,16 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
 
                         //scroll the store to first page
                         store.currentPage = 1;
-                        store.load();
+                        store.load({
+                           scope: this,
+                            callback: function(records, operation, success) {
+                                var data = Ext.decode(operation.response.responseText);
+                                var total = data['total'];
+                                var lengowProducts = data['exportedProduct'];
+                                var label = lengowProducts + ' products exported over ' + total + ' products available.';
+                                Ext.getCmp('cpt').setText(label);
+                            }
+                        });
                     }
                 },
                 scope: me

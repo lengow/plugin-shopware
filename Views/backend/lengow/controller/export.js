@@ -50,23 +50,6 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
             },
             success: function(response, opts) {
                 Ext.getCmp('exportGrid').getStore().reload();
-                me.getNumberOfExportedProducts();
-            }
-        });
-    },
-
-    getNumberOfExportedProducts: function() {
-        var me = this;
-
-        Ext.Ajax.request({
-            url: '{url controller="LengowExport" action="getNumberOfExportedProducts"}',
-            method: 'POST',
-            type: 'json',
-            params: {},
-            success: function(response, opts) {
-                var data= Ext.decode(response.responseText);
-                var label = data['size'] + ' products exported over ' + data['total'] + ' products available.'
-                Ext.getCmp('cpt').setText(label);
             }
         });
     }

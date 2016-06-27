@@ -110,7 +110,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                     xtype: 'label',
                     id: 'cpt',
                     forId: 'myFieldId',
-                    text: '10 products exported over 400 available ',
+                    text: '',
                     margins: '0 0 0 10'
                 }
             ]
