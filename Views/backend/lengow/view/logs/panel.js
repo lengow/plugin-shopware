@@ -1,3 +1,5 @@
+//{namespace name="backend/lengow/view/logs"}
+//{block name="backend/lengow/view/logs/panel"}
 Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.lengow-logs-panel',
@@ -76,3 +78,4 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
         return downloadButton;
     }
 });
+//{/block}

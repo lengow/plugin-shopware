@@ -1,3 +1,5 @@
+//{namespace name="backend/lengow/controller"}
+//{block name="backend/lengow/controller/main"}
 Ext.define('Shopware.apps.Lengow.controller.Main', {
     extend: 'Enlight.app.Controller',
 
@@ -13,3 +15,4 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
         me.callParent(arguments);
     }
 });
+//{/block}

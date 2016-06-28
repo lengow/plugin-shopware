@@ -1,6 +1,5 @@
-/**
- * Created by nicolasmaugendre on 26/05/16.
- */
+//{namespace name="backend/lengow/view/logs"}
+//{block name="backend/lengow/view/logs/container"}
 Ext.define('Shopware.apps.Lengow.view.logs.Container', {
     extend: 'Ext.container.Container',
     alias: 'widget.lengow-logs-container',
@@ -36,3 +35,4 @@ Ext.define('Shopware.apps.Lengow.view.logs.Container', {
         me.callParent(arguments);
     }
 });
+//{/block}

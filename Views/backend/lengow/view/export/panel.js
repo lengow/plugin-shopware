@@ -1,3 +1,5 @@
+//{namespace name="backend/lengow/view/export"}
+//{block name="backend/lengow/view/export/panel"}
 Ext.define('Shopware.apps.Lengow.view.export.Panel', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.lengow-category-panel',
@@ -121,7 +123,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                             callback: function(records, operation, success) {
                                 var data = Ext.decode(operation.response.responseText);
                                 var total = data['total'];
-                                var lengowProducts = data['exportedProduct'];
+                                var lengowProducts = data['nbLengowProducts'];
                                 var label = lengowProducts + ' products exported over ' + total + ' products available.';
                                 Ext.getCmp('cpt').setText(label);
                             }
@@ -150,3 +152,4 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
     }
 
 });
+//{/block}

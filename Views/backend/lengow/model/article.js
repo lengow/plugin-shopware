@@ -1,6 +1,6 @@
-
+//{block name="backend/lengow/model/article"}
 Ext.define('Shopware.apps.Lengow.model.Article', {
-    extend: 'Shopware.data.Model',
+    extend: 'Ext.data.Model',
     alias:  'model.article',
     idProperty: 'id',
 
@@ -17,4 +17,4 @@ Ext.define('Shopware.apps.Lengow.model.Article', {
         { name : 'activeLengow', type: 'boolean'}
     ]
 });
-
+//{/block}

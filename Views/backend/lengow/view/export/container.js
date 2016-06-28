@@ -1,6 +1,5 @@
-/**
- * Created by nicolasmaugendre on 26/05/16.
- */
+//{namespace name="backend/lengow/view/export"}
+//{block name="backend/lengow/view/export/container"}
 Ext.define('Shopware.apps.Lengow.view.export.Container', {
     extend: 'Ext.container.Container',
     alias: 'widget.lengow-export-container',
@@ -53,3 +52,4 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
         return grid;
     }
 });
+//{/block}

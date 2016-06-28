@@ -431,7 +431,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'required' => true,
                 'editable' => false,
                 'store' => $selectOptions,
-                'value' => 0,
+                'value' => 1,
                 'description' => 'Export products that you have selected in Lengow',
                 'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
             )

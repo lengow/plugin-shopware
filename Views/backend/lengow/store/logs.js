@@ -1,7 +1,4 @@
-/**
- * Created by nicolasmaugendre on 17/06/16.
- */
-
+//{block name="backend/lengow/store/logs"}
 Ext.define('Shopware.apps.Lengow.store.Logs', {
     extend:'Ext.data.Store',
     alias: 'store.lengow-logs',
@@ -26,3 +23,4 @@ Ext.define('Shopware.apps.Lengow.store.Logs', {
         }
     }
 });
+//{/block}

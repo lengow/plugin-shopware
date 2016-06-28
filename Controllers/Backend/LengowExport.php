@@ -13,7 +13,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
      *
      * @return mixed
      */
-    public function listAction()
+    public function getlistAction()
     {
         $categoryId   = $this->Request()->getParam('categoryId');
         $filterParams = $this->Request()->getParam('filter', array());
@@ -23,7 +23,6 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $limit        = $this->Request()->getParam('limit', 20);
 
         // TODO : replace with selected shop
-        $variant = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue('lengowExportVariation');
         $export_out_stock = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue('lengowExportOutOfStock');
         $export_disabled_products = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue('lengowExportDisabledProduct');
 
@@ -33,7 +32,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         }
 
         $select = array(
-            'articles.id AS articleId',
+            'attributes.id AS attributeId',
             'articles.name AS name',
             'suppliers.name AS supplier',
             'articles.active AS status',
@@ -46,21 +45,15 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
 
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select($select)
-            ->from('Shopware\Models\Article\Article', 'articles');
-
-        // If variation option has been selected
-        if ($variant) {
-            $builder->innerJoin('articles.details', 'details');
-        } else {
-            $builder->innerJoin('articles.mainDetail', 'details');
-        }
-
-        $builder->leftJoin('articles.supplier', 'suppliers')
+            ->from('Shopware\Models\Article\Article', 'articles')
+            ->leftJoin('articles.mainDetail', 'details')
+            ->leftJoin('articles.supplier', 'suppliers')
             ->leftJoin('articles.attribute', 'attributes')
             ->leftJoin('details.prices', 'prices')
             ->leftJoin('articles.tax', 'tax')
             ->where('prices.to = \'beliebig\'')
-            ->andWhere('prices.customerGroupKey = \'EK\'');
+            ->andWhere('prices.customerGroupKey = \'EK\'')
+            ->andWhere('attributes.articleDetailId = details.id');
 
         // Search criteria
         if (isset($filters['search'])) {
@@ -76,11 +69,6 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         if ($export_out_stock) {
             $builder->andWhere('details.inStock > 0');
         }
-
-        // // Lengow selection
-        // if ($filterBy == 'lengowProduct') {
-        //     $builder->andWhere('attributes.lengowLengowActive = 1');
-        // }
 
         // Active product only
         if ($export_disabled_products) {
@@ -146,10 +134,10 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $articles = $builder->getQuery()->getArrayResult();
         $numberOfProducts = count($articles);
 
-        $numberOfExportedProducts = 0;
+        $nbLengowProducts = 0;
         foreach ($articles as $article) {
             if ($article['activeLengow'] == 1) {
-                $numberOfExportedProducts++;
+                $nbLengowProducts++;
             }
         }
 
@@ -163,7 +151,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             'success' => true,
             'data'    => $result,
             'total'   => $numberOfProducts,
-            'exportedProduct'   => $numberOfExportedProducts
+            'nbLengowProducts'   => $nbLengowProducts
         ));
     }
 
@@ -211,18 +199,21 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
      */
     public function setStatusInLengowAction()
     {
-        $articleId = $this->Request()->getParam('articleId');
+        $ids = $this->Request()->getParam('ids');
         $status = $this->Request()->getParam('status', false);
         $active = $status == 'true' ? true : false;
 
-        $em = Shopware()->Models();
-        $article = $em->getReference('Shopware\Models\Article\Article', $articleId);
+        $attributeIds = json_decode($ids);
 
-        if ($article) {
-            $attribute = $article->getAttribute();
-            $attribute->setLengowLengowActive($active);
-            $em->persist($attribute);
-            $em->flush($attribute);
+        foreach ($attributeIds as $id) {
+            $em = Shopware()->Models();
+            $attribute = $em->getReference('Shopware\Models\Attribute\Article', $id);
+
+            if ($attribute) {
+                $attribute->setLengowLengowActive($active);
+                $em->persist($attribute);
+                $em->flush($attribute);
+            }
         }
     }
 }

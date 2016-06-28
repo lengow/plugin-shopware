@@ -1,3 +1,5 @@
+//{namespace name="backend/lengow/controller"}
+//{block name="backend/lengow/controller/export"}
 Ext.define('Shopware.apps.Lengow.controller.Export', {
     extend: 'Enlight.app.Controller',
 
@@ -38,14 +40,15 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
      * Change article Lengow status
      *
      */
-    setStatusInLengow: function(articleId, status) {
+    setStatusInLengow: function(ids, status) {
         var me = this;
 
         Ext.Ajax.request({
             url: '{url controller="LengowExport" action="setStatusInLengow"}',
             method: 'POST',
+            type: 'json',
             params: {
-                articleId: articleId,
+                ids: ids,
                 status: status
             },
             success: function(response, opts) {
@@ -54,3 +57,4 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
         });
     }
 });
+//{/block}

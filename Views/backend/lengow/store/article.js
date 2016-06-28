@@ -1,7 +1,7 @@
-
+//{block name="backend/lengow/store/article"}
 Ext.define('Shopware.apps.Lengow.store.Article', {
-    extend:'Shopware.store.Listing',
-    alias:  'store.article-store',
+    extend:'Ext.data.Store',
+    alias: 'store.article-store',
     model: 'Shopware.apps.Lengow.model.Article',
 
      // Define how much rows loaded with one request
@@ -29,3 +29,4 @@ Ext.define('Shopware.apps.Lengow.store.Article', {
         }
     }
 });
+//{/block}

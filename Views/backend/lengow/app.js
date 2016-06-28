@@ -1,4 +1,5 @@
-
+//{namespace name="backend/lengow/view"}
+//{block name="backend/lengow/application"}
 Ext.define('Shopware.apps.Lengow', {
     extend: 'Enlight.app.SubApplication',
 
@@ -76,3 +77,4 @@ Ext.define('Shopware.apps.Lengow', {
         }
     }
 });
+//{/block}

@@ -1,6 +1,5 @@
-/**
- * Created by nicolasmaugendre on 26/05/16.
- */
+//{namespace name="backend/lengow/view/main"}
+//{block name="backend/lengow/view/main/window"}
 Ext.define('Shopware.apps.Lengow.view.main.Window', {
     extend: 'Enlight.app.Window',
 
@@ -55,3 +54,4 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
         return me.tabPanel;
     }
 });
+//{/block}
