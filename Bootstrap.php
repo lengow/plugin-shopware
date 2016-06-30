@@ -306,7 +306,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
         $mainSettingForm->setElement(
             'select',
-            'lengowDebugMode',
+            'lengowEnableShop',
             array(
                 'label' => 'Enable shop',
                 'editable' => false,
@@ -322,7 +322,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             array(
                 'label'     => 'Account ID',
                 'required'  => true,
-                'description' => 'Your account ID of Lengow'
+                'description' => 'Your account ID of Lengow',
+                'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
             )
         );
         $mainSettingForm->setElement(
@@ -331,7 +332,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             array(
                 'label'     => 'Access token',
                 'required'  => true,
-                'description' => 'Your access token'
+                'description' => 'Your access token',
+                'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
             )
         );
         $mainSettingForm->setElement(
@@ -340,7 +342,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             array(
                 'label'     => 'Secret token',
                 'required'  => true,
-                'description' => 'Your secret token'
+                'description' => 'Your secret token',
+                'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
             )
         );
         $mainSettingForm->setElement(
