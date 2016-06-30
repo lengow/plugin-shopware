@@ -4,11 +4,10 @@ Ext.define('Shopware.apps.Iframe.store.Article', {
     autoLoad: false,
     proxy: {
         type: 'ajax',
-        url: '{url action=getAccounts}',
+        url: '{url action=getUrl}',
         reader: {
             type: 'json',
-            root: 'data',
-            totalProperty: 'total'
+            root: 'data'
         }
     }
 });

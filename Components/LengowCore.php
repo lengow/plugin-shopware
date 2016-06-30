@@ -128,36 +128,31 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     public static function getConfigValue($name, $shopId = null)
     {
         $em = Shopware()->Models();
-        $settings = array();
+        $value = null;
 
         // Get settings from the shop
         if ($shopId != null) {
             $builder = $em->createQueryBuilder();
             $builder->select('values.value')
-                ->from('Shopware\Models\Config\Element', 'elements')
-                ->leftJoin('elements.values', 'values')
+                ->from('Shopware\Models\Config\Value', 'values')
+                ->leftJoin('values.element', 'elements')
                 ->where('values.shopId = :shopId')
                 ->andWhere('elements.name = :name')
                 ->setParameter('shopId', $shopId)
                 ->setParameter('name', $name);
             $result = $builder->getQuery()->getArrayResult();
             if (!empty($result)) {
-                $settings = $result[0]['value'];
+                $value = $result[0]['value'];
             }
         }
 
         // If no settings has been found, get the default value
-        if (empty($settings)) {
+        if ($value === null) {
             $element = $em->getRepository('Shopware\Models\Config\Element')->findOneBy(array('name' => $name));
-            $values = $element->getValues();
-            if (count($values) > 0) {
-                $settings = $values[0]->getValue();
-            } else {
-                $settings = $element->getValue();
-            }
+            $value = $element->getValue();
         }
 
-        return $settings;
+        return $value;
     }
 
     /**

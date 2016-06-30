@@ -14,13 +14,6 @@ Ext.define('Shopware.apps.Iframe.view.Main', {
         me.callParent(arguments);
     },
 
-    /**
-     * Creates tabs for each account in the account store
-     * and adds them to the tab panel.
-     *
-     * @public
-     * @return void
-     */
     initAccountTabs: function () {
         var me = this,
             i = 0,
