@@ -130,6 +130,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
         $em = Shopware()->Models();
         $value = null;
 
+        if ($name == 'lengowAuthorizedIps') {
+            $element = $em->getRepository('Shopware\Models\Config\Element')->findOneBy(array('name' => $name));
+            $values = $element->getValues();
+            return $values[0]->getValue();
+        }
+
         // Get settings from the shop
         if ($shopId != null) {
             $builder = $em->createQueryBuilder();
