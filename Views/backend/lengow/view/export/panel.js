@@ -91,19 +91,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
 
         me.categoryStore = Ext.create('Shopware.store.CategoryTree');
 
-        tree = Ext.create('Ext.tree.Panel', {
-            border: false,
-            rootVisible: true,
-            expanded: true,
-            useArrows: false,
-            layout: 'fit',
-            flex: 1,
-            bodyStyle: 'background:#fff;',
-            store: me.categoryStore,
-            root: {
-                text: '{s name=categories}Shops{/s}',
-                expanded: true
-            },
+        tree = Ext.create('Shopware.apps.Lengow.view.export.Tree', {
             listeners: {
                 itemclick: {
                     fn: function (view, record) {
@@ -119,7 +107,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                         //scroll the store to first page
                         store.currentPage = 1;
                         store.load({
-                           scope: this,
+                            scope: this,
                             callback: function(records, operation, success) {
                                 var data = Ext.decode(operation.response.responseText);
                                 var total = data['total'];

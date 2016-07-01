@@ -104,6 +104,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
         return substr($path, $index);
     }
 
+    public static function getShopsIds()
+    {
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findAll();
+        $ids = array();
+        foreach ($shops as $shop) {
+            $ids[] = $shop->getId();
+        }
+        return $ids;
+    }
+
     /**
      * Get the base url of the plugin
      *
@@ -111,7 +122,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      */
     public static function getBaseUrl()
     {
-        $shop = Shopware()->Models()->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $shop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
         $is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '';
         $host = $shop->getHost() ? $shop->getHost() : $_SERVER['SERVER_NAME'];
         $path = $shop->getBasePath() ? $shop->getBasePath() : '';
@@ -127,13 +139,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      */
     public static function getConfigValue($name, $shopId = null)
     {
-        $em = Shopware()->Models();
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $value = null;
 
         if ($name == 'lengowAuthorizedIps') {
             $element = $em->getRepository('Shopware\Models\Config\Element')->findOneBy(array('name' => $name));
             $values = $element->getValues();
-            return $values[0]->getValue();
+
+            // If ips settings has not been changed, get default
+            if ($values[0] == null) {
+                $ips = $element->getValue();
+            } else {
+                $ips = $values[0]->getValue();
+            }
+            return $ips;
         }
 
         // Get settings from the shop

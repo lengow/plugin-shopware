@@ -20,8 +20,7 @@ Ext.define('Shopware.apps.Lengow.store.Article', {
     proxy: {
         type: 'ajax',
         api: {
-            read: '{url controller="LengowExport" action="getList"}',
-            update:  '{url controller="LengowExport" action="update"}'
+            read: '{url controller="LengowExport" action="getList"}'
         },
         reader: {
             type: 'json',

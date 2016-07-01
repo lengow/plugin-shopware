@@ -33,9 +33,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         'category' => 'category',
         'status' => 'status',
         'url' => 'url',
-        'price_excl_tax' => 'price_excl_tax',
+        'price_excl_tax' => 'price_excl_tax', // Instant t, avec le discount
         'price_incl_tax' => 'price_incl_tax',
-        'price_before_discount' => 'price_before_discount',
+        'price_before_discount_excl_tax' => 'price_before_discount_excl_tax',
+        'price_before_discount_incl_tax' => 'price_before_discount_incl_tax',
         'discount_percent' => 'discount_percent',
         'discount_start_date' => 'discount_start_date',
         'discount_end_date' => 'discount_end_date',
@@ -153,6 +154,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $this->$key = $value;
         }
 
+        $this->em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+
         $this->setFormat();
         $this->loadDefaultConfig();
 
@@ -255,7 +258,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 
         // Create Lengow products
         foreach ($articles as $article) {
-            $details = Shopware()->Models()->getReference(
+            $details = $this->em->getReference(
                 'Shopware\Models\Article\Detail',
                 $article['detailId']
             );
@@ -320,7 +323,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             'details.id AS detailId'
         );
 
-        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder = $this->em->createQueryBuilder();
         $builder->select($selection)
             ->from('Shopware\Models\Shop\Shop', 'shop')
             ->leftJoin('shop.category', 'categories')
@@ -354,7 +357,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 
         // Export only Lengow products
         if ($this->exportLengowSelection) {
-            $builder->andWhere('attributes.lengowLengowActive = 1');
+            $builder->andWhere('attributes.lengowShop' . $this->shop->getId() . 'Active = 1');
         }
 
         // Export out of stock products

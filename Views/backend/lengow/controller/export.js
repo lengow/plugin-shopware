@@ -40,7 +40,7 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
      * Change article Lengow status
      *
      */
-    setStatusInLengow: function(ids, status) {
+    setStatusInLengow: function(ids, status, categoryId) {
         var me = this;
 
         Ext.Ajax.request({
@@ -49,7 +49,8 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
             type: 'json',
             params: {
                 ids: ids,
-                status: status
+                status: status,
+                categoryId: categoryId
             },
             success: function(response, opts) {
                 Ext.getCmp('exportGrid').getStore().reload();

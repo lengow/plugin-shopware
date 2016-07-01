@@ -102,7 +102,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      * Get Shopware entity manager
      * @return \Shopware\Components\Model\ModelManager
      */
-    protected function getEntityManager()
+    public static function getEntityManager()
     {
         return Shopware()->Models();
     }
@@ -112,13 +112,17 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function uninstall()
     {
-        $this->log('Install', 'log.uninstall.attribute', array('name' => 's_articles_attributes', 'value' => 'lengowActive'));
+        $this->log('Install', 'log.uninstall.attribute', array('name' => 's_articles_attributes', 'value' => 'lengowShopActive'));
 
-        $this->Application()->Models()->removeAttribute(
-            's_articles_attributes',
-            'lengow',
-            'lengowActive'
-        );
+        $shops = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getShopsIds();
+
+        foreach ($shops as $shopId) {
+            $this->Application()->Models()->removeAttribute(
+                's_articles_attributes',
+                'lengow',
+                'shop' . $shopId . '_active'
+            );
+        }
 
         $this->getEntityManager()->generateAttributeModels(array(
             's_articles_attributes'
@@ -131,20 +135,22 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
     /**
      * Update Shopware models.
-     * Add lengowActive attribute in Attributes model
+     * Add lengowActive attribute for each shop in Attributes model
      */
     protected function updateSchema()
     {
-        $this->log('Install', 'log.install.attribute', array('name' => 's_articles_attributes', 'value' => 'lengowActive'));
+        $this->log('Install', 'log.install.attribute', array('name' => 's_articles_attributes', 'value' => 'lengowShopActive'));
 
-        $this->Application()->Models()->addAttribute(
-            's_articles_attributes',
-            'lengow',
-            'lengowActive',
-            'boolean',
-            true,
-            '0'
-        );
+        $shops = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getShopsIds();
+
+        foreach ($shops as $shopId) {
+            $this->Application()->Models()->addAttribute(
+                's_articles_attributes',
+                'lengow',
+                'shop' . $shopId . '_active',
+                'boolean'
+            );
+        }
 
         $this->getEntityManager()->generateAttributeModels(array(
             's_articles_attributes'

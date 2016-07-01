@@ -14,7 +14,7 @@ Ext.define('Shopware.apps.Lengow.model.Article', {
         { name : 'price', type: 'float' },
         { name : 'vat', type: 'int' },
         { name : 'inStock', type: 'int' },
-        { name : 'activeLengow', type: 'boolean'}
+        { name : 'lengowActive', type: 'boolean'}
     ]
 });
 //{/block}

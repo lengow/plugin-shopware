@@ -32,6 +32,7 @@ if ($kernel->isHttpCacheEnabled()) {
     $kernel = new AppCache($kernel, $kernel->getHttpCacheConfig());
 }
 
+require_once('../Bootstrap.php');
 require_once('../Components/LengowCore.php');
 require_once('../Components/LengowException.php');
 require_once('../Components/LengowExport.php');
@@ -65,32 +66,41 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIp())
 
         // A shop with this name exist
         if ($shop) {
-            $selectedProducts = array();
-
-            if ($productsIds) {
-                $ids    = str_replace(array(';','|',':'), ',', $productsIds);
-                $ids    = preg_replace('/[^0-9\,]/', '', $ids);
-                $selectedProducts  = explode(',', $ids);
-            }
-
-            $params = array(
-                'format' => $format,
-                'mode' => $mode,
-                'stream' => $stream,
-                'productIds' => $selectedProducts,
-                'limit' => $limit,
-                'offset' => $offset,
-                'exportOutOfStock' => $outStock,
-                'exportVariation' => $exportVariation,
-                'exportDisabledProduct' => $exportDisabledProduct,
-                'exportLengowSelection' => $exportLengowSelection,
-                'languageId' => $languageId,
-                'logOutput' => $logOutput
+            $isShopActive = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue(
+                'lengowEnableShop', 
+                $shop->getId()
             );
 
-            $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, $params);
+            if ($isShopActive) {
+                $selectedProducts = array();
 
-            $export->exec();
+                if ($productsIds) {
+                    $ids    = str_replace(array(';','|',':'), ',', $productsIds);
+                    $ids    = preg_replace('/[^0-9\,]/', '', $ids);
+                    $selectedProducts  = explode(',', $ids);
+                }
+
+                $params = array(
+                    'format' => $format,
+                    'mode' => $mode,
+                    'stream' => $stream,
+                    'productIds' => $selectedProducts,
+                    'limit' => $limit,
+                    'offset' => $offset,
+                    'exportOutOfStock' => $outStock,
+                    'exportVariation' => $exportVariation,
+                    'exportDisabledProduct' => $exportDisabledProduct,
+                    'exportLengowSelection' => $exportLengowSelection,
+                    'languageId' => $languageId,
+                    'logOutput' => $logOutput
+                );
+
+                $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, $params);
+
+                $export->exec();
+            } else {
+                die('The following shop (' . $shopName . ') has not been activated for the export. Please go to the settings and active it.');
+            }
         } else {
             $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
             $index = count($shops);

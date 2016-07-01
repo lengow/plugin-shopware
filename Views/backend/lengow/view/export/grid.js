@@ -4,10 +4,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
     extend: 'Ext.grid.Panel',
     alias:  'widget.product-listing-grid',
 
-    viewConfig: {
-      forceFit: true
-    },
-
     snippets: {
         column: {
             number:         '{s name=export/grid/column/number}Number{/s}',
@@ -17,7 +13,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             price:          '{s name=export/grid/column/price}Price{/s}',
             tax:            '{s name=export/grid/column/tax}Tax{/s}',
             stock:          '{s name=export/grid/column/stock}Stock{/s}',
-            activeLengow:   '{s name=export/grid/column/activeLengow}Lengow\'s products{/s}'
+            lengowActive:   '{s name=export/grid/column/lengowActive}Lengow\'s products{/s}'
         },
         tooltip: {
             activeProduct:      '{s name=export/grid/tooltip/active_product}Publish product{/s}',
@@ -98,7 +94,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                 dataIndex: 'inStock',
                 flex: 1
             },
-            this.createActiveColumn('activeLengow', 'Lengow product')
+            this.createActiveColumn('lengowActive', 'Export product')
         ];
         return columns;
     }, 
@@ -111,20 +107,22 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
     createActiveColumn: function(name, header) {
         var me = this,
             items = [],
-            lengowColumn = name == 'activeLengow' ? true  : false;
-
+            lengowColumn = name == 'lengowActive' ? true : false;
 
         items.push({
             tooltip: lengowColumn ? '{s name="activate_deactivate"}{/s}' : '',
             handler: function(grid, rowIndex, colIndex, item, eOpts, record) {
                 if (lengowColumn) {
-                    var attributeId = record.raw['attributeId'];
-                    me.fireEvent('setStatusInLengow', Ext.encode([attributeId]), !record.get('activeLengow'));
+                    var attributeId = record.raw['attributeId']
+                        categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id');
+                    me.fireEvent('setStatusInLengow', Ext.encode([attributeId]), !record.get('lengowActive'), categoryId);
                     me.store.reload();
                 }
             },
             getClass: function(value, metaData, record) {
-                if (record.get(name)) {
+                var status = record.get(name);
+
+                if (status) {
                     return 'sprite-ui-check-box';
                 } else {
                     return 'sprite-ui-check-box-uncheck';
@@ -209,12 +207,13 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             disabled: true,
             handler: function() {
                 var selectionModel = me.getSelectionModel(),
-                    records = selectionModel.getSelection();
-                var attributeIds = [];
+                    records = selectionModel.getSelection(),
+                    categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id')
+                    attributeIds = [];
                 Ext.each(records, function(record) {
                     attributeIds.push(record.raw['attributeId']);
                 });
-                me.fireEvent('setStatusInLengow', Ext.encode(attributeIds), true);
+                me.fireEvent('setStatusInLengow', Ext.encode(attributeIds), true, categoryId);
             }
         });
 
@@ -225,12 +224,13 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             disabled: true,
             handler: function() {
                 var selectionModel = me.getSelectionModel(),
-                    records = selectionModel.getSelection();
-                var attributeIds = [];
+                    records = selectionModel.getSelection(),
+                    categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id'),
+                    attributeIds = [];
                 Ext.each(records, function(record) {
                     attributeIds.push(record.raw['attributeId']);
                 });
-                me.fireEvent('setStatusInLengow', Ext.encode(attributeIds), false);
+                me.fireEvent('setStatusInLengow', Ext.encode(attributeIds), false, categoryId);
             }
         });
 
