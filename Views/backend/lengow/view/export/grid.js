@@ -116,7 +116,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                     var attributeId = record.raw['attributeId']
                         categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id');
                     me.fireEvent('setStatusInLengow', Ext.encode([attributeId]), !record.get('lengowActive'), categoryId);
-                    me.store.reload();
+                    me.setNumberOfProductExported();
                 }
             },
             getClass: function(value, metaData, record) {
@@ -252,6 +252,21 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                     margins: '0 0 0 10'
                 }
             ];
+    },
+
+    setNumberOfProductExported: function() {
+        var me = this,
+            store = me.store;
+        store.load({
+            scope: this,
+            callback: function(records, operation, success) {
+                var data = Ext.decode(operation.response.responseText);
+                var total = data['total'];
+                var lengowProducts = data['nbLengowProducts'];
+                var label = lengowProducts + ' products exported over ' + total + ' products available.';
+                Ext.getCmp('cpt').setText(label);
+            }
+        });
     }
 });
 //{/block}

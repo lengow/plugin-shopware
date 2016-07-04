@@ -89,8 +89,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
         var me = this,
                 tree;
 
-        me.categoryStore = Ext.create('Shopware.store.CategoryTree');
-
         tree = Ext.create('Shopware.apps.Lengow.view.export.Tree', {
             listeners: {
                 itemclick: {
@@ -100,22 +98,14 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
 
                         if (record.get('id') === 'root') {
                             store.getProxy().extraParams.categoryId = null;
+                            return false;
                         } else {
                             store.getProxy().extraParams.categoryId = record.get('id');
                         }
 
                         //scroll the store to first page
                         store.currentPage = 1;
-                        store.load({
-                            scope: this,
-                            callback: function(records, operation, success) {
-                                var data = Ext.decode(operation.response.responseText);
-                                var total = data['total'];
-                                var lengowProducts = data['nbLengowProducts'];
-                                var label = lengowProducts + ' products exported over ' + total + ' products available.';
-                                Ext.getCmp('cpt').setText(label);
-                            }
-                        });
+                        Ext.getCmp('exportGrid').setNumberOfProductExported();
                     }
                 },
                 scope: me

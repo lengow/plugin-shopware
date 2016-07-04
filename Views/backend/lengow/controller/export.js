@@ -53,7 +53,7 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
                 categoryId: categoryId
             },
             success: function(response, opts) {
-                Ext.getCmp('exportGrid').getStore().reload();
+                Ext.getCmp('exportGrid').setNumberOfProductExported();
             }
         });
     }

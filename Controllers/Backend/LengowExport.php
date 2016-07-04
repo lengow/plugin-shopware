@@ -55,23 +55,6 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         // If a shop in the tree is selected, get articles status for this one
         if (!$isRootSelected) {
             $select[] = 'attributes.lengowShop' . $shopId . 'Active AS lengowActive';
-        } else {
-            $shopIds = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getShopsIds();
-            $expression = 'CASE WHEN (';
-            $total = count($shopIds);
-            for ($i = 0; $i < $total - 1; $i++) {
-                $expression.= 'attributes.lengowShop' . $shopIds[$i] . 'Active ';
-
-                if ($i%2 != 0) {
-                    $expression.= 'AND attributes.lengowShop' . $shopIds[$i] . 'Active = ';
-                } else {
-                    $expression.= '= ';
-                }
-            }
-
-            $expression.= 'attributes.lengowShop' . $shopIds[$total - 1] . 'Active) ';
-            $expression.= 'THEN 1 ELSE 0 AS lengowActive';
-            $select[] = $expression;
         }
 
         $builder = $em->createQueryBuilder();
