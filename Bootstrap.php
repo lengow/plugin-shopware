@@ -446,6 +446,32 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             )
         );
 
+        $dispatches = self::getEntityManager()->getRepository('Shopware\Models\Dispatch\Dispatch')->findBy(array('type' => 0));
+        $selection = array();
+        $defaultValue = null;
+
+        if (count($dispatches) > 0) {
+            $defaultValue = $dispatches[0]->getId();
+        }
+
+        foreach ($dispatches as $dispatch) {
+            $selection[] = array($dispatch->getId(), $dispatch->getName());
+        }
+
+        $exportForm->setElement(
+            'select',
+            'lengowDefaultDispatcher',
+            array(
+                'label' => 'Default shipping method',
+                'required' => true,
+                'editable' => false,
+                'store' => $selection,
+                'value' => $defaultValue,
+                'description' => 'Export products that you have selected in Lengow',
+                'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
+            )
+        );
+
         $this->log('Install', 'log.install.settings', array('name' => $exportForm->getName()));
 
         $forms = array(

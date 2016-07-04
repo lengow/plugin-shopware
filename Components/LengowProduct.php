@@ -27,6 +27,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     protected $details;
     // Specific attributes for the product
     protected $attributes;
+    protected $price;
+    protected $shop;
 
     public function __construct($details, $shop) {
         $this->product = $details->getArticle();
@@ -36,6 +38,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 
         $this->isVariation = $this->details->getKind() != 1 ? true : false;
         $this->getOptions();
+        $this->getPrice();
     }
 
     public function getData($name)
@@ -80,24 +83,32 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                         break;
                     }
                 }
-                return $host . $baseUrl .$sep.'detail'.$sep.'index'.$sep.'sArticle'.$sep.$idProduct.$sep.'sCategory'.$sep.$idCategory;
+                return $host . $baseUrl . $sep . 'detail'.$sep.'index'.$sep.'sArticle'.$sep.$idProduct.$sep.'sCategory'.$sep.$idCategory;
                 break;
             case 'price_excl_tax':
-                $productPrice = $this->details->getPrices()[0];
-                $price = $productPrice->getPrice();
+                $price = $this->price->getPrice();
+                $discount = $this->price->getPercent();
+                $discExclTax = $price * (1 - ($discount/100));
+                return number_format($discExclTax, 2);
+                break;
+            case 'price_incl_tax':
+                $price = $this->price->getPrice();
+                $discount = $this->price->getPercent();
+                $discInclTax = $price * (1 - ($discount/100));
+                $tax = $this->product->getTax()->getTax();
+                $priceDiscInclTax = round($discInclTax*(100+$tax)/100, 2);
+                return number_format($priceDiscInclTax, 2);
+                break;
+            case 'price_before_discount_excl_tax':
+                $price = $this->price->getPrice();
                 $priceExclTax = round($price, 2);
                 return number_format($priceExclTax, 2);
                 break;
-            case 'price_incl_tax':
-                $productPrice = $this->details->getPrices()[0];
-                $price = $productPrice->getPrice();
+            case 'price_before_discount_incl_tax':
+                $price = $this->price->getPrice();
                 $tax = $this->product->getTax()->getTax();
                 $priceInclTax = round($price*(100+$tax)/100, 2);
                 return number_format($priceInclTax, 2);
-                break;
-            case 'price_before_discount':
-                // TODO : return article default price
-                return '';
                 break;
             case 'discount_percent':
                 $productPrice = $this->details->getPrices()[0];
@@ -105,8 +116,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 break;
             case 'discount_start_date':
                 return '';
+                break;
             case 'discount_end_date':
                 return '';
+                break;
             case 'shipping_cost':
                 return $this->getShippingCost();
                 break;
@@ -130,10 +143,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     $result.= $key . ', ';
                 }
                 return $result;
-                break;
-            // TODO : complete with selected language
-            case 'language':
-                return '';
                 break;
             case 'shipping_delay':
                 return $this->details->getShippingTime();
@@ -161,7 +170,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanData($this->product->getDescriptionLong());
                 break;
             case 'meta_keyword':
-                return $this->product->getKeywords();
+                return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanData($this->product->getKeywords());
                 break;
             default:
                 $result = '';
@@ -178,8 +187,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $host = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl() . '/';
         $product_images = $this->product->getImages();
         $image = $product_images[$index - 1];
-        try {
-            // Get image for parent product
+        // Get image for parent product
+        if ($image != null) {
+            if ($image->getMedia() != null) {
+                $media = $image->getMedia();
+                if ($media->getPath() != null) {
+                    $mediaPath = $media->getPath();
+                    return $host . $mediaPath;
+                }
+            }
+        } else if ($this->isVariation) {
+            $variation_images = $this->details->getImages();
+            $index_variation = $index - count($product_images) - 1;
+            $image = $variation_images[$index_variation];
             if ($image != null) {
                 if ($image->getMedia() != null) {
                     $media = $image->getMedia();
@@ -188,22 +208,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                         return $host . $mediaPath;
                     }
                 }
-            } else if ($this->isVariation) {
-                $variation_images = $this->details->getImages();
-                $index_variation = $index - count($product_images) - 1;
-                $image = $variation_images[$index_variation];
-                if ($image != null) {
-                    if ($image->getMedia() != null) {
-                        $media = $image->getMedia();
-                        if ($media->getPath() != null) {
-                            $mediaPath = $media->getPath();
-                            return $host . $mediaPath;
-                        }
-                    }
-                }
             }
-        } catch (Exception $e) {
-
         }
         return '';
     }
@@ -265,43 +270,108 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         return Shopware_Plugins_Backend_Lengow_Components_LengowCore::replaceAccentedChars($breadcrumb);
     }
 
+    /**
+     * Get main price of a product
+     *
+     */
+    private function getPrice()
+    {
+        $productPrices = $this->details->getPrices();
+        foreach ($productPrices as $price) {
+            if ($price->getTo() == 'beliebig') {
+                $this->price = $price;
+                break;
+            }
+        }
+    }
+
     private function getShippingCost()
     {
-        // Get the default dispatch
-        /*$dispatch = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDefaultShippingCost($this->shop->getId());
-        $shippingPrice  = 0;
-        $weight         = 0;
-        $price          = 0;
-        // Get the weight and the price of a product
-        if ($this->variation->getShippingFree()) {
-            return $shippingPrice;
-        }
-        $weight = (float) $this->variation->getWeight();
-        $productPrice = $this->variation->getPrices()[0];
-        $price = round((float) $productPrice->getPrice(), 2);
-        // Get the calculation base (0->weight, 1->price, 2->quantity, 3->calculation)
-        $calculation = $dispatch->getCalculation();
-        if ($calculation === 0) {
-            $value = $weight;
-        } elseif ($calculation === 1 || $calculation === 3) {
-            $value = $price;
-        } else {
-            $value = 1;
-        }
-        // Calculation of shipping costs
-        if($dispatch->getShippingFree() && $price >= $dispatch->getShippingFree()) {
-            $shippingPrice = 0;
-        }
-        else {
-            if ($dispatch->getCostsMatrix()) {
-                $shippingCosts = $dispatch->getCostsMatrix();
-                for ($i=0; $i < count($shippingCosts) ; $i++) {
-                    if ($value >= $shippingCosts[$i]->getFrom()) {
-                        $shippingPrice = $shippingCosts[$i]->getValue();
+        $weight = $this->details->getWeight();
+        $shippingCost = 0;
+        $articlePrice = $this->getData('price_before_discount_incl_tax');
+
+        // If article has not been manually set with free shipping
+        if (!$this->details->getShippingFree()) {
+            $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+
+            $dispatchId = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue(
+                'lengowDefaultDispatcher',
+                $this->shop->getId()
+                );
+
+            $dispatch = $em->getReference('Shopware\Models\Dispatch\Dispatch', $dispatchId);
+            $blockedCategories = $dispatch->getCategories();
+
+            if ($this->getCategoryStatus($blockedCategories)) {
+                // Check that article price is in bind prices
+                $startPrice = $dispatch->getBindPriceFrom() == null ? 0 : $dispatch->getBindPriceFrom();
+                $endPrice = $dispatch->getBindPriceTo() == null ? $articlePrice : $dispatch->getBindPriceTo();
+
+                if ($articlePrice >= $startPrice && $articlePrice <= $endPrice) {
+                    $calculationType = 0;
+                    $calculation = $dispatch->getCalculation();
+
+                    switch ($calculation) {
+                        case 0: // Dispatch based on weight
+                            $calculationType = $this->details->getWeight();
+                            break;
+                        case 1: // Dispatch based on price
+                            $calculationType = $articlePrice;
+                            break;
+                        case 2: // Dispatch based on quantity
+                            $calculationType = 1;
+                            break;
+                        case 3: // Dispatch based on calculation
+                            $calculationType = $this->details->getWeight();
+                            break;
+                        default:
+                            $calculationType = 0;
+                            break;
+                    }
+                }
+
+                // If free shipping has been set
+                if ($dispatch->getShippingFree() != null
+                    && $calculationType >= $dispatch->getShippingFree()) {
+                    $shippingCost = 0;
+                } else {
+                    if ($dispatch->getCostsMatrix()) {
+                        $shippingCosts = $dispatch->getCostsMatrix();
+                        $count = count($shippingCosts);
+                        for ($i = $count-1; $i >= 0; $i--) {
+                            if ($calculationType >= $shippingCosts[$i]->getFrom()) {
+                                $shippingCost = $shippingCosts[$i]->getValue();
+                                break;
+                            }
+                        }
                     }
                 }
             }
-        }*/
-        return 0;
+
+            return number_format($shippingCost, 2);
+        }
+    }
+
+    /**
+     * Check if the category the article belongs to 
+     * is blocked for this dispatch
+     * @param $blockedCategories Categories which are blocked
+     */
+    private function getCategoryStatus($blockedCategories) {
+        $productCategories = $this->product->getCategories();
+        $result = true;
+
+        foreach ($productCategories as $pCategory) {
+            foreach ($blockedCategories as $bCategory) {
+                if ($pCategory->getId() == $bCategory->getId()) {
+                    $result = false;
+                } else if (!$bCategory->isLeaf()) {
+                    $result = $result && $this->getCategoryStatus($bCategory->getChildren());
+                }
+            }
+        }
+
+        return $result;
     }
 }
