@@ -43,6 +43,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
 
         $select = array(
             'attributes.id AS attributeId',
+            'articles.id AS articleId',
             'articles.name AS name',
             'suppliers.name AS supplier',
             'articles.active AS status',
@@ -268,7 +269,11 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                 $result[] = array(
                     'leaf' => $mainCategory->isLeaf(),
                     'text' => $shop->getName(),
-                    'id' => $shop->getId()
+                    'id' => $shop->getId(),
+                    'lengowStatus' => Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue(
+                        'lengowEnableShop',
+                        $shop->getId()
+                    )
                 );
             }
         } else {

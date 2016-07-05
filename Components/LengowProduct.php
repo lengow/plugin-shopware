@@ -30,12 +30,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     protected $price;
     protected $shop;
 
-    public function __construct($details, $shop, $type = 'simple') {
+    public function __construct($details, $shop, $type = 'simple', $logOutput) {
         $this->product = $details->getArticle();
         $this->details = $details;
         $this->shop = $shop;
         $this->attributes = array();
         $this->type = $type;
+        $this->logOutput = $logOutput;
 
         $this->isVariation = $type == 'child' ? true : false;
         $this->getOptions();

@@ -276,7 +276,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $lengowVariantProduct = new Shopware_Plugins_Backend_Lengow_Components_LengowProduct(
                 $details,
                 $this->shop,
-                'child'
+                'child',
+                $this->logOutput
             );
 
             $productAttributes = $lengowVariantProduct->getAttributes();
@@ -300,14 +301,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 $lengowParentProduct = new Shopware_Plugins_Backend_Lengow_Components_LengowProduct(
                     $details,
                     $this->shop,
-                    'simple'
+                    'simple',
+                    $this->logOutput
                 );
                 $productsToExport[] = $lengowParentProduct;
             } else if ($details->getKind() == 1) { // If parent
                 $lengowParentProduct = new Shopware_Plugins_Backend_Lengow_Components_LengowProduct(
                     $details,
                     $this->shop,
-                    'parent'
+                    'parent',
+                    $this->logOutput
                 );
                 $productsToExport[] = $lengowParentProduct;
             }
