@@ -46,7 +46,18 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
             region: 'center',
             store: me.store,
             layout: 'fit',
-            bodyStyle: 'background:#fff;'
+            bodyStyle: 'background:#fff;',
+            listeners: {
+                itemdblclick: function(dv, record, item, index, e) {
+                    Shopware.app.Application.addSubApplication({
+                        name: 'Shopware.apps.Article',
+                        action: 'detail',
+                        params: {
+                            articleId: record.raw['articleId']
+                        }
+                    });
+                }  
+            }
         });
 
         return grid;

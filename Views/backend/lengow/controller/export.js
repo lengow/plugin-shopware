@@ -11,7 +11,7 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
         		exportShop: me.onExportShop,
         	},
             'product-listing-grid': {
-                setStatusInLengow: me.setStatusInLengow
+                setStatusInLengow: me.onSetStatusInLengow
             },
         });
 
@@ -40,7 +40,7 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
      * Change article Lengow status
      *
      */
-    setStatusInLengow: function(ids, status, categoryId) {
+    onSetStatusInLengow: function(ids, status, categoryId) {
         var me = this;
 
         Ext.Ajax.request({

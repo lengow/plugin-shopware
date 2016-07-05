@@ -4,28 +4,38 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
     extend: 'Ext.grid.Panel',
     alias:  'widget.product-listing-grid',
 
+    // Translations
     snippets: {
         column: {
-            number:         '{s name=export/grid/column/number}Number{/s}',
-            name:           '{s name=export/grid/column/name}Product name{/s}',
-            supplier:       '{s name=export/grid/column/supplier}Supplier{/s}',
-            active:         '{s name=export/grid/column/active}Active{/s}',
-            price:          '{s name=export/grid/column/price}Price{/s}',
-            tax:            '{s name=export/grid/column/tax}Tax{/s}',
-            stock:          '{s name=export/grid/column/stock}Stock{/s}',
-            lengowActive:   '{s name=export/grid/column/lengowActive}Lengow\'s products{/s}'
+            number: '{s name="export/grid/column/number" namespace="backend/Lengow/translation"}{/s}',
+            name: '{s name="export/grid/column/name" namespace="backend/Lengow/translation"}{/s}',
+            supplier: '{s name="export/grid/column/supplier" namespace="backend/Lengow/translation"}{/s}',
+            active: '{s name="export/grid/column/active" namespace="backend/Lengow/translation"}{/s}',
+            price: '{s name="export/grid/column/price" namespace="backend/Lengow/translation"}{/s}',
+            vat: '{s name="export/grid/column/tax" namespace="backend/Lengow/translation"}{/s}',
+            stock: '{s name="export/grid/column/stock" namespace="backend/Lengow/translation"}{/s}',
+            lengowStatus: '{s name="export/grid/column/export" namespace="backend/Lengow/translation"}{/s}'
         },
-        tooltip: {
-            activeProduct:      '{s name=export/grid/tooltip/active_product}Publish product{/s}',
-            desactiveProduct:   '{s name=export/grid/tooltip/desactive_product}Unpublish product{/s}',
-            seeProduct:         '{s name=export/grid/tooltip/see_product}See product{/s}'
+        line: {
+            add: '{s name="export/grid/line/add" namespace="backend/Lengow/translation"}{/s}',
+            remove: '{s name="export/grid/line/remove" namespace="backend/Lengow/translation"}{/s}'
         },
-        topToolbar: {
-            publishProducts:    '{s name=export/grid/topToolbar/publish_products}Publish products{/s}',
-            unpublishProducts:  '{s name=export/grid/topToolbar/unpublish_products}Unpublish products{/s}',
-            selectShopEmpty:    '{s name=export/grid/topToolbar/select_shop_empty}Select a shop...{/s}',
-            exportProducts:     '{s name=export/grid/topToolbar/export_products}Export products{/s}',
-            searchProducts:     '{s name=export/grid/topToolbar/search_products}Search...{/s}'
+        button: {
+            add: '{s name="export/panel/button/add" namespace="backend/Lengow/translation"}{/s}',
+            remove: '{s name="export/panel/button/remove" namespace="backend/Lengow/translation"}{/s}'
+        },
+        label: {
+            counter: {
+                count: '{s name="export/panel/label/counter/count" namespace="backend/Lengow/translation"}{/s}',
+                total: '{s name="export/panel/label/counter/total" namespace="backend/Lengow/translation"}{/s}'
+            },
+            shop: {
+                enabled: '{s name="export/panel/label/shop/status/enabled" namespace="backend/Lengow/translation"}{/s}',
+                disabled: '{s name="export/panel/label/shop/status/disabled" namespace="backend/Lengow/translation"}{/s}'
+            }
+        },
+        search: {
+            empty: '{s name="export/panel/search/empty" namespace="backend/Lengow/translation"}{/s}'
         }
     },
 
@@ -66,34 +76,34 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
         var columns = [
             {
-                header: '{s name="export/grid/column/number" namespace="backend/Lengow/translation"}{/s}',
+                header: me.snippets.column.number,
                 dataIndex: 'number',
                 flex: 2
             }, {
-                header: '{s name="export/grid/column/name" namespace="backend/Lengow/translation"}{/s}',
+                header: me.snippets.column.name,
                 dataIndex: 'name',
                 flex: 3
             }, {
-                header: '{s name="export/grid/column/supplier" namespace="backend/Lengow/translation"}{/s}',
+                header: me.snippets.column.supplier,
                 dataIndex: 'supplier',
                 flex: 3
             }, 
-            this.createActiveColumn('status', '{s name="export/grid/column/active" namespace="backend/Lengow/translation"}{/s}'), 
+            this.createActiveColumn('status', me.snippets.column.active), 
             {
-                header: '{s name="export/grid/column/price" namespace="backend/Lengow/translation"}{/s}',
+                header: me.snippets.column.price,
                 dataIndex: 'price',
                 xtype: 'numbercolumn',
                 width: 60
             }, { 
-                header: '{s name="export/grid/column/tax" namespace="backend/Lengow/translation"}{/s}',
+                header: me.snippets.column.vat,
                 dataIndex: 'vat',
                 width: 60
             }, {
-                header: '{s name="export/grid/column/stock" namespace="backend/Lengow/translation"}{/s}',
+                header: me.snippets.column.stock,
                 dataIndex: 'inStock',
                 flex: 1
             },
-            this.createActiveColumn('lengowActive', '{s name="export/grid/column/export" namespace="backend/Lengow/translation"}{/s}')
+            this.createActiveColumn('lengowActive', me.snippets.column.lengowStatus)
         ];
         return columns;
     }, 
@@ -134,11 +144,10 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             align: 'center',
             items: items,
             renderer : function(value, metadata, record) {
+                // Generate tooltip enable/disable article for Lengow status
                 if (lengowColumn) {
                     var status = record.get('lengowActive'),
-                        tooltip = status ? 
-                                '{s name="export/grid/line/remove" namespace="backend/Lengow/translation"}{/s}' :
-                                '{s name="export/grid/line/add" namespace="backend/Lengow/translation"}{/s}';
+                        tooltip = status ? me.snippets.line.remove : me.snippets.line.add;
                     metadata.tdAttr = 'data-qtip="' + tooltip + '"';
                 }
 
@@ -205,14 +214,15 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
      * @return [Ext.toolbar.Toolbar] grid toolbar
      */
     getToolbar: function() {
-        var me = this, 
+        var me = this,
+            store = me.store,
             buttons = [];
 
 
         me.publishProductsBtn = Ext.create('Ext.button.Button', {
             iconCls: 'sprite-plus-circle',
-            text: '{s name="export/panel/button/add" namespace="backend/Lengow/translation"}{/s}',
-            region: 'north',
+            text: me.snippets.button.add,
+            margins: '3 0 0 3',
             disabled: true,
             handler: function() {
                 var selectionModel = me.getSelectionModel(),
@@ -228,8 +238,8 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
         me.unpublishProductsBtn = Ext.create('Ext.button.Button', {
             iconCls: 'sprite-minus-circle',
-            text: '{s name="export/panel/button/remove" namespace="backend/Lengow/translation"}{/s}',
-            region: 'south',
+            text: me.snippets.button.remove,
+            margins: '3 0 0 5',
             disabled: true,
             handler: function() {
                 var selectionModel = me.getSelectionModel(),
@@ -243,24 +253,64 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             }
         });
 
+        var sprite = Ext.create('Ext.draw.Sprite', {
+                  type: 'path',
+                    animate:true,
+                  stroke: 'green',
+                  "stroke-width": 2,
+                  opacity: 0.5
+                });
+
+
         me.fireEvent('getNumberOfExportedProducts');
 
-        return [ 
-                me.publishProductsBtn,
-                me.unpublishProductsBtn,
-                {
-                    xtype: 'tbfill'
-                },
-                {
-                    ui: 'shopware-ui',
-                    xtype: 'label',
-                    id: 'cpt',
-                    region: 'south',
-                    forId: 'myFieldId',
-                    text: '',
-                    margins: '0 0 0 10'
-                }
-            ];
+        return [{
+                xtype: 'panel',
+                layout: 'anchor',
+                width: '100%',
+                border: false,
+                items: [{
+                    xtype: 'container',
+                    layout: 'hbox',
+                    items: [
+                        me.publishProductsBtn,
+                        me.unpublishProductsBtn,
+                        {
+                            xtype: 'tbfill'
+                        },
+                        {
+                            xtype : 'searchfield',
+                            name : 'searchfield',
+                            action : 'search',
+                            enableKeyEvents: true,
+                            checkChangeBuffer: 500,
+                            emptyText: me.snippets.search.empty,
+                            listeners: {
+                                action: function(field) {
+                                    console.log(field)
+                                },
+                            }
+                        }
+                    ]
+                }, {
+                    xtype: 'container',
+                    layout: 'hbox',
+                    items: [{
+                            id: 'shopStatus',
+                            xtype:'label',
+                            margins: '5 0 0 0'
+                        },
+                        {
+                            xtype: 'tbfill'
+                        },
+                        {
+                            xtype: 'label',
+                            id: 'productCounter',
+                            margins: '5 0 0 0'
+                        }
+                    ]
+                }]
+            }];
     },
 
     setNumberOfProductExported: function() {
@@ -272,11 +322,23 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                 var data = Ext.decode(operation.response.responseText);
                 var total = data['total'];
                 var lengowProducts = data['nbLengowProducts'];
-                var label = lengowProducts + ' {s name="export/panel/label/count" namespace="backend/Lengow/translation"}{/s} ' + 
-                            + total + ' {s name="export/panel/label/total" namespace="backend/Lengow/translation"}{/s}.';
-                Ext.getCmp('cpt').setText(label);
+                var label = lengowProducts + ' ' + me.snippets.label.counter.count + ' ' + total + ' ' + me.snippets.label.counter.total + '.';
+                Ext.getCmp('productCounter').setText(label);
             }
         });
+    },
+
+    setLengowShopStatus: function() {
+        var me = this,
+            status = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].raw['lengowStatus'];
+
+        if (status) {
+            label = me.snippets.label.shop.enabled;
+        } else {
+            label = me.snippets.label.shop.disabled;
+        }
+        var field = Ext.getCmp('shopStatus');
+        field.setText(label);
     }
 });
 //{/block}

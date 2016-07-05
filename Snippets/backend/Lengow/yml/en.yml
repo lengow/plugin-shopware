@@ -1,0 +1,44 @@
+en:
+  settings:
+    main:
+      account:
+        label: "Accound ID"
+        description: "Your Lengow account ID"
+      access:
+        label: "Access token"
+  export:
+    grid:
+      column:
+        number: "Article number"
+        name: "Name"
+        supplier: "Supplier"
+        active: "Active"
+        price: "Price"
+        tax: "Tax"
+        stock: "In stock"
+        export: "Export product"
+      line:
+        add: "Add to export"
+        remove: "Remove from export"
+    panel:
+      label:
+        counter:
+          count: "products exported over"
+          total: "products available"
+        shop:
+          status:
+            enabled: "The current shop is enabled for export"
+            disabled: "This shop is not enabled in Lengow for the export"
+      button:
+        add: "Add to export"
+        remove: "Remove from export"
+      search:
+        empty: "Search..."
+    button:
+      shop: "Export shop"
+      settings: "Configure Lengow"
+      register: "Get registered"
+  log:
+    download:
+      label: "Select a log"
+      button: "Download log"

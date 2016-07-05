@@ -37,7 +37,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                 // List of available shops
                 Ext.create('Ext.form.field.ComboBox', {
                     id: 'shopId',
-                    fieldLabel: 'Export shop',
+                    fieldLabel: '{s name="export/button/shop" namespace="backend/Lengow/translation"}{/s}',
                     displayField: 'name',
                     layout: 'fit',
                     editable: false,
@@ -52,7 +52,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                 me.createTree(),
                 // Settings button 
                 Ext.create('Ext.button.Button', {
-                    text: 'Configure Lengow',
+                    text: '{s name="export/button/settings" namespace="backend/Lengow/translation"}{/s}',
                     layout: 'fit',
                     region: 'top',
                     renderTo: Ext.getBody(),
@@ -64,7 +64,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                 }),
                 // Iframe button
                 Ext.create('Ext.button.Button', {
-                    text: 'Get registered',
+                    text: '{s name="export/button/register" namespace="backend/Lengow/translation"}{/s}',
                     layout: 'fit',
                     region: 'top',
                     renderTo: Ext.getBody(),
@@ -106,6 +106,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                         //scroll the store to first page
                         store.currentPage = 1;
                         Ext.getCmp('exportGrid').setNumberOfProductExported();
+                        Ext.getCmp('exportGrid').setLengowShopStatus();
                     }
                 },
                 scope: me
@@ -119,7 +120,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
         var me = this;
         return Ext.create('Ext.button.Button', {
             id: 'exportButton',
-            text: 'Export shop',
+            text: '{s name="export/button/shop" namespace="backend/Lengow/translation"}{/s}',
             enabled: false,
             disabled:true,
             handler: function(e) {
