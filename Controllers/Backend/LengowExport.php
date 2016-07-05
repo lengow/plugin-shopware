@@ -48,7 +48,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             'articles.active AS status',
             'details.number AS number',
             'details.inStock',
-            'CONCAT(tax.tax, \'%\') AS vat',
+            'CONCAT(tax.tax, \' %\') AS vat',
             'prices.price*(100+tax.tax)/100 AS price',
             'attributes.lengowShop' . $shopId . 'Active AS lengowActive'
         );

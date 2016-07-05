@@ -87,7 +87,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             }, { 
                 header: '{s name="export/grid/column/tax" namespace="backend/Lengow/translation"}{/s}',
                 dataIndex: 'vat',
-                xtype: 'numbercolumn',
                 width: 60
             }, {
                 header: '{s name="export/grid/column/stock" namespace="backend/Lengow/translation"}{/s}',
