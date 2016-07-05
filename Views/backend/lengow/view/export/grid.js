@@ -66,35 +66,35 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
         var columns = [
             {
-                header: me.snippets.column.number,
+                header: '{s name="export/grid/column/number" namespace="backend/Lengow/translation"}{/s}',
                 dataIndex: 'number',
                 flex: 2
             }, {
-                header: me.snippets.column.name,
+                header: '{s name="export/grid/column/name" namespace="backend/Lengow/translation"}{/s}',
                 dataIndex: 'name',
                 flex: 3
             }, {
-                header: me.snippets.column.supplier,
+                header: '{s name="export/grid/column/supplier" namespace="backend/Lengow/translation"}{/s}',
                 dataIndex: 'supplier',
                 flex: 3
             }, 
-            this.createActiveColumn('status', 'Active'), 
+            this.createActiveColumn('status', '{s name="export/grid/column/active" namespace="backend/Lengow/translation"}{/s}'), 
             {
-                header: me.snippets.column.price,
+                header: '{s name="export/grid/column/price" namespace="backend/Lengow/translation"}{/s}',
                 dataIndex: 'price',
                 xtype: 'numbercolumn',
                 width: 60
             }, { 
-                header: me.snippets.column.tax,
+                header: '{s name="export/grid/column/tax" namespace="backend/Lengow/translation"}{/s}',
                 dataIndex: 'vat',
                 xtype: 'numbercolumn',
                 width: 60
             }, {
-                header: me.snippets.column.stock,
+                header: '{s name="export/grid/column/stock" namespace="backend/Lengow/translation"}{/s}',
                 dataIndex: 'inStock',
                 flex: 1
             },
-            this.createActiveColumn('lengowActive', 'Export product')
+            this.createActiveColumn('lengowActive', '{s name="export/grid/column/export" namespace="backend/Lengow/translation"}{/s}')
         ];
         return columns;
     }, 
@@ -110,7 +110,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             lengowColumn = name == 'lengowActive' ? true : false;
 
         items.push({
-            tooltip: lengowColumn ? '{s name="activate_deactivate"}{/s}' : '',
             handler: function(grid, rowIndex, colIndex, item, eOpts, record) {
                 if (lengowColumn) {
                     var attributeId = record.raw['attributeId']
@@ -134,7 +133,18 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             xtype: 'actioncolumn',
             header: header,
             align: 'center',
-            items: items
+            items: items,
+            renderer : function(value, metadata, record) {
+                if (lengowColumn) {
+                    var status = record.get('lengowActive'),
+                        tooltip = status ? 
+                                '{s name="export/grid/line/remove" namespace="backend/Lengow/translation"}{/s}' :
+                                '{s name="export/grid/line/add" namespace="backend/Lengow/translation"}{/s}';
+                    metadata.tdAttr = 'data-qtip="' + tooltip + '"';
+                }
+
+                return value;
+            }
         };
     },
 
@@ -202,7 +212,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
         me.publishProductsBtn = Ext.create('Ext.button.Button', {
             iconCls: 'sprite-plus-circle',
-            text: 'Add to export',
+            text: '{s name="export/panel/button/add" namespace="backend/Lengow/translation"}{/s}',
             region: 'north',
             disabled: true,
             handler: function() {
@@ -219,7 +229,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
         me.unpublishProductsBtn = Ext.create('Ext.button.Button', {
             iconCls: 'sprite-minus-circle',
-            text: 'Remove from export',
+            text: '{s name="export/panel/button/remove" namespace="backend/Lengow/translation"}{/s}',
             region: 'south',
             disabled: true,
             handler: function() {
@@ -263,7 +273,8 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                 var data = Ext.decode(operation.response.responseText);
                 var total = data['total'];
                 var lengowProducts = data['nbLengowProducts'];
-                var label = lengowProducts + ' products exported over ' + total + ' products available.';
+                var label = lengowProducts + ' {s name="export/panel/label/count" namespace="backend/Lengow/translation"}{/s} ' + 
+                            + total + ' {s name="export/panel/label/total" namespace="backend/Lengow/translation"}{/s}.';
                 Ext.getCmp('cpt').setText(label);
             }
         });

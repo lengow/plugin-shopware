@@ -48,14 +48,10 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             'articles.active AS status',
             'details.number AS number',
             'details.inStock',
-            'tax.tax AS vat',
-            'prices.price*(100+tax.tax)/100 AS price'
+            'CONCAT(tax.tax, \'%\') AS vat',
+            'prices.price*(100+tax.tax)/100 AS price',
+            'attributes.lengowShop' . $shopId . 'Active AS lengowActive'
         );
-
-        // If a shop in the tree is selected, get articles status for this one
-        if (!$isRootSelected) {
-            $select[] = 'attributes.lengowShop' . $shopId . 'Active AS lengowActive';
-        }
 
         $builder = $em->createQueryBuilder();
         $builder->select($select)
@@ -267,15 +263,13 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
 
             foreach ($shops as $shop) {
-                if ($shop->getActive()) {
-                    $mainCategory = $shop->getCategory();
+                $mainCategory = $shop->getCategory();
 
-                    $result[] = array(
-                        'leaf' => $mainCategory->isLeaf(),
-                        'text' => $shop->getName(),
-                        'id' => $shop->getId()
-                    );
-                }
+                $result[] = array(
+                    'leaf' => $mainCategory->isLeaf(),
+                    'text' => $shop->getName(),
+                    'id' => $shop->getId()
+                );
             }
         } else {
             // As tree requires a unique id, explode id to get the shop and the category id
