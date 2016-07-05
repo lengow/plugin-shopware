@@ -279,6 +279,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 $this->productFields[$value] = $option;
             }
 
+            // If the current article is the default product,
+            // add the parent product to the feed
+            if ($details->getKind() == 1) {
+                $parentProduct = new Shopware_Plugins_Backend_Lengow_Components_LengowProduct(
+                    $details,
+                    $this->shop,
+                    false
+                );
+                $productsToExport[] = $parentProduct;
+            }
+
             $productsToExport[] = $lengowProduct;
         }
 

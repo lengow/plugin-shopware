@@ -30,13 +30,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     protected $price;
     protected $shop;
 
-    public function __construct($details, $shop) {
+    public function __construct($details, $shop, $isVariation = true) {
         $this->product = $details->getArticle();
         $this->details = $details;
         $this->shop = $shop;
         $this->attributes = array();
 
-        $this->isVariation = $this->details->getKind() != 1 ? true : false;
+        $this->isVariation = $isVariation;
         $this->getOptions();
         $this->getPrice();
     }
@@ -61,7 +61,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->product->getName());
                 break;
             case 'quantity':
-                return $this->details->getInStock();
+                return $this->details->getInStock() > 0 ? $this->details->getInStock() : 0;
                 break;
             case 'category':
                 return $this->getBreadcrumb();
@@ -174,7 +174,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 break;
             default:
                 $result = '';
-                if (array_key_exists($name, $this->attributes)) {
+                if (array_key_exists($name, $this->attributes)
+                    && $this->isVariation) {
                     $result = $this->attributes[$name];
                 }
                 return $result;
@@ -184,23 +185,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 
     private function getImagePath($index)
     {
-        $host = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl() . '/';
-        $product_images = $this->product->getImages();
-        $image = $product_images[$index - 1];
-        // Get image for parent product
-        if ($image != null) {
-            if ($image->getMedia() != null) {
-                $media = $image->getMedia();
-                if ($media->getPath() != null) {
-                    $mediaPath = $media->getPath();
-                    return $host . $mediaPath;
-                }
-            }
-        } else if ($this->isVariation) {
-            $variation_images = $this->details->getImages();
-            $index_variation = $index - count($product_images) - 1;
-            $image = $variation_images[$index_variation];
-            if ($image != null) {
+        try {
+            $host = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl() . '/';
+            $product_images = $this->product->getImages();
+            $image = $product_images[$index - 1];
+            // Get image for parent product
+            if (!$this->isVariation && $image != null) {
                 if ($image->getMedia() != null) {
                     $media = $image->getMedia();
                     if ($media->getPath() != null) {
@@ -208,8 +198,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                         return $host . $mediaPath;
                     }
                 }
+            } else {
+                $variation_images = $this->details->getImages();
+                $index_variation = $index - count($product_images) - 1;
+                $image = $variation_images[$index_variation];
+                if ($image != null) {
+                    if ($image->getMedia() != null) {
+                        $media = $image->getMedia();
+                        if ($media->getPath() != null) {
+                            $mediaPath = $media->getPath();
+                            return $host . $mediaPath;
+                        }
+                    }
+                }
             }
+        } catch (Exception $e) {
+            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log.export.error_entity_not_found')
+            );
         }
+
         return '';
     }
 
