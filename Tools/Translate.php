@@ -48,6 +48,8 @@ foreach ($listFiles as $list) {
     foreach ($ymlFile as $language => $categories) {
         writeIniFile($fp, $categories);
     }
+
+    fwrite($fp, "\n");
 }
 
 if ($defaultTranslation) {

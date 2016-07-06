@@ -82,4 +82,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
         return count($translation) > 0;
     }
 
+    public static function containsIso($isoCode)
+    {
+        if (!isset(self::$translation[$iso_code])) {
+            $this->loadFile();
+        }
+
+        return array_key_exists($isoCode, self::$translation);
+    }
+
 }

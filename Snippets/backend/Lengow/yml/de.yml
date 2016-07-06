@@ -1,32 +1,32 @@
-en:
+de:
   settings:
     general:
       select:
-        select_yes: "Yes"
-        select_no: "No"
+        select_yes: "Ja"
+        select_no: "Nein"
     lengow_main_settings:
-      label: "Main settings"
-      description: "Set main settings"
+      label: "Haupteinstellungen"
+      description: "Set Haupteinstellungen"
       enable:
-        label: "Enable shop"
+        label: "Aktive shop"
         description: "Enable this shop for Lengow"
       account:
-        label: "Account ID"
+        label: "Konto ID"
         description: "Your Lengow account ID"
       access:
-        label: "Access Token"
+        label: "Zugriff Token"
         description: "Your access token"
       secret:
-        label: "Secret Token"
+        label: "Geheimnis Token"
         description: "Your secret token"
       ip:
         label: "Authorized IP"
         description: "Authorized IP separated by ';'"
     lengow_export_settings:
-      label: "Export settings"
+      label: "Exporteinstellungen"
       description: "Set export settings"
       variation:
-        label: "Export product variations"
+        label: "Export Produktvarianten"
         description: "Use this option if you want to export all of your catalogue with variations"
       out_stock:
         label: "Export out of stock products"
@@ -49,12 +49,12 @@ en:
   export:
     grid:
       column:
-        number: "Article number"
+        number: "Artikelnummer"
         name: "Name"
-        supplier: "Supplier"
-        active: "Active"
-        price: "Price"
-        tax: "Tax"
+        supplier: "Hersteller"
+        active: "Aktiv"
+        price: "Preis"
+        tax: "Steuersatz"
         stock: "In stock"
         export: "Export product"
       line:
@@ -82,26 +82,3 @@ en:
     download:
       label: "Select a log"
       button: "Download log"
-    export:
-      start: "## start export ##"
-      end: "## end export ##"
-      start_for_shop: "Start export for shop %{name_shop} (%{id_shop})"
-      nb_product_found: "%{nb_product} product(s) found"
-      count_product: "%{numberOfProducts} product(s) exported"
-      export_failed: "export failed - %{decoded_message}"
-      your_feed_available_here: "Your feed is available here: <a href='%{feed_url}' target='_blank'>%{feed_url}</a>"
-      error_folder_not_writable: "Export file generation did not end properly. Please make sure the export folder is writable"
-      error_no_product_combination: "Unable to retrieve product combinations"
-      error_illegal_export_format: "Illegal export format"
-      error_media_not_found: "Media images not found for product : '%{detailsName}' (%{detailsId})"
-    install:
-      start: "## start install ##"
-      end: "## end install ##"
-      add_column: "Adding column %{column} to %{table} table"
-      settings: "Adding setting %{settingName}"
-      add_form: "Creating %{formName} form"
-      add_menu: "Installing menu item"
-    uninstall:
-      start: "## start uninstall ##"
-      end: "## end uninstall ##"
-      remove_column: "Removing column %{column} from %{table} table"

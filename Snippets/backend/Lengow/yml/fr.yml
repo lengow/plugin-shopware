@@ -1,0 +1,80 @@
+en:
+  settings:
+    general:
+      select:
+        select_yes: "Oui"
+        select_no: "Non"
+    lengow_main_settings:
+      label: "Paramètres généraux"
+      description: "Gestion les paramètes généraux"
+      enable:
+        label: "Activer la boutique"
+        description: "Activer cette boutique dans Lengow"
+      account:
+        label: "Account ID"
+        description: "Votre account ID Lengow"
+      access:
+        label: "Access Token"
+        description: "Votre token d'accès"
+      secret:
+        label: "Secret Token"
+        description: "Votre token secret"
+      ip:
+        label: "IP autorisées"
+        description: "Liste des ip autorisées séparées par ';'"
+    lengow_export_settings:
+      label: "Paramètres d'export"
+      description: "Gestion des paramètes d'export"
+      variation:
+        label: "Exporter les variations de produit"
+        description: "Use this option if you want to export all of your catalogue with variations"
+      out_stock:
+        label: "Exporter les produits hors stock"
+        description: "Use this option if you want to export out of stock products"
+      disabled_products:
+        label: "Exporter les produits inactifs"
+        description: "Enable this option if you want to export inactive products"
+      lengow_selection:
+        label: "Exporter uniquement la sélection Lengow"
+        description: "Activate this option if you do not want to export all of your avaible products. Then, only select the products you want to export"
+      dispatcher:
+        label: "Default dispatcher"
+        description: "Select the default dispatcher that you would like to apply to your orders"
+    lengow_import_settings:
+      label: "Paramètres d'import"
+      description: "Gestion des paramètes d'import"
+      decrease_stock:
+        label: "Je souhaite diminuer mes stocks"
+        description: "Use this option to take into account your marketplaces orders on your stock in your Shopware backoffice"
+  export:
+    grid:
+      column:
+        number: "Numéro d'article"
+        name: "Nom"
+        supplier: "Fournisseur"
+        active: "Actif"
+        price: "Prix"
+        tax: "Taxe"
+        stock: "En stock"
+        export: "Exporter le produit"
+      line:
+        add: "Ajouter à l'export"
+        remove: "Supprimer de l'export"
+    panel:
+      label:
+        counter:
+          count: "produits exportés sur"
+          total: "produits disponibles"
+        shop:
+          status:
+            enabled: "The current shop is enabled for export"
+            disabled: "This shop is not enabled in Lengow for the export"
+      button:
+        add: "Ajouter à l'export"
+        remove: "Supprimer de l'export"
+      search:
+        empty: "Rechercher..."
+    button:
+      shop: "Exporter la boutique"
+      settings: "Configure Lengow"
+      register: "S'enregistrer"
