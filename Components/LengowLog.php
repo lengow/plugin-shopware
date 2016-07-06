@@ -36,7 +36,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
      */
     public function write($category, $message = "", $display = false, $marketplace_sku = null)
     {
-        $decoded_message = $message;
+        $decoded_message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($message, 'en');
         $log = date('Y-m-d H:i:s');
         $log .= ' - '.(empty($category) ? '' : '['.$category.'] ');
         $log .= ''.(empty($marketplace_sku) ? '' : 'order '.$marketplace_sku.' : ');

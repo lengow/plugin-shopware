@@ -227,12 +227,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         } catch (Exception $e) {
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                 'Warning',
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log.export.warning.image', array(
-                    'message' => $e
-                )),
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/export/error_media_not_found',
+                    array(
+                        'detailsId' => $this->details->getId(),
+                        'detailsName' => $this->product->getName()
+                    )
+                ),
                 $this->logOutput
             );
-            return '';
         }
 
         return '';

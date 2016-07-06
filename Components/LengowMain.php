@@ -37,6 +37,35 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
+     * Decode message with params for translation
+     *
+     * @param string $message
+     * @param string $iso_code
+     * @param mixed  $params
+     *
+     * @return string
+     */
+    public static function decodeLogMessage($message, $iso_code = null, $params = null)
+    {
+        if (preg_match('/^(([a-z\_]*\/){1,3}[a-z\_]*)(\[(.*)\]|)$/', $message, $result)) {
+            if (isset($result[1])) {
+                $key = $result[1];
+            }
+            if (isset($result[4]) && is_null($params)) {
+                $str_param = $result[4];
+                $all_params = explode('|', $str_param);
+                foreach ($all_params as $param) {
+                    $result = explode('==', $param);
+                    $params[$result[0]] = $result[1];
+                }
+            }
+            $locale = new Shopware_Plugins_Backend_Lengow_Components_LengowTranslation();
+            $message = $locale->t($key, $params, $iso_code);
+        }
+        return $message;
+    }
+
+    /**
      * Writes log
      *
      * @param string $category Category log

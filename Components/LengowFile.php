@@ -95,8 +95,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
             if (!$this->exists()) {
                 $this->link = null;
             }
-            $base = Shopware()->Plugins()->Backend()->Lengow()->Path();
-            $this->link = $base.$this->folder_name.'/'.$this->file_name;
+            $sep = DIRECTORY_SEPARATOR;
+            $base = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl();
+            $lengowDir = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
+            $this->link = $base . $lengowDir . $this->folder_name.'/'.$this->file_name;
         }
         return $this->link;
 

@@ -173,7 +173,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     {
        if (!in_array($this->format, Shopware_Plugins_Backend_Lengow_Components_LengowFeed::$AVAILABLE_FORMATS)) {
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log.export.error_illegal_export_format')
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/export/error_illegal_export_format')
             );
         }
         return true;
@@ -204,37 +204,62 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         $products = $this->getIdToExport();
 
         if ($this->mode != 'size') {
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Export', 
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log.export.start'), 
-                $this->logOutput
-            );
+            try {
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                    'Export', 
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/export/start'), 
+                    $this->logOutput
+                );
 
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Export',
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log.export.start_for_shop', array(
-                    'name_shop' => $this->shop->getName(),
-                    'id_shop'   => $this->shop->getId()
-                )),
-                $this->logOutput
-            );
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                    'Export',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/export/start_for_shop', 
+                        array(
+                            'name_shop' => $this->shop->getName(),
+                            'id_shop'   => $this->shop->getId()
+                        )
+                    ),
+                    $this->logOutput
+                );
 
-            // Setup feed
-            $this->feed = new Shopware_Plugins_Backend_Lengow_Components_LengowFeed(
-                $this->stream,
-                $this->format,
-                $this->shop->getName()
-            );
+                // Setup feed
+                $this->feed = new Shopware_Plugins_Backend_Lengow_Components_LengowFeed(
+                    $this->stream,
+                    $this->format,
+                    $this->shop->getName()
+                );
 
-            $this->export($products);
+                $this->export($products);
 
-            $this->feed->write('footer');
+                $this->feed->write('footer');
 
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Export',
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log.export.end'),
-                $this->logOutput
-            );
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                    'Export',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/export/end'),
+                    $this->logOutput
+                );
+            } catch (LengowException $e) {
+                $errorMessage = $e->getMessage();
+            } catch (Exception $e) {
+                $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            }
+
+            if (isset($errorMessage)) {
+                $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                    $errorMessage, 
+                    'en_GB'
+                );
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                    'Export',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                        'log/export/export_failed', 
+                        array(
+                            'decoded_message' => $decodedMessage
+                        )
+                    ),
+                    $this->logOutput
+                );
+            }
         } else {
             $total = count($products);
 
@@ -323,7 +348,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
             'Export',
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'log.export.nb_product_found', 
+                'log/export/nb_product_found', 
                 array("nb_product" => $total)
             ),
             $this->logOutput
@@ -350,9 +375,32 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             if ($displayedProducts > 0 && $displayedProducts % 10 == 0 && $displayedProducts < $total) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Export',
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log.export.count_product', array(
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/export/count_product', array(
                         'numberOfProducts' => $displayedProducts
                     )),
+                    $this->logOutput
+                );
+            }
+        }
+
+        $success = $this->feed->end();
+        if (!$success) {
+            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/export/error_folder_not_writable')
+            );
+        }
+
+        if (!$this->stream) {
+            $feed_url = $this->feed->getUrl();
+            if ($feed_url && php_sapi_name() != "cli") {
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                    'Export',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                        'log/export/your_feed_available_here', 
+                        array(
+                            'feed_url' => $feed_url
+                        )
+                    ),
                     $this->logOutput
                 );
             }
