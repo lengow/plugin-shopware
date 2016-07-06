@@ -226,15 +226,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 $this->shop->getName()
             );
 
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Export',
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'log.export.nb_product_found', 
-                    array("nb_product" => count($products))
-                ),
-                $this->logOutput
-            );
-
             $this->export($products);
 
             $this->feed->write('footer');
@@ -247,7 +238,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         } else {
             $total = count($products);
 
-            // As Shopware uses variations as "parents", we need to count it twice
+            // As Shopware uses default articles as "parents", we need to count it twice
             foreach ($products as $article) {
                 if ($article['kind'] == 1 && $article['isParent'] != null) {
                     $total++;
@@ -260,7 +251,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 
     /**
      * Export products in feed
-     * @param $articles array list of articles to export
+     * @param $articles array List of articles to export
      */
     private function export($articles)
     {
@@ -294,8 +285,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $lengowParentProduct = null;
             $isSimple = false;
 
-            // If the current article is the default article,
-            // add the parent article to the feed
+            // If the current article is the default article, add the parent article to the feed
             if ($details->getArticle()->getConfiguratorSet() === null) { // If it has no variants
                 $isSimple = true;
                 $lengowParentProduct = new Shopware_Plugins_Backend_Lengow_Components_LengowProduct(
@@ -326,23 +316,42 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         $this->feed->write('header', $header);
 
         $numberOfProducts = 0;
+        $displayedProducts = 0;
         $isFirst = true; // Used for json format
         $total = count($productsToExport);
 
+        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+            'Export',
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                'log.export.nb_product_found', 
+                array("nb_product" => $total)
+            ),
+            $this->logOutput
+        );
+
         // Write products in the feed when the header is ready
-        foreach ($productsToExport as $idProduct => $product) {
-            $numberOfProducts++;
+        foreach ($productsToExport as $product) {
+            if (($this->offset != 0 && $this->offset > $numberOfProducts)) {
+                $numberOfProducts++;
+                continue;
+            }
+
+            if ($this->limit != 0 && $this->limit <= $displayedProducts) {
+                break;
+            }
 
             $data = $this->getFields($product);
             $this->feed->write('body', $data, $isFirst);
             $isFirst = false;
+            $numberOfProducts++;
+            $displayedProducts++;
 
             // Log each time 10 products are exported
-            if ($numberOfProducts > 0 && $numberOfProducts % 10 == 0 && $numberOfProducts < $total) {
+            if ($displayedProducts > 0 && $displayedProducts % 10 == 0 && $displayedProducts < $total) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Export',
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log.export.count_product', array(
-                        'numberOfProducts' => $numberOfProducts
+                        'numberOfProducts' => $displayedProducts
                     )),
                     $this->logOutput
                 );
@@ -411,16 +420,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         // If no variation, get only parent products
         if (!$this->exportVariation) {
             $builder->andWhere('details.kind = 1');
-        }
-
-        // Offset option
-        if ($this->offset > 0) {
-            $builder->setFirstResult($this->offset);
-        }
-
-        // Limit option
-        if ($this->limit > 0) {
-            $builder->setMaxResults($this->limit);
         }
 
         $builder->orderBy('categories.id, details.kind')
