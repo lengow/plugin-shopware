@@ -4,8 +4,21 @@ Ext.define('Shopware.apps.Lengow.store.Logs', {
     alias: 'store.lengow-logs',
     model: 'Shopware.apps.Lengow.model.Logs',
 
+    // Translations
+    snippets: {
+        all: '{s name="global/select/select_all" namespace="backend/Lengow/translation"}{/s}'
+    },
+
     configure: function() {
         return { controller: 'LengowLogs' };
+    },
+
+    listeners: {
+        load: function(store){
+            var me = this,
+            rec = { id: '', name: me.snippets.all };
+            store.insert(0,rec);    
+        }
     },
 
     /**

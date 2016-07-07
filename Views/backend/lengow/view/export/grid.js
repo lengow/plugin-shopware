@@ -21,21 +21,21 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             remove: '{s name="export/grid/line/remove" namespace="backend/Lengow/translation"}{/s}'
         },
         button: {
-            add: '{s name="export/panel/button/add" namespace="backend/Lengow/translation"}{/s}',
-            remove: '{s name="export/panel/button/remove" namespace="backend/Lengow/translation"}{/s}'
+            add: '{s name="export/grid/button/add" namespace="backend/Lengow/translation"}{/s}',
+            remove: '{s name="export/grid/button/remove" namespace="backend/Lengow/translation"}{/s}'
         },
         label: {
             counter: {
-                count: '{s name="export/panel/label/counter/count" namespace="backend/Lengow/translation"}{/s}',
-                total: '{s name="export/panel/label/counter/total" namespace="backend/Lengow/translation"}{/s}'
+                count: '{s name="export/grid/label/counter/count" namespace="backend/Lengow/translation"}{/s}',
+                total: '{s name="export/grid/label/counter/total" namespace="backend/Lengow/translation"}{/s}'
             },
             shop: {
-                enabled: '{s name="export/panel/label/shop/status/enabled" namespace="backend/Lengow/translation"}{/s}',
-                disabled: '{s name="export/panel/label/shop/status/disabled" namespace="backend/Lengow/translation"}{/s}'
+                enabled: '{s name="export/grid/label/status/enabled" namespace="backend/Lengow/translation"}{/s}',
+                disabled: '{s name="export/grid/label/status/disabled" namespace="backend/Lengow/translation"}{/s}'
             }
         },
         search: {
-            empty: '{s name="export/panel/search/empty" namespace="backend/Lengow/translation"}{/s}'
+            empty: '{s name="export/grid/search/empty" namespace="backend/Lengow/translation"}{/s}'
         }
     },
 
@@ -54,7 +54,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
      * Creates the grid selection model for checkboxes
      * @return [Ext.selection.CheckboxModel] grid selection model
      */
-    getGridSelModel: function () {
+     getGridSelModel: function () {
         var me = this;
 
         return Ext.create('Ext.selection.CheckboxModel', {
@@ -71,39 +71,39 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
     /**
      *  Creates the columns
      */
-    getColumns: function(){
+     getColumns: function(){
         var me = this;
 
         var columns = [
-            {
-                header: me.snippets.column.number,
-                dataIndex: 'number',
-                flex: 2
-            }, {
-                header: me.snippets.column.name,
-                dataIndex: 'name',
-                flex: 3
-            }, {
-                header: me.snippets.column.supplier,
-                dataIndex: 'supplier',
-                flex: 3
-            }, 
-            this.createActiveColumn('status', me.snippets.column.active), 
-            {
-                header: me.snippets.column.price,
-                dataIndex: 'price',
-                xtype: 'numbercolumn',
-                width: 60
-            }, { 
-                header: me.snippets.column.vat,
-                dataIndex: 'vat',
-                width: 60
-            }, {
-                header: me.snippets.column.stock,
-                dataIndex: 'inStock',
-                flex: 1
-            },
-            this.createActiveColumn('lengowActive', me.snippets.column.lengowStatus)
+        {
+            header: me.snippets.column.number,
+            dataIndex: 'number',
+            flex: 2
+        }, {
+            header: me.snippets.column.name,
+            dataIndex: 'name',
+            flex: 3
+        }, {
+            header: me.snippets.column.supplier,
+            dataIndex: 'supplier',
+            flex: 3
+        }, 
+        this.createActiveColumn('status', me.snippets.column.active), 
+        {
+            header: me.snippets.column.price,
+            dataIndex: 'price',
+            xtype: 'numbercolumn',
+            width: 60
+        }, { 
+            header: me.snippets.column.vat,
+            dataIndex: 'vat',
+            width: 60
+        }, {
+            header: me.snippets.column.stock,
+            dataIndex: 'inStock',
+            flex: 1
+        },
+        this.createActiveColumn('lengowActive', me.snippets.column.lengowStatus)
         ];
         return columns;
     }, 
@@ -113,16 +113,16 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
      * @param name Field key of the Article model
      * @param header Header to display for this column
      */
-    createActiveColumn: function(name, header) {
+     createActiveColumn: function(name, header) {
         var me = this,
-            items = [],
-            lengowColumn = name == 'lengowActive' ? true : false;
+        items = [],
+        lengowColumn = name == 'lengowActive' ? true : false;
 
         items.push({
             handler: function(grid, rowIndex, colIndex, item, eOpts, record) {
                 if (lengowColumn) {
                     var attributeId = record.raw['attributeId']
-                        categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id');
+                    categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id');
                     me.fireEvent('setStatusInLengow', Ext.encode([attributeId]), !record.get('lengowActive'), categoryId);
                     me.setNumberOfProductExported();
                 }
@@ -147,7 +147,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                 // Generate tooltip enable/disable article for Lengow status
                 if (lengowColumn) {
                     var status = record.get('lengowActive'),
-                        tooltip = status ? me.snippets.line.remove : me.snippets.line.add;
+                    tooltip = status ? me.snippets.line.remove : me.snippets.line.add;
                     metadata.tdAttr = 'data-qtip="' + tooltip + '"';
                 }
 
@@ -159,7 +159,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
     /**
      * Creates the paging toolbar
      */
-    createPagingToolbar: function() {
+     createPagingToolbar: function() {
         var me = this;
         var pageSize = Ext.create('Ext.form.field.ComboBox', {
             labelWidth: 120,
@@ -173,11 +173,11 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             store: Ext.create('Ext.data.Store', {
                 fields: [ 'value' ],
                 data: [
-                    { value: '20' },
-                    { value: '40' },
-                    { value: '60' },
-                    { value: '80' },
-                    { value: '100' }
+                { value: '20' },
+                { value: '40' },
+                { value: '60' },
+                { value: '80' },
+                { value: '100' }
                 ]
             }),
             displayField: 'value',
@@ -202,9 +202,9 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
      * @param [array] records - Array of selected entries
      * @return void
      */
-    onPageSizeChange: function(combo, records) {
+     onPageSizeChange: function(combo, records) {
         var record = records[0],
-            me = this;
+        me = this;
         me.store.pageSize = record.get('value');
         me.store.loadPage(1);
     },
@@ -213,10 +213,10 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
      * Creates the grid toolbar
      * @return [Ext.toolbar.Toolbar] grid toolbar
      */
-    getToolbar: function() {
+     getToolbar: function() {
         var me = this,
-            store = me.store,
-            buttons = [];
+        store = me.store,
+        buttons = [];
 
 
         me.publishProductsBtn = Ext.create('Ext.button.Button', {
@@ -226,9 +226,9 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             disabled: true,
             handler: function() {
                 var selectionModel = me.getSelectionModel(),
-                    records = selectionModel.getSelection(),
-                    categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id')
-                    attributeIds = [];
+                records = selectionModel.getSelection(),
+                categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id')
+                attributeIds = [];
                 Ext.each(records, function(record) {
                     attributeIds.push(record.raw['attributeId']);
                 });
@@ -243,9 +243,9 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             disabled: true,
             handler: function() {
                 var selectionModel = me.getSelectionModel(),
-                    records = selectionModel.getSelection(),
-                    categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id'),
-                    attributeIds = [];
+                records = selectionModel.getSelection(),
+                categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id'),
+                attributeIds = [];
                 Ext.each(records, function(record) {
                     attributeIds.push(record.raw['attributeId']);
                 });
@@ -254,75 +254,56 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         });
 
         var sprite = Ext.create('Ext.draw.Sprite', {
-                  type: 'path',
-                    animate:true,
-                  stroke: 'green',
-                  "stroke-width": 2,
-                  opacity: 0.5
-                });
+          type: 'path',
+          animate:true,
+          stroke: 'green',
+          "stroke-width": 2,
+          opacity: 0.5
+      });
 
 
         me.fireEvent('getNumberOfExportedProducts');
 
         return [{
-                xtype: 'panel',
-                layout: 'anchor',
-                width: '100%',
-                border: false,
-                items: [{
-                    xtype: 'container',
-                    layout: 'hbox',
-                    items: [
-                        me.publishProductsBtn,
-                        me.unpublishProductsBtn,
-                        {
-                            xtype: 'tbfill'
-                        },
-                        {
-                            xtype : 'searchfield',
-                            name : 'searchfield',
-                            action : 'search',
-                            enableKeyEvents: true,
-                            checkChangeBuffer: 500,
-                            emptyText: me.snippets.search.empty,
-                            listeners: {
-                                action: function(field) {
-                                    console.log(field)
-                                },
-                            }
-                        }
-                    ]
-                }, {
-                    xtype: 'container',
-                    layout: 'hbox',
-                    items: [{
-                            id: 'shopStatus',
-                            xtype:'label',
-                            margins: '5 0 0 0'
-                        },
-                        {
-                            xtype: 'tbfill'
-                        },
-                        {
-                            xtype: 'label',
-                            id: 'productCounter',
-                            margins: '5 0 0 0'
-                        }
-                    ]
-                }]
-            }];
+            xtype: 'panel',
+            layout: 'anchor',
+            width: '100%',
+            border: false,
+            items: [
+            me.getSearchFieldComponent(), 
+            {
+                xtype: 'container',
+                layout: 'hbox',
+                items: [
+                {
+                    id: 'shopStatus',
+                    xtype:'label',
+                    margins: '5 0 0 0'
+                },
+                {
+                    xtype: 'tbfill'
+                },
+                {
+                    xtype: 'label',
+                    id: 'productCounter',
+                    margins: '5 0 0 0'
+                }
+                ]
+            }
+            ]
+        }];
     },
 
     setNumberOfProductExported: function() {
         var me = this,
-            store = me.store;
+        store = me.store;
         store.load({
             scope: this,
             callback: function(records, operation, success) {
-                var data = Ext.decode(operation.response.responseText);
-                var total = data['total'];
-                var lengowProducts = data['nbLengowProducts'];
-                var label = lengowProducts + ' ' + me.snippets.label.counter.count + ' ' + total + ' ' + me.snippets.label.counter.total + '.';
+                var data = Ext.decode(operation.response.responseText),
+                    total = data['total'],
+                    lengowProducts = data['nbLengowProducts'],
+                    label = lengowProducts + ' ' + me.snippets.label.counter.count + ' ' + total + ' ' + me.snippets.label.counter.total + '.';
                 Ext.getCmp('productCounter').setText(label);
             }
         });
@@ -330,7 +311,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
     setLengowShopStatus: function() {
         var me = this,
-            status = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].raw['lengowStatus'];
+        status = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].raw['lengowStatus'];
 
         if (status) {
             label = me.snippets.label.shop.enabled;
@@ -339,6 +320,47 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         }
         var field = Ext.getCmp('shopStatus');
         field.setText(label);
+    },
+
+    getSearchFieldComponent: function() {
+        var me = this;
+        return {
+            xtype: 'container',
+            layout: 'hbox',
+            items: [
+            me.publishProductsBtn,
+            me.unpublishProductsBtn,
+            {
+                xtype: 'tbfill'
+            },
+            {
+                xtype : 'textfield',
+                name : 'searchfield',
+                action : 'search',
+                cls: 'searchfield',
+                enableKeyEvents: true,
+                checkChangeBuffer: 500,
+                emptyText: me.snippets.search.empty,
+                listeners: {
+                    change: function(field, value) {
+                        var store        = me.store,
+                        searchString = Ext.String.trim(value);
+                        //scroll the store to first page
+                        store.currentPage = 1;
+                        //If the search-value is empty, reset the filter
+                        if (searchString.length === 0 ) {
+                            store.clearFilter();
+                        } else {
+                            //This won't reload the store
+                            store.filters.clear();
+                            //Loads the store with a special filter
+                            store.filter('search', searchString);
+                        }
+                    },
+                }
+            }
+            ]
+        };
     }
 });
 //{/block}

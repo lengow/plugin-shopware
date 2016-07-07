@@ -8,6 +8,19 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
 
     title: '{s name=categories}Categories{/s}',
 
+    // Translations
+    snippets: {
+        export: {
+            label: {
+                shop: '{s name="export/panel/label/shop" namespace="backend/Lengow/translation"}{/s}'
+            },
+            button: {
+                settings: '{s name="export/button/settings" namespace="backend/Lengow/translation"}{/s}',
+                register: '{s name="export/button/register" namespace="backend/Lengow/translation"}{/s}'
+            }
+        }
+    },
+
     initComponent: function () {
         var me = this;
 
@@ -37,7 +50,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                 // List of available shops
                 Ext.create('Ext.form.field.ComboBox', {
                     id: 'shopId',
-                    fieldLabel: '{s name="export/button/shop" namespace="backend/Lengow/translation"}{/s}',
+                    fieldLabel: me.snippets.export.label.shop,
                     displayField: 'name',
                     layout: 'fit',
                     editable: false,
@@ -52,7 +65,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                 me.createTree(),
                 // Settings button 
                 Ext.create('Ext.button.Button', {
-                    text: '{s name="export/button/settings" namespace="backend/Lengow/translation"}{/s}',
+                    text: me.snippets.export.button.settings,
                     layout: 'fit',
                     region: 'top',
                     renderTo: Ext.getBody(),
@@ -64,7 +77,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                 }),
                 // Iframe button
                 Ext.create('Ext.button.Button', {
-                    text: '{s name="export/button/register" namespace="backend/Lengow/translation"}{/s}',
+                    text: me.snippets.export.button.register,
                     layout: 'fit',
                     region: 'top',
                     renderTo: Ext.getBody(),

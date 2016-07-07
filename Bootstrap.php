@@ -63,7 +63,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function install()
     {
-        $this->log('Install', 'log/install/start');
+        $this->log('log/install/start');
 
         if (!$this->assertMinimumVersion('4.0.0')) {
             throw new \RuntimeException('At least Shopware 4.0.0 is required');
@@ -78,14 +78,14 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 			'class' => 'lengow--icon'
         ));
 
-        $this->log('Install', 'log/install/add_menu');
+        $this->log('log/install/add_menu');
 
         $this->createConfig();
         $this->updateSchema();
         $this->registerMyEvents();
         $this->Plugin()->setActive(true);
 
-        $this->log('Install', 'log/install/end');
+        $this->log('log/install/end');
 
         return array('success' => true, 'invalidateCache' => array('backend'));
     }
@@ -112,7 +112,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function uninstall()
     {
-        $this->log('Install', 'log/uninstall/start');
+        $this->log('log/uninstall/start');
 
         $shops = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getShopsIds();
 
@@ -124,7 +124,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 $columnName
             );
 
-            $this->log('Install', 'log/uninstall/remove_column', 
+            $this->log('log/uninstall/remove_column', 
                 array(
                     'column' => $columnName,
                     'table' => 's_articles_attributes'
@@ -136,7 +136,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             's_articles_attributes'
         ));
 
-        $this->log('Install', 'log/uninstall/end');
+        $this->log('log/uninstall/end');
 
         return true;
     }
@@ -158,7 +158,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'boolean'
             );
 
-            $this->log('Install', 'log/install/add_column', 
+            $this->log('log/install/add_column', 
                 array(
                     'column' => $attributeName,
                     'table' => 's_articles_attributes'
@@ -462,17 +462,28 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             }
         }
 
-        $this->log('Install', 'log/install/add_form', array('formName' => $this->getName()));
+        $this->log('log/install/add_form', array('formName' => $this->getName()));
     }
 
-    protected function log($category, $key, $params = array())
+    /**
+     * Log when installing/uninstalling the plugin
+     * @param $key Translation key
+     * @param $params Parameters to put in the translations
+     */
+    protected function log($key, $params = array())
     {
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-            $category,
+            'Install',
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage($key, $params)
         );
     }
 
+    /**
+     * Create settings forms for the plugin (basic settings)
+     * @param $name Name of the form
+     * @param $elements Options for this form
+     * @return \Shopware\Models\Config\Form
+     */
     protected function createSettingForm($name, $elements)
     {
         // Main settings form
@@ -517,11 +528,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             }
         }
 
-        $this->log('Install', 'log/install/settings', array('settingName' => $name));
+        $this->log('log/install/settings', array('settingName' => $name));
 
         return $form;
     }
 
+    /**
+     * Get translations for basic settings
+     * @param $key Key of the translation
+     * @param $isoCode Locale iso code (English by default)
+     */
     protected function getTranslation($key, $isoCode = null)
     {
         $translation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($key, $isoCode);
@@ -530,11 +546,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
     protected function getSimpleSelectForm($isoCode = null)
     {
-        // Workaround for checkbox form
-        // Avoid having 'Inherited' option
         return array(
-                array(1, $this->getTranslation('settings/general/select/select_yes', $isoCode)),
-                array(0, $this->getTranslation('settings/general/select/select_no', $isoCode))
+                array(1, $this->getTranslation('global/select/select_yes', $isoCode)),
+                array(0, $this->getTranslation('global/select/select_no', $isoCode))
         );
     }
 }

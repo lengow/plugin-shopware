@@ -6,6 +6,12 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
 
     layout: 'fit',
 
+    // Translations
+    snippets: {
+        label: '{s name="log/download/label" namespace="backend/Lengow/translation"}{/s}',
+        button: '{s name="log/download/button" namespace="backend/Lengow/translation"}{/s}'
+    },
+
     initComponent: function () {
         var me = this;
 
@@ -29,10 +35,9 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
 
     getComboBox: function () {
         var me = this;
-
         me.comboBox = Ext.create('Ext.form.field.ComboBox', {
             id: 'selectedName',
-            fieldLabel: '{s name="log/download/label" namespace="backend/Lengow/translation"}{/s}',
+            fieldLabel: me.snippets.label,
             displayField: 'name',
             layout: 'fit',
             editable: false,
@@ -47,7 +52,7 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
         var me = this;
 
         var downloadButton = Ext.create('Ext.button.Button', {
-            text: '{s name="log/download/button" namespace="backend/Lengow/translation"}{/s}',
+            text: me.snippets.button,
             handler: function(e) {
                 var selectedFile = Ext.getCmp('selectedName').getRawValue();
                 var url = '{url controller="LengowLogs" action="download"}';

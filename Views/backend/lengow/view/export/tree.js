@@ -14,7 +14,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Tree', {
     bodyStyle: 'background:#fff;',
 
 	root: {
-		text: 'Shops',
+		text: '{s name="export/panel/tree/root" namespace="backend/Lengow/translation"}{/s}',
 		expanded: true
 	},
 
