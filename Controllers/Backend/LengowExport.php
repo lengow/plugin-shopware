@@ -251,6 +251,10 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         }
     }
 
+    /**
+     * Get tree structure.
+     * @param id Category id (shop id if a shop has been selected, else shopId_categoryId)
+     */
     public function getShopsTreeAction()
     {
         $parentId = $this->Request()->getParam('id');
@@ -309,5 +313,37 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             'success' => true,
             'data'    => $result
         ));
+    }
+
+    /**
+     * Get list of shops that have been activated in Lengow
+     */
+    public function getActiveShopAction() 
+    {
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findAll();
+
+        $result = array();
+
+        foreach ($shops as $shop) {
+            $isShopActive = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue(
+                'lengowEnableShop', 
+                $shop->getId()
+            );
+
+            if ($isShopActive) {
+                $result[] = array(
+                    'id' => $shop->getId(),
+                    'name' => $shop->getName()
+                    );
+            }
+        }
+
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data'  => $result
+                )
+        );
     }
 }

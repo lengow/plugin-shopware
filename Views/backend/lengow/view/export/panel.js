@@ -5,8 +5,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
     alias: 'widget.lengow-category-panel',
 
     layout: 'fit',
-
-    title: '{s name=categories}Categories{/s}',
+    bodyStyle: 'background:#fff;',
 
     // Translations
     snippets: {
@@ -39,8 +38,24 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
     getPanels: function () {
         var me = this;
 
+        var activeStores = Ext.create('Ext.data.Store',{
+            model: 'Shopware.apps.Lengow.model.Shops',
+            autoLoad: true,
+            proxy: {
+                type: 'ajax',
+                api: {
+                    read: '{url controller="LengowExport" action="getActiveShop"}'
+                },
+                reader: {
+                    type: 'json',
+                    root: 'data'
+                }
+            }
+        });
+
         me.treePanel = Ext.create('Ext.panel.Panel', {
-            border: false,
+            margin : '2px',
+            bodyStyle: 'background:#fff;',
             layout: {
                 type: 'vbox',
                 pack: 'start',
@@ -50,11 +65,12 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                 // List of available shops
                 Ext.create('Ext.form.field.ComboBox', {
                     id: 'shopId',
+                    padding : '5px',
                     fieldLabel: me.snippets.export.label.shop,
                     displayField: 'name',
                     layout: 'fit',
+                    store: activeStores,
                     editable: false,
-                    store: Ext.create('Shopware.apps.Base.store.Shop').load(),
                     listeners: {
                         select: function() {
                             Ext.getCmp('exportButton').enable();
@@ -68,7 +84,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                     text: me.snippets.export.button.settings,
                     layout: 'fit',
                     region: 'top',
-                    renderTo: Ext.getBody(),
                     handler: function() {
                         Shopware.app.Application.addSubApplication({
                             name: 'Shopware.apps.Config'
@@ -80,7 +95,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                     text: me.snippets.export.button.register,
                     layout: 'fit',
                     region: 'top',
-                    renderTo: Ext.getBody(),
                     handler: function() {
                         Shopware.app.Application.addSubApplication({
                             name: 'Shopware.apps.Iframe'
@@ -107,7 +121,8 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                 itemclick: {
                     fn: function (view, record) {
                         var me = this,
-                            store =  me.store;
+                            store =  me.store,
+                            grid = Ext.getCmp('exportGrid');
 
                         if (record.get('id') === 'root') {
                             store.getProxy().extraParams.categoryId = null;
@@ -118,8 +133,8 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
 
                         //scroll the store to first page
                         store.currentPage = 1;
-                        Ext.getCmp('exportGrid').setNumberOfProductExported();
-                        Ext.getCmp('exportGrid').setLengowShopStatus();
+                        grid.setNumberOfProductExported();
+                        grid.setLengowShopStatus();
                     }
                 },
                 scope: me

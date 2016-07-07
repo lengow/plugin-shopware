@@ -18,7 +18,8 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         },
         line: {
             add: '{s name="export/grid/line/add" namespace="backend/Lengow/translation"}{/s}',
-            remove: '{s name="export/grid/line/remove" namespace="backend/Lengow/translation"}{/s}'
+            remove: '{s name="export/grid/line/remove" namespace="backend/Lengow/translation"}{/s}',
+            edit: '{s name="export/grid/line/edit" namespace="backend/Lengow/translation"}{/s}'
         },
         button: {
             add: '{s name="export/grid/button/add" namespace="backend/Lengow/translation"}{/s}',
@@ -82,28 +83,27 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         }, {
             header: me.snippets.column.name,
             dataIndex: 'name',
-            flex: 3
+            flex : 1
         }, {
             header: me.snippets.column.supplier,
             dataIndex: 'supplier',
-            flex: 3
+            flex: 2
         }, 
-        this.createActiveColumn('status', me.snippets.column.active), 
+        this.getActiveColumn('status', me.snippets.column.active), 
         {
             header: me.snippets.column.price,
             dataIndex: 'price',
-            xtype: 'numbercolumn',
-            width: 60
+            xtype: 'numbercolumn'
         }, { 
             header: me.snippets.column.vat,
             dataIndex: 'vat',
-            width: 60
+            width: 70
         }, {
             header: me.snippets.column.stock,
-            dataIndex: 'inStock',
-            flex: 1
+            dataIndex: 'inStock'
         },
-        this.createActiveColumn('lengowActive', me.snippets.column.lengowStatus)
+        this.getActiveColumn('lengowActive', me.snippets.column.lengowStatus),
+        this.getActionColumn()
         ];
         return columns;
     }, 
@@ -113,7 +113,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
      * @param name Field key of the Article model
      * @param header Header to display for this column
      */
-     createActiveColumn: function(name, header) {
+     getActiveColumn: function(name, header) {
         var me = this,
         items = [],
         lengowColumn = name == 'lengowActive' ? true : false;
@@ -153,6 +153,32 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
                 return value;
             }
+        };
+    },
+
+    getActionColumn: function() {
+        var me = this,
+            items = [];
+
+        items.push({
+            iconCls:'sprite-pencil',
+            action:'seeProduct',
+            tooltip: me.snippets.line.edit,
+            handler: function (view, rowIndex, colIndex, item, opts, record) {
+                Shopware.app.Application.addSubApplication({
+                    name: 'Shopware.apps.Article',
+                    action: 'detail',
+                    params: {
+                        articleId: record.raw.articleId
+                    }
+                });
+            }
+        });
+
+        return {
+            xtype: 'actioncolumn',
+            width: 40,
+            items: items
         };
     },
 
