@@ -524,7 +524,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
     protected function getTranslation($key, $isoCode = null)
     {
-        return Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($key, $isoCode);
+        $translation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($key, $isoCode);
+        return stripslashes($translation);
     }
 
     protected function getSimpleSelectForm($isoCode = null)

@@ -65,7 +65,6 @@ fclose($fp);
 
 function writeIniFile($fp, $text, &$frontKey = array())
 {
-
     if (is_array($text)) {
         foreach ($text as $k => $v) {
             $frontKey[]= $k;
@@ -73,7 +72,8 @@ function writeIniFile($fp, $text, &$frontKey = array())
             array_pop($frontKey);
         }
     } else {
-        $line = join('/', $frontKey).' = '.str_replace("\n", '<br />', '"' . $text . '"') . PHP_EOL;
+        $content = addslashes(str_replace("\n", '<br />', $text));
+        $line = join('/', $frontKey) . ' = "' . $content . '"' . PHP_EOL;
         fwrite($fp, $line);
     }
 }

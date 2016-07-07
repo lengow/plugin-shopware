@@ -48,9 +48,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
                 $params[] = '%{'.$key.'}';
                 $values[] = $value;
             }
-            return str_replace($params, $values, $text);
+            return stripslashes(str_replace($params, $values, $text));
         } else {
-            return $text;
+            return stripslashes($text);
         }
     }
 
