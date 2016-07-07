@@ -59,25 +59,13 @@ Ext.define('Shopware.apps.Lengow', {
                 return;
             }
             Ext.each(subApp.windowManager.zIndexStack, function (item) {
-                if (typeof(item) !== 'undefined') {
-                    activeWindows.push(item);
+                var title = new String(item.header.title).valueOf();
+                if (title !== 'undefined' && (title.lastIndexOf('Lengow', 0) === 0)) {
+                    item.destroy();
+                    return;
                 }
             });
         });
-
-        if (activeWindows && activeWindows.length) {
-            Ext.each(activeWindows, function (win) {
-                win.destroy();
-            });
-
-            if (Ext.isFunction(cb)) {
-                cb.apply(me, cbArgs);
-            }
-        } else {
-            if (Ext.isFunction(cb)) {
-                cb.apply(me, cbArgs);
-            }
-        }
     }
 });
 //{/block}
