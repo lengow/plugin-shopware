@@ -11,7 +11,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
 
     // Translations
     snippets: {
-        title: '{s name="main.window.title"}{/s}',
+        title: '{s name="title" namespace="backend/Lengow/translation"}{/s}',
         tab: {
             export: '{s name="window/tab/export" namespace="backend/Lengow/translation"}{/s}',
             logs: '{s name="window/tab/logs" namespace="backend/Lengow/translation"}{/s}',
@@ -50,32 +50,37 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
                     xtype: 'lengow-export-container',
                     store: me.exportStore,
                     layout: 'border'
-                },
-                // Log tab
-                {
-                    title: me.snippets.tab.logs,
-                    xtype: 'lengow-logs-container',
-                    store: me.logStore,
-                    layout: 'border'
                 },{
                     tabConfig: {
                         xtype: 'tbfill'
                     }
                 },
+                // Log tab
                 {
-                    title: me.snippets.tab.register,
+                    title: me.snippets.tab.logs,
                     layout: 'border',
                     tabConfig: {
                         listeners: {
                             click: function(tab, e) {
-                                Shopware.app.Application.addSubApplication({
-                                    name: 'Shopware.apps.Iframe'
+                                Ext.define('logWindow',{
+                                    id: 'logWindow',
+                                    loadMask:true,
+                                    modal:true,
+                                    extend:'Ext.window.Window',
+                                    title: me.snippets.tab.logs,
+                                    items: [{
+                                        xtype: 'lengow-logs-panel',
+                                        store: me.logStore
+                                    }]
                                 });
-                                e.stopEvent();
+                                var logs = new logWindow;
+                                logs.show();
+                                e.stopEvent(); // avoid switching tab
                             }
                         }
                     }
                 },
+                // Config tab
                 {
                     title: me.snippets.tab.settings,
                     layout: 'border',
@@ -85,7 +90,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
                                 Shopware.app.Application.addSubApplication({
                                     name: 'Shopware.apps.Config'
                                 });
-                                e.stopEvent();
+                                e.stopEvent(); // avoid switching tab
                             }
                         }
                     }

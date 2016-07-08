@@ -9,8 +9,7 @@ Ext.define('Shopware.apps.Lengow', {
 
     controllers: [
         'Main',
-        'Export',
-        'Logs'
+        'Export'
     ],
 
     views: [
@@ -19,8 +18,7 @@ Ext.define('Shopware.apps.Lengow', {
         'export.Container',
         'export.Grid',
         'export.Tree',
-        'logs.Panel',
-        'logs.Container'
+        'logs.Panel'
     ],
 
     models: [

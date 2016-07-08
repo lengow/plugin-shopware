@@ -49,7 +49,7 @@ de:
         label: "Default dispatcher"
         description: "Select the default dispatcher that you would like to apply to your orders"
     lengow_import_settings:
-      label: "Import settings"
+      label: "Import-Einstellungen"
       description: "Set import settings"
       decrease_stock:
         label: "I want to decrease my stock"
@@ -66,24 +66,20 @@ de:
         stock: "In stock"
         export: "Export product"
       line:
-        add: "Add to export"
-        remove: "Remove from export"
+        add: "In den Export"
+        remove: "Entfernen sie aus dem export"
       label:
         counter:
-          count: "DE products exported over"
-          total: "DE products available"
+          count: "produkte exportiert über"
+          total: "produkte verfügbar"
         status:
-          enabled: "DE The current shop is enabled for export"
-          disabled: "DE This shop is not enabled in Lengow for the export"
+          synchronized: "Synchronisierte"
+          not_synchronized: "Synchronisieren Sie mein Geschäft mit Lengow"
       button:
-        add: "DE Add to export"
-        remove: "DE Remove from export"
+        add: "In den Export"
+        remove: "Entfernen sie aus dem export"
       search:
-        empty: "DE Search..."
+        empty: "Suche..."
     panel:
-      button:
-        shop: "Export shop"
       tree:
         root: "Shops"
-      label:
-        shop: "DE Select shop"

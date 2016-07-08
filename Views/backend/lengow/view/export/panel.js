@@ -61,22 +61,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                 align: 'stretch'
             },
             items: [
-                // List of available shops
-                Ext.create('Ext.form.field.ComboBox', {
-                    id: 'shopId',
-                    padding : '5px',
-                    fieldLabel: me.snippets.export.label.shop,
-                    displayField: 'name',
-                    layout: 'fit',
-                    store: activeStores,
-                    editable: false,
-                    listeners: {
-                        select: function() {
-                            Ext.getCmp('exportButton').enable();
-                        }
-                    }
-                }),
-                me.getExportButton(),
                 me.createTree()
             ]
         });
@@ -96,15 +80,20 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
         tree = Ext.create('Shopware.apps.Lengow.view.export.Tree', {
             listeners: {
                 load: function(view, record){
-                    if (record.get('id') === 'root') {
-                        Ext.each(record.childNodes, function(child) {
-                            if (child.raw.lengowStatus) {
-                                child.set('cls', 'lengow-enabled');
-                            } else {
-                                child.set('cls', 'lengow-disabled');
-                            }
-                        });
+                    if(record.get('id') === 'root' && record.childNodes.length) {
+                       var firstChild = record.childNodes[0]; 
+                       tree.getSelectionModel().select(firstChild);
+                       tree.fireEvent('itemclick', view, firstChild);
                     }
+                    // if (record.get('id') === 'root') {
+                    //     Ext.each(record.childNodes, function(child) {
+                    //         if (child.raw.lengowStatus) {
+                    //             child.set('cls', 'lengow-enabled');
+                    //         } else {
+                    //             child.set('cls', 'lengow-disabled');
+                    //         }
+                    //     });
+                    // }
                 },
                 itemclick: {
                     fn: function (view, record) {
@@ -114,15 +103,20 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
 
                         if (record.get('id') === 'root') {
                             store.getProxy().extraParams.categoryId = null;
-                            return false;
+                            return false; // Do nothing if root is selected
+                        } 
+
+                        store.getProxy().extraParams.categoryId = record.get('id');
+
+                        if (record.get('parentId') === 'root') {
+                            grid.setNumberOfProductExported();
+                            grid.setLengowShopStatus();
                         } else {
-                            store.getProxy().extraParams.categoryId = record.get('id');
+                            store.load();
                         }
 
                         //scroll the store to first page
                         store.currentPage = 1;
-                        grid.setNumberOfProductExported();
-                        grid.setLengowShopStatus();
                     }
                 },
                 scope: me
@@ -130,20 +124,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
         });
 
         return tree;
-    },
-
-    getExportButton: function() {
-        var me = this;
-        return Ext.create('Ext.button.Button', {
-            id: 'exportButton',
-            text: me.snippets.export.button.shop,
-            enabled: false,
-            disabled:true,
-            handler: function(e) {
-                var selectedShop = Ext.getCmp('shopId').getRawValue();
-                me.fireEvent('exportShop', selectedShop);
-            }
-        });
     }
 
 });

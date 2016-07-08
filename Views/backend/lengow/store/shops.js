@@ -3,11 +3,6 @@ Ext.define('Shopware.apps.Lengow.store.Shops', {
     extend:'Ext.data.TreeStore',
     alias: 'store.lengow-shops',
 
-    root: {
-        text: 'Shops',
-        expanded: true
-    },
-
     configure: function() {
         return { controller: 'LengowExport' };
     },

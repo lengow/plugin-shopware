@@ -7,30 +7,33 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
         var me = this;
 
         me.control({
-        	'lengow-category-panel': {
-        		exportShop: me.onExportShop,
-        	},
             'product-listing-grid': {
-                setStatusInLengow: me.onSetStatusInLengow
+                setStatusInLengow: me.onSetStatusInLengow,
+                getFeed: me.onGetFeed,
             },
         });
 
         me.callParent(arguments);
     },
 
-    onExportShop: function(selectedShop) {
+    /**
+     * Download shop feed
+     * @param selectedShop Name of the shop to export
+     */
+    onGetFeed: function(selectedShop) {
     	var me = this;
 
     	if (selectedShop) {
-            Ext.Ajax.request({
-                url: '{url controller="LengowExport" action="export"}',
+            var url = '{url controller="LengowExport" action="export"}';
+
+            // Create form panel. It contains a basic form that we need for the file download.
+            var form = Ext.create('Ext.form.Panel').getForm().submit({
+                url: url,
                 method: 'POST',
-                params: {},
-                success: function(response, opts) {
-                    var strJson  = response.responseText;
-                    var obj = Ext.JSON.decode(strJson);
-                    var url = obj.url;
-                    window.open(url + '?shop=' + selectedShop, '_blank');
+                target: '_blank', // Avoids leaving the page.,
+                success: function(response, opts){
+                    var url = opts.result.url;
+                    window.open(url + '?stream=1&shop=' + selectedShop);
                 }
             });
     	}
@@ -38,7 +41,10 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
 
     /**
      * Change article Lengow status
-     *
+     * @param ids List of article ids to edit
+     * @param status boolean True if articles have to be activated
+     * @param categoryId int Category (shop main category or shopId_subCategoryId) 
+     *      the article belongs to
      */
     onSetStatusInLengow: function(ids, status, categoryId) {
         var me = this;
@@ -53,7 +59,7 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
                 categoryId: categoryId
             },
             success: function(response, opts) {
-                Ext.getCmp('exportGrid').setNumberOfProductExported();
+                Ext.getCmp('exportGrid').getStore().load();
             }
         });
     }

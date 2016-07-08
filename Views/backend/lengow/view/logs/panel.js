@@ -77,6 +77,8 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
                 Ext.defer(function(){
                     form.close();
                 }, 100);
+
+                Ext.getCmp('logWindow').close();
             }
         });
 

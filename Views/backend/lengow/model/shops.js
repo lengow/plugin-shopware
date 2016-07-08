@@ -4,8 +4,7 @@ Ext.define('Shopware.apps.Lengow.model.Shops', {
     fields: [
     	'id', 
     	'text', 
-    	'leaf',
-    	'name' // Needed for shop selection combobox
+    	'leaf'
     	]
 });
 //{/block}

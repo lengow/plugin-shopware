@@ -73,20 +73,16 @@ en:
           count: "products exported over"
           total: "products available"
         status:
-          enabled: "The current shop is enabled for export"
-          disabled: "This shop is not enabled in Lengow for the export"
+          synchronized: "Synchronized"
+          not_synchronized: "Synchronize my shop with Lengow"
       button:
         add: "Add to export"
         remove: "Remove from export"
       search:
         empty: "Search..."
     panel:
-      button:
-        shop: "Export shop"
       tree:
         root: "Shops"
-      label:
-        shop: "Select shop"
   log:
     download:
       label: "Select a log"

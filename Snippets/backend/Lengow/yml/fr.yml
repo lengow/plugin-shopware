@@ -73,17 +73,13 @@ en:
           count: "products exported over"
           total: "products available"
         status:
-          enabled: "La boutique est activée pour l'export"
-          disabled: "Cette boutique n'est pas activée pour l'export"
+          synchronized: "Synchronisée"
+          not_synchronized: "Synchroniser ma boutique avec Lengow"
       button:
         add: "Ajouter à l'export"
         remove: "Supprimer de l'export"
       search:
         empty: "Rechercher..."
     panel:
-      button:
-        shop: "Exporter la boutique"
       tree:
         root: "Boutiques"
-      label:
-        shop: "Selectionner une boutique"

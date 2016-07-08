@@ -31,8 +31,8 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                 total: '{s name="export/grid/label/counter/total" namespace="backend/Lengow/translation"}{/s}'
             },
             shop: {
-                enabled: '{s name="export/grid/label/status/enabled" namespace="backend/Lengow/translation"}{/s}',
-                disabled: '{s name="export/grid/label/status/disabled" namespace="backend/Lengow/translation"}{/s}'
+                synchronized: '{s name="export/grid/label/status/synchronized" namespace="backend/Lengow/translation"}{/s}',
+                not_synchronized: '{s name="export/grid/label/status/not_synchronized" namespace="backend/Lengow/translation"}{/s}'
             }
         },
         search: {
@@ -122,9 +122,16 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             handler: function(grid, rowIndex, colIndex, item, eOpts, record) {
                 if (lengowColumn) {
                     var attributeId = record.raw['attributeId']
-                    categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id');
-                    me.fireEvent('setStatusInLengow', Ext.encode([attributeId]), !record.get('lengowActive'), categoryId);
-                    me.setNumberOfProductExported();
+                    categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id'),
+                    status = !record.get('lengowActive');
+                    me.fireEvent('setStatusInLengow', Ext.encode([attributeId]), status, categoryId);
+                    var counter = Ext.get('products-exported').dom.innerHTML;
+
+                    if (status == 'true') {
+                        Ext.get('products-exported').dom.innerHTML = parseInt(counter) + 1;
+                    } else {
+                        Ext.get('products-exported').dom.innerHTML = parseInt(counter) - 1;
+                    }
                 }
             },
             getClass: function(value, metaData, record) {
@@ -279,7 +286,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             }
         });
 
-
         me.fireEvent('getNumberOfExportedProducts');
 
         return [{
@@ -287,27 +293,39 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             layout: 'anchor',
             width: '100%',
             border: false,
+            margins: '8 0 0 0',
             items: [
-            me.getSearchFieldComponent(), 
             {
                 xtype: 'container',
                 layout: 'hbox',
                 items: [
                 {
                     id: 'shopStatus',
-                    xtype:'label',
-                    margins: '5 0 0 0'
+                    xtype: 'component',
+                    autoEl: {
+                        tag: 'a'
+                    },
+                    margins: '0 5 0 0'
                 },
                 {
                     xtype: 'tbfill'
                 },
                 {
                     xtype: 'label',
-                    id: 'productCounter',
-                    margins: '5 0 0 0'
+                    hidden: true,
+                    cls: 'lengow_shop_status_label',
+                    id: 'productCounter'
+                },
+                {
+                    xtype: 'component',
+                    autoEl: {
+                        tag: 'a'
+                    },
+                    margins: '0 0 0 20'
                 }
                 ]
-            }
+            },
+            me.getSearchFieldComponent()
             ]
         }];
     },
@@ -321,23 +339,59 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                 var data = Ext.decode(operation.response.responseText),
                     total = data['total'],
                     lengowProducts = data['nbLengowProducts'],
-                    label = lengowProducts + ' ' + me.snippets.label.counter.count + ' ' + total + ' ' + me.snippets.label.counter.total + '.';
-                Ext.getCmp('productCounter').setText(label);
+                    label = '<span>' + 
+                                '<span id="products-exported">' + lengowProducts + '</span> ' 
+                                    + me.snippets.label.counter.count + ' ' + 
+                                    '<span id="total-products">' + total + '</span> ' 
+                                    + me.snippets.label.counter.total + '. ' + 
+                                    "<a href='#' id='downloadFeed' class='lengow_export_feed'></a></span>",
+                    counter = Ext.getCmp('productCounter');
+                counter.el.update(label);
+                counter.show();
+
+                var downloadFeedLink = Ext.get('downloadFeed');
+                if (downloadFeedLink) {
+                    downloadFeedLink.on('click', function() {
+                        var selectedShop = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('text');
+                        me.fireEvent('getFeed', selectedShop);
+                    });
+                }
             }
         });
     },
 
+    /**
+     * Set shop status label
+     * If the shop is not synchronized, display a link
+     */
     setLengowShopStatus: function() {
         var me = this,
         status = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].raw['lengowStatus'];
 
-        if (status) {
-            label = me.snippets.label.shop.enabled;
-        } else {
-            label = me.snippets.label.shop.disabled;
-        }
         var field = Ext.getCmp('shopStatus');
-        field.setText(label);
+
+        if (status) {
+            field.el.update("<span class='lengow_check_shop lengow_check_shop_sync'></span>" +
+                        "<label class='lengow_shop_status_label'>" + 
+                        "<span>" + me.snippets.label.shop.synchronized + "</span></label>");
+        } else {
+            var message = "<span class='lengow_check_shop lengow_check_shop_no_sync'></span>" +
+                        "<label class='lengow_shop_status_label'>" + 
+                        "<a id='synchronizeShop' href='#'><span>" + me.snippets.label.shop.not_synchronized + "</span></a></label>";
+            field.el.update(message);
+
+            // Listen to click on the link to synchronize the shop
+            var link = Ext.get('synchronizeShop');
+            if (link) {
+                link.on('click', me.getSynchronizeIframe);
+            }
+        }
+    },
+
+    getSynchronizeIframe: function () {
+        Shopware.app.Application.addSubApplication({
+            name: 'Shopware.apps.Iframe'
+        });
     },
 
     getSearchFieldComponent: function() {
@@ -357,6 +411,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                 margins: '3 0 0 3',
                 action : 'search',
                 cls: 'searchfield',
+                width: 230,
                 enableKeyEvents: true,
                 checkChangeBuffer: 500,
                 emptyText: me.snippets.search.empty,
