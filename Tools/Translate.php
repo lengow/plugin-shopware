@@ -52,6 +52,7 @@ foreach ($listFiles as $list) {
     fwrite($fp, "\n");
 }
 
+// Write default translation (english) if selected locale is missing
 if ($defaultTranslation) {
     $header = '[default]' . PHP_EOL;
     fwrite($fp, $header);

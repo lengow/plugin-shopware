@@ -279,14 +279,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             }
         });
 
-        var sprite = Ext.create('Ext.draw.Sprite', {
-          type: 'path',
-          animate:true,
-          stroke: 'green',
-          "stroke-width": 2,
-          opacity: 0.5
-      });
-
 
         me.fireEvent('getNumberOfExportedProducts');
 
@@ -362,6 +354,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             {
                 xtype : 'textfield',
                 name : 'searchfield',
+                margins: '3 0 0 3',
                 action : 'search',
                 cls: 'searchfield',
                 enableKeyEvents: true,

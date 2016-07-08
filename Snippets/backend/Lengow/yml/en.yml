@@ -1,9 +1,17 @@
 en:
+  title: "Lengow"
+  global:
+    select:
+      select_yes: "Yes"
+      select_no: "No"
+      select_all: "All"
+  window:
+    tab:
+      export: "Export products"
+      logs: "Lengow logs"
+      settings: "Configure Lengow"
+      register: "Get registered"
   settings:
-    general:
-      select:
-        select_yes: "Yes"
-        select_no: "No"
     lengow_main_settings:
       label: "Main settings"
       description: "Set main settings"
@@ -60,24 +68,25 @@ en:
       line:
         add: "Add to export"
         remove: "Remove from export"
-    panel:
       label:
         counter:
           count: "products exported over"
           total: "products available"
-        shop:
-          status:
-            enabled: "The current shop is enabled for export"
-            disabled: "This shop is not enabled in Lengow for the export"
+        status:
+          enabled: "The current shop is enabled for export"
+          disabled: "This shop is not enabled in Lengow for the export"
       button:
         add: "Add to export"
         remove: "Remove from export"
       search:
         empty: "Search..."
-    button:
-      shop: "Export shop"
-      settings: "Configure Lengow"
-      register: "Get registered"
+    panel:
+      button:
+        shop: "Export shop"
+      tree:
+        root: "Shops"
+      label:
+        shop: "Select shop"
   log:
     download:
       label: "Select a log"

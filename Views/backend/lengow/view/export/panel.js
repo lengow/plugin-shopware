@@ -14,8 +14,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                 shop: '{s name="export/panel/label/shop" namespace="backend/Lengow/translation"}{/s}'
             },
             button: {
-                settings: '{s name="export/button/settings" namespace="backend/Lengow/translation"}{/s}',
-                register: '{s name="export/button/register" namespace="backend/Lengow/translation"}{/s}'
+                shop: '{s name="export/panel/button/shop" namespace="backend/Lengow/translation"}{/s}'
             }
         }
     },
@@ -78,29 +77,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                     }
                 }),
                 me.getExportButton(),
-                me.createTree(),
-                // Settings button 
-                Ext.create('Ext.button.Button', {
-                    text: me.snippets.export.button.settings,
-                    layout: 'fit',
-                    region: 'top',
-                    handler: function() {
-                        Shopware.app.Application.addSubApplication({
-                            name: 'Shopware.apps.Config'
-                        });
-                    }
-                }),
-                // Iframe button
-                Ext.create('Ext.button.Button', {
-                    text: me.snippets.export.button.register,
-                    layout: 'fit',
-                    region: 'top',
-                    handler: function() {
-                        Shopware.app.Application.addSubApplication({
-                            name: 'Shopware.apps.Iframe'
-                        });
-                    }
-                })
+                me.createTree()
             ]
         });
 
@@ -118,6 +95,17 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
 
         tree = Ext.create('Shopware.apps.Lengow.view.export.Tree', {
             listeners: {
+                load: function(view, record){
+                    if (record.get('id') === 'root') {
+                        Ext.each(record.childNodes, function(child) {
+                            if (child.raw.lengowStatus) {
+                                child.set('cls', 'lengow-enabled');
+                            } else {
+                                child.set('cls', 'lengow-disabled');
+                            }
+                        });
+                    }
+                },
                 itemclick: {
                     fn: function (view, record) {
                         var me = this,
@@ -148,7 +136,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
         var me = this;
         return Ext.create('Ext.button.Button', {
             id: 'exportButton',
-            text: '{s name="export/button/shop" namespace="backend/Lengow/translation"}{/s}',
+            text: me.snippets.export.button.shop,
             enabled: false,
             disabled:true,
             handler: function(e) {

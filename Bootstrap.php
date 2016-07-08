@@ -189,7 +189,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     {
         $ctrl = $args->getSubject();
         $view = $ctrl->View();
-        $view->extendsTemplate('backend/plugins/lengow/index/header.tpl');
+        $view->extendsTemplate('backend/lengow/ressources/Lengow.tpl');
     }
 
     /**
