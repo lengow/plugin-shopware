@@ -203,6 +203,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     {
         $products = $this->getIdToExport();
 
+        // Clean logs
+        Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanLog();
+
         if ($this->mode != 'size') {
             try {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(

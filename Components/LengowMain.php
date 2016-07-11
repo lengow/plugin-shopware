@@ -37,6 +37,27 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
+     * Suppress log files when too old
+     */
+    public static function cleanLog()
+    {
+        $log_files = Shopware_Plugins_Backend_Lengow_Components_LengowLog::getFiles();
+        $days = array();
+        $days[] = 'logs-'.date('Y-m-d').'.txt';
+        for ($i = 1; $i < self::$LOG_LIFE; $i++) {
+            $days[] = 'logs-'.date('Y-m-d', strtotime('-'.$i.'day')).'.txt';
+        }
+        if (empty($log_files)) {
+            return;
+        }
+        foreach ($log_files as $log) {
+            if (!in_array($log->file_name, $days)) {
+                $log->delete();
+            }
+        }
+    }
+
+    /**
      * Decode message with params for translation
      *
      * @param string $message
