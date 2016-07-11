@@ -15,7 +15,14 @@ class Shopware_Controllers_Backend_LengowLogs extends Shopware_Controllers_Backe
 		$result = array();
 
 		foreach ($files as $logFile) {
-			$result[] = array('name' => $logFile->file_name);
+			$name = $logFile->file_name;
+			$date = substr($name, 5, 11);
+            $dateTime = new DateTime($date);
+
+			$result[] = array(
+				'name' => $logFile->file_name,
+				'date' => date_format($dateTime, 'd m Y')
+				);
 		}
 
         $this->View()->assign(array(

@@ -64,8 +64,9 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
                             click: function(tab, e) {
                                 Ext.define('logWindow',{
                                     id: 'logWindow',
-                                    loadMask:true,
                                     modal:true,
+                                    draggable: false,
+                                    resizable: false,
                                     extend:'Ext.window.Window',
                                     title: me.snippets.tab.logs,
                                     items: [{

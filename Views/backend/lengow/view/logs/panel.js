@@ -8,7 +8,7 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
 
     // Translations
     snippets: {
-        label: '{s name="log/download/label" namespace="backend/Lengow/translation"}{/s}',
+        emptySelection: '{s name="log/download/empty_selection" namespace="backend/Lengow/translation"}{/s}',
         button: '{s name="log/download/button" namespace="backend/Lengow/translation"}{/s}'
     },
 
@@ -19,6 +19,8 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
 
         me.items = Ext.create('Ext.panel.Panel', {
             border: false,
+            width: 250,
+            margins: 15,
             layout: {
                 type: 'vbox',
                 pack: 'start',
@@ -33,26 +35,39 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
         me.callParent(arguments);
     },
 
+    /**
+     * Get combobox which displays list of available log files
+     */
     getComboBox: function () {
         var me = this;
         me.comboBox = Ext.create('Ext.form.field.ComboBox', {
             id: 'selectedName',
-            fieldLabel: me.snippets.label,
-            displayField: 'name',
-            layout: 'fit',
+            displayField: 'date',
+            valueField: 'name',
+            emptyText: me.snippets.emptySelection,
             editable: false,
             store: me.store,
-            queryMode: 'local'
+            listeners : {
+                select : function() {
+                    Ext.getCmp('downloadButton').enable();
+                }
+            }
         });
 
         return me.comboBox;
     },
 
+    /**
+     * Download button used to get log file
+     */
     getDownloadButton: function () {
         var me = this;
 
         var downloadButton = Ext.create('Ext.button.Button', {
+            id: 'downloadButton',
+            disabled: true,
             text: me.snippets.button,
+            style: { marginTop: '10px' },
             handler: function(e) {
                 var selectedFile = Ext.getCmp('selectedName').getRawValue();
                 var url = '{url controller="LengowLogs" action="download"}';
