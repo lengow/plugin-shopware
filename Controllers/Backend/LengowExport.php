@@ -26,7 +26,6 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $shopId = $treeId;
         $ids = explode('_', $treeId);
         $isShopSelected = true;
-        $isRootSelected = $categoryId == null ? true : false;
 
         if (count($ids) > 1) {
             $isShopSelected = false;

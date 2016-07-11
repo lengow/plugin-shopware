@@ -4,12 +4,11 @@ en:
     select:
       select_yes: "Yes"
       select_no: "No"
-      select_all: "All"
   window:
     tab:
-      export: "Export products"
-      logs: "Lengow logs"
-      settings: "Configure Lengow"
+      export: "Productssdfsdf"
+      logs: "Logs"
+      settings: "Config"
       register: "Get registered"
   settings:
     lengow_main_settings:
@@ -85,8 +84,9 @@ en:
         root: "Shops"
   log:
     download:
-      label: "Select a log"
-      button: "Download log"
+      empty_selection: "Please choose a log file..."
+      button: "Download log files"
+      select_all: "Download all files"
     export:
       start: "## start export ##"
       end: "## end export ##"

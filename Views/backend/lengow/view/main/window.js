@@ -50,10 +50,6 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
                     xtype: 'lengow-export-container',
                     store: me.exportStore,
                     layout: 'border'
-                },{
-                    tabConfig: {
-                        xtype: 'tbfill'
-                    }
                 },
                 // Log tab
                 {

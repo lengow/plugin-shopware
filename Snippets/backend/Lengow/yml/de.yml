@@ -4,12 +4,11 @@ de:
     select:
       select_yes: "Ja"
       select_no: "Nein"
-      select_all: "Alle"
   window:
     tab:
-      export: "Export-Produkte"
-      logs: "Lengow Protokolle"
-      settings: "Konfigurieren Lengow"
+      export: "Produkte"
+      logs: "Protokolle"
+      settings: "Konfigurieren"
       register: "Registrieren lassen"
   settings:
     lengow_main_settings:
@@ -83,3 +82,8 @@ de:
     panel:
       tree:
         root: "Shops"
+  log:
+    download:
+      empty_selection: "Bitte wählen Sie eine Log-Datei ..."
+      button: "Download-Log-Dateien"
+      select_all: "Alle Dateien herunterladen"
