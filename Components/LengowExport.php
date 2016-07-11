@@ -231,7 +231,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 
                 $this->export($products);
 
-                $this->feed->write('footer');
+                $success = $this->feed->end();
+                if (!$success) {
+                    throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
+                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/export/error_folder_not_writable')
+                    );
+                }
 
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Export',
@@ -381,13 +386,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                     $this->logOutput
                 );
             }
-        }
-
-        $success = $this->feed->end();
-        if (!$success) {
-            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/export/error_folder_not_writable')
-            );
         }
 
         if (!$this->stream) {
