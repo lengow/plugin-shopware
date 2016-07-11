@@ -98,7 +98,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
             $sep = DIRECTORY_SEPARATOR;
             $base = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl();
             $lengowDir = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
-            $this->link = $base . $lengowDir . $this->folder_name.'/'.$this->file_name;
+            $this->link = $base . $lengowDir . $this->folder_name . $sep . $this->file_name;
         }
         return $this->link;
 

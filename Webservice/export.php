@@ -51,7 +51,7 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIp())
     $productsIds            = isset($_REQUEST["product_ids"]) ? $_REQUEST["product_ids"] : null;
     $limit                  = isset($_REQUEST["limit"]) ? (int)$_REQUEST["limit"] : null;
     $offset                 = isset($_REQUEST["offset"]) ? (int)$_REQUEST["offset"] : null;
-    $stream                 = isset($_REQUEST["stream"]) ? (bool)$_REQUEST["stream"] : 0;
+    $stream                 = isset($_REQUEST["stream"]) ? (bool)$_REQUEST["stream"] : 1;
     $outStock               = isset($_REQUEST["out_stock"]) ? (bool)$_REQUEST["out_stock"] : null;
     $exportVariation        = isset($_REQUEST["export_variation"]) ? (bool)$_REQUEST["export_variation"] : null;
     $exportLengowSelection  = isset($_REQUEST["selection"]) ? (bool)$_REQUEST["selection"] : null;
