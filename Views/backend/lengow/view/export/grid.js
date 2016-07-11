@@ -255,7 +255,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         me.publishProductsBtn = Ext.create('Ext.button.Button', {
             iconCls: 'sprite-plus-circle',
             text: me.snippets.button.add,
-            margins: '3 0 0 3',
+            margins: '15 0 0 3',
             disabled: true,
             handler: function() {
                 var selectionModel = me.getSelectionModel(),
@@ -272,7 +272,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         me.unpublishProductsBtn = Ext.create('Ext.button.Button', {
             iconCls: 'sprite-minus-circle',
             text: me.snippets.button.remove,
-            margins: '3 0 0 5',
+            margins: '15 0 0 5',
             disabled: true,
             handler: function() {
                 var selectionModel = me.getSelectionModel(),
@@ -293,7 +293,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             layout: 'anchor',
             width: '100%',
             border: false,
-            margins: '8 0 0 0',
+            margins: '15 0 0 0',
             items: [
             {
                 xtype: 'container',
@@ -408,7 +408,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             {
                 xtype : 'textfield',
                 name : 'searchfield',
-                margins: '3 0 0 3',
+                margins: '15 0 0 3',
                 action : 'search',
                 cls: 'searchfield',
                 width: 230,

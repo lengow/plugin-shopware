@@ -37,21 +37,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
     getPanels: function () {
         var me = this;
 
-        var activeStores = Ext.create('Ext.data.Store',{
-            model: 'Shopware.apps.Lengow.model.Shops',
-            autoLoad: true,
-            proxy: {
-                type: 'ajax',
-                api: {
-                    read: '{url controller="LengowExport" action="getActiveShop"}'
-                },
-                reader: {
-                    type: 'json',
-                    root: 'data'
-                }
-            }
-        });
-
         me.treePanel = Ext.create('Ext.panel.Panel', {
             margin : '2px',
             bodyStyle: 'background:#fff;',
@@ -85,15 +70,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                        tree.getSelectionModel().select(firstChild);
                        tree.fireEvent('itemclick', view, firstChild);
                     }
-                    // if (record.get('id') === 'root') {
-                    //     Ext.each(record.childNodes, function(child) {
-                    //         if (child.raw.lengowStatus) {
-                    //             child.set('cls', 'lengow-enabled');
-                    //         } else {
-                    //             child.set('cls', 'lengow-disabled');
-                    //         }
-                    //     });
-                    // }
                 },
                 itemclick: {
                     fn: function (view, record) {
