@@ -43,7 +43,7 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
      * Change article Lengow status
      * @param ids List of article ids to edit
      * @param status boolean True if articles have to be activated
-     * @param categoryId int Category (shop main category or shopId_subCategoryId) 
+     * @param categoryId int|null Category (shop main category or shopId_subCategoryId) 
      *      the article belongs to
      */
     onSetStatusInLengow: function(ids, status, categoryId) {
@@ -60,6 +60,7 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
             },
             success: function(response, opts) {
                 Ext.getCmp('exportGrid').getStore().load();
+                Ext.getCmp('exportContainer').getEl().unmask();
             }
         });
     }

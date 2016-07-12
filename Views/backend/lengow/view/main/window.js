@@ -47,6 +47,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Window', {
                 // Export tab
                 {
                     title: me.snippets.tab.export,
+                    id: 'exportContainer',
                     xtype: 'lengow-export-container',
                     store: me.exportStore,
                     layout: 'border'

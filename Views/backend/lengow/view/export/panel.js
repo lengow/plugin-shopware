@@ -7,18 +7,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
     layout: 'fit',
     bodyStyle: 'background:#fff;',
 
-    // Translations
-    snippets: {
-        export: {
-            label: {
-                shop: '{s name="export/panel/label/shop" namespace="backend/Lengow/translation"}{/s}'
-            },
-            button: {
-                shop: '{s name="export/panel/button/shop" namespace="backend/Lengow/translation"}{/s}'
-            }
-        }
-    },
-
     initComponent: function () {
         var me = this;
 
@@ -85,6 +73,8 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                         store.getProxy().extraParams.categoryId = record.get('id');
 
                         if (record.get('parentId') === 'root') {
+                            var label = record.get('text') + ' (' + record.get('id') + ')';
+                            Ext.getCmp('shopName').el.update(label);
                             grid.setNumberOfProductExported();
                             grid.setLengowShopStatus();
                         } else {

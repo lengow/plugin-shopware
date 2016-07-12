@@ -4,6 +4,8 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
     extend: 'Ext.grid.Panel',
     alias:  'widget.product-listing-grid',
 
+    loadMask:true,
+
     // Translations
     snippets: {
         column: {
@@ -14,7 +16,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             price: '{s name="export/grid/column/price" namespace="backend/Lengow/translation"}{/s}',
             vat: '{s name="export/grid/column/tax" namespace="backend/Lengow/translation"}{/s}',
             stock: '{s name="export/grid/column/stock" namespace="backend/Lengow/translation"}{/s}',
-            lengowStatus: '{s name="export/grid/column/export" namespace="backend/Lengow/translation"}{/s}'
+            lengowStatus: '<b>{s name="export/grid/column/export" namespace="backend/Lengow/translation"}{/s}</b>'
         },
         line: {
             add: '{s name="export/grid/line/add" namespace="backend/Lengow/translation"}{/s}',
@@ -24,6 +26,9 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         button: {
             add: '{s name="export/grid/button/add" namespace="backend/Lengow/translation"}{/s}',
             remove: '{s name="export/grid/button/remove" namespace="backend/Lengow/translation"}{/s}'
+        },
+        checkbox: {
+            edit_all: '{s name="export/grid/checkbox/edit_all" namespace="backend/Lengow/translation"}{/s}'
         },
         label: {
             counter: {
@@ -62,8 +67,20 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             listeners:{
                 // Unlocks the delete button if the user has checked at least one checkbox
                 selectionchange: function (sm, selections) {
-                    me.publishProductsBtn.setDisabled(selections.length === 0);
-                    me.unpublishProductsBtn.setDisabled(selections.length === 0);
+                    var status = selections.length === 0;
+                    me.publishProductsBtn.setVisible(!status);
+                    me.unpublishProductsBtn.setVisible(!status);
+
+                    // If mass selection, display combobox to apply action on all articles
+                    if (sm.selectionMode == 'MULTI') {
+                        var checkbox = Ext.getCmp('editAll');
+                        if (!status) {
+                            checkbox.show();
+                        } else {
+                            checkbox.hide();
+                            checkbox.setValue(false);
+                        }
+                    }
                 }
             }
         });
@@ -245,113 +262,47 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         me.store.loadPage(1);
     },
 
-    /**
-     * Creates the grid toolbar
-     * @return [Ext.toolbar.Toolbar] grid toolbar
-     */
-     getToolbar: function() {
+    exportButtonHandler: function(publishButton) {
         var me = this,
-        store = me.store,
-        buttons = [];
+        selectionModel = me.getSelectionModel(),
+        records = selectionModel.getSelection(),
+        categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id')
+        attributeIds = [],
+        variance = 0,
+        checkbox = Ext.getCmp('editAll'),
+        ids = null,
+        exportedProducts = 0;
 
-        // Publish button - Add mass selection to export
-        me.publishProductsBtn = Ext.create('Ext.button.Button', {
-            iconCls: 'sprite-plus-circle',
-            text: me.snippets.button.add,
-            margins: '15 0 0 3',
-            disabled: true,
-            handler: function() {
-                var selectionModel = me.getSelectionModel(),
-                records = selectionModel.getSelection(),
-                categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id')
-                attributeIds = [],
-                variance = 0;
+        // Enable mask on main container while the process is not finished
+        Ext.getCmp('exportContainer').getEl().mask();
 
-                Ext.each(records, function(record) {
-                    attributeIds.push(record.raw['attributeId']);
-                    // If record status has changed, register the occurence
-                    // to change counter value
-                    if (record.get('lengowActive') == false) {
-                        variance++;
-                    }
-                });
-
-                me.fireEvent('setStatusInLengow', Ext.encode(attributeIds), true, categoryId);
-                // Update counter
-                var counter = Ext.get('products-exported').dom.innerHTML;
-                Ext.get('products-exported').dom.innerHTML = parseInt(counter) + variance;
+        if (checkbox.getValue()) {
+            if (publishButton) {
+                var counter = Ext.get('total-products').dom.innerHTML;
+                exportedProducts = parseInt(counter);
+            } else {
+                exportedProducts = 0;
             }
-        });
-
-        // Unpublish button - Remove mass selection from export
-        me.unpublishProductsBtn = Ext.create('Ext.button.Button', {
-            iconCls: 'sprite-minus-circle',
-            text: me.snippets.button.remove,
-            margins: '15 0 0 5',
-            disabled: true,
-            handler: function() {
-                var selectionModel = me.getSelectionModel(),
-                records = selectionModel.getSelection(),
-                categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id'),
-                attributeIds = [],
-                variance = 0;
-
-                Ext.each(records, function(record) {
-                    attributeIds.push(record.raw['attributeId']);
-                    // If record status has changed, register the occurence
-                    // to change counter value
-                    if (record.get('lengowActive') == true) {
-                        variance--;
-                    }
-                });
-
-                me.fireEvent('setStatusInLengow', Ext.encode(attributeIds), false, categoryId);
-                // Update counter
-                var counter = Ext.get('products-exported').dom.innerHTML;
-                Ext.get('products-exported').dom.innerHTML = parseInt(counter) + variance;
-            }
-        });
-
-        return [{
-            xtype: 'panel',
-            layout: 'anchor',
-            width: '100%',
-            border: false,
-            margins: '15 0 0 0',
-            items: [
-            {
-                xtype: 'container',
-                layout: 'hbox',
-                items: [
-                {
-                    id: 'shopStatus',
-                    xtype: 'component',
-                    autoEl: {
-                        tag: 'a'
-                    },
-                    margins: '0 5 0 0'
-                },
-                {
-                    xtype: 'tbfill'
-                },
-                {
-                    xtype: 'label',
-                    hidden: true,
-                    cls: 'lengow_shop_status_label',
-                    id: 'productCounter'
-                },
-                {
-                    xtype: 'component',
-                    autoEl: {
-                        tag: 'a'
-                    },
-                    margins: '0 0 0 20'
+        } else {
+            Ext.each(records, function(record) {
+                attributeIds.push(record.raw['attributeId']);
+                // If record status has changed, register the occurence
+                // to change counter value
+                if (record.get('lengowActive') == false && publishButton) {
+                    variance++;
+                } else if (record.get('lengowActive') == true && !publishButton) {
+                    variance--;
                 }
-                ]
-            },
-            me.getSearchFieldComponent()
-            ]
-        }];
+            });
+
+            // Update counter
+            var counter = Ext.get('products-exported').dom.innerHTML;
+            exportedProducts = parseInt(counter) + variance;
+            ids = Ext.encode(attributeIds);
+        }
+
+        me.fireEvent('setStatusInLengow', ids, publishButton, categoryId);
+        Ext.get('products-exported').dom.innerHTML = exportedProducts;
     },
 
     /**
@@ -366,23 +317,14 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                 var data = Ext.decode(operation.response.responseText),
                     total = data['total'],
                     lengowProducts = data['nbLengowProducts'],
-                    label = '<span>' + 
-                                '<span id="products-exported">' + lengowProducts + '</span> ' 
+                    label = '<span id="products-exported">' + lengowProducts + '</span> ' 
                                     + me.snippets.label.counter.count + ' ' + 
                                     '<span id="total-products">' + total + '</span> ' 
-                                    + me.snippets.label.counter.total + '. ' + 
-                                    "<a href='#' id='downloadFeed' class='lengow_export_feed'></a></span>",
+                                    + me.snippets.label.counter.total + '. ',
                     counter = Ext.getCmp('productCounter');
                 counter.el.update(label);
-                counter.show();
-
-                var downloadFeedLink = Ext.get('downloadFeed');
-                if (downloadFeedLink) {
-                    downloadFeedLink.on('click', function() {
-                        var selectedShop = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('text');
-                        me.fireEvent('getFeed', selectedShop);
-                    });
-                }
+                var labelPanel = Ext.getCmp('labelPanel');
+                labelPanel.doLayout();
             }
         });
     },
@@ -425,47 +367,188 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
     },
 
     /**
-     * Search field grid component
+     * Creates the grid toolbar
+     * @return [Ext.toolbar.Toolbar] grid toolbar
      */
-    getSearchFieldComponent: function() {
+     getToolbar: function() {
+        var me = this,
+        store = me.store,
+        buttons = [];
+
+        // Publish button - Add mass selection to export
+        me.publishProductsBtn = Ext.create('Ext.button.Button', {
+            iconCls: 'sprite-plus-circle',
+            text: me.snippets.button.add,
+            hidden: true,
+            handler: function() {
+                me.exportButtonHandler(true);
+            }
+        });
+
+        // Unpublish button - Remove mass selection from export
+        me.unpublishProductsBtn = Ext.create('Ext.button.Button', {
+            iconCls: 'sprite-minus-circle',
+            text: me.snippets.button.remove,
+            hidden: true,
+            handler: function() {
+                me.exportButtonHandler(false);
+            }
+        });
+
+        return [{
+            xtype: 'panel',
+            layout: 'anchor',
+            width: '100%',
+            border: false,
+            items: [
+            {
+                xtype: 'container',
+                layout: 'hbox',
+                items: [
+                    me.getLeftColumn(),
+                    me.getMiddleColumn(),
+                    me.getRightColumn()
+                ]
+            }]
+        }];
+    },
+
+    getLeftColumn: function() {
         var me = this;
         return {
             xtype: 'container',
-            layout: 'hbox',
+            layout: 'vbox',
+            flex: 2,
             items: [
-            me.publishProductsBtn,
-            me.unpublishProductsBtn,
-            {
-                xtype: 'tbfill'
-            },
-            {
-                xtype : 'textfield',
-                name : 'searchfield',
-                margins: '15 0 0 3',
-                action : 'search',
-                cls: 'searchfield',
-                width: 230,
-                enableKeyEvents: true,
-                checkChangeBuffer: 500,
-                emptyText: me.snippets.search.empty,
-                listeners: {
-                    change: function(field, value) {
-                        var store        = me.store,
-                        searchString = Ext.String.trim(value);
-                        //scroll the store to first page
-                        store.currentPage = 1;
-                        //If the search-value is empty, reset the filter
-                        if (searchString.length === 0 ) {
-                            store.clearFilter();
-                        } else {
-                            //This won't reload the store
-                            store.filters.clear();
-                            //Loads the store with a special filter
-                            store.filter('search', searchString);
-                        }
+                {
+                    id: 'shopStatus',
+                    xtype: 'component',
+                    autoEl: {
+                        tag: 'a'
                     },
+                    margins: '5 5 0 0'
+                },
+                {
+                    xtype: 'container',
+                    layout: 'hbox',
+                    margins: '15 0 8 0',
+                    items: [
+                        me.publishProductsBtn,
+                        me.unpublishProductsBtn,
+                        {
+                            xtype: 'checkboxfield',
+                            boxLabel: me.snippets.checkbox.edit_all,
+                            hidden: true,
+                            id: 'editAll',
+                        },
+                    ]
                 }
-            }
+            ]
+        };
+    },
+
+    getMiddleColumn: function() {
+        var me = this;
+        return {
+            xtype: 'container',
+            id: 'labelPanel',
+            layout: {
+                type: 'vbox',
+                align: 'center'
+            },
+            flex: 3,
+            items: [
+                {
+                    xtype: 'label',
+                    align: 'center',
+                    pack: 'center',
+                    id: 'shopName',
+                    margins: '10 5 0 0'
+                },
+                {
+                    xtype: 'label',
+                    align: 'center',
+                    margins: '20 0 10 0',
+                    pack: 'center',
+                    cls: 'lengow_shop_status_label',
+                    id: 'productCounter'
+                },
+            ]
+        };
+    },
+
+    getRightColumn: function() {
+        var me = this;
+        return {
+            xtype: 'container',
+            type: 'vbox',
+            flex: 2,
+            items: [
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox',
+                        pack: 'right'
+                    },
+                    items: [
+                        {
+                            xtype: 'tbfill'
+                        },
+                        {
+                            xtype: 'label',
+                            html: "<a href='#' id='downloadFeed' class='lengow_export_feed'></a>",
+                            margins: '5 5 0 0',
+                            listeners: {
+                                render: function(component){
+                                    component.getEl().on('click', function(){
+                                        var selectedShop = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('text');
+                                        me.fireEvent('getFeed', selectedShop);
+                                    });
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox',
+                        pack: 'right'
+                    },
+                    items: [
+                        {
+                            xtype: 'tbfill'
+                        },
+                        {
+                            xtype : 'textfield',
+                            name : 'searchfield',
+                            action : 'search',
+                            cls: 'searchfield',
+                            margins: '20 0 10 0',
+                            width: 230,
+                            enableKeyEvents: true,
+                            checkChangeBuffer: 500,
+                            emptyText: me.snippets.search.empty,
+                            listeners: {
+                                change: function(field, value) {
+                                    var store        = me.store,
+                                    searchString = Ext.String.trim(value);
+                                    //scroll the store to first page
+                                    store.currentPage = 1;
+                                    //If the search-value is empty, reset the filter
+                                    if (searchString.length === 0 ) {
+                                        store.clearFilter();
+                                    } else {
+                                        //This won't reload the store
+                                        store.filters.clear();
+                                        //Loads the store with a special filter
+                                        store.filter('search', searchString);
+                                    }
+                                },
+                            }
+                        }
+                    ]
+                }
             ]
         };
     }

@@ -229,23 +229,59 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         // Tree is based on shopId_categoryId (except for shops)
         $articleCategory = explode('_', $categoriesIds);
 
-        // If root category is selected, active/desactive the product for all shops
         if (count($articleCategory) > 1) {
             $shopId = $articleCategory[0];
         }
 
-        $attributeIds = json_decode($articleIds);
-
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
 
-        foreach ($attributeIds as $id) {
-            $attribute = $em->getReference('Shopware\Models\Attribute\Article', $id);
+        // If export all product for this shop (checkbox)
+        if ($articleIds == '') {
+            $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
+            $mainCategory = $shop->getCategory();
+            $this->setLengowStatusFromCategory($mainCategory, $shopId, $active);
+        } else {
+            $attributeIds = json_decode($articleIds);
 
-            if ($attribute) {
-                $column = 'setLengowShop' . $shopId . 'Active';
-                $attribute->$column($active);
-                $em->persist($attribute);
-                $em->flush($attribute);
+            foreach ($attributeIds as $id) {
+                $attribute = $em->getReference('Shopware\Models\Attribute\Article', $id);
+
+                if ($attribute) {
+                    $column = 'setLengowShop' . $shopId . 'Active';
+                    $attribute->$column($active);
+                    $em->persist($attribute);
+                    $em->flush($attribute);
+                }
+            }
+        }
+    }
+
+    private function setLengowStatusFromCategory($category, $shopId, $status)
+    {
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+
+        if ($category->isLeaf()) {
+            $articles = $category->getArticles();
+            foreach ($articles as $article) {
+                $mainDetail = $article->getMainDetail();
+
+                if ($mainDetail) {
+                    $attribute = $article->getMainDetail()->getAttribute();
+                } else {
+                    $attribute = $article->getAttribute();
+                }
+
+                if ($attribute != null) {
+                    $column = 'setLengowShop' . $shopId . 'Active';
+                    $attribute->$column($status);
+                    $em->persist($attribute);
+                    $em->flush($attribute);
+                }
+            }
+        } else {
+            $children = $category->getChildren();
+            foreach ($children as $child) {
+                $this->setLengowStatusFromCategory($child, $shopId, $status);
             }
         }
     }
@@ -312,37 +348,5 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             'success' => true,
             'data'    => $result
         ));
-    }
-
-    /**
-     * Get list of shops that have been activated in Lengow
-     */
-    public function getActiveShopAction() 
-    {
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findAll();
-
-        $result = array();
-
-        foreach ($shops as $shop) {
-            $isShopActive = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue(
-                'lengowEnableShop', 
-                $shop->getId()
-            );
-
-            if ($isShopActive) {
-                $result[] = array(
-                    'id' => $shop->getId(),
-                    'name' => $shop->getName()
-                    );
-            }
-        }
-
-        $this->View()->assign(
-            array(
-                'success' => true,
-                'data'  => $result
-                )
-        );
     }
 }

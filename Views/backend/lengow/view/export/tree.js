@@ -18,6 +18,12 @@ Ext.define('Shopware.apps.Lengow.view.export.Tree', {
 		expanded: true
 	},
 
+    listeners: {
+        beforeselect: function(e) {
+            console.log(e);
+        }
+    },
+
     initComponent: function () {
         var me = this;
 
