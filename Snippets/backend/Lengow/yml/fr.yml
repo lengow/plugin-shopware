@@ -63,7 +63,7 @@ en:
         price: "Prix"
         tax: "Taxe"
         stock: "En stock"
-        export: "Exporter le produit"
+        export: "Inclure dans l'export"
       line:
         add: "Ajouter à l'export"
         remove: "Supprimer de l'export"
@@ -71,6 +71,8 @@ en:
         counter:
           count: "products exported over"
           total: "products available"
+      checkbox:
+        edit_all: " Sélectionner l'ensemble de vos produits "
         status:
           synchronized: "Synchronisée"
           not_synchronized: "Synchroniser ma boutique avec Lengow"

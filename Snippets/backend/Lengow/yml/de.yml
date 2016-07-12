@@ -63,7 +63,7 @@ de:
         price: "Preis"
         tax: "Steuersatz"
         stock: "In stock"
-        export: "Export product"
+        export: "In den Export?"
       line:
         add: "In den Export"
         remove: "Entfernen sie aus dem export"

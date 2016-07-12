@@ -6,7 +6,7 @@ en:
       select_no: "No"
   window:
     tab:
-      export: "Productssdfsdf"
+      export: "Products"
       logs: "Logs"
       settings: "Config"
       register: "Get registered"
@@ -63,10 +63,12 @@ en:
         price: "Price"
         tax: "Tax"
         stock: "In stock"
-        export: "Export product"
+        export: "Include in export?"
       line:
         add: "Add to export"
         remove: "Remove from export"
+      checkbox:
+        edit_all: "Select all of your products"
       label:
         counter:
           count: "products exported over"
