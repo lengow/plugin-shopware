@@ -165,12 +165,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             case 'minimal_quantity':
                 return $this->details->getMinPurchase();
                 break;
-            case 'description':
+            case 'description_short':
                 return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml(
                     Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanData($this->product->getDescription())
                     );
                 break;
-            case 'description_long':
+            case 'description':
                 return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml(
                     Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanData($this->product->getDescriptionLong())
                     );
