@@ -68,8 +68,8 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
             disabled: true,
             text: me.snippets.button,
             style: { marginTop: '10px' },
-            handler: function(e) {
-                var selectedFile = Ext.getCmp('selectedName').getRawValue();
+            handler: function(e, records) {
+                var selectedFile = Ext.getCmp('selectedName').getValue();
                 var url = '{url controller="LengowLogs" action="download"}';
 
                 // Create form panel. It contains a basic form that we need for the file download.

@@ -21,7 +21,7 @@ Ext.define('Shopware.apps.Lengow.store.Logs', {
                 var logDate = record.get('date');
                 if (logDate !== '') {
                     var date = Ext.Date.parse(logDate, 'd m Y'),
-                        value = Ext.Date.format(date, 'l F Y');
+                        value = Ext.Date.format(date, 'l d F Y');
                     record.set('date', value);
                 }
             });
