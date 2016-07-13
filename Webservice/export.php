@@ -45,25 +45,25 @@ require_once('../Components/LengowLog.php');
 
 if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIp())
 {
-    $format                 = isset($_REQUEST["format"]) ? $_REQUEST["format"] : 'csv';
-    $languageId             = isset($_REQUEST["lang"]) ? $_REQUEST["lang"] : null;
     $mode                   = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : null;
-    $productsIds            = isset($_REQUEST["product_ids"]) ? $_REQUEST["product_ids"] : null;
-    $limit                  = isset($_REQUEST["limit"]) ? (int)$_REQUEST["limit"] : null;
-    $offset                 = isset($_REQUEST["offset"]) ? (int)$_REQUEST["offset"] : null;
+    $format                 = isset($_REQUEST["format"]) ? $_REQUEST["format"] : 'csv';
     $stream                 = isset($_REQUEST["stream"]) ? (bool)$_REQUEST["stream"] : 1;
-    $outStock               = isset($_REQUEST["out_stock"]) ? (bool)$_REQUEST["out_stock"] : null;
-    $exportVariation        = isset($_REQUEST["export_variation"]) ? (bool)$_REQUEST["export_variation"] : null;
+    $offset                 = isset($_REQUEST["offset"]) ? (int)$_REQUEST["offset"] : null;
+    $limit                  = isset($_REQUEST["limit"]) ? (int)$_REQUEST["limit"] : null;
     $exportLengowSelection  = isset($_REQUEST["selection"]) ? (bool)$_REQUEST["selection"] : null;
-    $exportDisabledProduct  = isset($_REQUEST["show_inactive_product"]) ? (bool)$_REQUEST["show_inactive_product"] : null;
+    $outStock               = isset($_REQUEST["out_of_stock"]) ? (bool)$_REQUEST["out_of_stock"] : null;
+    $productsIds            = isset($_REQUEST["product_ids"]) ? $_REQUEST["product_ids"] : null;
     $logOutput              = isset($_REQUEST["log_output"]) ? (bool)$_REQUEST["log_output"] : !$stream;
-    $shopName               = isset($_REQUEST['shop']) ? $_REQUEST['shop'] : null;
+    $exportVariation        = isset($_REQUEST["variation"]) ? (bool)$_REQUEST["variation"] : null;
+    $exportDisabledProduct  = isset($_REQUEST["inactive"]) ? (bool)$_REQUEST["inactive"] : null;
+    $languageId             = isset($_REQUEST["language"]) ? $_REQUEST["language"] : null;
+    $shopId                 = isset($_REQUEST['shop']) ? $_REQUEST['shop'] : null;
 
     $em = Shopware()->Models();
 
     // If shop name has been filled
-    if ($shopName) {
-        $shop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('name' => $shopName));
+    if ($shopId) {
+        $shop = $em->getRepository('Shopware\Models\Shop\Shop')->find($shopId);
 
         // A shop with this name exist
         if ($shop) {
@@ -96,17 +96,17 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIp())
         } else {
             $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
             $index = count($shops);
-            $shopsName = '[';
+            $shopsIds = '[';
             foreach ($shops as $shop) {
-                $shopsName.= $shop->getName();
+                $shopsIds.= $shop->getId();
                 $index--;
-                $shopsName.= ($index == 0) ? '' : ', ';
+                $shopsIds.= ($index == 0) ? '' : ', ';
             }
-            $shopsName.= ']';
-            die('The following shop (' . $shopName . ') does not exist. Please specify a valid shop name in : ' . $shopsName);
+            $shopsIds.= ']';
+            die('The following shop (' . $shopId . ') does not exist. Please specify a valid shop name in : ' . $shopsIds);
         }
     } else {
-        die('Please specify a shop to export (ie. : ?shop=Deutsh)');
+        die('Please specify a shop to export (ie. : ?shop=1)');
     }
 } else {
     die('Unauthorized access for IP : '.$_SERVER['REMOTE_ADDR']);

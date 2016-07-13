@@ -373,7 +373,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $displayedProducts++;
 
             // Log each time 10 products are exported
-            if ($displayedProducts > 0 && $displayedProducts % 10 == 0 && $displayedProducts < $total) {
+            if ($displayedProducts > 0 && $displayedProducts % 50 == 0 && $displayedProducts < $total) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Export',
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/export/count_product', array(

@@ -48,10 +48,14 @@
 
 	.lengow_export_feed {
 	    display:inline-block;
-	    text-align:;
 	    margin-right: 25px;
 	    height:10px;
 	    text-decoration:none;
+	}
+
+	#leftColumn .x-form-cb-label {
+	    margin-left:2px;
+	    margin-right:10px;
 	}
 
 	.lengow_export_feed:before{

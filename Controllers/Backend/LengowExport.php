@@ -349,4 +349,52 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             'data'    => $result
         ));
     }
+
+    public function changeSettingsValueAction() {
+        $shopId = $this->Request()->getParam('id');
+        $name = $this->Request()->getParam('name');
+        $status = (int)($this->Request()->getParam('status') === 'true');
+
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+
+        if ($shopId != null) {
+            $builder = $em->createQueryBuilder();
+            $builder->select('values.id')
+                ->from('Shopware\Models\Config\Value', 'values')
+                ->leftJoin('values.element', 'elements')
+                ->where('values.shopId = :shopId')
+                ->andWhere('elements.name = :name')
+                ->setParameter('shopId', $shopId)
+                ->setParameter('name', $name);
+            $result = $builder->getQuery()->getArrayResult();
+            if (!empty($result)) {
+                $configId = $result[0]['id'];
+
+                $config = $em->getReference('Shopware\Models\Config\Value', $configId);
+                $config->setValue($status);
+                $em->persist($config);
+                $em->flush($config);
+            } else {
+                // If the config doesn't exist for the current shop, create it
+                $config = $em->getRepository('Shopware\Models\Config\Element')->findOneBy(array('name' => $name));
+                $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
+                $configValue = new Shopware\Models\Config\Value();
+                $configValue->setElement($config);
+                $configValue->setShop($shop);
+                $config->setValue($status);
+                $em->persist($configValue);
+                $em->flush($config);
+            }
+        }
+    }
+
+    public function getConfigValueAction() {
+        $shopId = $this->Request()->getParam('id');
+        $name = $this->Request()->getParam('name');
+
+        $this->View()->assign(array(
+            'success' => true,
+            'data'    => Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue($name, $shopId)
+        ));
+    }
 }

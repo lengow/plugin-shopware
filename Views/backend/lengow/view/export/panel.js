@@ -81,6 +81,11 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                             store.load();
                         }
 
+                        var selectedShop = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id');
+                        me.fireEvent('getConfigValue', 'lengowExportVariation', selectedShop);
+                        me.fireEvent('getConfigValue', 'lengowExportOutOfStock', selectedShop);
+                        me.fireEvent('getConfigValue', 'lengowExportLengowSelection', selectedShop);
+
                         //scroll the store to first page
                         store.currentPage = 1;
                     }

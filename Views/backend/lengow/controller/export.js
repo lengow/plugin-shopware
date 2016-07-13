@@ -8,9 +8,15 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
 
         me.control({
             'product-listing-grid': {
-                setStatusInLengow: me.onSetStatusInLengow,
-                getFeed: me.onGetFeed,
+                setStatusInLengow: me.onSetStatusInLengow
             },
+            'lengow-category-panel': {
+                getConfigValue: me.onGetConfigValue
+            },
+            'lengow-export-container': {
+                getFeed: me.onGetFeed,
+                changeSettingsValue: me.onChangeSettingsValue,
+            }
         });
 
         me.callParent(arguments);
@@ -61,6 +67,41 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
             success: function(response, opts) {
                 Ext.getCmp('exportGrid').getStore().load();
                 Ext.getCmp('exportContainer').getEl().unmask();
+            }
+        });
+    },
+
+    onChangeSettingsValue: function(shopId, settingName, value) {
+        var me = this;
+
+        Ext.Ajax.request({
+            url: '{url controller="LengowExport" action="changeSettingsValue"}',
+            method: 'POST',
+            type: 'json',
+            params: {
+                id: shopId,
+                name: settingName,
+                status: value
+            },
+            success: function(response, opts) {
+            }
+        });
+    },
+
+    onGetConfigValue: function(configName, shopId) {
+        var me = this;
+
+        Ext.Ajax.request({
+            url: '{url controller="LengowExport" action="getConfigValue"}',
+            method: 'POST',
+            type: 'json',
+            params: {
+                id: shopId,
+                name: configName
+            },
+            success: function(response, opts) {
+                var status = Ext.decode(response.responseText);
+                Ext.getCmp(configName).setValue(status.data);
             }
         });
     }
