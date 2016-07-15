@@ -96,28 +96,33 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         {
             header: me.snippets.column.number,
             dataIndex: 'number',
-            flex: 2
+            flex: 1
         }, {
             header: me.snippets.column.name,
             dataIndex: 'name',
-            flex : 1
+            flex : 2
         }, {
             header: me.snippets.column.supplier,
             dataIndex: 'supplier',
-            flex: 2
+            flex: 1
         }, 
         this.getActiveColumn('status', me.snippets.column.active), 
         {
             header: me.snippets.column.price,
             dataIndex: 'price',
-            xtype: 'numbercolumn'
+            xtype: 'numbercolumn',
+            align: 'right',
+            flex: 1
         }, { 
             header: me.snippets.column.vat,
             dataIndex: 'vat',
-            width: 70
+            align: 'right',
+            flex: 1
         }, {
             header: me.snippets.column.stock,
-            dataIndex: 'inStock'
+            dataIndex: 'inStock',
+            align: 'right',
+            flex: 1
         },
         this.getActiveColumn('lengowActive', me.snippets.column.lengowStatus),
         this.getActionColumn()
@@ -137,18 +142,14 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
         items.push({
             handler: function(grid, rowIndex, colIndex, item, eOpts, record) {
+                // If click on include in export column
                 if (lengowColumn) {
+                    // Get the record and change lengow status for the product
                     var attributeId = record.raw['attributeId']
                     categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id'),
                     status = !record.get('lengowActive');
-                    me.fireEvent('setStatusInLengow', Ext.encode([attributeId]), status, categoryId);
-                    var counter = Ext.get('products-exported').dom.innerHTML;
 
-                    if (status == 'true') {
-                        Ext.get('products-exported').dom.innerHTML = parseInt(counter) + 1;
-                    } else {
-                        Ext.get('products-exported').dom.innerHTML = parseInt(counter) - 1;
-                    }
+                    me.fireEvent('setStatusInLengow', Ext.encode([attributeId]), status, categoryId);
                 }
             },
             getClass: function(value, metaData, record) {
@@ -167,6 +168,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             header: header,
             align: 'center',
             items: items,
+            flex: 1,
             renderer : function(value, metadata, record) {
                 // Generate tooltip enable/disable article for Lengow status
                 if (lengowColumn) {
@@ -192,6 +194,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             action:'seeProduct',
             tooltip: me.snippets.line.edit,
             handler: function (view, rowIndex, colIndex, item, opts, record) {
+                // Shortcut to edit article
                 Shopware.app.Application.addSubApplication({
                     name: 'Shopware.apps.Article',
                     action: 'detail',
@@ -262,24 +265,31 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         me.store.loadPage(1);
     },
 
+    /**
+     * Listener for add/remove from export buttons
+     * @param publishButton boolean True if adding products to export
+     */
     exportButtonHandler: function(publishButton) {
         var me = this,
         selectionModel = me.getSelectionModel(),
         records = selectionModel.getSelection(),
         categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id')
         attributeIds = [],
-        variance = 0,
         checkbox = Ext.getCmp('editAll'),
         ids = null,
-        exportedProducts = 0;
+        exportedProducts = null,
+        total = null;
 
         // Enable mask on main container while the process is not finished
         Ext.getCmp('exportContainer').getEl().mask();
 
+        var exportedProducts = parseInt(Ext.get('products-exported').dom.innerHTML);
+
+        // Does select all products checbox is checked ?
         if (checkbox.getValue()) {
+            var totalProducts = parseInt(Ext.get('total-products').dom.innerHTML);
             if (publishButton) {
-                var counter = Ext.get('total-products').dom.innerHTML;
-                exportedProducts = parseInt(counter);
+                exportedProducts = totalProducts;
             } else {
                 exportedProducts = 0;
             }
@@ -289,39 +299,51 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                 // If record status has changed, register the occurence
                 // to change counter value
                 if (record.get('lengowActive') == false && publishButton) {
-                    variance++;
+                    exportedProducts++;
                 } else if (record.get('lengowActive') == true && !publishButton) {
-                    variance--;
+                    exportedProducts--;
                 }
             });
 
-            // Update counter
-            var counter = Ext.get('products-exported').dom.innerHTML;
-            exportedProducts = parseInt(counter) + variance;
             ids = Ext.encode(attributeIds);
         }
 
         me.fireEvent('setStatusInLengow', ids, publishButton, categoryId);
-        Ext.get('products-exported').dom.innerHTML = exportedProducts;
+    },
+
+    updateLabelProductExported: function(number, total) {
+        if (number != null) {
+            var exportedLabel = Ext.get('products-exported');
+            exportedLabel.dom.innerHTML = number;
+        }
+
+        if (total != null) {
+            var totalLabel = Ext.get('total-products');
+            totalLabel.dom.innerHTML = total;
+        }
+
+        Ext.getCmp('topPanel').doLayout();
     },
 
     /**
      * Update counter - display number of articles exported in Lengow
      */
-    setNumberOfProductExported: function() {
+    updateCounter: function() {
         var me = this,
         store = me.store;
         store.load({
             scope: this,
             callback: function(records, operation, success) {
                 var data = Ext.decode(operation.response.responseText),
-                    total = data['total'],
-                    lengowProducts = data['nbLengowProducts'],
-                    label = '<span id="products-exported">' + lengowProducts + '</span> ' 
+                    total = data['nbProductsAvailable'],
+                    lengowProducts = data['nbExportedProducts'];
+
+                var label = '<span id="products-exported">' + lengowProducts + '</span> ' 
                                     + me.snippets.label.counter.count + ' ' + 
                                     '<span id="total-products">' + total + '</span> ' 
                                     + me.snippets.label.counter.total + '. ',
                     counter = Ext.getCmp('productCounter');
+                // Update counter
                 counter.el.update(label);
                 var labelPanel = Ext.getCmp('topPanel');
                 labelPanel.doLayout();
@@ -355,6 +377,14 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                 link.on('click', me.getSynchronizeIframe);
             }
         }
+    },
+
+    initConfigCheckboxes: function() {
+        var me = this,
+            selectedShop = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id'),
+            configName = ['lengowExportVariation', 'lengowExportOutOfStock', 'lengowExportLengowSelection'];
+
+        me.fireEvent('getConfigValue', configName, selectedShop);
     },
 
     /**

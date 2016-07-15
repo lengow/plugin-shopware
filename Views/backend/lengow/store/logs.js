@@ -17,6 +17,7 @@ Ext.define('Shopware.apps.Lengow.store.Logs', {
         load: function(store){
             var me = this;
 
+            // Format to display full date (day month year)
             store.each(function(record, id) {
                 var logDate = record.get('date');
                 if (logDate !== '') {
@@ -26,8 +27,9 @@ Ext.define('Shopware.apps.Lengow.store.Logs', {
                 }
             });
 
-            var rec = { id: '', name: me.snippets.all, date: me.snippets.all};
-            store.insert(0,rec);
+            // Add record to download all logs
+            var allLogs = { id: '', name: me.snippets.all, date: me.snippets.all};
+            store.insert(0, allLogs);
         }
     },
 

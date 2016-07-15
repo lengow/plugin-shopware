@@ -55,15 +55,12 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
 
         $builder = $em->createQueryBuilder();
         $builder->select($select)
-            ->from('Shopware\Models\Article\Article', 'articles')
-            ->leftJoin('articles.mainDetail', 'details')
+            ->from('Shopware\Models\Article\Detail', 'details')
+            ->join('details.article', 'articles')
+            ->join('articles.attribute', 'attributes')
             ->leftJoin('articles.supplier', 'suppliers')
-            ->leftJoin('articles.attribute', 'attributes')
             ->leftJoin('details.prices', 'prices')
-            ->leftJoin('articles.tax', 'tax')
-            ->where('prices.to = \'beliebig\'')
-            ->andWhere('prices.customerGroupKey = \'EK\'')
-            ->andWhere('attributes.articleDetailId = details.id');
+            ->leftJoin('articles.tax', 'tax');
 
         // Search criteria
         if (isset($filters['search'])) {
@@ -73,16 +70,6 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                 'suppliers.name LIKE :searchFilter';
             $builder->andWhere($condition)
                 ->setParameter('searchFilter', $searchFilter);
-        }
-
-        // In stock products only
-        if ($export_out_stock) {
-            $builder->andWhere('details.inStock > 0');
-        }
-
-        // Active product only
-        if ($export_disabled_products) {
-            $builder->andWhere('articles.active = 1');
         }
 
         if ($categoryId !== 'NaN' && $categoryId != null) {
@@ -106,7 +93,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
 
             $builder->leftJoin('articles.categories', 'categories')
                 ->innerJoin('articles.allCategories', 'allCategories')
-                ->andWhere($where);
+                ->where($where);
         }
 
         // Make sure that whe don't get a cold here
@@ -148,22 +135,19 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             $builder->orderBy($orderColumn, $order['direction']);
         }
 
-        $builder->distinct();
+        $builder->distinct()
+            ->addOrderBy('details.number');
 
-        // Get number of products before setting offset and limit parameters
-        $articles = $builder->getQuery()->getArrayResult();
-        $numberOfProducts = count($articles);
+        $builder->andWhere('prices.to = \'beliebig\'')
+            ->andWhere('prices.customerGroupKey = \'EK\'')
+            ->andWhere('details.kind = 1')
+            ->andWhere('attributes.articleDetailId = details.id')
+            ->addOrderBy('details.number');
 
-        // Count articles that are exported
-        $nbLengowProducts = 0;
-        foreach ($articles as $article) {
-            if ($article['lengowActive']) {
-                $nbLengowProducts++;
-            }
-        }
+        $counter = $this->getCounter(clone $builder, $shopId);
 
-        $builder->addOrderBy('details.number')
-            ->setFirstResult($start)
+        $totalProducts = count($builder->getQuery()->getArrayResult());
+        $builder->setFirstResult($start)
             ->setMaxResults($limit);
 
         $result = $builder->getQuery()->getArrayResult();
@@ -171,8 +155,9 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $this->View()->assign(array(
             'success' => true,
             'data'    => $result,
-            'total'   => $numberOfProducts,
-            'nbLengowProducts'   => $nbLengowProducts
+            'total'   => $totalProducts,
+            'nbProductsAvailable' => $counter[0],
+            'nbExportedProducts' => $counter[1]
         ));
     }
 
@@ -195,6 +180,67 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         }
 
         return $where;
+    }
+
+    private function getCounter($builder, $shopId)
+    {
+        $exportVariation = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue(
+                                'lengowExportVariation',
+                                $shopId
+                            );
+        $exportOutOfStock = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue(
+                                'lengowExportOutOfStock',
+                                $shopId
+                            );
+        $lengowSelection = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue(
+                                'lengowExportLengowSelection',
+                                $shopId
+                            );
+
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $nbProductsAvailable = count($builder->getQuery()->getArrayResult());
+        $nbExportedProducts = $nbProductsAvailable;
+
+        // TODO : counter doesn't show correct number of products available
+        if ($lengowSelection) {
+            $builder->andWhere('attributes.lengowShop' . $shopId . 'Active = 1');
+            $lengowArticles = $builder->getQuery()->getArrayResult();
+            $nbExportedProducts = 0;
+            $nbProductsAvailable = 0;
+
+            foreach ($lengowArticles as $lengowArticle) {
+                $article = $em->getReference('Shopware\Models\Article\Article', $lengowArticle['articleId']);
+                $articleVariations = $article->getDetails();
+                $nbProductsAvailable++;
+
+                if ($exportVariation) {
+                    foreach ($articleVariations as $detail) {
+                        $nbProductsAvailable++;
+                        if ($lengowArticle['lengowActive']) {
+                            if ($exportOutOfStock || $detail->getInStock() > 0) {
+                                $nbExportedProducts++;
+                            }
+                        }
+                    }
+                } else {
+                    $nbExportedProducts++;
+                }
+            }
+        }
+
+        if (!$exportOutOfStock) {
+            $builder->andWhere('details.inStock > 0');
+            $nbExportedProducts = count($builder->getQuery()->getArrayResult());
+        }
+
+        if (!$exportVariation) {
+            $builder->andWhere('details.kind = 1');
+            $builder->distinct();
+            $nbProductsAvailable = count($builder->getQuery()->getArrayResult());
+            $nbExportedProducts = $nbProductsAvailable;
+        }
+
+        return array($nbProductsAvailable, $nbExportedProducts);
     }
 
     /**
@@ -350,7 +396,8 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         ));
     }
 
-    public function changeSettingsValueAction() {
+    public function changeSettingsValueAction() 
+    {
         $shopId = $this->Request()->getParam('id');
         $name = $this->Request()->getParam('name');
         $status = (int)($this->Request()->getParam('status') === 'true');
@@ -388,13 +435,21 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         }
     }
 
-    public function getConfigValueAction() {
+    public function getConfigValueAction() 
+    {
         $shopId = $this->Request()->getParam('id');
-        $name = $this->Request()->getParam('name');
+        $configList = $this->Request()->getParam('configList');
+
+        $names = json_decode($configList);
+        $result = array();
+
+        foreach ($names as $name) {
+            $result[$name] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue($name, $shopId);
+        }
 
         $this->View()->assign(array(
             'success' => true,
-            'data'    => Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue($name, $shopId)
+            'data'    => $result
         ));
     }
 }

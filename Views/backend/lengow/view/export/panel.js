@@ -75,16 +75,12 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                         if (record.get('parentId') === 'root') {
                             var label = record.get('text') + ' (' + record.get('id') + ')';
                             Ext.getCmp('shopName').el.update(label);
-                            grid.setNumberOfProductExported();
                             grid.setLengowShopStatus();
+                            grid.initConfigCheckboxes();
+                            grid.updateCounter();
                         } else {
                             store.load();
                         }
-
-                        var selectedShop = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id');
-                        me.fireEvent('getConfigValue', 'lengowExportVariation', selectedShop);
-                        me.fireEvent('getConfigValue', 'lengowExportOutOfStock', selectedShop);
-                        me.fireEvent('getConfigValue', 'lengowExportLengowSelection', selectedShop);
 
                         //scroll the store to first page
                         store.currentPage = 1;

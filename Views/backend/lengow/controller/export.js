@@ -8,14 +8,12 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
 
         me.control({
             'product-listing-grid': {
-                setStatusInLengow: me.onSetStatusInLengow
-            },
-            'lengow-category-panel': {
+                setStatusInLengow: me.onSetStatusInLengow,
                 getConfigValue: me.onGetConfigValue
             },
             'lengow-export-container': {
                 getFeed: me.onGetFeed,
-                changeSettingsValue: me.onChangeSettingsValue,
+                changeSettingsValue: me.onChangeSettingsValue
             }
         });
 
@@ -24,7 +22,7 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
 
     /**
      * Download shop feed
-     * @param selectedShop Name of the shop to export
+     * @param selectedShop Id of the shop to export
      */
     onGetFeed: function(selectedShop) {
     	var me = this;
@@ -47,9 +45,10 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
 
     /**
      * Change article Lengow status
-     * @param ids List of article ids to edit
+     * @param ids array|null List of article ids to edit. 
+                If null, change for all article in the category
      * @param status boolean True if articles have to be activated
-     * @param categoryId int|null Category (shop main category or shopId_subCategoryId) 
+     * @param categoryId int Category (shop main category or shopId_subCategoryId) 
      *      the article belongs to
      */
     onSetStatusInLengow: function(ids, status, categoryId) {
@@ -65,12 +64,18 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
                 categoryId: categoryId
             },
             success: function(response, opts) {
-                Ext.getCmp('exportGrid').getStore().load();
+                Ext.getCmp('exportGrid').updateCounter();
                 Ext.getCmp('exportContainer').getEl().unmask();
             }
         });
     },
 
+    /**
+     * Change settings values (variations, out of stocks or selection)
+     * @param shopId int Shop id to edit
+     * @param settingName string Name of the setting to edit
+     * @param value boolean Status of this setting
+     */
     onChangeSettingsValue: function(shopId, settingName, value) {
         var me = this;
 
@@ -82,13 +87,16 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
                 id: shopId,
                 name: settingName,
                 status: value
-            },
-            success: function(response, opts) {
             }
         });
     },
 
-    onGetConfigValue: function(configName, shopId) {
+    /**
+     * Get setting value from db
+     * @param configList array List of configs
+     * @param shopId int Shop id
+     */
+    onGetConfigValue: function(configList, shopId) {
         var me = this;
 
         Ext.Ajax.request({
@@ -97,11 +105,18 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
             type: 'json',
             params: {
                 id: shopId,
-                name: configName
+                configList: Ext.encode(configList)
             },
             success: function(response, opts) {
-                var status = Ext.decode(response.responseText);
-                Ext.getCmp(configName).setValue(status.data);
+                var values = Ext.decode(response.responseText)['data'];
+                Ext.each(configList, function(config) {
+                    var status = values[config];
+                    Ext.getCmp(config).setValue(status);
+                });
+
+                if (!Ext.getCmp('lengowExportLengowSelection').getValue()) {
+                    Ext.getCmp('exportGrid').setDisabled(true);
+                }
             }
         });
     }

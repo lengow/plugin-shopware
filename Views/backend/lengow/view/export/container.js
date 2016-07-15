@@ -140,6 +140,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
                                 value = checkbox.getValue(),
                                 id = checkbox.getId();
                             me.fireEvent('changeSettingsValue', selectedShop, id, value);
+                            Ext.getCmp('exportGrid').updateCounter();
                         }
                     }
                 },
@@ -153,6 +154,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
                                 value = checkbox.getValue(),
                                 id = checkbox.getId();
                             me.fireEvent('changeSettingsValue', selectedShop, id, value);
+                            Ext.getCmp('exportGrid').updateCounter();
                         }
                     }
                 },
@@ -169,6 +171,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
                             Ext.getCmp('exportGrid').setDisabled(!value);
 
                             me.fireEvent('changeSettingsValue', selectedShop, id, value);
+                            Ext.getCmp('exportGrid').updateCounter();
                         }
                     }
                 },
