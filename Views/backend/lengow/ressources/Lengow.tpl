@@ -26,6 +26,7 @@
 	.lengow_shop_status_label {
 		color:#555;
 		font-weight:normal;
+		margin-top: 5px;
 		font: 400 12px/1.42857 "Open Sans",Helvetica,Arial,sans-serif;
 	}
 
@@ -56,6 +57,10 @@
 	#leftColumn .x-form-cb-label {
 	    margin-left:2px;
 	    margin-right:10px;
+	}
+
+	#shopName {
+		margin-right: 10px;
 	}
 
 	.lengow_export_feed:before{

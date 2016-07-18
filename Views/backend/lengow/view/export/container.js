@@ -84,6 +84,10 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
         return panel;
     },
 
+    /**
+     * Display first line on top of the grid
+     * Contains shop status, shop name and icon to download feed
+     */
     getFirstLine: function() {
         var me = this;
         return {
@@ -123,6 +127,10 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
         };
     },
 
+    /**
+     * Display second line on top of the grid
+     * Contains shop settings and counter
+     */
     getSecondLine: function() {
         var me = this;
         return {

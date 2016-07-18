@@ -404,12 +404,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
             'lengowDefaultDispatcher' => array(
-                'type'      => 'boolean',
+                'type'      => 'select',
                 'label'     => 'settings/lengow_export_settings/dispatcher/label',
                 'required'  => true,
                 'editable'  => false,
                 'store'     => $selection,
-                'value'     => $defaultValue,
                 'description' => 'settings/lengow_export_settings/dispatcher/description',
                 'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
             )
@@ -498,11 +497,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             $type = $options['type'];
             array_shift($options);
 
-            // if ($type == 'select' && $options['store'] == null) {
-            //     var_dump(expression)
-            //     $options['store'] = $this->getSimpleSelectForm();
-            // }
-
             $form->setElement(
                 $type,
                 $key,
@@ -542,13 +536,5 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     {
         $translation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($key, $isoCode);
         return stripslashes($translation);
-    }
-
-    protected function getSimpleSelectForm($isoCode = null)
-    {
-        return array(
-                array(1, $this->getTranslation('global/select/select_yes', $isoCode)),
-                array(0, $this->getTranslation('global/select/select_no', $isoCode))
-        );
     }
 }

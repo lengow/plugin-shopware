@@ -262,7 +262,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $result = $builder->getQuery()->getArrayResult();
 
         foreach ($result as $options) {
-            $this->attributes[$options['name']] = $options['value'];
+            $this->attributes[strtolower($options['name'])] = $options['value'];
         }
     }
 

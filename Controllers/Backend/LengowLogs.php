@@ -8,6 +8,9 @@ use Doctrine\ORM\Query\QueryExpressionVisitor;
 
 class Shopware_Controllers_Backend_LengowLogs extends Shopware_Controllers_Backend_ExtJs
 {
+	/**
+	 * Get list of log files
+	 */
 	public function listAction()
 	{
 		$files = Shopware_Plugins_Backend_Lengow_Components_LengowLog::getFiles();
@@ -32,6 +35,9 @@ class Shopware_Controllers_Backend_LengowLogs extends Shopware_Controllers_Backe
         ));
 	}
 
+	/**
+	 * Launch log file download
+	 */
 	public function downloadAction()
 	{
 		$fileName = $this->Request()->getParam('fileName');
