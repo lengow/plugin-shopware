@@ -74,7 +74,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                             grid.initConfigCheckboxes();
                         }
 
-                        store.load();
+                        grid.updateCounter();
 
                         //scroll the store to first page
                         store.currentPage = 1;
