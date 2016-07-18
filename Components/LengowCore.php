@@ -104,6 +104,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
         return substr($path, $index);
     }
 
+    /**
+     * Get list of shop ids
+     * @return array List of shop ids that have been created in Shopware
+     */
     public static function getShopsIds()
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
