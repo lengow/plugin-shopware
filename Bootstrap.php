@@ -83,6 +83,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $this->createConfig();
         $this->updateSchema();
         $this->registerMyEvents();
+        $this->registerCustomModels();
+        $this->createCustomModels();
         $this->Plugin()->setActive(true);
 
         $this->log('log/install/end');
@@ -113,6 +115,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public function uninstall()
     {
         $this->log('log/uninstall/start');
+
+        $this->removeCustomModels();
 
         $shops = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getShopsIds();
 
@@ -172,6 +176,42 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
+     * Add custom models used by Lengow in the database
+     */
+    protected function createCustomModels()
+    {
+        $em = self::getEntityManager();
+        $schemaTool = new Doctrine\ORM\Tools\SchemaTool($em);
+
+        $models = array(
+            $em->getClassMetadata('Shopware\CustomModels\Lengow\Order')
+        );
+
+        foreach ($models as $model) {
+            $schemaTool->createSchema(array($model));
+            $this->log('log/install/add_model', array('name' => $model->getName()));
+        }
+    }
+
+    /**
+     * Remove custom models used by Lengow from the database
+     */
+    protected function removeCustomModels()
+    {
+        $em = self::getEntityManager();
+        $schemaTool = new Doctrine\ORM\Tools\SchemaTool($em);
+
+        $models = array(
+            $em->getClassMetadata('Shopware\CustomModels\Lengow\Order')
+        );
+
+        foreach ($models as $model) {
+            $schemaTool->dropSchema(array($model));
+            $this->log('log/uninstall/remove_model', array('name' => $model->getName()));
+        }
+    }
+
+    /**
      * This callback function is triggered at the very beginning of the dispatch process and allows
      * us to register additional events on the fly. This way you won't ever need to reinstall you
      * plugin for new events - any event and hook can simply be registerend in the event subscribers
@@ -222,6 +262,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $this->Application()->Loader()->registerNamespace(
             'Shopware\Lengow\Components',
             $this->Path() . 'Components/'
+        );
+        $this->Application()->Loader()->registerNamespace(
+            'Shopware\Models\Lengow',
+            $this->Path() . 'Models/'
         );
     }
 
