@@ -150,6 +150,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                     status = !record.get('lengowActive');
 
                     me.fireEvent('setStatusInLengow', Ext.encode([attributeId]), status, categoryId);
+                    me.updateCounter();
                 }
             },
             getClass: function(value, metaData, record) {
@@ -309,20 +310,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         }
 
         me.fireEvent('setStatusInLengow', ids, publishButton, categoryId);
-    },
-
-    updateLabelProductExported: function(number, total) {
-        if (number != null) {
-            var exportedLabel = Ext.get('products-exported');
-            exportedLabel.dom.innerHTML = number;
-        }
-
-        if (total != null) {
-            var totalLabel = Ext.get('total-products');
-            totalLabel.dom.innerHTML = total;
-        }
-
-        Ext.getCmp('topPanel').doLayout();
     },
 
     /**

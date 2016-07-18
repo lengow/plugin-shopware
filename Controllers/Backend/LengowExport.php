@@ -414,7 +414,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     public function getDefaultShopAction()
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $defaultShop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default', 1));
+        $defaultShop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
 
         $this->View()->assign(array(
             'success' => true,

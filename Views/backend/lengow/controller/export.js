@@ -14,6 +14,9 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
             'lengow-export-container': {
                 getFeed: me.onGetFeed,
                 changeSettingsValue: me.onChangeSettingsValue
+            },
+            'lengow-category-panel': {
+                getDefaultShop: me.onGetDefaultShop
             }
         });
 
@@ -119,6 +122,33 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
                 }
             }
         });
-    }
+    },
+
+    /**
+     * Get Shopware default shop 
+     * Auto select the shop in the tree when launching the plugin
+     */
+    onGetDefaultShop: function(view) {
+        var me = this;
+
+        Ext.Ajax.request({
+            url: '{url controller="LengowExport" action="getDefaultShop"}',
+            method: 'POST',
+            type: 'json',
+            success: function(response, opts) {
+                var tree = Ext.getCmp('shopTree'),
+                    defaultShopId = Ext.decode(response.responseText)['data']
+                    childNodes = tree.getRootNode().childNodes;
+
+                Ext.each(childNodes, function(child) {
+                    if (child.get('id') == defaultShopId) {
+                        tree.getSelectionModel().select(child);
+                        tree.fireEvent('itemclick', view, child);
+                        return;
+                    }
+                });
+            }
+        });
+    },
 });
 //{/block}

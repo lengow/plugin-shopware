@@ -53,11 +53,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
         tree = Ext.create('Shopware.apps.Lengow.view.export.Tree', {
             listeners: {
                 load: function(view, record){
-                    if(record.get('id') === 'root' && record.childNodes.length) {
-                       var firstChild = record.childNodes[0]; 
-                       tree.getSelectionModel().select(firstChild);
-                       tree.fireEvent('itemclick', view, firstChild);
-                    }
+                    me.fireEvent('getDefaultShop', view);
                 },
                 itemclick: {
                     fn: function (view, record) {
@@ -66,7 +62,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                             grid = Ext.getCmp('exportGrid');
 
                         if (record.get('id') === 'root') {
-                            store.getProxy().extraParams.categoryId = null;
                             return false; // Do nothing if root is selected
                         } 
 
@@ -77,10 +72,9 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                             Ext.getCmp('shopName').el.update(label);
                             grid.setLengowShopStatus();
                             grid.initConfigCheckboxes();
-                            grid.updateCounter();
-                        } else {
-                            store.load();
                         }
+
+                        store.load();
 
                         //scroll the store to first page
                         store.currentPage = 1;
