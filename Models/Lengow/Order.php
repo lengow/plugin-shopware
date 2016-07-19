@@ -12,7 +12,7 @@
 namespace Shopware\CustomModels\Lengow;
 
 use Shopware\Components\Model\ModelEntity,
-    Doctrine\ORM\Mapping AS ORM,
+    Doctrine\ORM\Mapping as ORM,
     Symfony\Component\Validator\Constraints as Assert,
     Doctrine\Common\Collections\ArrayCollection;
 
@@ -43,7 +43,7 @@ class Order extends ModelEntity
     /**
      * @var string $deliveryAddressId
      *
-     * @ORM\Column(name="delivery_address_id", type="string", length=150, nullable=false)
+     * @ORM\Column(name="delivery_address_id", type="integer", nullable=false)
      */
     private $deliveryAddressId;
 
@@ -51,7 +51,7 @@ class Order extends ModelEntity
      * @var string $marketplaceSku
      *
      * @ORM\Column(name="marketplace_sku", type="string", length=100, nullable=false)
-     */   
+     */
     private $marketplaceSku;
 
     /**
@@ -65,15 +65,15 @@ class Order extends ModelEntity
      * @var string $orderDate
      *
      * @ORM\Column(name="order_date", type="datetime", nullable=false)
-     */   
+     */
     private $orderDate;
 
     /**
-     * @var \DateTime $createdAdd
+     * @var \DateTime $createdAt
      *
-     * @ORM\Column(name="created_add", type="datetime", nullable=false)
+     * @ORM\Column(name="created_at", type="datetime", nullable=false)
      */
-    private $createdAdd;
+    private $createdAt;
 
     /**
      * @var string $extra
@@ -102,7 +102,6 @@ class Order extends ModelEntity
     public function setId($id)
     {
         $this->id = $id;
-
         return $this;
     }
 
@@ -126,7 +125,6 @@ class Order extends ModelEntity
     public function setShopId($shopId)
     {
         $this->shopId = $shopId;
-
         return $this;
     }
 
@@ -150,7 +148,6 @@ class Order extends ModelEntity
     public function setDeliveryAddressId($deliveryAddressId)
     {
         $this->deliveryAddressId = $deliveryAddressId;
-
         return $this;
     }
 
@@ -174,7 +171,6 @@ class Order extends ModelEntity
     public function setMarketplaceSku($marketplaceSku)
     {
         $this->marketplaceSku = $marketplaceSku;
-
         return $this;
     }
 
@@ -198,31 +194,29 @@ class Order extends ModelEntity
     public function setMarketplaceName($marketplaceName)
     {
         $this->marketplaceName = $marketplaceName;
-
         return $this;
     }
 
     /**
-     * Gets the value of createdAdd.
+     * Gets the value of createdAt.
      *
-     * @return \DateTime $createdAdd
+     * @return \DateTime $createdAt
      */
-    public function getCreatedAdd()
+    public function getCreatedAt()
     {
-        return $this->createdAdd;
+        return $this->createdAt;
     }
 
     /**
-     * Sets the value of createdAdd.
+     * Sets the value of createdAt.
      *
-     * @param \DateTime $createdAdd $createdAdd the created add
+     * @param \DateTime $createdAt $createdAt the created at
      *
      * @return self
      */
-    public function setCreatedAdd($createdAdd)
+    public function setCreatedAt($createdAt)
     {
-        $this->createdAdd = $createdAdd;
-
+        $this->createdAt = $createdAt;
         return $this;
     }
 
@@ -246,7 +240,6 @@ class Order extends ModelEntity
     public function setExtra($extra)
     {
         $this->extra = $extra;
-
         return $this;
     }
 }

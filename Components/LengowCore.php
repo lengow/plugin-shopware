@@ -84,7 +84,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
      * Get the path of the plugin
-     * 
+     *
      * @return string
      */
     public static function getPathPlugin()
@@ -96,6 +96,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
 
     /**
      * Get list of shop ids
+     *
      * @return array List of shop ids that have been created in Shopware
      */
     public static function getShopsIds()
@@ -129,15 +130,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      * Default Shipping Cost
      *
      * @param integer $idShop
+     *
      * @return object Dispatch Shopware
      */
-    public static function getDefaultShippingCost($idShop) 
+    public static function getDefaultShippingCost($idShop)
     {
         return self::getSetting($idShop)->getLengowShippingCostDefault();
     }
 
     /**
-     * v3
      * Clean html
      *
      * @param string $html The html content
@@ -336,11 +337,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
             /* OE */
             '/[\x{0152}]/u'
         );
-
         // ö to oe
         // å to aa
         // ä to ae
-
         $replacements = array(
             'a',
             'c',
@@ -384,7 +383,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
             'AE',
             'OE'
         );
-
         return preg_replace($patterns, $replacements, $str);
     }
 }
