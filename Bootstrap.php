@@ -470,8 +470,19 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'editable'  => false,
                 'value'     => 0,
                 'required'  => false,
-                'description' => 'settings/lengow_import_settings/decrease_stock/description',
-                'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
+                'description' => 'settings/lengow_import_settings/decrease_stock/description'
+            ),
+            'lengowImportDays' => array(
+                'type'      => 'number',
+                'label'     => 'settings/lengow_import_settings/import_days/label',
+                'value'     => 5,
+                'description' => 'settings/lengow_import_settings/import_days/description'
+            ),
+            'lengowPreprodMode' => array(
+                'type'      => 'boolean',
+                'label'     => 'settings/lengow_import_settings/preprod_mode/label',
+                'value'     => 0,
+                'description' => 'settings/lengow_import_settings/preprod_mode/description'
             )
         );
 
