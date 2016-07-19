@@ -30,7 +30,6 @@ require_once('../Components/LengowException.php');
 require_once('../Components/LengowExport.php');
 require_once('../Components/LengowFeed.php');
 require_once('../Components/LengowTranslation.php');
-require_once('../Components/LengowMain.php');
 require_once('../Components/LengowProduct.php');
 require_once('../Components/LengowFile.php');
 require_once('../Components/LengowLog.php');

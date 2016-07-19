@@ -65,7 +65,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
     public function loadFile($fileName = null, $isoCode = null)
     {
         if (!$fileName) {
-        	$pluginPath = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder();
+        	$pluginPath = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getLengowFolder();
             $fileName = $pluginPath . 'Snippets/backend/Lengow/translation.ini';
         }
         $translation = array();
@@ -74,7 +74,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
     			self::$translation = parse_ini_file($fileName, true);
     		} catch (Exception $e) {
 	            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-	                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('Translation file could not be load : ' . $e)
+	                Shopware_Plugins_Backend_Lengow_Components_LengowCore::setLogMessage('Translation file could not be load : ' . $e)
 	            );
     		}
         }
