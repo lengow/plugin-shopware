@@ -43,6 +43,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $this->getPrice();
     }
 
+    /**
+     * Retrieve Lengow product data
+     * @param $name string Name of the data to get
+     */
     public function getData($name)
     {
         switch ($name) {
@@ -188,13 +192,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 $result = '';
                 if (array_key_exists($name, $this->attributes)
                     && $this->isVariation) {
-                    $result = $this->attributes[$name];
+                    $result = Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanData($this->attributes[$name]);
                 }
                 return $result;
                 break;
         }
     }
 
+    /**
+     * Get path images for the current product
+     * @param $index int Index of the image to get
+     * @return string Image path
+     */
     private function getImagePath($index)
     {
         try {
@@ -244,7 +253,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      *
      */
-    public function getOptions()
+    private function getOptions()
     {
         $select = array(
             'options.name AS value',
@@ -266,6 +275,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         }
     }
 
+    /**
+     * Return products custom attributes
+     * @return array List of attributes
+     */
     public function getAttributes()
     {
         return $this->attributes;
@@ -300,7 +313,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 
     /**
      * Get main price of a product
-     *
      */
     private function getPrice()
     {
@@ -313,6 +325,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         }
     }
 
+    /**
+     * Get article shipping cost
+     * @return float Shipping cost
+     */
     private function getShippingCost()
     {
         $weight = $this->details->getWeight();

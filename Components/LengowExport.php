@@ -65,7 +65,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         'description_short' => 'description_short',
         'description' => 'description',
         'description_html' => 'description_html',
-        'meta_title' => 'meta_keyword',
+        'meta_title' => 'meta_title',
         'meta_keyword' => 'meta_keyword',
         );
 
@@ -295,11 +295,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 
             // Get article attributes for the header
             foreach ($productAttributes as $value => $name) {
-                $option = Shopware_Plugins_Backend_Lengow_Components_LengowFeed::formatFields(
-                    $value,
-                    $this->format
-                    );
-                $this->productFields[$value] = $option;
+                $this->productFields[$value] = $value;
             }
 
             $lengowParentProduct = null;
@@ -486,7 +482,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         foreach ($this->productFields as $key => $field) {
             $productFields[$key] = $lengowProduct->getData($field);
         }
-
         return $productFields;
     }
 

@@ -24,14 +24,6 @@ use Shopware\Components\HttpCache\AppCache;
 
 include '../../../../../../../autoload.php';
 
-$environment = getenv('ENV') ?: getenv('REDIRECT_ENV') ?: 'production';
-
-$kernel = new Kernel($environment, $environment !== 'production');
-$kernel->boot();
-if ($kernel->isHttpCacheEnabled()) {
-    $kernel = new AppCache($kernel, $kernel->getHttpCacheConfig());
-}
-
 require_once('../Bootstrap.php');
 require_once('../Components/LengowCore.php');
 require_once('../Components/LengowException.php');
@@ -42,6 +34,15 @@ require_once('../Components/LengowMain.php');
 require_once('../Components/LengowProduct.php');
 require_once('../Components/LengowFile.php');
 require_once('../Components/LengowLog.php');
+require_once('../Components/LengowConfiguration.php');
+
+$environment = getenv('ENV') ?: getenv('REDIRECT_ENV') ?: 'production';
+
+$kernel = new Kernel($environment, $environment !== 'production');
+$kernel->boot();
+if ($kernel->isHttpCacheEnabled()) {
+    $kernel = new AppCache($kernel, $kernel->getHttpCacheConfig());
+}
 
 if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIp())
 {

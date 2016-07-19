@@ -26,6 +26,8 @@ include '../../../../../../../autoload.php';
 
 require_once('../Bootstrap.php');
 require_once('../Components/LengowCore.php');
+require_once('../Components/LengowImport.php');
+require_once('../Components/LengowConfiguration.php');
 
 $environment = getenv('ENV') ?: getenv('REDIRECT_ENV') ?: 'production';
 
@@ -34,6 +36,7 @@ $kernel->boot();
 if ($kernel->isHttpCacheEnabled()) {
     $kernel = new AppCache($kernel, $kernel->getHttpCacheConfig());
 }
+
 
 $em = Shopware()->Models();
 $lengowPlugin = $em->getRepository('Shopware\Models\Plugin\Plugin')->findOneBy(array('name' => 'Lengow'));
@@ -86,7 +89,7 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIp()) {
 		$params['type'] = 'cron';
 
 	    // import orders
-	    $import = new LengowImport($params);
+	    $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport($params);
 	    $import->exec();
 	}
 

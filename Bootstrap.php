@@ -452,6 +452,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'label'     => 'settings/lengow_export_settings/dispatcher/label',
                 'required'  => true,
                 'editable'  => false,
+                'value'     => $defaultValue,
                 'store'     => $selection,
                 'description' => 'settings/lengow_export_settings/dispatcher/description',
                 'scope'     => Shopware\Models\Config\Element::SCOPE_SHOP
