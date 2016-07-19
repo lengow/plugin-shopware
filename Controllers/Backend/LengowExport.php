@@ -296,9 +296,9 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                     'leaf' => $mainCategory->isLeaf(),
                     'text' => $shop->getName(),
                     'id' => $shop->getId(),
-                    'lengowStatus' => Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue(
+                    'lengowStatus' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                         'lengowEnableShop',
-                        $shop->getId()
+                        $shop
                     )
                 );
             }
@@ -343,45 +343,16 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
      * @param name String Setting name
      * @param status boolean New setting value
      */
-    public function changeSettingsValueAction() 
+    public function setConfigValueAction() 
     {
         $shopId = $this->Request()->getParam('id');
         $name = $this->Request()->getParam('name');
         $status = (int)($this->Request()->getParam('status') === 'true');
 
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
 
-        if ($shopId != null) {
-            $builder = $em->createQueryBuilder();
-            $builder->select('values.id')
-                ->from('Shopware\Models\Config\Value', 'values')
-                ->leftJoin('values.element', 'elements')
-                ->where('values.shopId = :shopId')
-                ->andWhere('elements.name = :name')
-                ->setParameter('shopId', $shopId)
-                ->setParameter('name', $name);
-            $result = $builder->getQuery()->getArrayResult();
-
-            // If the config already exists, update the value
-            if (!empty($result)) {
-                $configId = $result[0]['id'];
-
-                $config = $em->getReference('Shopware\Models\Config\Value', $configId);
-                $config->setValue($status);
-                $em->persist($config);
-                $em->flush($config);
-            } else {
-                // If the config doesn't exist for the current shop, create it
-                $config = $em->getRepository('Shopware\Models\Config\Element')->findOneBy(array('name' => $name));
-                $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
-                $configValue = new Shopware\Models\Config\Value();
-                $configValue->setElement($config);
-                $configValue->setShop($shop);
-                $config->setValue($status);
-                $em->persist($configValue);
-                $em->flush($configValue);
-            }
-        }
+        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig($name, $status, $shop);
     }
 
     /**
@@ -394,11 +365,14 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $shopId = $this->Request()->getParam('id');
         $configList = $this->Request()->getParam('configList');
 
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
+
         $names = json_decode($configList);
         $result = array();
 
         foreach ($names as $name) {
-            $result[$name] = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue($name, $shopId);
+            $result[$name] = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig($name, $shop);
         }
 
         $this->View()->assign(array(
@@ -413,8 +387,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
      */
     public function getDefaultShopAction()
     {
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $defaultShop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
+        $defaultShop = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDefaultShop();
 
         $this->View()->assign(array(
             'success' => true,

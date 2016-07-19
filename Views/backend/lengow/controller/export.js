@@ -13,7 +13,7 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
             },
             'lengow-export-container': {
                 getFeed: me.onGetFeed,
-                changeSettingsValue: me.onChangeSettingsValue
+                setConfigValue: me.onSetConfigValue
             },
             'lengow-category-panel': {
                 getDefaultShop: me.onGetDefaultShop
@@ -79,11 +79,11 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
      * @param settingName string Name of the setting to edit
      * @param value boolean Status of this setting
      */
-    onChangeSettingsValue: function(shopId, settingName, value) {
+    onSetConfigValue: function(shopId, settingName, value) {
         var me = this;
 
         Ext.Ajax.request({
-            url: '{url controller="LengowExport" action="changeSettingsValue"}',
+            url: '{url controller="LengowExport" action="setConfigValue"}',
             method: 'POST',
             type: 'json',
             params: {

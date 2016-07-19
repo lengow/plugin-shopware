@@ -323,9 +323,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         if (!$this->details->getShippingFree()) {
             $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
 
-            $dispatchId = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue(
+            $dispatchId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowDefaultDispatcher',
-                $this->shop->getId()
+                $this->shop
                 );
 
             $dispatch = $em->getReference('Shopware\Models\Dispatch\Dispatch', $dispatchId);

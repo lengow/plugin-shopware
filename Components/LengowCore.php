@@ -79,7 +79,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
      */
     public static function checkIp()
     {
-        $ips = self::getConfigValue('lengowAuthorizedIps');
+        $ips = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAuthorizedIps');
         $ips = trim(str_replace(array("\r\n", ',', '-', '|', ' '), ';', $ips), ';');
         $ips = explode(';', $ips);
         $authorizedIps = array_merge($ips, self::$IPS_LENGOW);
@@ -120,6 +120,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     }
 
     /**
+     * Get Shopware default shop
+     * @return Shopware\Models\Shop\Shop Default shop
+     */
+    public static function getDefaultShop()
+    {
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        return $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
+    }
+
+    /**
      * Get the base url of the plugin
      *
      * @return string
@@ -133,55 +143,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
         $path = $shop->getBasePath() ? $shop->getBasePath() : '';
         $url = 'http' . $is_https . '://' . $host . $path;
         return $url;
-    }
-
-    /**
-     * Get value of a config setting
-     * @param $name String Name of the config element
-     * @param $shopId integer Shop id
-     * @return mixed Value of the config element for this shop
-     */
-    public static function getConfigValue($name, $shopId = null)
-    {
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $value = null;
-
-        if ($name == 'lengowAuthorizedIps') {
-            $element = $em->getRepository('Shopware\Models\Config\Element')->findOneBy(array('name' => $name));
-            $values = $element->getValues();
-
-            // If ips settings has not been changed, get default
-            if ($values[0] == null) {
-                $ips = $element->getValue();
-            } else {
-                $ips = $values[0]->getValue();
-            }
-            return $ips;
-        }
-
-        // Get settings from the shop
-        if ($shopId != null) {
-            $builder = $em->createQueryBuilder();
-            $builder->select('values.value')
-                ->from('Shopware\Models\Config\Value', 'values')
-                ->leftJoin('values.element', 'elements')
-                ->where('values.shopId = :shopId')
-                ->andWhere('elements.name = :name')
-                ->setParameter('shopId', $shopId)
-                ->setParameter('name', $name);
-            $result = $builder->getQuery()->getArrayResult();
-            if (!empty($result)) {
-                $value = $result[0]['value'];
-            }
-        }
-
-        // If no settings has been found, get the default value
-        if ($value === null) {
-            $element = $em->getRepository('Shopware\Models\Config\Element')->findOneBy(array('name' => $name));
-            $value = $element->getValue();
-        }
-
-        return $value;
     }
 
     /**

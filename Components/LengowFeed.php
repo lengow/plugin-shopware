@@ -219,7 +219,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
                 $content .= json_encode($json_array);
                 return $content;
             case 'yaml':
-                $content = '  ' . self::PROTECTION.'product' . self::PROTECTION . ':' . self::EOL;
+                $content = '  ' . self::PROTECTION . 'product' . self::PROTECTION . ':' . self::EOL;
                 $fieldMaxSize = self::getFieldMaxSize($data);
                 foreach ($data as $field => $value) {
                     $field = self::formatFields($field, $format);

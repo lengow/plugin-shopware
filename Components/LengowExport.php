@@ -190,9 +190,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         foreach ($this->configFields as $field) {
             if (!isset($this->$field)) {
                 $configName = 'lengow' . ucwords($field);
-                $this->$field = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getConfigValue(
+                $this->$field = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                     $configName,
-                    $this->shop->getId()
+                    $this->shop
                     );
             }
         }
