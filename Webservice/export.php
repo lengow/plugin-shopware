@@ -44,8 +44,7 @@ if ($kernel->isHttpCacheEnabled()) {
     $kernel = new AppCache($kernel, $kernel->getHttpCacheConfig());
 }
 
-if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIp())
-{
+if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIp()) {
     $mode                   = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : null;
     $format                 = isset($_REQUEST["format"]) ? $_REQUEST["format"] : 'csv';
     $stream                 = isset($_REQUEST["stream"]) ? (bool)$_REQUEST["stream"] : 1;
@@ -59,40 +58,33 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIp())
     $exportDisabledProduct  = isset($_REQUEST["inactive"]) ? (bool)$_REQUEST["inactive"] : null;
     $languageId             = isset($_REQUEST["language"]) ? $_REQUEST["language"] : null;
     $shopId                 = isset($_REQUEST['shop']) ? $_REQUEST['shop'] : null;
-
     $em = Shopware()->Models();
-
     // If shop name has been filled
     if ($shopId) {
         $shop = $em->getRepository('Shopware\Models\Shop\Shop')->find($shopId);
-
         // A shop with this name exist
         if ($shop) {
             $selectedProducts = array();
-
             if ($productsIds) {
                 $ids    = str_replace(array(';','|',':'), ',', $productsIds);
                 $ids    = preg_replace('/[^0-9\,]/', '', $ids);
                 $selectedProducts  = explode(',', $ids);
             }
-
             $params = array(
-                'format' => $format,
-                'mode' => $mode,
-                'stream' => $stream,
-                'productIds' => $selectedProducts,
-                'limit' => $limit,
-                'offset' => $offset,
-                'exportOutOfStock' => $outStock,
-                'exportVariation' => $exportVariation,
+                'format'                => $format,
+                'mode'                  => $mode,
+                'stream'                => $stream,
+                'productIds'            => $selectedProducts,
+                'limit'                 => $limit,
+                'offset'                => $offset,
+                'exportOutOfStock'      => $outStock,
+                'exportVariation'       => $exportVariation,
                 'exportDisabledProduct' => $exportDisabledProduct,
                 'exportLengowSelection' => $exportLengowSelection,
-                'languageId' => $languageId,
-                'logOutput' => $logOutput
+                'languageId'            => $languageId,
+                'logOutput'             => $logOutput
             );
-
             $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, $params);
-
             $export->exec();
         } else {
             $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
@@ -104,7 +96,7 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIp())
                 $shopsIds.= ($index == 0) ? '' : ', ';
             }
             $shopsIds.= ']';
-            die('The following shop (' . $shopId . ') does not exist. Please specify a valid shop name in : ' . $shopsIds);
+            die('The following shop ('.$shopId.') does not exist. Please specify a valid shop name in : '.$shopsIds);
         }
     } else {
         die('Please specify a shop to export (ie. : ?shop=1)');

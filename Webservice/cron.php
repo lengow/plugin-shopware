@@ -55,53 +55,47 @@ if (!$lengowPlugin->getActive()) {
 
 // Check ip authorization
 if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIp()) {
-	$sync = isset($_REQUEST["sync"]) ? $_REQUEST["sync"] : false;
-
-	if (!$sync || $sync === 'order') {
-		// array of params for import order
-		$params = array();
-
-		if (isset($_REQUEST["preprod_mode"])) {
-			$params['preprod_mode'] = (bool)$_REQUEST["preprod_mode"];
-		}
-		if (isset($_REQUEST["log_output"])) {
-			$params['log_output'] = (bool)$_REQUEST["log_output"];
-		}
-		if (isset($_REQUEST["days"])) {
-			$params['days'] = (int)$_REQUEST["days"];
-		}
-		if (isset($_REQUEST["limit"])) {
-			$params['limit'] = (int)$_REQUEST["limit"];
-		}
-		if (isset($_REQUEST["marketplace_sku"])) {
-			$params['marketplace_sku'] = (string)$_REQUEST["marketplace_sku"];
-		}
-		if (isset($_REQUEST["marketplace_name"])) {
-			$params['marketplace_name'] = (string)$_REQUEST["marketplace_name"];
-		}
-		if (isset($_REQUEST["delivery_address_id"])) {
-			$params['delivery_address_id'] = (string)$_REQUEST["delivery_address_id"];
-		}
-		if (isset($_REQUEST["shop_id"])) {
-			$params['shop_id'] = (int)$_REQUEST["shop_id"];
-		}
-
-		$params['type'] = 'cron';
-
-	    // import orders
-	    $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport($params);
-	    $import->exec();
-	}
-
-	// sync options between Lengow and Shopware
-	// if (!$sync || $sync === 'option') {
-	// }
-
-	// sync option is not valid
-	if ($sync && ($sync !== 'order' && $sync !== 'action' && $sync !== 'option')) {
-	    header('HTTP/1.1 400 Bad Request');
-	    die('Action: ' . $sync . ' is not a valid action');
-	}
+    $sync = isset($_REQUEST["sync"]) ? $_REQUEST["sync"] : false;
+    if (!$sync || $sync === 'order') {
+        // array of params for import order
+        $params = array();
+        if (isset($_REQUEST["preprod_mode"])) {
+            $params['preprod_mode'] = (bool)$_REQUEST["preprod_mode"];
+        }
+        if (isset($_REQUEST["log_output"])) {
+            $params['log_output'] = (bool)$_REQUEST["log_output"];
+        }
+        if (isset($_REQUEST["days"])) {
+            $params['days'] = (int)$_REQUEST["days"];
+        }
+        if (isset($_REQUEST["limit"])) {
+            $params['limit'] = (int)$_REQUEST["limit"];
+        }
+        if (isset($_REQUEST["marketplace_sku"])) {
+            $params['marketplace_sku'] = (string)$_REQUEST["marketplace_sku"];
+        }
+        if (isset($_REQUEST["marketplace_name"])) {
+            $params['marketplace_name'] = (string)$_REQUEST["marketplace_name"];
+        }
+        if (isset($_REQUEST["delivery_address_id"])) {
+            $params['delivery_address_id'] = (string)$_REQUEST["delivery_address_id"];
+        }
+        if (isset($_REQUEST["shop_id"])) {
+            $params['shop_id'] = (int)$_REQUEST["shop_id"];
+        }
+        $params['type'] = 'cron';
+        // import orders
+        $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport($params);
+        $import->exec();
+    }
+    // sync options between Lengow and Shopware
+    // if (!$sync || $sync === 'option') {
+    // }
+    // sync option is not valid
+    if ($sync && ($sync !== 'order' && $sync !== 'action' && $sync !== 'option')) {
+        header('HTTP/1.1 400 Bad Request');
+        die('Action: ' . $sync . ' is not a valid action');
+    }
 } else {
     header('HTTP/1.1 400 Bad Request');
     die('Unauthorized access for IP : ' . $_SERVER['REMOTE_ADDR']);

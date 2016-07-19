@@ -18,45 +18,46 @@
  * @copyright 2016 Lengow SAS
  * @license   http://www.apache.org/licenses/LICENSE-2.0
  */
-
- class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
- {
- 	/**
- 	 * Get config from Shopware database
- 	 *
- 	 * @param $configName string Name of the setting to get
- 	 * @param $shop Shopware\Models\Shop\Shop The shop the setting belongs to
- 	 * @return mixed Config value
- 	 */
- 	public static function getConfig($configName, $shop = null)
- 	{
+class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
+{
+    /**
+     * Get config from Shopware database
+     *
+     * @param string                    $configName Name of the setting to get
+     * @param Shopware\Models\Shop\Shop $shop       The shop the setting belongs to
+     *
+     * @return mixed Config value
+     */
+    public static function getConfig($configName, $shop = null)
+    {
         // If shop no shop, get default one
         if ($shop == null) {
-        	$shop = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDefaultShop();
+            $shop = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDefaultShop();
         }
-
         $configWriter = self::getConfigWriter();
         return $configWriter->get($configName, null, $shop->getId());
- 	}
+    }
 
- 	/**
- 	 * Set config new value in database
- 	 * @param $configName string Name of the setting to edit/add
- 	 * @param $value mixed Value to set for the setting
- 	 * @param $shop Shopware\Models\Shop\Shop The shop the setting has to be added
- 	 */
- 	public static function setConfig($configName, $value, $shop)
- 	{
+    /**
+     * Set config new value in database
+     *
+     * @param string                    $configName Name of the setting to edit/add
+     * @param mixed                     $value      Value to set for the setting
+     * @param Shopware\Models\Shop\Shop $shop       The shop the setting has to be added
+     */
+    public static function setConfig($configName, $value, $shop)
+    {
         $configWriter = self::getConfigWriter();
         $configWriter->save($configName, $value, null, $shop->getId());
- 	}
+    }
 
- 	/**
- 	 * Get Shopware database config writer
- 	 * @return Shopware\Components\ConfigWriter writer
- 	 */
- 	private static function getConfigWriter()
- 	{
- 		return Shopware()->Plugins()->Backend()->Lengow()->get('config_writer');
- 	}
- }
+    /**
+     * Get Shopware database config writer
+     *
+     * @return Shopware\Components\ConfigWriter writer
+     */
+    private static function getConfigWriter()
+    {
+        return Shopware()->Plugins()->Backend()->Lengow()->get('config_writer');
+    }
+}

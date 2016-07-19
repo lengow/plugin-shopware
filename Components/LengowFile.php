@@ -40,7 +40,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
     {
         $this->file_name = $file_name;
         $this->folder_name = $folder_name;
-
         $this->instance = self::getRessource($this->getPath(), $mode);
     }
 
@@ -84,7 +83,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
     }
 
     /**
-     * v3
      * Get file link
      *
      * @return string
@@ -161,9 +159,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
         return file_exists($this->getPath());
     }
 
-
     /**
-     * v3
      * Get a file list for a given folder
      *
      * @param string $folder folder name
@@ -174,11 +170,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
     {
         $sep = DIRECTORY_SEPARATOR;
         $folder_path = Shopware()->Plugins()->Backend()->Lengow()->Path() . $folder;
-
         if (!file_exists($folder_path)) {
             return false;
         }
-
         $folder_content = scandir($folder_path);
         $files = array();
         foreach ($folder_content as $file) {

@@ -19,28 +19,31 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     public function __construct()
     {
         if (empty($file_name)) {
-            $this->file_name = 'logs-' . date('Y-m-d') . '.txt';
+            $this->file_name = 'logs-'.date('Y-m-d').'.txt';
         } else {
             $this->file_name = $file_name;
         }
-        $this->file = new Shopware_Plugins_Backend_Lengow_Components_LengowFile(self::$LENGOW_LOGS_FOLDER, $this->file_name);
+        $this->file = new Shopware_Plugins_Backend_Lengow_Components_LengowFile(
+            self::$LENGOW_LOGS_FOLDER,
+            $this->file_name
+        );
     }
 
     /**
      * Write log
      *
-     * @param string $category Category
-     * @param string $message log message
-     * @param boolean $display display on screen
-     * @param string $marketplace_sku lengow order id
+     * @param string  $category        Category
+     * @param string  $message         log message
+     * @param boolean $display         display on screen
+     * @param string  $marketplace_sku lengow order id
      */
     public function write($category, $message = "", $display = false, $marketplace_sku = null)
     {
         $decoded_message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($message, 'en');
         $log = date('Y-m-d H:i:s');
-        $log .= ' - '.(empty($category) ? '' : '['.$category.'] ');
-        $log .= ''.(empty($marketplace_sku) ? '' : 'order '.$marketplace_sku.' : ');
-        $log .= $decoded_message."\r\n";
+        $log.= ' - '.(empty($category) ? '' : '['.$category.'] ');
+        $log.= ''.(empty($marketplace_sku) ? '' : 'order '.$marketplace_sku.' : ');
+        $log.= $decoded_message."\r\n";
         if ($display) {
             echo $log.'<br />';
             flush();
@@ -68,7 +71,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     }
 
     /**
-     * v3
      * Get log files path
      *
      * @return mixed
@@ -114,6 +116,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
         return Shopware_Plugins_Backend_Lengow_Components_LengowFile::getFilesFromFolder(self::$LENGOW_LOGS_FOLDER);
     }
 
+    /**
+     * Download log file
+     *
+     * @param string $file name of file to download
+     */
     public static function download($file = null)
     {
         if ($file && preg_match('/^logs-([0-9]{4}-[0-9]{2}-[0-9]{2})\.txt$/', $file, $match)) {

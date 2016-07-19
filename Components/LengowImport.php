@@ -51,6 +51,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
      */
     public function __construct($params = array())
     {
-    	
+        
     }
 }
