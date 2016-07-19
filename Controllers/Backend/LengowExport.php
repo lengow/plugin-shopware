@@ -387,7 +387,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
      */
     public function getDefaultShopAction()
     {
-        $defaultShop = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDefaultShop();
+        $defaultShop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
 
         $this->View()->assign(array(
             'success' => true,

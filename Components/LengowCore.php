@@ -63,16 +63,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
     );
 
     /**
-     * Get the configuration of the module
-     *
-     * @return int
-     */
-    public static function getConfig()
-    {
-        return Shopware()->Plugins()->Backend()->Lengow()->Config();
-    }
-
-    /**
      * Check if current IP is authorized.
      *
      * @return boolean true if user is authorized
@@ -117,16 +107,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCore
             $ids[] = $shop->getId();
         }
         return $ids;
-    }
-
-    /**
-     * Get Shopware default shop
-     * @return Shopware\Models\Shop\Shop Default shop
-     */
-    public static function getDefaultShop()
-    {
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        return $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
     }
 
     /**

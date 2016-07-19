@@ -32,7 +32,7 @@
  	{
         // If shop no shop, get default one
         if ($shop == null) {
-        	$shop = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getDefaultShop();
+        	$shop = self::getDefaultShop();
         }
 
         $configWriter = self::getConfigWriter();
@@ -59,4 +59,14 @@
  	{
  		return Shopware()->Plugins()->Backend()->Lengow()->get('config_writer');
  	}
+
+    /**
+     * Get Shopware default shop
+     * @return Shopware\Models\Shop\Shop Default shop
+     */
+    public static function getDefaultShop()
+    {
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        return $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
+    }
  }
