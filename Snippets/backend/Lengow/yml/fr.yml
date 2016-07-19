@@ -71,11 +71,14 @@ en:
         counter:
           count: "products exported over"
           total: "products available"
-      checkbox:
-        edit_all: " Sélectionner l'ensemble de vos produits "
         status:
           synchronized: "Synchronisée"
           not_synchronized: "Synchroniser ma boutique avec Lengow"
+      checkbox:
+        edit_all: " Sélectionner l'ensemble de vos produits "
+        variations: "Inclure les produits déclinés"
+        out_stock: "Inclure les produits hors stock"
+        selection: "Inclure une sélection de produits"
       button:
         add: "Ajouter à l'export"
         remove: "Supprimer de l'export"

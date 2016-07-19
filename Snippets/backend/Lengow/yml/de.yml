@@ -67,6 +67,11 @@ de:
       line:
         add: "In den Export"
         remove: "Entfernen sie aus dem export"
+      checkbox:
+        edit_all: "Select all of your products"
+        variations: "Include product variations"
+        out_stock: "Include out of stock products"
+        selection: "Include specific products"
       label:
         counter:
           count: "produkte exportiert über"

@@ -69,6 +69,9 @@ en:
         remove: "Remove from export"
       checkbox:
         edit_all: "Select all of your products"
+        variations: "Include product variations"
+        out_stock: "Include out of stock products"
+        selection: "Include specific products"
       label:
         counter:
           count: "products exported over"
@@ -108,7 +111,9 @@ en:
       settings: "Adding setting %{settingName}"
       add_form: "Creating %{formName} form"
       add_menu: "Installing menu item"
+      add_model: "Adding custom model %{name}"
     uninstall:
       start: "## start uninstall ##"
       end: "## end uninstall ##"
+      remove_model: "Removing custom model %{name}"
       remove_column: "Removing column %{column} from %{table} table"
