@@ -519,6 +519,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'label'         => 'settings/lengow_import_settings/import_days/label',
                 'value'         => 5,
                 'minValue'      => 0,
+                'maxValue'      => 99,
+                'editable'      => false,
                 'description'   => 'settings/lengow_import_settings/import_days/description'
             ),
             'lengowPreprodMode' => array(
@@ -528,7 +530,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'description'   => 'settings/lengow_import_settings/preprod_mode/description'
             )
         );
-
 
         $importSettingForm = $this->createSettingForm('lengow_import_settings', $importFormElements);
         $importSettingForm->setParent($mainForm);
