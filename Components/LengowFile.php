@@ -43,7 +43,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
         $this->instance = self::getRessource($this->getPath(), $mode);
         if (!is_resource($this->instance)) {
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                Shopware_Plugins_Backend_Lengow_Components_LengowCore::setLogMessage('log.export.error_unable_to_create_file', array(
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log.export.error_unable_to_create_file', array(
                     'file_name'   => $file_name,
                     'folder_name' => $folder_name
                 ))
@@ -102,8 +102,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
                 $this->link = null;
             }
             $sep = DIRECTORY_SEPARATOR;
-            $base = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl();
-            $lengowDir = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getPathPlugin();
+            $base = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getBaseUrl();
+            $lengowDir = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getPathPlugin();
             $this->link = $base . $lengowDir . $this->folder_name . $sep . $this->file_name;
         }
         return $this->link;

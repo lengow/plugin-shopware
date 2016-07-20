@@ -67,7 +67,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 return $this->details->getEan();
                 break;
             case 'name':
-                return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanData($this->product->getName());
+                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->product->getName());
                 break;
             case 'quantity':
                 if ($this->isVariation) {
@@ -85,7 +85,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             case 'url':
                 $sep = '/';
                 $idProduct = $this->product->getId();
-                $host = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl();
+                $host = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getBaseUrl();
                 $baseUrl = ($this->shop->getBaseUrl() ? $this->shop->getBaseUrl() : '');
                 $idCategoryParent = $this->shop->getCategory()->getId();
                 $categories = $this->product->getCategories();
@@ -170,29 +170,29 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 return $this->details->getMinPurchase();
                 break;
             case 'description_short':
-                return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml(
-                    Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanData($this->product->getDescription())
+                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanHtml(
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->product->getDescription())
                     );
                 break;
             case 'description':
-                return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanHtml(
-                    Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanData($this->product->getDescriptionLong())
+                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanHtml(
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->product->getDescriptionLong())
                     );
                 break;
             case 'description_html':
-                return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanData($this->product->getDescriptionLong());
+                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->product->getDescriptionLong());
                 break;
             case 'meta_title':
-                return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanData($this->product->getMetaTitle());
+                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->product->getMetaTitle());
                 break;
             case 'meta_keyword':
-                return Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanData($this->product->getKeywords());
+                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->product->getKeywords());
                 break;
             default:
                 $result = '';
                 if (array_key_exists($name, $this->attributes)
                     && $this->isVariation) {
-                    $result = Shopware_Plugins_Backend_Lengow_Components_LengowCore::cleanData($this->attributes[$name]);
+                    $result = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->attributes[$name]);
                 }
                 return $result;
                 break;
@@ -207,7 +207,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     private function getImagePath($index)
     {
         try {
-            $host = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getBaseUrl() . '/';
+            $host = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getBaseUrl() . '/';
             $product_images = $this->product->getImages();
             $image = $product_images[$index - 1];
             // Get image for parent product
@@ -234,9 +234,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 }
             }
         } catch (Exception $e) {
-            Shopware_Plugins_Backend_Lengow_Components_LengowCore::log(
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                 'Warning',
-                Shopware_Plugins_Backend_Lengow_Components_LengowCore::setLogMessage(
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/export/error_media_not_found',
                     array(
                         'detailsId' => $this->details->getId(),
@@ -308,7 +308,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             }
         }
 
-        return Shopware_Plugins_Backend_Lengow_Components_LengowCore::replaceAccentedChars($breadcrumb);
+        return Shopware_Plugins_Backend_Lengow_Components_LengowMain::replaceAccentedChars($breadcrumb);
     }
 
     /**

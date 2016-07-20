@@ -104,12 +104,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     {
         $sep = DIRECTORY_SEPARATOR;
         $this->export_folder = self::$LENGOW_EXPORT_FOLDER . $sep . $this->shop_folder;
-        $folder_path = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getLengowFolder()
+        $folder_path = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder()
             .$sep.$this->export_folder;
         if (!file_exists($folder_path)) {
             if (!mkdir($folder_path)) {
                 throw new LengowException(
-                    Shopware_Plugins_Backend_Lengow_Components_LengowCore::setLogMessage(
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log.export.error_unable_to_create_folder',
                         array('folder_path' => $folder_path)
                     )
@@ -356,7 +356,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
                             str_replace(
                                 array(' ', '\''),
                                 '_',
-                                Shopware_Plugins_Backend_Lengow_Components_LengowCore::replaceAccentedChars($str)
+                                Shopware_Plugins_Backend_Lengow_Components_LengowMain::replaceAccentedChars($str)
                             )
                         )
                     ),
@@ -371,7 +371,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
                         str_replace(
                             array(' ','\''),
                             '_',
-                            Shopware_Plugins_Backend_Lengow_Components_LengowCore::replaceAccentedChars($str)
+                            Shopware_Plugins_Backend_Lengow_Components_LengowMain::replaceAccentedChars($str)
                         )
                     )
                 );

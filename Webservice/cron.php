@@ -25,7 +25,7 @@ use Shopware\Components\HttpCache\AppCache;
 include '../../../../../../../autoload.php';
 
 require_once('../Bootstrap.php');
-require_once('../Components/LengowCore.php');
+require_once('../Components/LengowMain.php');
 require_once('../Components/LengowImport.php');
 require_once('../Components/LengowConfiguration.php');
 
@@ -54,7 +54,7 @@ if (!$lengowPlugin->getActive()) {
 }
 
 // Check ip authorization
-if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIp()) {
+if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
     $sync = isset($_REQUEST["sync"]) ? $_REQUEST["sync"] : false;
     if (!$sync || $sync === 'order') {
         // array of params for import order

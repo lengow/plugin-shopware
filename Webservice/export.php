@@ -25,7 +25,7 @@ use Shopware\Components\HttpCache\AppCache;
 include '../../../../../../../autoload.php';
 
 require_once('../Bootstrap.php');
-require_once('../Components/LengowCore.php');
+require_once('../Components/LengowMain.php');
 require_once('../Components/LengowException.php');
 require_once('../Components/LengowExport.php');
 require_once('../Components/LengowFeed.php');
@@ -43,7 +43,7 @@ if ($kernel->isHttpCacheEnabled()) {
     $kernel = new AppCache($kernel, $kernel->getHttpCacheConfig());
 }
 
-if (Shopware_Plugins_Backend_Lengow_Components_LengowCore::checkIp()) {
+if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
     $mode                   = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : null;
     $format                 = isset($_REQUEST["format"]) ? $_REQUEST["format"] : 'csv';
     $stream                 = isset($_REQUEST["stream"]) ? (bool)$_REQUEST["stream"] : 1;

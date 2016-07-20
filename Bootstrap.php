@@ -118,7 +118,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
         $this->removeCustomModels();
 
-        $shops = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getShopsIds();
+        $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopsIds();
 
         foreach ($shops as $shopId) {
             $columnName = 'shop' . $shopId . '_active';
@@ -151,7 +151,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     protected function updateSchema()
     {
-        $shops = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getShopsIds();
+        $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopsIds();
 
         foreach ($shops as $shopId) {
             $attributeName = 'shop' . $shopId . '_active';
@@ -527,9 +527,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     protected function log($key, $params = array())
     {
-        Shopware_Plugins_Backend_Lengow_Components_LengowCore::log(
+        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
             'Install',
-            Shopware_Plugins_Backend_Lengow_Components_LengowCore::setLogMessage($key, $params)
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage($key, $params)
         );
     }
 
@@ -590,7 +590,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     protected function getTranslation($key, $isoCode = null)
     {
-        $translation = Shopware_Plugins_Backend_Lengow_Components_LengowCore::decodeLogMessage($key, $isoCode);
+        $translation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($key, $isoCode);
         return stripslashes($translation);
     }
 }

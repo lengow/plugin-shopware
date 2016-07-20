@@ -39,7 +39,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
      */
     public function write($category, $message = "", $display = false, $marketplace_sku = null)
     {
-        $decoded_message = Shopware_Plugins_Backend_Lengow_Components_LengowCore::decodeLogMessage($message, 'en');
+        $decoded_message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($message, 'en');
         $log = date('Y-m-d H:i:s');
         $log.= ' - '.(empty($category) ? '' : '['.$category.'] ');
         $log.= ''.(empty($marketplace_sku) ? '' : 'order '.$marketplace_sku.' : ');
@@ -124,7 +124,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     public static function download($file = null)
     {
         if ($file && preg_match('/^logs-([0-9]{4}-[0-9]{2}-[0-9]{2})\.txt$/', $file, $match)) {
-            $filename = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getLengowFolder().
+            $filename = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder().
                 self::$LENGOW_LOGS_FOLDER.'/'.$file;
             $handle = fopen($filename, "r");
             $contents = fread($handle, filesize($filename));
