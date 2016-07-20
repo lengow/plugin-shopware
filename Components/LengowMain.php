@@ -111,13 +111,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function getShopsIds()
     {
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findAll();
+        $shops = self::getShops();
         $ids = array();
         foreach ($shops as $shop) {
             $ids[] = $shop->getId();
         }
         return $ids;
+    }
+
+    /**
+     * Get list of shops
+     *
+     * @return array[Shopware\Models\Shop\Shop] List of Shopware shops
+     */
+    public static function getShops()
+    {
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        return $em->getRepository('Shopware\Models\Shop\Shop')->findAll();
     }
 
     /**
@@ -207,6 +217,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             $message = $locale->t($key, $params, $iso_code);
         }
         return $message;
+    }
+
+    /**
+     * Record the date of the last import
+     *
+     * @param string $type (cron or manual)
+     *
+     * @return boolean
+     */
+    public static function updateDateImport($type)
+    {
+        if ($type === 'cron') {
+            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('LENGOW_LAST_IMPORT_CRON', time());
+        } else {
+            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('LENGOW_LAST_IMPORT_MANUAL', time());
+        }
     }
 
     /**

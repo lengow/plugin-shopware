@@ -20,6 +20,12 @@
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
 {
+	protected static $LENGOW_SETTINGS = array(
+		'LENGOW_IMPORT_IN_PROGRESS',
+		'LENGOW_LAST_IMPORT_CRON',
+		'LENGOW_LAST_IMPORT_MANUAL'
+	);
+
     /**
      * Get config from Shopware database
      *
@@ -30,12 +36,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      */
     public static function getConfig($configName, $shop = null)
     {
-        // If shop no shop, get default one
-        if ($shop == null) {
-            $shop = self::getDefaultShop();
+        $value = null;
+        // If Lengow setting
+        if (in_array($configName, self::$LENGOW_SETTINGS)) {
+            $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+            $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy(
+                array('name' => $configName)
+            );
+            if ($config != null) {
+                $value = $config->getValue();
+            }
+        } else {
+            // If shop no shop, get default one
+            if ($shop == null) {
+                $shop = self::getDefaultShop();
+            }
+            $configWriter = self::getConfigWriter();
+            $value = $configWriter->get($configName, null, $shop->getId());
         }
-        $configWriter = self::getConfigWriter();
-        return $configWriter->get($configName, null, $shop->getId());
+
+        return $value;
     }
 
     /**
@@ -45,10 +65,24 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * @param mixed                     $value      Value to set for the setting
      * @param Shopware\Models\Shop\Shop $shop       The shop the setting has to be added
      */
-    public static function setConfig($configName, $value, $shop)
+    public static function setConfig($configName, $value, $shop = null)
     {
-        $configWriter = self::getConfigWriter();
-        $configWriter->save($configName, $value, null, $shop->getId());
+        // If Lengow setting
+        if (in_array($configName, self::$LENGOW_SETTINGS)) {
+            $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+            $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy(
+                array('name' => $configName)
+            );
+            if ($config != null) {
+                $config->setValue($value)
+            		->setDateUpd(new DateTime());
+                $em->persist($config);
+                $em->flush($config);
+            }
+        } else {
+            $configWriter = self::getConfigWriter();
+            $configWriter->save($configName, $value, null, $shop->getId());
+        }
     }
 
     /**

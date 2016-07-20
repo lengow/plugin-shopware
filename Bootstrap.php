@@ -75,7 +75,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'action' => 'Index',
             'active' => 1,
             'parent' => $this->Menu()->findOneBy('label', 'Einstellungen'),
-			'class' => 'lengow--icon'
+            'class' => 'lengow--icon'
         ));
 
         $this->log('log/install/add_menu');
@@ -85,11 +85,20 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $this->registerMyEvents();
         $this->registerCustomModels();
         $this->createCustomModels();
+        $this->addImportDefaultValues();
         $this->Plugin()->setActive(true);
 
         $this->log('log/install/end');
 
         return array('success' => true, 'invalidateCache' => array('backend'));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterInit()
+    {
+        $this->registerCustomModels();
     }
 
     /**
@@ -184,31 +193,43 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $schemaTool = new Doctrine\ORM\Tools\SchemaTool($em);
 
         $models = array(
-            $em->getClassMetadata('Shopware\CustomModels\Lengow\Order')
+            's_lengow_order'    => $em->getClassMetadata('Shopware\CustomModels\Lengow\Order'),
+            's_lengow_settings' => $em->getClassMetadata('Shopware\CustomModels\Lengow\Settings')
         );
 
-        foreach ($models as $model) {
-            $schemaTool->createSchema(array($model));
-            $this->log('log/install/add_model', array('name' => $model->getName()));
+        foreach ($models as $tableName => $model) {
+            // Check that the table does not exist
+            if (!$this->tableExist($tableName)) {
+                $schemaTool->createSchema(array($model));
+                $this->log('log/install/add_model', array('name' => $model->getName()));
+            }
         }
     }
 
-    /**
-     * Remove custom models used by Lengow from the database
-     */
-    protected function removeCustomModels()
+    protected function addImportDefaultValues()
     {
         $em = self::getEntityManager();
-        $schemaTool = new Doctrine\ORM\Tools\SchemaTool($em);
+        $setting = new Shopware\CustomModels\Lengow\Settings;
+        $setting->setName('LENGOW_IMPORT_IN_PROGRESS')
+            ->setValue(0)
+            ->setDateAdd(new DateTime())
+            ->setDateUpd(new DateTime());
+        $em->persist($setting);
+        $em->flush($setting);
+    }
 
-        $models = array(
-            $em->getClassMetadata('Shopware\CustomModels\Lengow\Order')
-        );
-
-        foreach ($models as $model) {
-            $schemaTool->dropSchema(array($model));
-            $this->log('log/uninstall/remove_model', array('name' => $model->getName()));
-        }
+    /**
+     * Check if a database table exists
+     *
+     * @param $tableName Table name
+     *
+     * @return bool True if table exists in db
+     */
+    private function tableExist($tableName)
+    {
+        $sql = "SHOW TABLES LIKE '" . $tableName . "'";
+        $result = Shopware()->Db()->fetchRow($sql);
+        return !empty($result);
     }
 
     /**
