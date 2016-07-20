@@ -1,2 +1,4 @@
-Components/api_test.xml
 .DS_Store
+Logs/*.txt
+export/*
+!export/index.php
