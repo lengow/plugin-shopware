@@ -7,9 +7,7 @@
     "license": "proprietary",
     "link": "http://lengow.com",
     "author": "Lengow",
-
     "currentVersion": "3.0.0",
-
     "changelog": {
         "de": {
             "3.0.0": "Erstveröffentlichung"
@@ -18,7 +16,6 @@
             "3.0.0": "First release"
         }
     },
-
     "compatibility": {
         "minimumVersion": "4.0.0",
         "maximumVersion": null,
