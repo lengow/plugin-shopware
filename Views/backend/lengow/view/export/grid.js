@@ -277,33 +277,15 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id')
         attributeIds = [],
         checkbox = Ext.getCmp('editAll'),
-        ids = null,
-        exportedProducts = null,
-        total = null;
+        ids = null;
 
         // Enable mask on main container while the process is not finished
         Ext.getCmp('exportContainer').getEl().mask();
 
-        var exportedProducts = parseInt(Ext.get('products-exported').dom.innerHTML);
-
-        // Does select all products checbox is checked ?
-        if (checkbox.getValue()) {
-            var totalProducts = parseInt(Ext.get('total-products').dom.innerHTML);
-            if (publishButton) {
-                exportedProducts = totalProducts;
-            } else {
-                exportedProducts = 0;
-            }
-        } else {
+        // If select all products checbox is not checked, get articles ids
+        if (!checkbox.getValue()) {
             Ext.each(records, function(record) {
                 attributeIds.push(record.raw['attributeId']);
-                // If record status has changed, register the occurence
-                // to change counter value
-                if (record.get('lengowActive') == false && publishButton) {
-                    exportedProducts++;
-                } else if (record.get('lengowActive') == true && !publishButton) {
-                    exportedProducts--;
-                }
             });
 
             ids = Ext.encode(attributeIds);
