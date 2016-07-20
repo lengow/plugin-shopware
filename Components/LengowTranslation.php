@@ -43,13 +43,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
     public function t($message, $args = array(), $isoCode = null)
     {
         if (!isset(self::$translation[$isoCode])) {
-            $this->loadFile();
+            self::loadFile();
         }
         if (isset(self::$translation[$isoCode][$message])) {
             return $this->translateFinal(self::$translation[$isoCode][$message], $args);
         } else {
             if (!isset(self::$translation[$this->fallbackIsoCode])) {
-                $this->loadFile($this->fallbackIsoCode);
+                self::loadFile($this->fallbackIsoCode);
             }
             if (isset(self::$translation[$this->fallbackIsoCode][$message])) {
                 return $this->translateFinal(self::$translation[$this->fallbackIsoCode][$message], $args);
@@ -90,7 +90,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
      *
      * @return boolean
      */
-    public function loadFile($fileName = null, $isoCode = null)
+    public static function loadFile($fileName = null, $isoCode = null)
     {
         if (!$fileName) {
             $pluginPath = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder();
@@ -122,7 +122,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
     public static function containsIso($isoCode)
     {
         if (!isset(self::$translation[$isoCode])) {
-            $this->loadFile();
+            self::loadFile();
         }
         return array_key_exists($isoCode, self::$translation);
     }
