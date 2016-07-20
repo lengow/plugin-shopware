@@ -124,13 +124,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     public static function download($file = null)
     {
         if ($file && preg_match('/^logs-([0-9]{4}-[0-9]{2}-[0-9]{2})\.txt$/', $file, $match)) {
-            $filename = Shopware()->Plugins()->Backend()->Lengow()->Path() .
-                        self::$LENGOW_LOGS_FOLDER . '/' . $file;
+            $filename = Shopware_Plugins_Backend_Lengow_Components_LengowCore::getLengowFolder().
+                self::$LENGOW_LOGS_FOLDER.'/'.$file;
             $handle = fopen($filename, "r");
             $contents = fread($handle, filesize($filename));
             header('Content-type: text/plain');
             header('Content-Disposition: attachment; filename="'.$match[1].'.txt"');
             echo $contents;
+            exit();
         } else {
             $files = self::getPaths();
             header('Content-type: text/plain');
@@ -140,6 +141,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
                 $contents = fread($handle, filesize($file['full_path']));
                 echo $contents;
             }
+            exit();
         }
     }
 }

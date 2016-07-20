@@ -41,6 +41,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
         $this->file_name = $file_name;
         $this->folder_name = $folder_name;
         $this->instance = self::getRessource($this->getPath(), $mode);
+        if (!is_resource($this->instance)) {
+            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
+                Shopware_Plugins_Backend_Lengow_Components_LengowCore::setLogMessage('log.export.error_unable_to_create_file', array(
+                    'file_name'   => $file_name,
+                    'folder_name' => $folder_name
+                ))
+            );
+        }
     }
 
     /**
