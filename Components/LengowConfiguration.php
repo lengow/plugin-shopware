@@ -21,7 +21,7 @@
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
 {
-	protected static $LENGOW_SETTINGS = array(
+	public static $LENGOW_SETTINGS = array(
 		'LENGOW_IMPORT_IN_PROGRESS',
 		'LENGOW_LAST_IMPORT_CRON',
 		'LENGOW_LAST_IMPORT_MANUAL'
