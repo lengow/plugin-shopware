@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2016 Lengow SAS.
  *
@@ -18,14 +19,8 @@
  * @copyright 2016 Lengow SAS
  * @license   http://www.apache.org/licenses/LICENSE-2.0
  */
-
-/**
- * The Lengow Feed Class.
- *
- */
 class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
 {
-
     /**
      * Protection.
      */
@@ -42,32 +37,32 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     const EOL = "\r\n";
 
     /**
-     * @var string    name of file containing part of export (in cas of timeout)
+     * @var string name of file containing part of export (in cas of timeout)
      */
     public $part_file_name;
 
     /**
-     * @var LengowFile    temporary export file
+     * @var LengowFile temporary export file
      */
     protected $file;
 
     /**
-     * @var string    feed content
+     * @var string feed content
      */
     protected $content = '';
 
     /**
-     * @var string    feed format
+     * @var string feed format
      */
     protected $format;
 
     /**
-     * @var string    export shop folder
+     * @var string export shop folder
      */
     protected $shop_folder = null;
 
     /**
-     * @var string    full export folder
+     * @var string full export folder
      */
     protected $export_folder;
 
@@ -81,9 +76,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
         'json',
     );
 
-
+    /**
+     * @var string lengow export folder
+     */
     public static $LENGOW_EXPORT_FOLDER = 'export';
-
 
     public function __construct($stream, $format, $shop_name = null, $part_file_name = null)
     {

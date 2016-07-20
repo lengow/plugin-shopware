@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright 2016 Lengow SAS.
  *
@@ -18,11 +19,6 @@
  * @copyright 2016 Lengow SAS
  * @license   http://www.apache.org/licenses/LICENSE-2.0
  */
-
-/**
-* Lengow Import Class
-*/
-
 class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 {
     /**

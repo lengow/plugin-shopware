@@ -68,7 +68,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static $log;
 
     /**
-     * @var integer    life of log files in days
+     * @var integer life of log files in days
      */
     public static $LOG_LIFE = 20;
 
@@ -84,7 +84,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         $ips = explode(';', $ips);
         $authorizedIps = array_merge($ips, self::$IPS_LENGOW);
         $hostnameIp = $_SERVER['REMOTE_ADDR'];
-
         if (in_array($hostnameIp, $authorizedIps)) {
             return true;
         } else {
@@ -142,7 +141,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         $is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '';
         $host = $shop->getHost() ? $shop->getHost() : $_SERVER['SERVER_NAME'];
         $path = $shop->getBasePath() ? $shop->getBasePath() : '';
-        $url = 'http' . $is_https . '://' . $host . $path;
+        $url = 'http'.$is_https.'://'.$host.$path;
         return $url;
     }
 
@@ -193,9 +192,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Decode message with params for translation
      *
-     * @param string $message Key to translate 
+     * @param string $message  Key to translate
      * @param string $iso_code Language translation iso code
-     * @param mixed  $params array Parameters to display in the translation message
+     * @param mixed  $params   array Parameters to display in the translation message
      *
      * @return string
      */
@@ -238,10 +237,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Writes log
      *
-     * @param string $category Category log
-     * @param string $txt log message
-     * @param boolean $force_output output on screen
-     * @param string $marketplace_sku lengow marketplace sku
+     * @param string  $category        Category log
+     * @param string  $txt             log message
+     * @param boolean $force_output    output on screen
+     * @param string  $marketplace_sku lengow marketplace sku
      */
     public static function log($category, $txt, $force_output = false, $marketplace_sku = null)
     {
