@@ -65,8 +65,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     {
         $this->log('log/install/start');
 
-        if (!$this->assertMinimumVersion('4.0.0')) {
-            throw new \RuntimeException('At least Shopware 4.0.0 is required');
+        if (!$this->assertMinimumVersion('4.2.0')) {
+            throw new \RuntimeException('At least Shopware 4.2.0 is required');
         }
 
         $this->createMenuItem(array(
@@ -464,6 +464,14 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
         // Import settings
         $importFormElements = array(
+            'lengowEnableImport' => array(
+                'type'      => 'boolean',
+                'label'     => 'settings/lengow_import_settings/enable_import/label',
+                'editable'  => false,
+                'value'     => 0,
+                'required'  => false,
+                'description' => 'settings/lengow_import_settings/enable_import/description'
+            ),
             'lengowDecreaseStock' => array(
                 'type'      => 'boolean',
                 'label'     => 'settings/lengow_import_settings/decrease_stock/label',
