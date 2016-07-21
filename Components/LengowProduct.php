@@ -414,6 +414,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      * is blocked for this dispatch
      *
      * @param $blockedCategories Categories which are blocked
+     *
+     * @return boolean True if the category is active for dispatch
      */
     private function getCategoryStatus($blockedCategories)
     {

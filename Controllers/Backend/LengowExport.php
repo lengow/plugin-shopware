@@ -277,7 +277,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                     'text' => $shop->getName(),
                     'id' => $shop->getId(),
                     'lengowStatus' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                        'lengowEnableShop',
+                        'lengowShopActive',
                         $shop
                     )
                 );

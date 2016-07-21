@@ -125,10 +125,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     {
         $this->log('log/uninstall/start');
 
-        $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopsIds();
+        $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShops();
 
-        foreach ($shops as $shopId) {
-            $columnName = 'shop' . $shopId . '_active';
+        foreach ($shops as $shop) {
+            $columnName = 'shop' . $shop->getId() . '_active';
             $this->Application()->Models()->removeAttribute(
                 's_articles_attributes',
                 'lengow',
@@ -158,10 +158,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     protected function updateSchema()
     {
-        $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopsIds();
+        $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShops();
 
-        foreach ($shops as $shopId) {
-            $attributeName = 'shop' . $shopId . '_active';
+        foreach ($shops as $shop) {
+            $attributeName = 'shop' . $shop->getId() . '_active';
             $this->Application()->Models()->addAttribute(
                 's_articles_attributes',
                 'lengow',
@@ -231,7 +231,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     /**
      * Check if a database table exists
      *
-     * @param $tableName Table name
+     * @param $tableName string Table name
      *
      * @return bool True if table exists in db
      */
@@ -246,6 +246,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      * This callback function is triggered at the very beginning of the dispatch process and allows
      * us to register additional events on the fly. This way you won't ever need to reinstall you
      * plugin for new events - any event and hook can simply be registerend in the event subscribers
+     * @param $args Enlight_Event_EventArgs
      */
     public function onStartDispatch(Enlight_Event_EventArgs $args)
     {
@@ -387,7 +388,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
         // Main settings
         $mainSettingsElements = array(
-            'lengowEnableShop' => array(
+            'lengowShopActive' => array(
                 'type'          => 'boolean',
                 'label'         => 'settings/lengow_main_settings/enable/label',
                 'editable'      => false,
@@ -396,9 +397,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
             'lengowAccountId' => array(
-                'type'          => 'text',
+                'type'          => 'number',
                 'label'         => 'settings/lengow_main_settings/account/label',
                 'required'      => true,
+                'minValue'      => 0,
                 'value'         => 0,
                 'description'   => 'settings/lengow_main_settings/account/description',
                 'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
@@ -566,8 +568,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
     /**
      * Log when installing/uninstalling the plugin
-     * @param $key Translation key
-     * @param $params Parameters to put in the translations
+     * @param $key string Translation key
+     * @param $params array Parameters to put in the translations
      */
     protected function log($key, $params = array())
     {
@@ -579,8 +581,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
     /**
      * Create settings forms for the plugin (basic settings)
-     * @param $name Name of the form
-     * @param $elements Options for this form
+     * @param $name string Name of the form
+     * @param $elements array Options for this form
      * @return \Shopware\Models\Config\Form
      */
     protected function createSettingForm($name, $elements)
@@ -629,8 +631,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
     /**
      * Get translations for basic settings
-     * @param $key Key of the translation
-     * @param $isoCode Locale iso code (English by default)
+     * @param $key string Key of the translation
+     * @param $isoCode string Locale iso code (English by default)
+     *
+     * @return string Translation
      */
     protected function getTranslation($key, $isoCode = null)
     {
