@@ -123,9 +123,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     private $exportLengowSelection;
 
     /**
-     * Language
+     * Enable/disable log output
      */
-    private $languageId;
+    private $logOutput;
 
     /**
      * Export disabled articles
@@ -139,8 +139,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 
     /**
      * Feed to display/write data
+     * @var Shopware_Plugins_Backend_Lengow_Components_LengowFeed
      */
-    private $feed = null;
+    private $feed;
+
+    /** @var \Shopware\Models\Shop\Shop $shop */
+    private $shop;
 
     /**
      * LengowExport constructor.
@@ -237,7 +241,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/export/end'),
                     $this->logOutput
                 );
-            } catch (LengowException $e) {
+            } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
                 $errorMessage = $e->getMessage();
             } catch (Exception $e) {
                 $errorMessage = '[Shopware error] "'.$e->getMessage().'" '.$e->getFile().' | '.$e->getLine();
@@ -265,12 +269,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
      * Export products in feed
      *
      * @param $articles array List of articles to export
+     * 
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
      */
     private function export($articles)
     {
         $productsToExport = array();
         // Create Lengow products
         foreach ($articles as $article) {
+            /** @var \Shopware\Models\Article\Detail $details */
             $details = $this->em->getReference(
                 'Shopware\Models\Article\Detail',
                 $article['detailId']

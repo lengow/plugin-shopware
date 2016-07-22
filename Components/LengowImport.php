@@ -561,6 +561,170 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     }
 
     /**
+     * Create or update order in Shopware
+     *
+     * @param mixed     $orders     API orders
+     * @param integer   $shopId    Shop Id
+     *
+     * @return mixed
+     */
+    protected function importOrders($orders, $shopId)
+    {
+        $order_new       = 0;
+        $order_update    = 0;
+        $order_error     = 0;
+        $import_finished = false;
+        foreach ($orders as $order_data) {
+            if (!$this->import_one_order) {
+                self::setInProcess();
+            }
+            $nb_package = 0;
+            $marketplace_sku = (string)$order_data->marketplace_order_id;
+            if ($this->preprod_mode) {
+                $marketplace_sku .= '--'.time();
+            }
+            // set current order to cancel hook updateOrderStatus
+            self::$current_order = $marketplace_sku;
+            // if order contains no package
+            if (count($order_data->packages) == 0) {
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                    'Import',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                        'log.import.error_no_package'
+                    ),
+                    $this->log_output,
+                    $marketplace_sku
+                );
+                continue;
+            }
+            // start import
+            foreach ($order_data->packages as $package_data) {
+                $nb_package++;
+                // check whether the package contains a shipping address
+                if (!isset($package_data->delivery->id)) {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                        'Import',
+                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                            'log.import.error_no_delivery_address'
+                        ),
+                        $this->log_output,
+                        $marketplace_sku
+                    );
+                    continue;
+                }
+                $package_delivery_address_id = (int)$package_data->delivery->id;
+                $first_package = ($nb_package > 1 ? false : true);
+                // check the package for re-import order
+                if ($this->import_one_order) {
+                    if (!is_null($this->delivery_address_id)
+                        && $this->delivery_address_id != $package_delivery_address_id
+                    ) {
+                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                            'Import',
+                            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                                'log.import.error_wrong_package_number'
+                            ),
+                            $this->log_output,
+                            $marketplace_sku
+                        );
+                        continue;
+                    }
+                }
+                try {
+                    // try to import or update order
+                    $import_order = new Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder(
+                        array(
+                            'context'               => $this->context,
+                            'id_shop'               => $shopId,
+                            'id_shop_group'         => $this->id_shop_group,
+                            'id_lang'               => $this->id_lang,
+                            'force_product'         => $this->force_product,
+                            'preprod_mode'          => $this->preprod_mode,
+                            'log_output'            => $this->log_output,
+                            'marketplace_sku'       => $marketplace_sku,
+                            'delivery_address_id'   => $package_delivery_address_id,
+                            'order_data'            => $order_data,
+                            'package_data'          => $package_data,
+                            'first_package'         => $first_package
+                        )
+                    );
+                    $order = $import_order->importOrder();
+                } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
+                    $error_message = $e->getMessage();
+                } catch (Exception $e) {
+                    $error_message = '[Shopware error]: "'.$e->getMessage().'" '.$e->getFile().' | '.$e->getLine();
+                }
+                if (isset($error_message)) {
+                    $decoded_message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                        $error_message
+                    );
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                        'Import',
+                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                            'log.import.order_import_failed',
+                            array(
+                                'decoded_message' => $decoded_message
+                            )
+                        ),
+                        $this->log_output,
+                        $marketplace_sku
+                    );
+                    unset($error_message);
+                    continue;
+                }
+                /*// Sync to lengow if no preprod_mode
+                if (!$this->preprod_mode && $order['order_new'] == true) {
+                    $lengow_order = new LengowOrder((int)$order['order_id']);
+                    $synchro = $lengow_order->synchronizeOrder($this->connector, $this->log_output);
+                    if ($synchro) {
+                        $synchro_message = LengowMain::setLogMessage(
+                            'log.import.order_synchronized_with_lengow',
+                            array('order_id' => $order['order_id'])
+                        );
+                    } else {
+                        $synchro_message = LengowMain::setLogMessage(
+                            'log.import.order_not_synchronized_with_lengow',
+                            array('order_id' => $order['order_id'])
+                        );
+                    }
+                    LengowMain::log('Import', $synchro_message, $this->log_output, $marketplace_sku);
+                    unset($lengow_order);
+                }*/
+                // if re-import order -> return order informations
+                if ($this->import_one_order) {
+                    return $order;
+                }
+                if ($order) {
+                    if ($order['order_new'] == true) {
+                        $order_new++;
+                    } elseif ($order['order_update'] == true) {
+                        $order_update++;
+                    } elseif ($order['order_error'] == true) {
+                        $order_error++;
+                    }
+                }
+                // clean process
+                self::$current_order = -1;
+                unset($import_order);
+                unset($order);
+                // if limit is set
+                if ($this->limit > 0 && $order_new == $this->limit) {
+                    $import_finished = true;
+                    break;
+                }
+            }
+            if ($import_finished) {
+                break;
+            }
+        }
+        return array(
+            'order_new'     => $order_new,
+            'order_update'  => $order_update,
+            'order_error'   => $order_error
+        );
+    }
+
+    /**
      * Check if import is already in process
      *
      * @return boolean

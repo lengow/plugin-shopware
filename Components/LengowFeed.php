@@ -104,7 +104,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
             .$sep.$this->export_folder;
         if (!file_exists($folder_path)) {
             if (!mkdir($folder_path)) {
-                throw new LengowException(
+                throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log.export.error_unable_to_create_folder',
                         array('folder_path' => $folder_path)

@@ -13,8 +13,7 @@ namespace Shopware\CustomModels\Lengow;
 
 use Shopware\Components\Model\ModelEntity,
     Doctrine\ORM\Mapping as ORM,
-    Symfony\Component\Validator\Constraints as Assert,
-    Doctrine\Common\Collections\ArrayCollection;
+    Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Shopware\CustomModels\Lengow\Order

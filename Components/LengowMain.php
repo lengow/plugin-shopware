@@ -104,22 +104,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
-     * Get list of shop ids
-     *
-     * @return array List of shop ids that have been created in Shopware
-     */
-    public static function getShopsIds()
-    {
-        $shops = self::getShops();
-        $ids = array();
-        foreach ($shops as $shop) {
-            $ids[] = $shop->getId();
-        }
-        return $ids;
-    }
-
-    /**
-     * Get list of shops
+     * Get list of shops (active or not)
      *
      * @return array[Shopware\Models\Shop\Shop] List of Shopware shops
      */
@@ -127,6 +112,37 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         return $em->getRepository('Shopware\Models\Shop\Shop')->findAll();
+    }
+
+    public static function getLengowActiveShops()
+    {
+        $shops = self::getShops();
+        $lengowShops = array();
+        foreach($shops as $shop) {
+            $isActiveInLengow = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowShopActive',
+                $shop
+            );
+            $lengowAccountId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowAccountId',
+                $shop
+            );
+            $lengowAccessToken = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowAccessToken',
+                $shop
+            );
+            $lengowSecretToken = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowSecretToken',
+                $shop
+            );
+            if ($isActiveInLengow
+                && !empty($lengowAccountId)
+                && !empty($lengowAccessToken)
+                && !empty($lengowSecretToken)) {
+                $lengowShops[] = $shop;
+            }
+        }
+        return $lengowShops;
     }
 
     /**

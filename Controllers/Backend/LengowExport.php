@@ -1,9 +1,6 @@
 <?php
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Query\Expr;
-use Doctrine\ORM\Query\QueryExpressionVisitor;
 
 /**
  * Copyright 2016 Lengow SAS.
@@ -35,7 +32,6 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     {
         $treeId         = $this->Request()->getParam('categoryId');
         $filterParams   = $this->Request()->getParam('filter', array());
-        $filterBy       = $this->Request()->getParam('filterBy');
         $order          = $this->Request()->getParam('sort', null);
         $start          = $this->Request()->getParam('start', 0);
         $limit          = $this->Request()->getParam('limit', 20);
@@ -137,7 +133,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         }
         $builder->distinct()->addOrderBy('details.number');
         // Used to get number of products available/exported
-        $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop);
+        $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, null);
         $totalProducts = count($builder->getQuery()->getArrayResult());
         $builder->setFirstResult($start)->setMaxResults($limit);
         $result = $builder->getQuery()->getArrayResult();
@@ -224,10 +220,9 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
 
     /**
      * Edit Lengow status for articles from a specific category
-     *
-     * @param category int Category id the articles belong to
-     * @param shopId int Shop id
-     * @param status boolean Lengow status to set for articles
+     * @param $category Shopware\Models\Category\Category Selected category
+     * @param $shopId integer Shop id
+     * @param $status boolean Lengow status to set for articles which belong to the category
      */
     private function setLengowStatusFromCategory($category, $shopId, $status)
     {
@@ -257,10 +252,9 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         }
     }
 
-    /**
-     * Get tree structure.
-     *
-     * @param id Category id (shop id if a shop has been selected, else shopId_categoryId)
+    /*
+     * Get tree structure
+     * @throws \Doctrine\ORM\ORMException
      */
     public function getShopsTreeAction()
     {
@@ -293,6 +287,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                 $shopId = $shop->getId();
                 $categoryId = $shop->getCategory()->getId();
             }
+            /** @var \Shopware\Models\Category\Category $category */
             $category = $em->getReference('Shopware\Models\Category\Category', $categoryId);
             $categories = $category->getChildren();
             foreach ($categories as $category) {
