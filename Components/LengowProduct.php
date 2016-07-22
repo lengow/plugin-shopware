@@ -21,35 +21,53 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 {
     /**
-     * @var $product Shopware article
+     * array API nodes containing relevant data
+     */
+    public static $PRODUCT_API_NODES = array(
+        'marketplace_product_id',
+        'marketplace_status',
+        'merchant_product_id',
+        'marketplace_order_line_id',
+        'quantity',
+        'amount'
+    );
+    /**
+     * @var $product Shopware\Models\Article\Article Shopware article
      */
     protected $product;
 
     /**
-     * @var $isVariation Is this article a simple product (true) or a variation (false)
+     * @var $isVariation boolean Is this article a simple product (true) or a variation (false)
      */
     protected $isVariation = false;
 
     /**
-     * @var $details
+     * @var $details Shopware\Models\Article\Detail Article details
      */
     protected $details;
 
     /**
-     * @var $attributes Specific attributes for the product
+     * @var $attributes String[] Specific attributes for the product
      */
     protected $attributes;
 
     /**
-     * @var $price
+     * @var $price Shopware\Models\Article\Price Article price
      */
     protected $price;
 
     /**
-     * @var $shop
+     * @var $shop \Shopware\Models\Shop\Shop Shop the article belongs to
      */
     protected $shop;
 
+    /**
+     * Shopware_Plugins_Backend_Lengow_Components_LengowProduct constructor.
+     * @param $details Shopware\Models\Article\Detail Article detail
+     * @param $shop Shopware\Models\Shop\Shop Shop the article belongs to
+     * @param $type String simple|parent|child
+     * @param $logOutput boolean Display logs
+     */
     public function __construct($details, $shop, $type, $logOutput)
     {
         $this->product = $details->getArticle();
@@ -65,8 +83,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 
     /**
      * Retrieve Lengow product data
-     *
-     * @param $name string Name of the data to get
+     * @param $name String name of the data to get
+     * @return string Data value
      */
     public function getData($name)
     {
@@ -155,7 +173,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 return '';
                 break;
             case 'shipping_cost':
-                return $this->getShippingCost() == null ? number_format(0, 2) : $this->getShippingCost();
+                return $this->getShippingCost();
                 break;
             case 'currency':
                 return $this->shop->getCurrency()->getCurrency();
@@ -230,11 +248,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         try {
             $host = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getBaseUrl().'/';
+            /** @var Shopware\Models\Article\Image[] $product_images */
             $product_images = $this->product->getImages();
             $image = $product_images[$index - 1];
             // Get image for parent product
             if (!$this->isVariation && $image != null) {
                 if ($image->getMedia() != null) {
+                    /** @var Shopware\Models\Media\Media $media */
                     $media = $image->getMedia();
                     if ($media->getPath() != null) {
                         $mediaPath = $media->getPath();
@@ -242,6 +262,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     }
                 }
             } else {
+                /** @var Shopware\Models\Article\Image[] $variation_images */
                 $variation_images = $this->details->getImages();
                 $index_variation = $index - count($product_images) - 1;
                 $image = $variation_images[$index_variation];
@@ -314,6 +335,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         $parentCategoryId = $this->shop->getCategory()->getId();
         $categories = $this->product->getCategories();
+        $breadcrumb = null;
         foreach ($categories as $category) {
             $categoryPath = explode("|", $category->getPath());
             if (in_array($parentCategoryId, $categoryPath)) {
@@ -351,7 +373,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      */
     private function getShippingCost()
     {
-        $weight = $this->details->getWeight();
         $shippingCost = 0;
         $articlePrice = $this->getData('price_before_discount_incl_tax');
         // If article has not been manually set with free shipping
@@ -361,6 +382,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 'lengowDefaultDispatcher',
                 $this->shop
             );
+            /** @var Shopware\Models\Dispatch\Dispatch $dispatch */
             $dispatch = $em->getReference('Shopware\Models\Dispatch\Dispatch', $dispatchId);
             $blockedCategories = $dispatch->getCategories();
             if ($this->getCategoryStatus($blockedCategories)) {
@@ -406,6 +428,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 }
             }
             return number_format($shippingCost, 2);
+        } else {
+            return number_format(0, 2);
         }
     }
 
@@ -413,12 +437,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      * Check if the category the article belongs to
      * is blocked for this dispatch
      *
-     * @param $blockedCategories Categories which are blocked
+     * @param $blockedCategories Doctrine\Common\Collections\ArrayCollection Categories which are blocked
      *
      * @return boolean True if the category is active for dispatch
      */
     private function getCategoryStatus($blockedCategories)
     {
+        /** @var Shopware\Models\Category\Category[] $productCategories */
         $productCategories = $this->product->getCategories();
         $result = true;
         foreach ($productCategories as $pCategory) {
@@ -446,5 +471,102 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             ->where('details.articleId = :articleId')
             ->setParameter('articleId', $this->product->getId());
         return $builder->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * Extract cart data from API
+     *
+     * @param mixed $api
+     *
+     * @return array
+     */
+    public static function extractProductDataFromAPI($api)
+    {
+        $temp = array();
+        foreach (self::$PRODUCT_API_NODES as $node) {
+            $temp[$node] = $api->{$node};
+        }
+        $temp['price_unit'] = (float)$temp['amount'] / (float)$temp['quantity'];
+        return $temp;
+    }
+
+    public static function checkIsParentProduct($articleId)
+    {
+        $ids = explode('_', $articleId);
+        $articleId = $ids[0];
+        $result = null;
+        // Check existing parent product
+        if (count($ids) == 1) {
+            $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+            $repository = $em->getRepository('Shopware\Models\Article\Article');
+            $result = $repository->find($articleId);
+        }
+        return $result != null;
+    }
+
+    /**
+     * Search a product by number, ean and id
+     * @param $articleId string Article id
+     * @param $category \Shopware\Models\Category\Category Main shop category
+     * @return array|\Shopware\Models\Article\Detail
+     */
+    public static function findArticle($articleId, $category)
+    {
+        $result = null;
+        $ids = explode('_', $articleId);
+        if (count($ids) == 2) {
+            $parentId = $ids[0];
+            $detailId = $ids[1];
+            $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+            $article = $em->find('Shopware\Models\Article\Article', $parentId);
+            /** @var \Shopware\Models\Article\Detail[] $variations */
+            $variations = $article->getDetails();
+            foreach ($variations as $variation) {
+                if ($variation->getId() == $detailId) {
+                    return $variation;
+                }
+            }
+            // Search in subcategories
+            $children = $category->getChildren();
+            foreach ($children as $child) {
+                $result = self::findArticle($articleId, $child);
+                if ($result != null) {
+                    return $result;
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Search a product by number, ean and id
+     * @param $value String Searched value
+     * @param $category \Shopware\Models\Category\Category Main shop category
+     * @return array|\Shopware\Models\Article\Detail
+     */
+    public static function advancedSearch($value, $category)
+    {
+        /** @var \Shopware\Models\Article\Article[] $shopArticles */
+        $articles = $category->getArticles();
+        $result = null;
+        foreach ($articles as $article) {
+            /** @var \Shopware\Models\Article\Detail[] $details */
+            $details = $article->getDetails();
+            // For each variations
+            foreach ($details as $detail) {
+                if ($detail->getEan() == $value
+                    || $detail->getNumber() == $value) {
+                    return $detail;
+                }
+            }
+        }
+        // Look in sub-categories
+        foreach ($category->getChildren() as $child) {
+            $result = self::advancedSearch($value, $child);
+            if ($result != null) {
+                return $result;
+            }
+        }
+        return $result;
     }
 }

@@ -13,8 +13,7 @@ namespace Shopware\CustomModels\Lengow;
 
 use Shopware\Components\Model\ModelEntity,
     Doctrine\ORM\Mapping as ORM,
-    Symfony\Component\Validator\Constraints as Assert,
-    Doctrine\Common\Collections\ArrayCollection;
+    Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Shopware\CustomModels\Lengow\Order
@@ -57,7 +56,7 @@ class Order extends ModelEntity
     /**
      * @var string $marketplaceName
      *
-     * @ORM\Column(name="markeplace_name", type="string", length=100, nullable=false)
+     * @ORM\Column(name="marketplace_name", type="string", length=100, nullable=false)
      */
     private $marketplaceName;
 
@@ -194,6 +193,29 @@ class Order extends ModelEntity
     public function setMarketplaceName($marketplaceName)
     {
         $this->marketplaceName = $marketplaceName;
+        return $this;
+    }
+
+    /**
+     * Gets the value of orderDate.
+     *
+     * @return \DateTime $orderDate
+     */
+    public function getOrderDate()
+    {
+        return $this->orderDate;
+    }
+
+    /**
+     * Sets the value of orderDate.
+     *
+     * @param \DateTime $orderDate $orderDate the created at
+     *
+     * @return self
+     */
+    public function setOrderDate($orderDate)
+    {
+        $this->orderDate = $orderDate;
         return $this;
     }
 

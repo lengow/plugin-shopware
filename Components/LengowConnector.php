@@ -198,6 +198,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                 return simplexml_load_string($data);
             case 'stream':
                 return $data;
+            default:
+                return array();
         }
     }
 
@@ -284,5 +286,74 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($error);
         }
         return $result;
+    }
+
+    /**
+     * Get Valid Account / Access / Secret
+     *
+     * @param Shopware\Models\Shop\Shop $shop
+     *
+     * @return array
+     */
+    public static function getAccessId($shop = null)
+    {
+        $account_id = null;
+        $access_token = null;
+        $secret_token = null;
+        if ($shop == null) {
+            $shopCollection = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowActiveShops();
+            if (count($shopCollection) > 0) {
+                $shop = $shopCollection[0];
+            }
+        }
+        if ($shop != null) {
+            $account_id = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowAccountId',
+                $shop
+            );
+            $access_token = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowAccessToken',
+                $shop
+            );
+            $secret_token = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowSecretToken',
+                $shop
+            );
+        }
+        return array($account_id, $access_token, $secret_token);
+    }
+
+    /**
+     * Get result for a query Api
+     *
+     * @param string  $type   (GET / POST / PUT / PATCH)
+     * @param string  $url
+     * @param Shopware\Models\Shop\Shop $shop
+     * @param array   $params
+     * @param string  $body
+     *
+     * @return array api result as array
+     */
+    public static function queryApi($type, $url, $shop = null, $params = array(), $body = '')
+    {
+        if (!in_array($type, array('get', 'post', 'put', 'patch'))) {
+            return false;
+        }
+        try {
+            list($account_id, $access_token, $secret_token) = self::getAccessId($shop);
+            $connector  = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector(
+                $access_token,
+                $secret_token
+            );
+            $results = $connector->$type(
+                $url,
+                array_merge(array('account_id' => $account_id), $params),
+                'stream',
+                $body
+            );
+        } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
+            return false;
+        }
+        return json_decode($results);
     }
 }

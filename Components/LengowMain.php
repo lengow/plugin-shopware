@@ -63,9 +63,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     );
 
     /**
-     * @var LengowLog Lengow log file instance
+     * @var Shopware_Plugins_Backend_Lengow_Components_LengowLog Lengow log file instance
      */
     public static $log;
+
+    /**
+     * Registers.
+     */
+    public static $registers;
 
     /**
      * @var integer life of log files in days
@@ -114,13 +119,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         return $em->getRepository('Shopware\Models\Shop\Shop')->findAll();
     }
 
+    /**
+     * Get list of shops that have been activated in settings for Lengow
+     * Check that account id and tokens are not empty
+     * @return \Shopware\Models\Shop\Shop[] List of shops
+     */
     public static function getLengowActiveShops()
     {
         $shops = self::getShops();
         $lengowShops = array();
         foreach($shops as $shop) {
-            $isActiveInLengow = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowShopActive',
+            $isImportActivated = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowEnableImport',
                 $shop
             );
             $lengowAccountId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
@@ -135,7 +145,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
                 'lengowSecretToken',
                 $shop
             );
-            if ($isActiveInLengow
+            if ($shop->getActive()
+                && $isImportActivated
                 && !empty($lengowAccountId)
                 && !empty($lengowAccessToken)
                 && !empty($lengowSecretToken)) {
@@ -174,7 +185,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Get log Instance
      *
-     * @return LengowLog
+     * @return Shopware_Plugins_Backend_Lengow_Components_LengowLog
      */
     public static function getLogInstance()
     {
@@ -244,9 +255,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static function updateDateImport($type)
     {
         if ($type === 'cron') {
-            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('LENGOW_LAST_IMPORT_CRON', time());
+            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
+                'LENGOW_LAST_IMPORT_CRON',
+                time()
+            );
         } else {
-            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('LENGOW_LAST_IMPORT_MANUAL', time());
+            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
+                'LENGOW_LAST_IMPORT_MANUAL',
+                time()
+            );
         }
     }
 
@@ -287,15 +304,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
-     * Default Shipping Cost
+     * The shipping names options
      *
-     * @param integer $idShop
+     * @param string                    $name   Marketplace name
+     * @param Shopware\Models\Shop\Shop $shop   Shop
      *
-     * @return object Dispatch Shopware
+     * @return Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace Lengow shipping names option
      */
-    public static function getDefaultShippingCost($idShop)
+    public static function getMarketplaceSingleton($name, $shop = null)
     {
-        return self::getSetting($idShop)->getLengowShippingCostDefault();
+        if (!isset(self::$registers[$name])) {
+            self::$registers[$name] = new Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace($name, $shop);
+        }
+        return self::$registers[$name];
     }
 
     /**
