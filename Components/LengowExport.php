@@ -248,8 +248,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             }
             if (isset($errorMessage)) {
                 $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                    $errorMessage,
-                    'en_GB'
+                    $errorMessage
                 );
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Export',

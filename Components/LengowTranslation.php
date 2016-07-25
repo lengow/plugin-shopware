@@ -42,6 +42,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
      */
     public function t($message, $args = array(), $isoCode = null)
     {
+        if ($isoCode == null) {
+            $isoCode = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
+        }
         if (!isset(self::$translation[$isoCode])) {
             self::loadFile();
         }
