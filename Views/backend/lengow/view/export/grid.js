@@ -58,7 +58,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
     /**
      * Creates the grid selection model for checkboxes
-     * @return [Ext.selection.CheckboxModel] grid selection model
+     * @return Ext.selection.CheckboxModel grid selection model
      */
      getGridSelModel: function () {
         var me = this;
@@ -93,39 +93,39 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         var me = this;
 
         var columns = [
-        {
-            header: me.snippets.column.number,
-            dataIndex: 'number',
-            flex: 1
-        }, {
-            header: me.snippets.column.name,
-            dataIndex: 'name',
-            flex : 2
-        }, {
-            header: me.snippets.column.supplier,
-            dataIndex: 'supplier',
-            flex: 1
-        }, 
-        this.getActiveColumn('status', me.snippets.column.active), 
-        {
-            header: me.snippets.column.price,
-            dataIndex: 'price',
-            xtype: 'numbercolumn',
-            align: 'right',
-            flex: 1
-        }, { 
-            header: me.snippets.column.vat,
-            dataIndex: 'vat',
-            align: 'right',
-            flex: 1
-        }, {
-            header: me.snippets.column.stock,
-            dataIndex: 'inStock',
-            align: 'right',
-            flex: 1
-        },
-        this.getActiveColumn('lengowActive', me.snippets.column.lengowStatus),
-        this.getActionColumn()
+            {
+                header: me.snippets.column.number,
+                dataIndex: 'number',
+                flex: 1
+            }, {
+                header: me.snippets.column.name,
+                dataIndex: 'name',
+                flex : 2
+            }, {
+                header: me.snippets.column.supplier,
+                dataIndex: 'supplier',
+                flex: 1
+            },
+            this.getActiveColumn('status', me.snippets.column.active),
+            {
+                header: me.snippets.column.price,
+                dataIndex: 'price',
+                xtype: 'numbercolumn',
+                align: 'right',
+                flex: 1
+            }, {
+                header: me.snippets.column.vat,
+                dataIndex: 'vat',
+                align: 'right',
+                flex: 1
+            }, {
+                header: me.snippets.column.stock,
+                dataIndex: 'inStock',
+                align: 'right',
+                flex: 1
+            },
+            this.getActiveColumn('lengowActive', me.snippets.column.lengowStatus),
+            this.getActionColumn()
         ];
         return columns;
     }, 
@@ -138,14 +138,14 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
      getActiveColumn: function(name, header) {
         var me = this,
         items = [],
-        lengowColumn = name == 'lengowActive' ? true : false;
+        lengowColumn = name == 'lengowActive';
 
         items.push({
             handler: function(grid, rowIndex, colIndex, item, eOpts, record) {
                 // If click on include in export column
                 if (lengowColumn) {
                     // Get the record and change lengow status for the product
-                    var attributeId = record.raw['attributeId']
+                    var attributeId = record.raw['attributeId'],
                     categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id'),
                     status = !record.get('lengowActive');
 
@@ -267,14 +267,15 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
     },
 
     /**
-     * Listener for add/remove from export buttons
+     * Listener to add/remove from export buttons
      * @param publishButton boolean True if adding products to export
      */
     exportButtonHandler: function(publishButton) {
         var me = this,
         selectionModel = me.getSelectionModel(),
         records = selectionModel.getSelection(),
-        categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id')
+        // Get selected category in the tree
+        categoryId = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id'),
         attributeIds = [],
         checkbox = Ext.getCmp('editAll'),
         ids = null;
@@ -282,7 +283,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         // Enable mask on main container while the process is not finished
         Ext.getCmp('exportContainer').getEl().mask();
 
-        // If select all products checbox is not checked, get articles ids
+        // If select all products checkbox is not checked, get articles ids
         if (!checkbox.getValue()) {
             Ext.each(records, function(record) {
                 attributeIds.push(record.raw['attributeId']);
@@ -302,7 +303,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         store = me.store;
         store.load({
             scope: this,
-            callback: function(records, operation, success) {
+            callback: function(records, operation) {
                 var data = Ext.decode(operation.response.responseText),
                     total = data['nbProductsAvailable'],
                     lengowProducts = data['nbExportedProducts'];
@@ -361,7 +362,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
      */
     getSynchronizeIframe: function () {
         Shopware.app.Application.addSubApplication({
-            name: 'Shopware.apps.Iframe'
+            name: 'Shopware.apps.LengowSync'
         });
     },
 
@@ -370,9 +371,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
      * @return [Ext.toolbar.Toolbar] grid toolbar
      */
      getToolbar: function() {
-        var me = this,
-        store = me.store,
-        buttons = [];
+        var me = this;
 
         // Publish button - Add mass selection to export
         me.publishProductsBtn = Ext.create('Ext.button.Button', {
@@ -385,7 +384,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             }
         });
 
-        // Unpublish button - Remove mass selection from export
+        // Un-publish button - Remove mass selection from export
         me.unpublishProductsBtn = Ext.create('Ext.button.Button', {
             iconCls: 'sprite-minus-circle',
             margins: '5 0 0 0',
@@ -407,12 +406,12 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             items: [
                 me.publishProductsBtn,
                 me.unpublishProductsBtn,
-                {
+                { // Apply action on all articles in the shop
                     xtype: 'checkboxfield',
                     margins: '5 0 0 0',
                     boxLabel: me.snippets.checkbox.edit_all,
                     hidden: true,
-                    id: 'editAll',
+                    id: 'editAll'
                 },
                 {
                     xtype: 'tbfill'
@@ -442,7 +441,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                                 //Loads the store with a special filter
                                 store.filter('search', searchString);
                             }
-                        },
+                        }
                     }
                 }
             ]

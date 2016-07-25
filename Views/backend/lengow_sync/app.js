@@ -1,8 +1,8 @@
 
-Ext.define('Shopware.apps.Iframe', {
+Ext.define('Shopware.apps.LengowSync', {
     extend: 'Enlight.app.SubApplication',
 
-    name:'Shopware.apps.Iframe',
+    name:'Shopware.apps.LengowSync',
 
     loadPath: '{url action=load}',
     bulkLoad: true,

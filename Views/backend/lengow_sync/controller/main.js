@@ -1,4 +1,4 @@
-Ext.define('Shopware.apps.Iframe.controller.Main', {
+Ext.define('Shopware.apps.LengowSync.controller.Main', {
     extend: 'Enlight.app.Controller',
 
     init: function () {

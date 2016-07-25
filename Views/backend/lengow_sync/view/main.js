@@ -1,4 +1,4 @@
-Ext.define('Shopware.apps.Iframe.view.Main', {
+Ext.define('Shopware.apps.LengowSync.view.Main', {
     extend: 'Enlight.app.Window',
     title: 'Lengow',
     layout: 'fit',
