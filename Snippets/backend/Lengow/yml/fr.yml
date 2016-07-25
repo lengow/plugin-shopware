@@ -7,6 +7,7 @@ en:
   window:
     tab:
       export: "Produits"
+      logs: "Import"
       logs: "Logs"
       settings: "Configuration"
       register: "Ma solution Lengow"
@@ -87,8 +88,19 @@ en:
     panel:
       tree:
         root: "Boutiques"
+  order:
+    screen:
+      import_charge_second: "Restez avec nous; ça ne va pas durer longtemps (2 min average waiting time)"
+    panel:
+      description: "Importer et décrémenter les stocks des commandes importées depuis <b>%{nb_days}</b> jours."
+      last_import: "Dernière synchronisation : <b>%{import_date}</b>"
+      order_new: "%{nb_order} commandes(s) décrémentées"
+      order_update: "%{nb_order} commandes(s) mise(s) à jour"
+      order_error: "%{nb_order} commande(s) avec des erreurs"
+      order_import_failed: "Echec de l'import (<a href='%{log_url}' target='_blank'>Voir les logs pour plus d'information</a>)"
+      button: "Lancer l'import"
   log:
-    download:
+    panel:
       empty_selection: "Choisissez un fichier de log..."
       button: "Télécharger les fichiers de log"
       select_all: "Télécharger tous les fichiers"

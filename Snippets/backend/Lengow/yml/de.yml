@@ -7,6 +7,7 @@ de:
   window:
     tab:
       export: "Produkte"
+      import: "Import"
       logs: "Protokolle"
       settings: "Konfigurieren"
       register: "Registrieren lassen"
@@ -87,8 +88,19 @@ de:
     panel:
       tree:
         root: "Shops"
+  order:
+    screen:
+      import_charge_second: "Bitte beachten Sie bei uns; dies wird nicht lange dauern (2 min durchschnittliche Wartezeit)"
+    panel:
+      description: "Import Aufträge und verringern Sie Ihre Aktien aus <b>%{nb_days}</b> days."
+      last_import: "Letzte Synchronisation : <b>%{import_date}</b>"
+      order_new: "%{nb_order} order(s) verringert"
+      order_update: "%{nb_order} order(s) aktualisiert"
+      order_error: "%{nb_order} order(s) mit fehlern"
+      order_import_failed: "Bestellen import fehlgeschlagen (<a href='%{log_url}' target='_blank'>Siehe protokolle für weitere informationen</a>)"
+      button: "Starten import"
   log:
-    download:
+    panel:
       empty_selection: "Bitte wählen Sie eine Log-Datei ..."
       button: "Download-Log-Dateien"
       select_all: "Alle Dateien herunterladen"
