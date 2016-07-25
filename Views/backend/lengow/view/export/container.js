@@ -172,7 +172,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
                     boxLabel: me.snippets.checkbox.selection,
                     listeners: {
                         change: function(checkbox){
-                            var selectedShop = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id')
+                            var selectedShop = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id'),
                                 value = checkbox.getValue(),
                                 id = checkbox.getId();
 

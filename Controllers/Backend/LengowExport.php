@@ -28,7 +28,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
      *
      * @return mixed
      */
-    public function getlistAction()
+    public function getListAction()
     {
         $treeId         = $this->Request()->getParam('categoryId');
         $filterParams   = $this->Request()->getParam('filter', array());

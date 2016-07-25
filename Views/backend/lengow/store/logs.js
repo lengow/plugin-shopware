@@ -6,7 +6,7 @@ Ext.define('Shopware.apps.Lengow.store.Logs', {
 
     // Translations
     snippets: {
-        all: '{s name="log/download/select_all" namespace="backend/Lengow/translation"}{/s}'
+        all: '{s name="log/panel/select_all" namespace="backend/Lengow/translation"}{/s}'
     },
 
     configure: function() {
@@ -18,7 +18,7 @@ Ext.define('Shopware.apps.Lengow.store.Logs', {
             var me = this;
 
             // Format to display full date (day month year)
-            store.each(function(record, id) {
+            store.each(function(record) {
                 var logDate = record.get('date');
                 if (logDate !== '') {
                     var date = Ext.Date.parse(logDate, 'd m Y'),

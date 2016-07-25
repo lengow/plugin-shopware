@@ -8,8 +8,8 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
 
     // Translations
     snippets: {
-        emptySelection: '{s name="log/download/empty_selection" namespace="backend/Lengow/translation"}{/s}',
-        button: '{s name="log/download/button" namespace="backend/Lengow/translation"}{/s}'
+        emptySelection: '{s name="log/panel/empty_selection" namespace="backend/Lengow/translation"}{/s}',
+        button: '{s name="log/panel/button" namespace="backend/Lengow/translation"}{/s}'
     },
 
     initComponent: function () {
@@ -49,6 +49,7 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
             store: me.store,
             listeners : {
                 select : function() {
+                    // When a record is selected, enable download button
                     Ext.getCmp('downloadButton').enable();
                 }
             }
@@ -68,7 +69,7 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
             disabled: true,
             text: me.snippets.button,
             style: { marginTop: '10px' },
-            handler: function(e, records) {
+            handler: function() {
                 var selectedFile = Ext.getCmp('selectedName').getValue();
                 var url = '{url controller="LengowLogs" action="download"}';
 

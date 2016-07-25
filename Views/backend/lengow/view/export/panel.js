@@ -20,7 +20,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
     },
 
     /**
-     * Returns the tree panel with and a toolbar
+     * Returns the panel which contains shop tree
      */
     getPanels: function () {
         var me = this;
@@ -52,7 +52,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
 
         tree = Ext.create('Shopware.apps.Lengow.view.export.Tree', {
             listeners: {
-                load: function(view, record){
+                load: function(view){
                     me.fireEvent('getDefaultShop', view);
                 },
                 itemclick: {
@@ -67,13 +67,18 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
 
                         store.getProxy().extraParams.categoryId = record.get('id');
 
+                        // If a shop (root child) is selected
                         if (record.get('parentId') === 'root') {
+                            // Update shop name and shop id
                             var label = record.get('text') + ' (' + record.get('id') + ')';
                             Ext.getCmp('shopName').el.update(label);
+                            // Update selected shop status
                             grid.setLengowShopStatus();
+                            // Init checkbox options listeners
                             grid.initConfigCheckboxes();
                         }
 
+                        // Update number of exported products
                         grid.updateCounter();
 
                         //scroll the store to first page

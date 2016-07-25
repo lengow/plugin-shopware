@@ -25,19 +25,17 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
 
     /**
      * Download shop feed
-     * @param selectedShop Id of the shop to export
+     * @param selectedShop integer Id of the shop to export
      */
     onGetFeed: function(selectedShop) {
-    	var me = this;
-
     	if (selectedShop) {
             var url = '{url controller="LengowExport" action="export"}';
 
-            // Create form panel. It contains a basic form that we need for the file download.
+            // Create form panel. Contains a basic form to download the file.
             var form = Ext.create('Ext.form.Panel').getForm().submit({
                 url: url,
                 method: 'POST',
-                target: '_blank', // Avoids leaving the page.,
+                target: '_blank', // Avoids leaving the page
                 success: function(response, opts){
                     var url = opts.result.url;
                     window.open(url + '?stream=1&shop=' + selectedShop);
@@ -55,8 +53,6 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
      *      the article belongs to
      */
     onSetStatusInLengow: function(ids, status, categoryId) {
-        var me = this;
-
         Ext.Ajax.request({
             url: '{url controller="LengowExport" action="setStatusInLengow"}',
             method: 'POST',
@@ -66,7 +62,7 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
                 status: status,
                 categoryId: categoryId
             },
-            success: function(response, opts) {
+            success: function() {
                 Ext.getCmp('exportGrid').updateCounter();
                 Ext.getCmp('exportContainer').getEl().unmask();
             }
@@ -80,8 +76,6 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
      * @param value boolean Status of this setting
      */
     onSetConfigValue: function(shopId, settingName, value) {
-        var me = this;
-
         Ext.Ajax.request({
             url: '{url controller="LengowExport" action="setConfigValue"}',
             method: 'POST',
@@ -100,8 +94,6 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
      * @param shopId int Shop id
      */
     onGetConfigValue: function(configList, shopId) {
-        var me = this;
-
         Ext.Ajax.request({
             url: '{url controller="LengowExport" action="getConfigValue"}',
             method: 'POST',
@@ -110,7 +102,7 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
                 id: shopId,
                 configList: Ext.encode(configList)
             },
-            success: function(response, opts) {
+            success: function(response) {
                 var values = Ext.decode(response.responseText)['data'];
                 Ext.each(configList, function(config) {
                     var status = values[config];
@@ -127,28 +119,27 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
     /**
      * Get Shopware default shop 
      * Auto select the shop in the tree when launching the plugin
+     * @param view Tree view (shop list) needed to select default shop
      */
     onGetDefaultShop: function(view) {
-        var me = this;
-
         Ext.Ajax.request({
             url: '{url controller="LengowExport" action="getDefaultShop"}',
             method: 'POST',
             type: 'json',
-            success: function(response, opts) {
+            success: function(response) {
                 var tree = Ext.getCmp('shopTree'),
-                    defaultShopId = Ext.decode(response.responseText)['data']
+                    defaultShopId = Ext.decode(response.responseText)['data'],
                     childNodes = tree.getRootNode().childNodes;
 
                 Ext.each(childNodes, function(child) {
                     if (child.get('id') == defaultShopId) {
                         tree.getSelectionModel().select(child);
                         tree.fireEvent('itemclick', view, child);
-                        return;
+                        return true;
                     }
                 });
             }
         });
-    },
+    }
 });
 //{/block}

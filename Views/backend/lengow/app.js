@@ -9,7 +9,8 @@ Ext.define('Shopware.apps.Lengow', {
 
     controllers: [
         'Main',
-        'Export'
+        'Export',
+        'Import'
     ],
 
     views: [
@@ -18,6 +19,7 @@ Ext.define('Shopware.apps.Lengow', {
         'export.Container',
         'export.Grid',
         'export.Tree',
+        'import.Panel',
         'logs.Panel'
     ],
 
@@ -36,11 +38,13 @@ Ext.define('Shopware.apps.Lengow', {
         return this.getController('Main').mainWindow;
     },
 
+    /**
+     * Before launch app listener
+     * Destroy opened Lengow instances
+     */
     onBeforeLaunch: function() {
         var me = this;
-
         me.destroyOtherModuleInstances();
-
         me.callParent(arguments);
     },
 
@@ -48,19 +52,22 @@ Ext.define('Shopware.apps.Lengow', {
      * Limit Lengow plugin to a unique instance
      * Avoid conflicts when minimizing the window and opening a new instance 
      */
-    destroyOtherModuleInstances: function (cb, cbArgs) {
-        var me = this, activeWindows = [], subAppId = me.$subAppId;
-        cbArgs = cbArgs || [];
+    destroyOtherModuleInstances: function () {
+        var me = this,  subAppId = me.$subAppId;
 
+        // Iterate over open sub-applications
         Ext.each(Shopware.app.Application.subApplications.items, function (subApp) {
-            if (!subApp || !subApp.windowManager || subApp.$subAppId === subAppId || !subApp.windowManager.hasOwnProperty('zIndexStack')) {
+            if (!subApp
+                || !subApp.windowManager
+                || subApp.$subAppId === subAppId
+                || !subApp.windowManager.hasOwnProperty('zIndexStack')) {
                 return;
             }
             Ext.each(subApp.windowManager.zIndexStack, function (item) {
                 var title = new String(item.header.title).valueOf();
                 if (title !== 'undefined' && (title.lastIndexOf('Lengow', 0) === 0)) {
                     item.destroy();
-                    return;
+                    return true;
                 }
             });
         });
