@@ -127,6 +127,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
         $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShops();
 
+        // Remove custom attributes
+        // For each article attributes, remove lengow columns
         foreach ($shops as $shop) {
             $columnName = 'shop' . $shop->getId() . '_active';
             $this->Application()->Models()->removeAttribute(
@@ -147,9 +149,32 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             's_articles_attributes'
         ));
 
+        $this->removeCustomModels();
+
         $this->log('log/uninstall/end');
 
         return true;
+    }
+
+    /**
+     * Remove custom models from database
+     */
+    protected function removeCustomModels()
+    {
+        $em = self::getEntityManager();
+        $schemaTool = new Doctrine\ORM\Tools\SchemaTool($em);
+
+        $models = array(
+            's_lengow_settings' => $em->getClassMetadata('Shopware\CustomModels\Lengow\Settings')
+        );
+
+        foreach ($models as $tableName => $model) {
+            // Check that the table does not exist
+            if (!$this->tableExist($tableName)) {
+                $schemaTool->dropSchema(array($model));
+                $this->log('log/uninstall/remove_model', array('name' => $model->getName()));
+            }
+        }
     }
 
     /**
@@ -273,7 +298,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * Registers snippets
+     * Registers snippets used for translation
      */
     private function registerMySnippets()
     {
@@ -430,6 +455,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             )
         );
 
+        // Auto-generate form
         $mainSettingForm = $this->createSettingForm('lengow_main_settings', $mainSettingsElements);
         $mainSettingForm->setParent($mainForm);
 
@@ -495,6 +521,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             )
         );
 
+        // Auto-generate form
         $exportSettingForm = $this->createSettingForm('lengow_export_settings', $exportFormElements);
         $exportSettingForm->setParent($mainForm);
 
@@ -533,6 +560,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             )
         );
 
+        // Auto-generate form
         $importSettingForm = $this->createSettingForm('lengow_import_settings', $importFormElements);
         $importSettingForm->setParent($mainForm);
 
@@ -544,7 +572,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
         $mainForm->setChildren($forms);
 
-        // Translate sub categories (sub-forms names)
+        // Translate sub categories (sub-forms settings names)
         $locales = self::getEntityManager()->getRepository('\Shopware\Models\Shop\Locale')->findAll();
         foreach ($forms as $form) {
             $formName = $form->getName();
@@ -587,7 +615,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     protected function createSettingForm($name, $elements)
     {
-        // Main settings form
         $form = new \Shopware\Models\Config\Form;
         $form->setName($name);
         $form->setLabel($this->getTranslation('settings/' . $name . '/label'));
@@ -599,13 +626,14 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             $type = $options['type'];
             array_shift($options);
 
+            // Create main element
             $form->setElement(
                 $type,
                 $key,
                 $options
             );
 
-            //get the form element by name
+            // Get the form element by name
             $elementModel = $form->getElement($key);
 
             // Translate fields for this form
