@@ -97,13 +97,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
+     * Get user locale language
+     * @return string Locale
+     */
+    public static function getLocale()
+    {
+        return Shopware()->Auth()->getIdentity()->locale->getLocale();
+    }
+
+    /**
      * Get the path of the plugin
      *
      * @return string
      */
     public static function getPathPlugin()
     {
-        $path = Shopware()->Plugins()->Backend()->Lengow()->Path();
+        $path = self::getLengowFolder();
         $index = strpos($path, '/engine');
         return substr($path, $index);
     }
@@ -111,7 +120,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Get list of shops (active or not)
      *
-     * @return array[Shopware\Models\Shop\Shop] List of Shopware shops
+     * @return Shopware\Models\Shop\Shop[] List of Shopware shops
      */
     public static function getShops()
     {
@@ -128,29 +137,30 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     {
         $shops = self::getShops();
         $lengowShops = array();
-        foreach($shops as $shop) {
-            $isImportActivated = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowEnableImport',
-                $shop
-            );
-            $lengowAccountId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowAccountId',
-                $shop
-            );
-            $lengowAccessToken = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowAccessToken',
-                $shop
-            );
-            $lengowSecretToken = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowSecretToken',
-                $shop
-            );
-            if ($shop->getActive()
-                && $isImportActivated
-                && !empty($lengowAccountId)
-                && !empty($lengowAccessToken)
-                && !empty($lengowSecretToken)) {
-                $lengowShops[] = $shop;
+        $isImportActivated = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            'lengowEnableImport'
+        );
+        if ($isImportActivated) {
+            foreach ($shops as $shop) {
+                $lengowAccountId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                    'lengowAccountId',
+                    $shop
+                );
+                $lengowAccessToken = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                    'lengowAccessToken',
+                    $shop
+                );
+                $lengowSecretToken = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                    'lengowSecretToken',
+                    $shop
+                );
+                if ($shop->getActive()
+                    && !empty($lengowAccountId)
+                    && !empty($lengowAccessToken)
+                    && !empty($lengowSecretToken)
+                ) {
+                    $lengowShops[] = $shop;
+                }
             }
         }
         return $lengowShops;

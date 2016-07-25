@@ -343,10 +343,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'onGetExportControllerPath'
         );
 
-        // Iframe
+        // Import controller
         $this->subscribeEvent(
-            'Enlight_Controller_Dispatcher_ControllerPath_Backend_Iframe',
-            'onGetSubscribeControllerPath'
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowImport',
+            'onGetImportControllerPath'
+        );
+
+        // Sync controller
+        $this->subscribeEvent(
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowSync',
+            'onGetSyncControllerPath'
         );
 
         // Log controller
@@ -373,7 +379,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function onGetMainControllerPath()
     {
-        return $this->Path(). 'Controllers/Backend/Lengow.php';
+        return $this->Path().'Controllers/Backend/Lengow.php';
     }
 
     /**
@@ -382,7 +388,23 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function onGetExportControllerPath()
     {
-        return $this->Path(). 'Controllers/Backend/LengowExport.php';
+        return $this->Path().'Controllers/Backend/LengowExport.php';
+    }
+
+    /**
+     * Return the path to Lengow import controller
+     * @return string
+     */
+    public function onGetImportControllerPath(){
+        return $this->Path().'Controllers/Backend/LengowImport.php';
+    }
+
+    /**
+     * Return the path to Lengow sync controller
+     * @return string
+     */
+    public function onGetSyncControllerPath(){
+        return $this->Path().'Controllers/Backend/LengowSync.php';
     }
 
     /**
@@ -391,16 +413,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function onGetLogControllerPath()
     {
-        return $this->Path(). 'Controllers/Backend/LengowLogs.php';
-    }
-
-    /**
-     * Returns the path to the login iframe controller
-     * @return string
-     */
-    public function onGetSubscribeControllerPath()
-    {
-        return $this->Path(). 'Controllers/Backend/Iframe.php';
+        return $this->Path().'Controllers/Backend/LengowLogs.php';
     }
 
     /**
