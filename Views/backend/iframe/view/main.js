@@ -7,28 +7,17 @@ Ext.define('Shopware.apps.Iframe.view.Main', {
 
     initComponent: function () {
         var me = this;
-        me.items = me.tabPanel = Ext.create('Ext.tab.Panel', {
+        me.items = Ext.create('Ext.panel.Panel', {
             layout: 'fit',
-            items: []
-        });
-        me.callParent(arguments);
-    },
-
-    initAccountTabs: function () {
-        var me = this,
-            i = 0,
-            tab;
-
-        me.accountStore.each(function(account) {
-            tab = me.tabPanel.add({
-                title: account.get('name'),
+            items: [{
+                title: 'Register',
                 xtype: 'component',
                 autoEl: {
                     'tag': 'iframe',
-                    'src': account.get('url')
+                    'src': 'http://cms.lengow.int/sync/'
                 }
-            });
-            me.tabPanel.setActiveTab(tab);
+            }]
         });
+        me.callParent(arguments);
     }
 });

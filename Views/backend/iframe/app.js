@@ -13,13 +13,6 @@ Ext.define('Shopware.apps.Iframe', {
         'Main'
     ],
 
-    models: [
-        'Article'
-    ],
-    stores: [
-        'Article'
-    ],
-
     launch: function() {
         return this.getController('Main').mainWindow;
     }
