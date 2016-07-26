@@ -502,7 +502,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 
     /**
      * Check whether or not an article is a parent
+     *
      * @param $articleId string articleId_detailId
+     *
      * @return bool true if article is a parent
      */
     public static function checkIsParentProduct($articleId)
@@ -521,7 +523,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 
     /**
      * Search a product by number, ean and id
-     * @param $articleId string Article id (
+     *
+     * @param $articleId string Article id
+     *
      * @return integer Shopware\Models\Article\Detail id|null if not found
      */
     public static function findArticle($articleId)
@@ -554,9 +558,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 
     /**
      * Search a product by number, ean and id
+     *
      * @param $field String Field of Shopware\Models\Article\Detail to search in
      * @param $value String Searched value
      * @param $logOutput boolean True if error are displayed on stream
+     *
      * @return integer Shopware\Models\Article\Detail id|null if not found
      */
     public static function advancedSearch($field, $value, $logOutput)

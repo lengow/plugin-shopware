@@ -280,9 +280,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         if ($result === false) {
             $error_message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                 'log.connector.error_api',
-                array(
-                    'error_code' => $error
-                )
+                array('error_code' => $error)
             );
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log('Connector', $error_message);
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($error);
