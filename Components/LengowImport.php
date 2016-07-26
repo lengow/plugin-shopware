@@ -209,7 +209,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                 'Import',
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'log/lengow/error/rest_time_to_import',
+                    'lengow_log/error/rest_time_to_import',
                     array('rest_time' => self::restTimeToImport())
                 ),
                 $this->log_output
@@ -336,7 +336,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Import',
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                        'log/lengow/error/nb_order_imported',
+                        'lengow_log/error/nb_order_imported',
                         array('nb_order' => $order_new)
                     ),
                     $this->log_output

@@ -216,6 +216,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     protected function getProducts()
     {
         $products = array();
+        $advancedSearchFields = array('number', 'ean');
         foreach ($this->package_data->cart as $article) {
             $articleData = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::extractProductDataFromAPI(
                 $article
@@ -270,11 +271,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                             'attribute_value' => $attribute_value
                         )
                     );
-                    $advancedSearchFields = array('ean', 'number');
-                    $shopwareDetailId = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::advancedSearch(
-                        $advancedSearchFields,
-                        $attribute_value
-                    );
+                    foreach ($advancedSearchFields as $field) {
+                        $shopwareDetailId = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::advancedSearch(
+                            $field,
+                            $attribute_value,
+                            $this->log_output
+                        );
+                        if ($shopwareDetailId != null) {
+                            break;
+                        }
+                    }
                 }
                 if ($shopwareDetailId != null) {
                     $articleDetailId = $shopwareDetailId;
@@ -379,6 +385,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $em->flush($lengowOrder);
             return true;
         } catch (Exception $e) {
+            $error_message = '[Shopware error] "'.$e->getMessage().'" '.$e->getFile().' | '.$e->getLine();
+            $decoded_message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                $error_message
+            );
+            $this->log('log/exception/order_insert_failed', array('decoded_message' => $decoded_message));
             return false;
         }
     }

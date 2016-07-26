@@ -538,7 +538,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             if (!$isConfigurable) {
                 // Get article main detail id
                 $result = $article->getMainDetail()->getId();
-            } else if ($isConfigurable && count($ids) == 2) {
+            } elseif ($isConfigurable && count($ids) == 2) {
                 // If product is configurable and articleId contains detail reference
                 $detailId = $ids[1];
                 $criteria = array(
@@ -554,30 +554,34 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 
     /**
      * Search a product by number, ean and id
-     * @param $searchFields array Fields of Shopware\Models\Article\Detail search in
+     * @param $field String Field of Shopware\Models\Article\Detail to search in
      * @param $value String Searched value
+     * @param $logOutput boolean True if error are displayed on stream
      * @return integer Shopware\Models\Article\Detail id|null if not found
      */
-    public static function advancedSearch($searchFields, $value)
+    public static function advancedSearch($field, $value, $logOutput)
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $builder = $em->createQueryBuilder();
-        $builder->select(array('details.id'))
-            ->from('Shopware\Models\Article\Detail', 'details')
-            ->where('details.articleId IS NOT NULL');
-        $whereClause = '';
-        $cpt = 0;
-        $total = count($searchFields);
-        // Construct where clause based on fields/columns
-        foreach ($searchFields as $key => $field) {
-            $whereClause.= 'details.' . $field . '=\'' . $value . '\'';
-            $cpt++;
-            $whereClause.= $cpt == $total ? '' : ' OR ';
+        $criteria = array($field => $value);
+        $result = $em->getRepository('Shopware\Models\Article\Detail')->findBy($criteria);
+        $total = count($result);
+        if ($total == 1) {
+            return $result[0]->getId();
+        } elseif ($total > 1) {
+            // If more than one article found, display warning
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                'Import',
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/import/multiple_article_found',
+                    array(
+                        'total_product'  => $total,
+                        'searched_field' => $field,
+                        'searched_value' => $value
+                    )
+                ),
+                $logOutput
+            );
         }
-        $result = $builder->andWhere($whereClause)
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
-        return $result['id'];
+        return null;
     }
 }
