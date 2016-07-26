@@ -366,9 +366,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             return $result;
         } else {
             return array(
-                'order_new'     => $order_new,
-                'order_error'   => $order_error,
-                'error'         => $error
+                'order_new'   => $order_new,
+                'order_error' => $order_error,
+                'error'       => $error
             );
         }
     }
@@ -401,7 +401,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 'lengow_log/error/account_id_empty',
                 array(
                     'name_shop' => $shopName,
-                    'id_shop' => $shopId
+                    'id_shop'   => $shopId
                 )
             );
             return $message;
@@ -411,8 +411,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 'lengow_log/error/account_id_already_used',
                 array(
                     'account_id' => $this->account_id,
-                    'name_shop' => $this->account_ids[$this->account_id]['name'],
-                    'id_shop' => $this->account_ids[$this->account_id]['shopId'],
+                    'name_shop'  => $this->account_ids[$this->account_id]['name'],
+                    'id_shop'    => $this->account_ids[$this->account_id]['shopId'],
                 )
             );
             return $message;
