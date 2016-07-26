@@ -15,7 +15,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
         var me = this;
         me.items = Ext.create('Ext.panel.Panel', {
             border: false,
-            width: 600,
+            width: 450,
             margins: 15,
             layout: {
                 type: 'vbox',

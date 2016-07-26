@@ -201,8 +201,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 return $this->returnResult('new', $this->lengow_order_id);
             }
         } else {
-            // Empty cart
-            return $this->returnResult('error', $this->lengow_order_id);
+            // No orders
+            $this->log('log/import/no_orders_to_process');
+            return false;
         }
     }
 

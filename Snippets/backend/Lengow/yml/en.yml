@@ -97,10 +97,12 @@ en:
     screen:
       import_charge_second: "Please bear with us; this will not take long (2 min average waiting time)"
     panel:
+      no_notification: "No new notification on order"
       description: "Import orders and decrement your stocks from <b>%{nb_days}</b> days."
       last_import: "Last synchronization : <b>%{import_date}</b>"
       order_new: "%{nb_order} order(s) decremented"
-      order_update: "%{nb_order} order(s) updated"
+      order_error_link: "%{nb_order} order(s) with errors (<a href='%{log_url}' target='_blank'>See logs for more information</a>)"
+      no_notification: "No new notification on order"
       order_error: "%{nb_order} order(s) with errors"
       order_import_failed: "Order import failed (<a href='%{log_url}' target='_blank'>See logs for more information</a>)"
       button: "Launch import"

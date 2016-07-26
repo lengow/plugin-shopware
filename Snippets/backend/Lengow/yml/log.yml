@@ -39,6 +39,7 @@ default:
       end: "## end %{type} import ##"
       preprod_mode_active: "warning ! Pre-prod mode is activated"
       import_failed: "import failed - %{decoded_message}"
+      no_orders_to_process: "no product to import"
       start_for_shop: "start import in shop %{name_shop} (%{id_shop})"
       order_already_decremented: "order already decremented"
       find_one_order: "%{nb_order} order found for order ID: %{marketplace_sku} and marketplace: %{marketplace_name} with account ID: %{account_id}"
