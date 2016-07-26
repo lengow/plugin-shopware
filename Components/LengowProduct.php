@@ -541,7 +541,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             // If simple product
             if (!$isConfigurable) {
                 // Get article main detail id
-                $result = $article->getMainDetail()->getId();
+                $mainDetail = $article->getMainDetail();
+                $result = array(
+                    'id'     => $mainDetail->getId(),
+                    'number' => $mainDetail->getNumber()
+                );
             } elseif ($isConfigurable && count($ids) == 2) {
                 // If product is configurable and articleId contains detail reference
                 $detailId = $ids[1];
@@ -550,7 +554,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     'articleId' => $parentId
                 );
                 $variation = $em->getRepository('Shopware\Models\Article\Detail')->findOneBy($criteria);
-                $result = $variation->getId();
+                $result = array(
+                    'id'     => $variation->getId(),
+                    'number' => $variation->getNumber()
+                );
             }
         }
         return $result;
@@ -572,7 +579,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $result = $em->getRepository('Shopware\Models\Article\Detail')->findBy($criteria);
         $total = count($result);
         if ($total == 1) {
-            return $result[0]->getId();
+            return array(
+                'id'        => $result[0]->getId(),
+                'number'    => $result[0]->getNumber()
+            );
         } elseif ($total > 1) {
             // If more than one article found, display warning
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(

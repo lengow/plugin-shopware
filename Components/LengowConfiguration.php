@@ -22,7 +22,7 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
 {
     /**
-     * @var $LENGOW_SETTINGS Specific Lengow settings in s_lengow_setting table
+     * @var $LENGOW_SETTINGS array Specific Lengow settings in s_lengow_setting table
      */
     public static $LENGOW_SETTINGS = array(
         'LENGOW_IMPORT_IN_PROGRESS',

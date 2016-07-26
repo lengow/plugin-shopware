@@ -284,7 +284,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                     }
                 }
                 if ($shopwareDetailId != null) {
-                    $articleDetailId = $shopwareDetailId;
+                    $articleDetailId = $shopwareDetailId['id'];
+                    $articleDetailNumber = $shopwareDetailId['number'];
                     if (array_key_exists($articleDetailId, $products)) {
                         $products[$articleDetailId]['quantity'] += (integer)$articleData['quantity'];
                         $products[$articleDetailId]['amount'] += (float)$articleData['amount'];
@@ -295,6 +296,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                         'log/import/product_be_found',
                         array(
                             'id_full'         => $articleDetailId,
+                            'article_number'  => $articleDetailNumber,
                             'attribute_name'  => $attribute_name,
                             'attribute_value' => $attribute_value
                         )
@@ -350,9 +352,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $this->log(
                 'log/import/stock_decreased',
                 array(
-                    'article_id'    => $key,
-                    'initial_stock' => $quantity,
-                    'new_stock'     => $newStock
+                    'article_number' => $shopwareArticle->getNumber(),
+                    'initial_stock'  => $quantity,
+                    'new_stock'      => $newStock
                 )
             );
         }

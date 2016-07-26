@@ -48,7 +48,7 @@ default:
       connector_get_order: "get order with order id: %{marketplace_sku} and marketplace: %{marketplace_name}"
       find_all_orders: "%{nb_order} order(s) found with account ID: %{account_id}"
       current_order_state_unavailable: "current order's status [%{order_state_marketplace}] makes it unavailable to import for marketplace %{marketplace_name}"
-      product_be_found: "article id %{id_full} found with field %{attribute_name} (%{attribute_value})"
+      product_be_found: "article %{article_number} found with field %{attribute_name} (%{attribute_value})"
       lengow_order_saved: "order saved in Lengow orders table"
       product_advanced_search: "article not found with field %{attribute_name} (%{attribute_value}). Using advanced search"
       order_import_failed: "import order failed - %{decoded_message}"
@@ -62,7 +62,7 @@ default:
       lengow_order_not_saved: "WARNING ! Order could NOT be saved in Lengow orders table"
       lengow_order_updated: "order updated in Lengow orders table"
       lengow_order_not_updated: "WARNING ! Order could NOT be updated in Lengow orders table"
-      stock_decreased: "stock updated for article id %{article_id} from %{initial_stock} to %{new_stock}"
+      stock_decreased: "stock updated for article %{article_number} from %{initial_stock} to %{new_stock}"
       multiple_article_found: "warning ! %{total_product} articles found while searching '%{searched_value}' in %{searched_field} field"
     export:
       error_folder_not_writable: "Error while creating folder %{folder_path}"
