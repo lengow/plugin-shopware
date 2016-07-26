@@ -367,7 +367,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             'marketplace_name' => (string)$this->marketplace->name,
             'lengow_state'     => $this->order_state_lengow,
             'order_new'        => ($type_result == 'new' ? true : false),
-            'order_update'     => ($type_result == 'update' ? true : false),
             'order_error'      => ($type_result == 'error' ? true : false)
         );
         return $result;
