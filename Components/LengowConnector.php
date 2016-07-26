@@ -303,7 +303,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         $access_token = null;
         $secret_token = null;
         if ($shop == null) {
-            $shopCollection = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowActiveShops();
+            $shopCollection = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops();
             if (count($shopCollection) > 0) {
                 $shop = $shopCollection[0];
             }

@@ -129,41 +129,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
-     * Get list of shops that have been activated in settings for Lengow
-     * Check that account id and tokens are not empty
+     * Get list of shops that have been activated
      * @return \Shopware\Models\Shop\Shop[] List of shops
      */
-    public static function getLengowActiveShops()
+    public static function getActiveShops()
     {
-        $shops = self::getShops();
-        $lengowShops = array();
-        $isImportActivated = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowEnableImport'
-        );
-        if ($isImportActivated) {
-            foreach ($shops as $shop) {
-                $lengowAccountId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                    'lengowAccountId',
-                    $shop
-                );
-                $lengowAccessToken = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                    'lengowAccessToken',
-                    $shop
-                );
-                $lengowSecretToken = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                    'lengowSecretToken',
-                    $shop
-                );
-                if ($shop->getActive()
-                    && !empty($lengowAccountId)
-                    && !empty($lengowAccessToken)
-                    && !empty($lengowSecretToken)
-                ) {
-                    $lengowShops[] = $shop;
-                }
-            }
-        }
-        return $lengowShops;
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        return $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
     }
 
     /**

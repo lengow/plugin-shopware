@@ -193,6 +193,24 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         $order_update   = 0;
         $order_error    = 0;
         $error          = array();
+        $isImportActivated = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            'lengowEnableImport'
+        );
+        // Import option enabled in plugin options
+        if (!$isImportActivated) {
+            // Required to display error in the frontend window
+            $error['error'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                'log/lengow/error/import_not_active'
+            );
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                'Import',
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/lengow/error/import_not_active'
+                ),
+                $this->log_output
+            );
+            return $error;
+        }
         // clean logs
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanLog();
         if (self::isInProcess() && !$this->preprod_mode && !$this->import_one_order) {
@@ -237,7 +255,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             }
             // get all shops for import
             /** @var Shopware\Models\Shop\Shop[] $shops */
-            $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowActiveShops();
+            $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops();
             foreach ($shops as $shop) {
                 if (!is_null($this->id_shop) && $shop->getId() != $this->id_shop) {
                     continue;
@@ -276,7 +294,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                                 array(
                                     'nb_order'          => $total_orders,
                                     'marketplace_sku'   => $this->marketplace_sku,
-                                    'marketplace_name'   => $this->marketplace_name,
+                                    'marketplace_name'  => $this->marketplace_name,
                                     'account_id'        => $this->account_id
                                 )
                             ),
@@ -420,7 +438,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 'log/lengow/error/account_id_empty',
                 array(
                     'shopName' => $shopName,
-                    'shopId'   => $shopId
+                    'shopId' => $shopId
                 )
             );
             return $message;
@@ -430,8 +448,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 'log/lengow/error/account_id_already_used',
                 array(
                     'account_id' => $this->account_id,
-                    'name_shop'  => $this->account_ids[$this->account_id]['name'],
-                    'id_shop'    => $this->account_ids[$this->account_id]['shopId'],
+                    'name_shop' => $this->account_ids[$this->account_id]['name'],
+                    'id_shop' => $this->account_ids[$this->account_id]['shopId'],
                 )
             );
             return $message;
