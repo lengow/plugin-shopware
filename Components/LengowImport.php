@@ -239,7 +239,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             }
             // get all shops for import
             /** @var Shopware\Models\Shop\Shop[] $shops */
-            $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops();
+            $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowActiveShops();
             foreach ($shops as $shop) {
                 if (!is_null($this->id_shop) && $shop->getId() != $this->id_shop) {
                     continue;

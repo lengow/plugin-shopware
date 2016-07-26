@@ -167,7 +167,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 $importMpOrdersOption = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                     'lengowDecreaseStock'
                 );
-                // If decrease stocks from mp option is activated
+                // If decrease stocks from mp option is disabled
                 if (!$importMpOrdersOption) {
                     $this->log(
                         'log/import/order_shipped_by_marketplace',

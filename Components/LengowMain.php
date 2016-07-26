@@ -130,13 +130,25 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
-     * Get list of shops that have been activated
+     * Get list of shops that have been activated in Lengow
      * @return \Shopware\Models\Shop\Shop[] List of shops
      */
-    public static function getActiveShops()
+    public static function getLengowActiveShops()
     {
+        $result = array();
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        return $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
+        $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
+        foreach ($shops as $shop) {
+            // Get Lengow config for this shop
+            $enabledInLengow = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowShopActive',
+                $shop
+            );
+            if ($enabledInLengow) {
+                $result[] = $shop;
+            }
+        }
+        return $result;
     }
 
     /**
