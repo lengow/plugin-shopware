@@ -64,7 +64,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * @var string URL of the API Lengow
      */
+    // const LENGOW_API_URL = 'http://api.lengow.io:80';
     const LENGOW_API_URL = 'http://api.lengow.net:80';
+    // const LENGOW_API_URL = 'http://10.100.1.82:8081';
 
     /**
      * @var string URL of the SANDBOX Lengow
@@ -238,11 +240,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Connector',
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    	'log.connector.call_api',
-                    	array(
-                    		'curl_url' => $opts[CURLOPT_URL]
-                		)
-            		)
+                        'log.connector.call_api',
+                        array('curl_url' => $opts[CURLOPT_URL])
+                    )
                 );
                 break;
             case "PUT":
@@ -268,22 +268,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                 'lengow_log.exception.timeout_api'
             );
             $error_message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-            	'log.connector.error_api', 
-            	array(
-                	'error_code' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($timeout)
-            	)
-        	);
+                'log.connector.error_api',
+                array(
+                    'error_code' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($timeout)
+                )
+            );
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log('Connector', $error_message);
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($timeout);
         }
         curl_close($ch);
         if ($result === false) {
             $error_message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-            	'log.connector.error_api', 
-            	array(
-                	'error_code' => $error
-            	)
-        	);
+                'log.connector.error_api',
+                array(
+                    'error_code' => $error
+                )
+            );
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log('Connector', $error_message);
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($error);
         }
@@ -328,11 +328,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * Get result for a query Api
      *
-     * @param string  $type   (GET / POST / PUT / PATCH)
-     * @param string  $url
+     * @param string                    $type   (GET / POST / PUT / PATCH)
+     * @param string                    $url
      * @param Shopware\Models\Shop\Shop $shop
-     * @param array   $params
-     * @param string  $body
+     * @param array                     $params
+     * @param string                    $body
      *
      * @return array api result as array
      */

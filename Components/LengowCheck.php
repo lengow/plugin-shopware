@@ -34,7 +34,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     /**
     * Check API authentication
     *
-    * @param  $shop Shopware\Models\Shop\Shop
+    * @param $shop Shopware\Models\Shop\Shop
     *
     * @return boolean
     */
@@ -43,7 +43,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         if (!self::isCurlActivated()) {
             return false;
         }
-        $account_id = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAccountId', $shop);
+        $account_id = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            'lengowAccountId',
+            $shop
+        );
         $connector  = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector(
             Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAccessToken', $shop),
             Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowSecretToken', $shop)
@@ -65,5 +68,4 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     {
         return function_exists('curl_version');
     }
-        
 }

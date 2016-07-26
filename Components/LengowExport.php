@@ -80,60 +80,60 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         'exportOutOfStock',
         'exportDisabledProduct',
         'exportLengowSelection'
-        );
+    );
 
     /**
-     * Export format
+     * @var string Export format
      */
     private $format;
 
     /**
-     * Display result on screen
+     * @var boolean Display result on screen
      */
     private $stream;
 
     /**
-     * List of articles to display
+     * @var array List of articles to display
      */
     private $productIds = array();
 
     /**
-     * Limit number of results
+     * @var integer Limit number of results
      */
     private $limit = 0;
 
     /**
-     * Get results from specific index
+     * @var integer Get results from specific index
      */
     private $offset = 0;
 
     /**
-     * Export out of stock articles
+     * @var boolean Export out of stock articles
      */
     private $exportOutOfStock;
 
     /**
-     * Export variant articles
+     * @var boolean Export variant articles
      */
     private $exportVariation;
 
     /**
-     * Export Lengow products only
+     * @var boolean Export Lengow products only
      */
     private $exportLengowSelection;
 
     /**
-     * Enable/disable log output
+     * @var boolean Enable/disable log output
      */
     private $logOutput;
 
     /**
-     * Export disabled articles
+     * @var boolean Export disabled articles
      */
     private $exportDisabledProduct;
 
     /**
-     * Export mode (size|null)
+     * @var string Export mode (size|null)
      */
     private $mode;
 
@@ -143,14 +143,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
      */
     private $feed;
 
-    /** @var \Shopware\Models\Shop\Shop $shop */
+    /**
+     * @var \Shopware\Models\Shop\Shop Shopware Shop
+     */
     private $shop;
 
     /**
      * LengowExport constructor.
      *
-     * @param null $shop Shop id
-     * @param $params array Request params
+     * @param integer $shop   Shop id
+     * @param array   $params Request params
      */
     public function __construct($shop, $params)
     {
@@ -170,7 +172,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
      * Check whether or not the format exists
      * If not specified (null), get the default format of the configuration
      *
-     * @return bool true if specified format is supported
+     * @return boolean true if specified format is supported
      *
      * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException If the format isn't supported by Lengow
      */
@@ -268,7 +270,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
      * Export products in feed
      *
      * @param $articles array List of articles to export
-     * 
+     *
      * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
      */
     private function export($articles)
@@ -362,7 +364,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         $success = $this->feed->end();
         if (!$success) {
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/export/error_folder_not_writable')
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/export/error_folder_not_writable'
+                )
             );
         }
         if (!$this->stream) {

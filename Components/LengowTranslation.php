@@ -22,12 +22,12 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
 {
     /**
-     * Version
+     * @var translation
      */
     protected static $translation = null;
 
     /**
-     * Fallback iso code
+     * @var string Fallback iso code
      */
     public $fallbackIsoCode = 'default';
 

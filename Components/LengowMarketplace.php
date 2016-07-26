@@ -60,8 +60,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     /**
      * Construct a new Marketplace instance with xml configuration.
      *
-     * @param string  $name                     The name of the marketplace
-     * @param Shopware\Models\Shop\Shop $shop   Shop object used for Connector
+     * @param string  $name                   The name of the marketplace
+     * @param Shopware\Models\Shop\Shop $shop Shop object used for Connector
+     *
      * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
      */
     public function __construct($name, $shop = null)
@@ -74,9 +75,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'lengow_log.exception.marketplace_not_present',
-                    array(
-                        'marketplace_name' => $this->name
-                    )
+                    array('marketplace_name' => $this->name)
                 )
             );
         }
@@ -136,7 +135,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
         if (array_key_exists($name, $this->states_lengow)) {
             return $this->states_lengow[$name];
         }
-
         return null;
     }
 }
