@@ -490,6 +490,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         return $temp;
     }
 
+    /**
+     * Check whether or not an article is a parent
+     * @param $articleId string articleId_detailId
+     * @return bool true if article is a parent
+     */
     public static function checkIsParentProduct($articleId)
     {
         $ids = explode('_', $articleId);
@@ -506,33 +511,32 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 
     /**
      * Search a product by number, ean and id
-     * @param $articleId string Article id
-     * @param $category \Shopware\Models\Category\Category Main shop category
-     * @return array|\Shopware\Models\Article\Detail
+     * @param $articleId string Article id (
+     * @return integer Shopware\Models\Article\Detail id|null if not found
      */
-    public static function findArticle($articleId, $category)
+    public static function findArticle($articleId)
     {
         $result = null;
         $ids = explode('_', $articleId);
-        if (count($ids) == 2) {
-            $parentId = $ids[0];
-            $detailId = $ids[1];
-            $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-            $article = $em->find('Shopware\Models\Article\Article', $parentId);
-            /** @var \Shopware\Models\Article\Detail[] $variations */
-            $variations = $article->getDetails();
-            foreach ($variations as $variation) {
-                if ($variation->getId() == $detailId) {
-                    return $variation;
-                }
-            }
-            // Search in subcategories
-            $children = $category->getChildren();
-            foreach ($children as $child) {
-                $result = self::findArticle($articleId, $child);
-                if ($result != null) {
-                    return $result;
-                }
+        $parentId = $ids[0];
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $article = $em->find('Shopware\Models\Article\Article', $parentId);
+        // If parent article is found
+        if ($article != null) {
+            $isConfigurable = count($article->getDetails()) > 1;
+            // If simple product
+            if (!$isConfigurable) {
+                // Get article main detail id
+                $result = $article->getMainDetail()->getId();
+            } else if ($isConfigurable && count($ids) == 2) {
+                // If product is configurable and articleId contains detail reference
+                $detailId = $ids[1];
+                $criteria = array(
+                    'id'        => $detailId,
+                    'articleId' => $parentId
+                );
+                $variation = $em->getRepository('Shopware\Models\Article\Detail')->findOneBy($criteria);
+                $result = $variation->getId();
             }
         }
         return $result;
@@ -540,33 +544,30 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 
     /**
      * Search a product by number, ean and id
+     * @param $searchFields array Fields of Shopware\Models\Article\Detail search in
      * @param $value String Searched value
-     * @param $category \Shopware\Models\Category\Category Main shop category
-     * @return array|\Shopware\Models\Article\Detail
+     * @return integer Shopware\Models\Article\Detail id|null if not found
      */
-    public static function advancedSearch($value, $category)
+    public static function advancedSearch($searchFields, $value)
     {
-        /** @var \Shopware\Models\Article\Article[] $shopArticles */
-        $articles = $category->getArticles();
-        $result = null;
-        foreach ($articles as $article) {
-            /** @var \Shopware\Models\Article\Detail[] $details */
-            $details = $article->getDetails();
-            // For each variations
-            foreach ($details as $detail) {
-                if ($detail->getEan() == $value
-                    || $detail->getNumber() == $value) {
-                    return $detail;
-                }
-            }
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $builder = $em->createQueryBuilder();
+        $builder->select(array('details.id'))
+            ->from('Shopware\Models\Article\Detail', 'details')
+            ->where('details.articleId IS NOT NULL');
+        $whereClause = '';
+        $cpt = 0;
+        $total = count($searchFields);
+        // Construct where clause based on fields/columns
+        foreach ($searchFields as $key => $field) {
+            $whereClause.= 'details.' . $field . '=\'' . $value . '\'';
+            $cpt++;
+            $whereClause.= $cpt == $total ? '' : ' OR ';
         }
-        // Look in sub-categories
-        foreach ($category->getChildren() as $child) {
-            $result = self::advancedSearch($value, $child);
-            if ($result != null) {
-                return $result;
-            }
-        }
-        return $result;
+        $result = $builder->andWhere($whereClause)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+        return $result['id'];
     }
 }

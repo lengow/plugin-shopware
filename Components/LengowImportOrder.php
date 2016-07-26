@@ -225,11 +225,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                     );
                     throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($error_message);
                 }
-                $lengowProduct = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::findArticle(
-                    $attribute_value,
-                    $this->shop->getCategory()
+                $shopwareDetailId = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::findArticle(
+                    $attribute_value
                 );
-                if ($lengowProduct == null) {
+                if ($shopwareDetailId == null) {
                     $this->log(
                         'log/import/product_advanced_search',
                         array(
@@ -237,13 +236,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                             'attribute_value' => $attribute_value
                         )
                     );
-                    $lengowProduct = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::advancedSearch(
-                        $attribute_value,
-                        $this->shop->getCategory()
+                    $advancedSearchFields = array('ean', 'number');
+                    $shopwareDetailId = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::advancedSearch(
+                        $advancedSearchFields,
+                        $attribute_value
                     );
                 }
-                if ($lengowProduct != null) {
-                    $articleDetailId = $lengowProduct->getId();
+                if ($shopwareDetailId != null) {
+                    $articleDetailId = $shopwareDetailId;
                     if (array_key_exists($articleDetailId, $products)) {
                         $products[$articleDetailId]['quantity'] += (integer)$articleData['quantity'];
                         $products[$articleDetailId]['amount'] += (float)$articleData['amount'];
