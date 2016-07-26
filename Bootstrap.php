@@ -170,7 +170,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
         foreach ($models as $tableName => $model) {
             // Check that the table does not exist
-            if (!$this->tableExist($tableName)) {
+            if ($this->tableExist($tableName)) {
                 $schemaTool->dropSchema(array($model));
                 $this->log('log/uninstall/remove_model', array('name' => $model->getName()));
             }

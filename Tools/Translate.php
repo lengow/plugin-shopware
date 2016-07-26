@@ -3,10 +3,8 @@
 /*
  * New Translation system base on YAML files
  * We need to edit yml file for each languages
- * /translations/yml/en.yml
- * /translations/yml/fr.yml
- * /translations/yml/es.yml
- * /translations/yml/it.yml
+ * /Snippets/backend/Lengow/yml/en.yml
+ * /Snippets/backend/Lengow/yml/de.yml
  *
  * Execute this script to generate files
  *
@@ -20,8 +18,9 @@ error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
 $default_locale = 'en';
+$log_file = 'log';
 $defaultTranslation = null;
-$iso = array(
+$locales = array(
     'en' => 'GB',
     'fr' => 'FR',
     'de' => 'DE'
@@ -35,35 +34,36 @@ array_unshift($listFiles, "en.yml");
 $defaultValues = array();
 
 $fp = fopen(dirname(dirname(__FILE__)).'/Snippets/backend/Lengow/translation.ini', 'w+');
-
-foreach ($listFiles as $list) {
-    $ymlFile = yaml_parse_file($directory.$list);
-    $locale =  basename($directory.$list, '.yml');
-    if ($locale == 'en') {
-        $defaultTranslation = $ymlFile;
-    }
-    $header = '[' . $locale . '_' . $iso[$locale] . ']' . PHP_EOL;
+// Get translation for each locale
+foreach ($locales as $key => $value) {
+    $fileName = $directory.$key.'.yml';
+    $ymlFile = yaml_parse_file($fileName);
+    $header = '[' . $key . '_' . $value . ']' . PHP_EOL;
     fwrite($fp, $header);
-
     foreach ($ymlFile as $language => $categories) {
         writeIniFile($fp, $categories);
     }
-
     fwrite($fp, "\n");
 }
 
-// Write default translation (english) if selected locale is missing
-if ($defaultTranslation) {
-    $header = '[default]' . PHP_EOL;
-    fwrite($fp, $header);
-
-    foreach ($defaultTranslation as $language => $categories) {
-        writeIniFile($fp, $categories);
-    }
+// Put default locale (en) and log translations into [default] section
+// Used by Shopware when user locale is not detected
+$englishTranslation = yaml_parse_file($directory.$default_locale.'.yml');
+$logTranslation = yaml_parse_file($directory.$log_file.'.yml');
+$defaultTranslation = array_merge($englishTranslation, $logTranslation);
+$header = '[default]' . PHP_EOL;
+fwrite($fp, $header);
+foreach ($defaultTranslation as $language => $categories) {
+    writeIniFile($fp, $categories);
 }
-
 fclose($fp);
 
+/**
+ * Write Yaml content in ini file
+ * @param $fp resource File to edit
+ * @param $text string Text to write
+ * @param array $frontKey
+ */
 function writeIniFile($fp, $text, &$frontKey = array())
 {
     if (is_array($text)) {

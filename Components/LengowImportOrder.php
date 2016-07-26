@@ -220,7 +220,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 // If found, id does not concerns a variation but a parent
                 if ($isParentProduct) {
                     $error_message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                        'log/lengow/exception/product_is_a_parent',
+                        'lengow_log/exception/product_is_a_parent',
                         array('product_id' => $attribute_value)
                     );
                     throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($error_message);
@@ -382,21 +382,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         $error_messages = array();
         if (count($this->package_data->cart) == 0) {
             $error_messages[] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'log/lengow/error/no_product'
+                'lengow_log/error/no_product'
             );
         }
         if (is_null($this->order_data->billing_address)) {
             $error_messages[] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'log/lengow/error/no_billing_address'
+                'lengow_log/error/no_billing_address'
             );
         } elseif (is_null($this->order_data->billing_address->common_country_iso_a2)) {
             $error_messages[] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'log/lengow/error/no_country_for_billing_address'
+                'lengow_log/error/no_country_for_billing_address'
             );
         }
         if (is_null($this->package_data->delivery->common_country_iso_a2)) {
             $error_messages[] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'log/lengow/error/no_country_for_delivery_address'
+                'lengow_log/error/no_country_for_delivery_address'
             );
         }
         if (count($error_messages) > 0) {
