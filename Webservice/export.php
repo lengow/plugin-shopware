@@ -46,7 +46,7 @@ if ($kernel->isHttpCacheEnabled()) {
 if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
     $mode                   = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : null;
     $format                 = isset($_REQUEST["format"]) ? $_REQUEST["format"] : 'csv';
-    $stream                 = isset($_REQUEST["stream"]) ? (bool)$_REQUEST["stream"] : 1;
+    $stream                 = isset($_REQUEST["stream"]) ? (bool)$_REQUEST["stream"] : false;
     $offset                 = isset($_REQUEST["offset"]) ? (int)$_REQUEST["offset"] : null;
     $limit                  = isset($_REQUEST["limit"]) ? (int)$_REQUEST["limit"] : null;
     $exportLengowSelection  = isset($_REQUEST["selection"]) ? (bool)$_REQUEST["selection"] : null;
@@ -57,7 +57,7 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
     $exportDisabledProduct  = isset($_REQUEST["inactive"]) ? (bool)$_REQUEST["inactive"] : null;
     $languageId             = isset($_REQUEST["language"]) ? $_REQUEST["language"] : null;
     $shopId                 = isset($_REQUEST['shop']) ? $_REQUEST['shop'] : null;
-    $em = Shopware()->Models();
+    $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
     // If shop name has been filled
     if ($shopId) {
         $shop = $em->getRepository('Shopware\Models\Shop\Shop')->find($shopId);
@@ -83,8 +83,23 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
                 'languageId'            => $languageId,
                 'logOutput'             => $logOutput
             );
-            $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, $params);
-            $export->exec();
+            try {
+                $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, $params);
+                $export->exec();
+            } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
+                $error_message = $e->getMessage();
+                $decoded_message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                    $error_message
+                );
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                    'Export',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                        'log/export/export_failed',
+                        array('decoded_message' => $decoded_message)
+                    ),
+                    $logOutput
+                );
+            }
         } else {
             $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
             $index = count($shops);

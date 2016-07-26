@@ -151,8 +151,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     /**
      * LengowExport constructor.
      *
-     * @param integer $shop   Shop id
-     * @param array   $params Request params
+     * @param Shopware\Models\Shop\Shop $shop   Shop to export
+     * @param array                     $params Request params
      */
     public function __construct($shop, $params)
     {
@@ -180,9 +180,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     {
         if (!in_array($this->format, Shopware_Plugins_Backend_Lengow_Components_LengowFeed::$AVAILABLE_FORMATS)) {
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'log/export/error_illegal_export_format'
-                )
+                'log/export/error_illegal_export_format'
             );
         }
         return true;

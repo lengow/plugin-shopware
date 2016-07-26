@@ -79,7 +79,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     /**
      * @var string lengow export folder
      */
-    public static $LENGOW_EXPORT_FOLDER = 'export';
+    public static $LENGOW_EXPORT_FOLDER = 'Export';
 
     public function __construct($stream, $format, $shop_name = null, $part_file_name = null)
     {
@@ -123,9 +123,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     }
 
     /**
-     * Write feed
-     *
-     * @param array $data export data
+     * Write data in file
+     * @param string  $type     Type of data (header|body|footer)
+     * @param array   $data     Data to write
+     * @param boolean $is_first True if first call (used for json format)
      */
     public function write($type, $data = array(), $is_first = null)
     {
@@ -154,7 +155,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     /**
      * Return feed header
      *
-     * @param string $format feed format
+     * @param array  $data   Data to display
+     * @param string $format Feed format
      *
      * @return string
      */

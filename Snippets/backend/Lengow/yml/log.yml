@@ -68,6 +68,7 @@ default:
       error_folder_not_writable: "Error while creating folder %{folder_path}"
       start: "## start export ##"
       end: "## end export ##"
+      export_failed: "export failed - %{decoded_message}"
       start_for_shop: "Start export for shop %{name_shop} (%{id_shop})"
       nb_product_found: "%{nb_product} article(s) found"
       count_product: "%{numberOfProducts} article(s) exported"
