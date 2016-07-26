@@ -304,11 +304,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     } elseif ($total_orders <= 0) {
                         continue;
                     }
-                     $result = $this->importOrders($orders, $shop);
-                     if (!$this->import_one_order) {
-                         $order_new      += $result['order_new'];
-                         $order_error    += $result['order_error'];
-                     }
+                    $result = $this->importOrders($orders, $shop);
+                    if (!$this->import_one_order) {
+                        $order_new   += $result['order_new'];
+                        $order_error += $result['order_error'];
+                    }
                 } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
                     $error_message = $e->getMessage();
                 } catch (Exception $e) {
@@ -556,8 +556,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
      */
     protected function importOrders($orders, $shop)
     {
-        $order_new       = 0;
-        $order_error     = 0;
+        $order_new = 0;
+        $order_error = 0;
         $import_finished = false;
         foreach ($orders as $order_data) {
             if (!$this->import_one_order) {
@@ -674,8 +674,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             }
         }
         return array(
-            'order_new'     => $order_new,
-            'order_error'   => $order_error
+            'order_new'   => $order_new,
+            'order_error' => $order_error
         );
     }
 
