@@ -98,6 +98,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
 
     /**
      * Get user locale language
+     *
      * @return string Locale
      */
     public static function getLocale()
@@ -288,8 +289,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * The shipping names options
      *
-     * @param string                    $name   Marketplace name
-     * @param Shopware\Models\Shop\Shop $shop   Shop
+     * @param string                    $name Marketplace name
+     * @param Shopware\Models\Shop\Shop $shop Shop
      *
      * @return Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace Lengow shipping names option
      */

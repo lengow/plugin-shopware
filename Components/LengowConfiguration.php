@@ -21,11 +21,14 @@
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
 {
-	public static $LENGOW_SETTINGS = array(
-		'LENGOW_IMPORT_IN_PROGRESS',
-		'LENGOW_LAST_IMPORT_CRON',
-		'LENGOW_LAST_IMPORT_MANUAL'
-	);
+    /**
+     * @var $LENGOW_SETTINGS Specific Lengow settings in s_lengow_setting table
+     */
+    public static $LENGOW_SETTINGS = array(
+        'LENGOW_IMPORT_IN_PROGRESS',
+        'LENGOW_LAST_IMPORT_CRON',
+        'LENGOW_LAST_IMPORT_MANUAL'
+    );
 
     /**
      * Get config from Shopware database
@@ -76,7 +79,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             );
             if ($config != null) {
                 $config->setValue($value)
-            		->setDateUpd(new DateTime());
+                    ->setDateUpd(new DateTime());
                 $em->persist($config);
                 $em->flush($config);
             }
@@ -98,6 +101,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
 
     /**
      * Get Shopware default shop
+     *
      * @return Shopware\Models\Shop\Shop Default shop
      */
     public static function getDefaultShop()

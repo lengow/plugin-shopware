@@ -149,7 +149,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     /**
      * Generate where clause used to list articles from a selected category
      *
-     * @param $selectedCategory Shopware\Models\Category\Category List of children of the selected category
+     * @param Shopware\Models\Category\Category $selectedCategory List of children of the selected category
      *
      * @return string Exclusive clause which contains all sub-categories ids
      */
@@ -220,9 +220,10 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
 
     /**
      * Edit Lengow status for articles from a specific category
-     * @param $category Shopware\Models\Category\Category Selected category
-     * @param $shopId integer Shop id
-     * @param $status boolean Lengow status to set for articles which belong to the category
+     *
+     * @param Shopware\Models\Category\Category $category Selected category
+     * @param integer                           $shopId   Shop id
+     * @param boolean                           $status   Lengow status to set for articles which belong to the category
      */
     private function setLengowStatusFromCategory($category, $shopId, $status)
     {
@@ -307,42 +308,36 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
 
     /**
      * Change Lengow shop settings (checkboxes above export grid)
-     * @param id int Shop id
-     * @param name String Setting name
-     * @param status boolean New setting value
+     * integer id     Shop id
+     * string  name   Setting name
+     * boolean status New setting value
      */
-    public function setConfigValueAction() 
+    public function setConfigValueAction()
     {
         $shopId = $this->Request()->getParam('id');
         $name = $this->Request()->getParam('name');
         $status = (int)($this->Request()->getParam('status') === 'true');
-
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
-
         Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig($name, $status, $shop);
     }
 
     /**
      * Get config value for a shop from the database
-     * @param id int Shop id
-     * @param configList array List of settings to get
+     * integer id         Shop id
+     * array   configList List of settings to get
      */
-    public function getConfigValueAction() 
+    public function getConfigValueAction()
     {
         $shopId = $this->Request()->getParam('id');
         $configList = $this->Request()->getParam('configList');
-
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
-
         $names = json_decode($configList);
         $result = array();
-
         foreach ($names as $name) {
             $result[$name] = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig($name, $shop);
         }
-
         $this->View()->assign(array(
             'success' => true,
             'data'    => $result
@@ -356,7 +351,6 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     public function getDefaultShopAction()
     {
         $defaultShop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
-
         $this->View()->assign(array(
             'success' => true,
             'data'    => $defaultShop->getId()

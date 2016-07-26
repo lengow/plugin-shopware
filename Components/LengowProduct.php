@@ -135,7 +135,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                         break;
                     }
                 }
-                return $host.$baseUrl.$sep.'detail'.$sep.'index'.$sep.'sArticle'.$sep.$idProduct.$sep.'sCategory'.$sep.$idCategory;
+                return $host.$baseUrl.$sep.'detail'.$sep.'index'.$sep
+                    .'sArticle'.$sep.$idProduct.$sep.'sCategory'.$sep.$idCategory;
                 break;
             case 'price_excl_tax':
                 $price = $this->price->getPrice();
@@ -215,11 +216,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 break;
             case 'description':
                 return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanHtml(
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->product->getDescriptionLong())
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
+                        $this->product->getDescriptionLong()
+                    )
                 );
                 break;
             case 'description_html':
-                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->product->getDescriptionLong());
+                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
+                    $this->product->getDescriptionLong()
+                );
                 break;
             case 'meta_title':
                 return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->product->getMetaTitle());
@@ -230,7 +235,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             default:
                 $result = '';
                 if (array_key_exists($name, $this->attributes) && $this->isVariation) {
-                    $result = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->attributes[$name]);
+                    $result = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
+                        $this->attributes[$name]
+                    );
                 }
                 return $result;
                 break;
@@ -342,7 +349,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 $breadcrumb = $category->getName();
                 $categoryId = (int)$category->getParentId();
                 for ($i=0; $i < count($categoryPath) - 2; $i++) {
-                    $category = Shopware()->Models()->getReference('Shopware\Models\Category\Category', (int)$categoryId);
+                    $category = Shopware()->Models()->getReference(
+                        'Shopware\Models\Category\Category',
+                        (int)$categoryId
+                    );
                     $breadcrumb = $category->getName().' > '.$breadcrumb;
                     $categoryId = (int)$category->getParentId();
                 }
@@ -450,7 +460,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             foreach ($blockedCategories as $bCategory) {
                 if ($pCategory->getId() == $bCategory->getId()) {
                     $result = false;
-                } else if (!$bCategory->isLeaf()) {
+                } elseif (!$bCategory->isLeaf()) {
                     $result = $result && $this->getCategoryStatus($bCategory->getChildren());
                 }
             }

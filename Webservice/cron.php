@@ -94,9 +94,9 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
     // sync option is not valid
     if ($sync && ($sync !== 'order' && $sync !== 'action' && $sync !== 'option')) {
         header('HTTP/1.1 400 Bad Request');
-        die('Action: ' . $sync . ' is not a valid action');
+        die('Action: '.$sync.' is not a valid action');
     }
 } else {
     header('HTTP/1.1 400 Bad Request');
-    die('Unauthorized access for IP : ' . $_SERVER['REMOTE_ADDR']);
+    die('Unauthorized access for IP : '.$_SERVER['REMOTE_ADDR']);
 }

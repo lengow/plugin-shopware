@@ -46,18 +46,14 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $data['importDescription'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
             'order/panel/description',
             $locale,
-            array(
-                'nb_days' => $nbDays
-            )
+            array('nb_days' => $nbDays)
         );
         // Get last import date
         $lastImport = Shopware_Plugins_Backend_Lengow_Components_LengowImport::getLastImport();
         $data['lastImport'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
             'order/panel/last_import',
             $locale,
-            array(
-                'import_date' => $lastImport
-            )
+            array('import_date' => $lastImport)
         );
         $this->View()->assign(array(
             'success' => true,
@@ -80,11 +76,9 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 continue;
             }
             $data[$key] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                'order/panel/' . $key,
+                'order/panel/'.$key,
                 $locale,
-                array(
-                    'nb_order' => $nbOrders
-                )
+                array('nb_order' => $nbOrders)
             );
         }
         if (!$success) {
@@ -94,9 +88,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             $data['error'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
                 'order/panel/order_import_failed',
                 $locale,
-                array(
-                    'log_url' => $logUrl
-                )
+                array('log_url' => $logUrl)
             );
         }
         $this->View()->assign(array(
