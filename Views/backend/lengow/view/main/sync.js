@@ -1,4 +1,6 @@
-Ext.define('Shopware.apps.LengowSync.view.Main', {
+//{namespace name="backend/lengow/view/main"}
+//{block name="backend/lengow/view/main/sync"}
+Ext.define('Shopware.apps.Lengow.view.main.Sync', {
     extend: 'Enlight.app.Window',
     title: 'Lengow',
     layout: 'fit',
@@ -7,6 +9,7 @@ Ext.define('Shopware.apps.LengowSync.view.Main', {
 
     initComponent: function () {
         var me = this;
+        // Display Lengow login panel
         me.items = Ext.create('Ext.panel.Panel', {
             layout: 'fit',
             items: [{
@@ -21,3 +24,4 @@ Ext.define('Shopware.apps.LengowSync.view.Main', {
         me.callParent(arguments);
     }
 });
+//{/block}

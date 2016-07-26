@@ -1,9 +1,9 @@
 //{namespace name="backend/lengow/view/main"}
-//{block name="backend/lengow/view/main/window"}
-Ext.define('Shopware.apps.Lengow.view.main.Window', {
+//{block name="backend/lengow/view/main/home"}
+Ext.define('Shopware.apps.Lengow.view.main.Home', {
     extend: 'Enlight.app.Window',
 
-    alias: 'widget.lengow-main-window',
+    alias: 'widget.lengow-main-home',
 
     // Window properties
     border: false,

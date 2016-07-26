@@ -14,7 +14,8 @@ Ext.define('Shopware.apps.Lengow', {
     ],
 
     views: [
-        'main.Window',
+        'main.Home',
+        'main.Sync',
         'export.Panel',
         'export.Container',
         'export.Grid',

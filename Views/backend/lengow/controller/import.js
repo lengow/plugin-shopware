@@ -7,7 +7,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
         var me = this;
 
         me.control({
-            'lengow-main-window': {
+            'lengow-main-home': {
                 initImportPanels: me.onInitImportPanels,
                 launchImportProcess: me.onLaunchImportProcess
             }

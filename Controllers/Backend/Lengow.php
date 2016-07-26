@@ -23,4 +23,12 @@ use Doctrine\ORM\Query\Expr;
  */
 class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_ExtJs
 {
+    public function getIsNewMerchantAction()
+    {
+        $this->View()->assign(array(
+                'success' => true,
+                'data'    => Shopware_Plugins_Backend_Lengow_Components_LengowMain::isNewMerchant()
+            )
+        );
+    }
 }

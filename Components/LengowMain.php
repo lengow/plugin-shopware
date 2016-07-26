@@ -561,4 +561,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         );
         return preg_replace($patterns, $replacements, $str);
     }
+
+    /**
+     * Check if new merchant
+     *
+     * @return boolean True if new merchant
+     */
+    public static function isNewMerchant()
+    {
+        $shops = self::getShops();
+        foreach ($shops as $shop) {
+            if ($shop->getActive()) {
+                $accountId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                    'lengowAccountId',
+                    $shop
+                );
+                if ($accountId != 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

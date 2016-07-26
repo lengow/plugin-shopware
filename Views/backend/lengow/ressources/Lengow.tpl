@@ -1,10 +1,5 @@
 {block name="backend/base/header/css" append}
 <style type="text/css">
-	.lengow_label_not_synchronized {
-		border-color: #00aeef;
-		color: #00aeef;
-	}
-
 	.lengow_check_shop {
 		margin-left: 5px;
 		margin-right: 5px;

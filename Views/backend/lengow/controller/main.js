@@ -5,16 +5,37 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
 
     init: function() {
         var me = this;
-
-        me.mainWindow = me.getView('main.Window').create({
-            exportStore: Ext.create('Shopware.apps.Lengow.store.Article'),
-            logStore: Ext.create('Shopware.apps.Lengow.store.Logs')
-        }).show();
-
-        me.initImportTab();
-
-        me.mainWindow.maximize();
+        me.displayMainWindow();
         me.callParent(arguments);
+    },
+
+    /**
+     * Display window when plugin is launched
+     * If user has no account id, show login iframe instead of the plugin
+     */
+    displayMainWindow: function() {
+        var me = this;
+        Ext.Ajax.request({
+            url: '{url controller="Lengow" action="getIsNewMerchant"}',
+            method: 'POST',
+            type: 'json',
+            success: function(response) {
+                var status = Ext.decode(response.responseText)['data'];
+                // If not a new merchant, display Lengow plugin
+                if (status) {
+                    me.mainWindow = me.getView('main.Home').create({
+                        exportStore: Ext.create('Shopware.apps.Lengow.store.Article'),
+                        logStore: Ext.create('Shopware.apps.Lengow.store.Logs')
+                    }).show();
+
+                    me.initImportTab();
+                } else {
+                    // Else, display login iframe
+                    me.mainWindow = me.getView('main.Sync').create().show();
+                }
+                me.mainWindow.maximize();
+            }
+        });
     },
 
     /**
