@@ -46,7 +46,7 @@ if ($kernel->isHttpCacheEnabled()) {
 if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
     $mode                   = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : null;
     $format                 = isset($_REQUEST["format"]) ? $_REQUEST["format"] : 'csv';
-    $stream                 = isset($_REQUEST["stream"]) ? (bool)$_REQUEST["stream"] : false;
+    $stream                 = isset($_REQUEST["stream"]) ? (bool)$_REQUEST["stream"] : true;
     $offset                 = isset($_REQUEST["offset"]) ? (int)$_REQUEST["offset"] : null;
     $limit                  = isset($_REQUEST["limit"]) ? (int)$_REQUEST["limit"] : null;
     $exportLengowSelection  = isset($_REQUEST["selection"]) ? (bool)$_REQUEST["selection"] : null;
