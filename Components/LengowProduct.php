@@ -206,6 +206,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             case 'weight':
                 return $this->details->getWeight();
                 break;
+            case 'height':
+                return $this->details->getHeight();
+                break;
+            case 'width':
+                return $this->details->getWidth();
+                break;
+            case 'length':
+                return $this->details->getLen();
+                break;
             case 'minimal_quantity':
                 return $this->details->getMinPurchase();
                 break;

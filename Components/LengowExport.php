@@ -47,6 +47,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         'weight'                         => 'weight',
         'width'                          => 'width',
         'height'                         => 'height',
+        'length'                         => 'length',
         'minimal_quantity'               => 'minimal_quantity',
         'image_url_1'                    => 'image_url_1',
         'image_url_2'                    => 'image_url_2',
