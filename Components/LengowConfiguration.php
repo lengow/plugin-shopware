@@ -101,7 +101,30 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     }
 
     /**
+     * Get config from db
+     * Shopware < 5.0.0 compatibility
+     * > 5.0.0 : Use Shopware()->Plugins()->Backend()->Lengow()->get('config_writer')->get() instead
+     * @param string $name Config name
+     * @param int $shopId Shop id
+     * @return mixed Config value|null
+     */
+    public function get($name, $shopId = 1)
+    {
+        $query = $this->getConfigValueByNameQuery($name, $shopId);
+
+        $result = $query->execute()->fetch(\PDO::FETCH_ASSOC);
+
+        if ($result['configured']) {
+            return unserialize($result['configured']);
+        }
+
+        return unserialize($result['value']);
+    }
+
+    /**
      * Save new config in the db
+     * Shopware < 5.0.0 compatibility
+     * > 5.0.0 : Use Shopware()->Plugins()->Backend()->Lengow()->get('config_writer')->save() instead
      * @param string $name New config name
      * @param mixed $value Config value
      * @param null|int $shopId Shop concerned by this config
@@ -181,24 +204,5 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             ->setValue($value);
         $em->persist($option);
         $em->flush($option);
-    }
-
-    /**
-     * Get config from db
-     * @param string $name Config name
-     * @param int $shopId Shop id
-     * @return mixed Config value|null
-     */
-    public function get($name, $shopId = 1)
-    {
-        $query = $this->getConfigValueByNameQuery($name, $shopId);
-
-        $result = $query->execute()->fetch(\PDO::FETCH_ASSOC);
-
-        if ($result['configured']) {
-            return unserialize($result['configured']);
-        }
-
-        return unserialize($result['value']);
     }
 }
