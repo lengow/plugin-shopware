@@ -55,8 +55,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             if ($shop == null) {
                 $shop = self::getDefaultShop();
             }
-            $configWriter = self::getConfigWriter();
-            $value = $configWriter->get($configName, null, $shop->getId());
+            $lengowConf = new Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration();
+            $value = $lengowConf->get($configName, $shop->getId());
         }
 
         return $value;
@@ -84,19 +84,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                 $em->flush($config);
             }
         } else {
-            $configWriter = self::getConfigWriter();
-            $configWriter->save($configName, $value, null, $shop->getId());
+            $lengowConf = new Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration();
+            $lengowConf->save($configName, $value, $shop->getId());
         }
-    }
-
-    /**
-     * Get Shopware database config writer
-     *
-     * @return Shopware\Components\ConfigWriter writer
-     */
-    private static function getConfigWriter()
-    {
-        return Shopware()->Plugins()->Backend()->Lengow()->get('config_writer');
     }
 
     /**
@@ -108,5 +98,107 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         return $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
+    }
+
+    /**
+     * Save new config in the db
+     * @param string $name New config name
+     * @param mixed $value Config value
+     * @param null|int $shopId Shop concerned by this config
+     */
+    public function save($name, $value, $shopId = 1)
+    {
+        $query = $this->getConfigValueByNameQuery($name, $shopId);
+
+        $result = $query->execute()->fetch(\PDO::FETCH_ASSOC);
+
+        if ($result['valueId']) {
+            $this->update($value, $result['valueId']);
+            return;
+        }
+
+        $this->insert($value, $shopId, $result['elementId']);
+    }
+
+    /**
+     * Search element config by name
+     * @param string $name Config name to search
+     * @param int|null $shopId Shop id
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    private function getConfigValueByNameQuery($name, $shopId = 1)
+    {
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $connection = $em->getConnection();;
+        $query = $connection->createQueryBuilder();
+        $query->select([
+            'element.id as elementId',
+            'element.value',
+            'elementValues.id as valueId',
+            'elementValues.value as configured',
+        ]);
+
+        $query->from('s_core_config_elements', 'element')
+            ->leftJoin('element', 's_core_config_values', 'elementValues', 'elementValues.element_id = element.id AND elementValues.shop_id = :shopId')
+            ->where('element.name = :name')
+            ->setParameter(':shopId', $shopId)
+            ->setParameter(':name', $name);
+
+        return $query;
+    }
+
+    /**
+     * Update existing config
+     * @param mixed $value New config value
+     * @param int $valueId Shopware\Models\Config\Value id
+     * @throws \Doctrine\ORM\ORMException
+     */
+    private function update($value, $valueId)
+    {
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $option = $em->getReference('Shopware\Models\Config\Value', $valueId);
+        $option->setValue($value);
+        $em->persist($option);
+        $em->flush($option);
+    }
+
+    /**
+     * Insert new configuration in the db
+     * @param mixed $value Config value
+     * @param int $shopId Shop id
+     * @param int $elementId Shopware\Models\Config\Element id
+     * @throws \Doctrine\ORM\ORMException
+     */
+    private function insert($value, $shopId, $elementId)
+    {
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        /** @var Shopware\Models\Config\Element $element */
+        $element = $em->getReference('Shopware\Models\Config\Element', $elementId);
+        $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
+        $option = new Shopware\Models\Config\Value();
+        $option->setElement($element)
+            ->setShop($shop)
+            ->setValue($value);
+        $em->persist($option);
+        $em->flush($option);
+    }
+
+    /**
+     * Get config from db
+     * @param string $name Config name
+     * @param int $shopId Shop id
+     * @return mixed Config value|null
+     */
+    public function get($name, $shopId = 1)
+    {
+        $query = $this->getConfigValueByNameQuery($name, $shopId);
+
+        $result = $query->execute()->fetch(\PDO::FETCH_ASSOC);
+
+        if ($result['configured']) {
+            return unserialize($result['configured']);
+        }
+
+        return unserialize($result['value']);
     }
 }
