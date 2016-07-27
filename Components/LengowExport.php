@@ -34,7 +34,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         'category'                       => 'category',
         'status'                         => 'status',
         'url'                            => 'url',
-        'price_excl_tax'                 => 'price_excl_tax', // Instant t, avec le discount
+        'price_excl_tax'                 => 'price_excl_tax',
         'price_incl_tax'                 => 'price_incl_tax',
         'price_before_discount_excl_tax' => 'price_before_discount_excl_tax',
         'price_before_discount_incl_tax' => 'price_before_discount_incl_tax',

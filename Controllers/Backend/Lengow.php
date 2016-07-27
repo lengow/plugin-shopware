@@ -25,7 +25,8 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
 {
     public function getIsNewMerchantAction()
     {
-        $this->View()->assign(array(
+        $this->View()->assign(
+            array(
                 'success' => true,
                 'data'    => Shopware_Plugins_Backend_Lengow_Components_LengowMain::isNewMerchant()
             )
