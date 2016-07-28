@@ -260,7 +260,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     {
         $ctrl = $args->getSubject();
         $view = $ctrl->View();
-        $view->extendsTemplate('backend/lengow/ressources/Lengow.tpl');
+        $view->extendsTemplate('backend/lengow/resources/lengow-components.tpl');
+        $view->extendsTemplate('backend/lengow/resources/lengow-layout.tpl');
+        $view->extendsTemplate('backend/lengow/resources/lengow-pages.tpl');
     }
 
     /**
@@ -298,6 +300,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $this->subscribeEvent(
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_Lengow',
             'onGetMainControllerPath'
+        );
+        // Home controller
+        $this->subscribeEvent(
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowHome',
+            'onGetHomeControllerPath'
         );
         // Export controller
         $this->subscribeEvent(
@@ -338,6 +345,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public function onGetMainControllerPath()
     {
         return $this->Path().'Controllers/Backend/Lengow.php';
+    }
+
+    public function onGetHomeControllerPath()
+    {
+        return $this->Path().'Controllers/Backend/LengowHome.php';
     }
 
     /**
