@@ -11,13 +11,12 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
 
     // Translations
     snippets: {
-        title: '{s name="title" namespace="backend/Lengow/translation"}{/s}',
+        title: '{s name="title" namespace="backend/Lengow/translation"}Lengow{/s}',
         tab: {
-            export: '{s name="window/tab/export" namespace="backend/Lengow/translation"}{/s}',
-            import: '{s name="window/tab/import" namespace="backend/Lengow/translation"}{/s}',
-            logs: '{s name="window/tab/logs" namespace="backend/Lengow/translation"}{/s}',
-            settings: '{s name="window/tab/settings" namespace="backend/Lengow/translation"}{/s}',
-            register: '{s name="window/tab/register" namespace="backend/Lengow/translation"}{/s}'
+            export: '{s name="window/tab/export" namespace="backend/Lengow/translation"}Export{/s}',
+            import: '{s name="window/tab/import" namespace="backend/Lengow/translation"}Import{/s}',
+            logs: '{s name="window/tab/logs" namespace="backend/Lengow/translation"}Logs{/s}',
+            settings: '{s name="window/tab/settings" namespace="backend/Lengow/translation"}Settings{/s}'
         }
     },
 
@@ -46,10 +45,17 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
             id: 'lengowTabPanel',
             region: 'center',
             items: [
+                // Home tab
+                {
+                    title: me.snippets.tab.home,
+                    id: 'homePanel',
+                    xtype: 'lengow-home-panel',
+                    layout: 'border'
+                },
                 // Export tab
                 {
                     title: me.snippets.tab.export,
-                    id: 'exportContainer',
+                    id: 'lengowExportTab',
                     xtype: 'lengow-export-container',
                     store: me.exportStore,
                     layout: 'border'
@@ -62,27 +68,6 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
                     tabConfig: {
                         listeners: {
                             click: function (tab, e) {
-                                Ext.define('LengowImportWindow', {
-                                    id: 'lengowImportWindow',
-                                    modal: true,
-                                    draggable: false,
-                                    resizable: false,
-                                    extend: 'Ext.window.Window',
-                                    title: me.snippets.tab.import,
-                                    items: [{
-                                        xtype: 'lengow-import-panel'
-                                    }]
-                                });
-                                me.importWindow = new LengowImportWindow;
-                                // Issue when opening settings tab and coming back to import tab
-                                // Needed to reset listeners each time we click on import tab
-                                me.fireEvent('initImportPanels');
-                                Ext.getCmp('importButton').on('click', function(){
-                                    me.fireEvent('launchImportProcess');
-                                });
-
-                                me.importWindow.show();
-                                e.stopEvent(); // avoid switching tab
                             }
                         }
                     }
@@ -90,48 +75,88 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
                 // Log tab
                 {
                     title: me.snippets.tab.logs,
-                    layout: 'border',
-                    tabConfig: {
-                        listeners: {
-                            click: function(tab, e) {
-                                Ext.define('LogWindow',{
-                                    id: 'logWindow',
-                                    modal:true,
-                                    draggable: false,
-                                    resizable: false,
-                                    extend:'Ext.window.Window',
-                                    title: me.snippets.tab.logs,
-                                    items: [{
-                                        xtype: 'lengow-logs-panel',
-                                        store: me.logStore
-                                    }]
-                                });
-                                var logs = new LogWindow;
-                                logs.show();
-                                e.stopEvent(); // avoid switching tab
-                            }
-                        }
-                    }
+                    id: 'lengowLogsTab',
+                    layout: 'border'
                 },
                 // Config tab
                 {
                     title: me.snippets.tab.settings,
                     layout: 'border',
-                    tabConfig: {
-                        listeners: {
-                            click: function(tab, e) {
-                                Shopware.app.Application.addSubApplication({
-                                    name: 'Shopware.apps.Config'
-                                });
-                                e.stopEvent(); // avoid switching tab
-                            }
-                        }
+                    id: 'lengowSettingsTab'
+                }
+            ],
+
+            listeners: {
+                // Listen to click on tabs
+                'beforetabchange': function(tabPanel, tab) {
+                    var tabId = tab.id;
+                    if (tabId == 'lengowImportTab') {
+                        me.showImportWindow();
+                        return false; // avoid switching tab
+                    } else if (tabId == 'lengowSettingsTab') {
+                        // Open Shopware basic settings sub-application
+                        Shopware.app.Application.addSubApplication({
+                            name: 'Shopware.apps.Config'
+                        });
+                        return false; // avoid switching tab
+                    } else if (tabId == 'lengowLogsTab') {
+                        me.showLogsWindow();
+                        return false; // avoid switching tab
                     }
                 }
-            ]
+            }
         });
 
         return me.tabPanel;
+    },
+
+
+    /**
+     * Display decrease stocks window
+     */
+    showImportWindow: function() {
+        var me = this;
+        Ext.define('LengowImportWindow', {
+            id: 'lengowImportWindow',
+            modal: true,
+            draggable: false,
+            resizable: false,
+            extend: 'Ext.window.Window',
+            title: me.snippets.tab.import,
+            items: [{
+                xtype: 'lengow-import-panel'
+            }]
+        });
+        me.importWindow = new LengowImportWindow;
+        // Issue when opening settings tab and coming back to import tab
+        // Needed to reset listeners each time we click on import tab
+        me.fireEvent('initImportPanels');
+        Ext.getCmp('importButton').on('click', function(){
+            me.fireEvent('launchImportProcess');
+        });
+
+        me.importWindow.show();
+    },
+
+    /**
+     * Display logs window
+     */
+    showLogsWindow: function() {
+        var me = this;
+        Ext.define('LogWindow',{
+            id: 'logWindow',
+            modal:true,
+            draggable: false,
+            resizable: false,
+            extend:'Ext.window.Window',
+            title: me.snippets.tab.logs,
+            items: [{
+                xtype: 'lengow-logs-panel',
+                store: me.logStore
+            }]
+        });
+        var logs = new LogWindow;
+        logs.show();
     }
 });
 //{/block}

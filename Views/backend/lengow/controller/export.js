@@ -64,7 +64,7 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
             },
             success: function() {
                 Ext.getCmp('exportGrid').updateCounter();
-                Ext.getCmp('exportContainer').getEl().unmask();
+                Ext.getCmp('lengowExportTab').getEl().unmask();
             }
         });
     },
@@ -106,7 +106,7 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
                 var values = Ext.decode(response.responseText)['data'];
                 Ext.each(configList, function(config) {
                     var status = values[config];
-                    Ext.getCmp(config).setValue(status);
+                    Ext.getCmp(config).setValue(status === 1);
                 });
 
                 if (!Ext.getCmp('lengowExportLengowSelection').getValue()) {

@@ -281,7 +281,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         ids = null;
 
         // Enable mask on main container while the process is not finished
-        Ext.getCmp('exportContainer').getEl().mask();
+        Ext.getCmp('lengowExportTab').getEl().mask();
 
         // If select all products checkbox is not checked, get articles ids
         if (!checkbox.getValue()) {
@@ -349,6 +349,10 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
         }
     },
 
+    /**
+     * Initialize checkboxes
+     * Get values in lengow settings
+     */
     initConfigCheckboxes: function() {
         var me = this,
             selectedShop = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id'),
@@ -361,9 +365,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
      * Display synchronize shop iframe
      */
     getSynchronizeIframe: function () {
-        Shopware.app.Application.addSubApplication({
-            name: 'Shopware.apps.LengowSync'
-        });
+        Ext.create('Shopware.apps.Lengow.view.main.Sync').show();
     },
 
     /**
