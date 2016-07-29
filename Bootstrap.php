@@ -211,12 +211,14 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $em = self::getEntityManager();
         $lengowSettings = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::$LENGOW_SETTINGS;
         $repository = $em->getRepository('Shopware\CustomModels\Lengow\Settings');
+        $defaultShop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
         foreach ($lengowSettings as $key) {
             $setting = $repository->findOneBy(array('name' => $key));
             // If the setting does not already exist, create it
             if ($setting == null) {
                 $setting = new Shopware\CustomModels\Lengow\Settings;
                 $setting->setName($key)
+                    ->setShop($defaultShop)
                     ->setValue(0)
                     ->setDateAdd(new DateTime())
                     ->setDateUpd(new DateTime());
