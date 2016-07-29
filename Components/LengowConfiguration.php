@@ -28,7 +28,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         'LENGOW_IMPORT_IN_PROGRESS',
         'LENGOW_LAST_IMPORT_CRON',
         'LENGOW_LAST_IMPORT_MANUAL',
-        'LENGOW_GLOBAL_TOKEN'
+        'LENGOW_GLOBAL_TOKEN',
+        'LENGOW_SHOP_TOKEN'
     );
 
     /**
@@ -45,20 +46,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         // Force plugin to register custom models thanks to afterInit() method.
         // Avoid issue when synchronizing account
         Shopware()->Plugins()->Backend()->Lengow();
+        // If shop no shop, get default one
+        if ($shop == null) {
+            $shop = self::getDefaultShop();
+        }
         // If Lengow setting
         if (in_array($configName, self::$LENGOW_SETTINGS)) {
             $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
             $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy(
-                array('name' => $configName)
+                array('name' => $configName, 'shopId' => $shop->getId())
             );
             if ($config != null) {
                 $value = $config->getValue();
             }
         } else {
-            // If shop no shop, get default one
-            if ($shop == null) {
-                $shop = self::getDefaultShop();
-            }
             $lengowConf = new Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration();
             $value = $lengowConf->get($configName, $shop->getId());
         }
@@ -78,18 +79,27 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         // Force plugin to register custom models thanks to afterInit() method.
         // Avoid issue when synchronizing account
         Shopware()->Plugins()->Backend()->Lengow();
+        // If shop no shop, get default one
+        if ($shop == null) {
+            $shop = self::getDefaultShop();
+        }
         // If Lengow setting
         if (in_array($configName, self::$LENGOW_SETTINGS)) {
             $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
             $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy(
-                array('name' => $configName)
+                array('name' => $configName, 'shopId' => $shop->getId())
             );
-            if ($config != null) {
-                $config->setValue($value)
-                    ->setDateUpd(new DateTime());
-                $em->persist($config);
-                $em->flush($config);
+            // If null, create a new lengow config
+            if ($config == null) {
+                $config = new \Shopware\CustomModels\Lengow\Settings();
+                $config->setName($configName)
+                    ->setShop($shop)
+                    ->setDateAdd(new DateTime());
             }
+            $config->setValue($value)
+                ->setDateUpd(new DateTime());
+            $em->persist($config);
+            $em->flush($config);
         } else {
             $lengowConf = new Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration();
             $lengowConf->save($configName, $value, $shop->getId());
@@ -142,7 +152,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
 
         $result = $query->execute()->fetch(\PDO::FETCH_ASSOC);
 
-        if ($result['valueId']) {
+        if (isset($result['valueId']) && $result['valueId']) {
             $this->update($value, $result['valueId']);
             return;
         }

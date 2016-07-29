@@ -130,14 +130,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
+     * Get Shopware active shops
+     * @return Shopware\Models\Shop\Shop[] List of active shops
+     */
+    public static function getActiveShops()
+    {
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        return $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
+    }
+
+    /**
      * Get list of shops that have been activated in Lengow
      * @return \Shopware\Models\Shop\Shop[] List of shops
      */
     public static function getLengowActiveShops()
     {
         $result = array();
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
+        $shops = self::getActiveShops();
         foreach ($shops as $shop) {
             // Get Lengow config for this shop
             $enabledInLengow = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
@@ -151,20 +160,104 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         return $result;
     }
 
+    public static function getShopByToken($token)
+    {
+        $shops = self::getActiveShops();
+        foreach ($shops as $shop) {
+            $shopToken = $enabledInLengow = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowShopToken',
+                $shop
+            );
+            if ($shopToken == $token) {
+                return $shop;
+            }
+        }
+        return false;
+    }
+
     /**
      * Get the base url of the plugin
      *
+     * @param $shop Shopware\Models\Shop\
+     *
      * @return string
      */
-    public static function getBaseUrl()
+    public static function getBaseUrl($shop = null)
     {
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $shop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
+        if ($shop == null) {
+            $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+            $shop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
+        }
         $is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '';
         $host = $shop->getHost() ? $shop->getHost() : $_SERVER['SERVER_NAME'];
         $path = $shop->getBasePath() ? $shop->getBasePath() : '';
         $url = 'http'.$is_https.'://'.$host.$path;
         return $url;
+    }
+
+    /**
+     * Get export web services links
+     *
+     * @param Shopware\Models\Shop\Shop shop
+     *
+     * @return string Export url for the shop
+     */
+    public static function getExportUrl($shop)
+    {
+        $base = self::getBaseUrl($shop);
+        $pluginUrl = self::getPathPlugin();
+        return $base.$pluginUrl.'Webservice/export.php?shop='.$shop->getId();
+    }
+
+    /**
+     * Get import web services link
+     *
+     * @param Shopware\Models\Shop\Shop shop
+     *
+     * @return string Import url for the shop
+     */
+    public static function getImportUrl($shop)
+    {
+        $base = self::getBaseUrl($shop);
+        $pluginUrl = self::getPathPlugin();
+        return $base.$pluginUrl.'Webservice/cron.php?shop='.$shop->getId();
+    }
+
+    /**
+     * Generate token
+     *
+     * @param $shop \Shopware\Models\Shop\Shop
+     *
+     * @return string global|shop token
+     */
+    public static function getToken($shop = null)
+    {
+        // If no shop, get global value
+        if (is_null($shop)) {
+            $token = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('LENGOW_GLOBAL_TOKEN');
+            if ($token && strlen($token) > 0) {
+                return $token;
+            } else {
+                $token =  bin2hex(openssl_random_pseudo_bytes(16));
+                Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('LENGOW_GLOBAL_TOKEN', $token);
+            }
+        } else {
+            $token = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'LENGOW_SHOP_TOKEN',
+                $shop
+            );
+            if ($token && strlen($token) > 0) {
+                return $token;
+            } else {
+                $token =  bin2hex(openssl_random_pseudo_bytes(16));
+                Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
+                    'LENGOW_SHOP_TOKEN',
+                    $token,
+                    $shop
+                );
+            }
+        }
+        return $token;
     }
 
     /**
