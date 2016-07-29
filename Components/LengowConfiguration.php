@@ -22,12 +22,13 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
 {
     /**
-     * @var $LENGOW_SETTINGS array Specific Lengow settings in s_lengow_setting table
+     * @var $LENGOW_SETTINGS array Specific Lengow settings in s_lengow_settings table
      */
     public static $LENGOW_SETTINGS = array(
         'LENGOW_IMPORT_IN_PROGRESS',
         'LENGOW_LAST_IMPORT_CRON',
-        'LENGOW_LAST_IMPORT_MANUAL'
+        'LENGOW_LAST_IMPORT_MANUAL',
+        'LENGOW_GLOBAL_TOKEN'
     );
 
     /**
@@ -41,6 +42,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     public static function getConfig($configName, $shop = null)
     {
         $value = null;
+        // Force plugin to register custom models thanks to afterInit() method.
+        // Avoid issue when synchronizing account
+        Shopware()->Plugins()->Backend()->Lengow();
         // If Lengow setting
         if (in_array($configName, self::$LENGOW_SETTINGS)) {
             $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
@@ -71,6 +75,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      */
     public static function setConfig($configName, $value, $shop = null)
     {
+        // Force plugin to register custom models thanks to afterInit() method.
+        // Avoid issue when synchronizing account
+        Shopware()->Plugins()->Backend()->Lengow();
         // If Lengow setting
         if (in_array($configName, self::$LENGOW_SETTINGS)) {
             $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();

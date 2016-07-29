@@ -250,7 +250,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public function onStartDispatch(Enlight_Event_EventArgs $args)
     {
         $this->registerMyComponents();
-        $this->registerCustomModels();
         $this->registerMyTemplateDir();
         $this->registerMySnippets();
         $this->registerMyEvents();
