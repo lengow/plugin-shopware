@@ -192,9 +192,15 @@ ul,li{
     color:#00aeef;
     text-decoration: none;
 }
+
 .lgw-container a:hover{
     color:#019ce2;
     text-decoration: underline;
+}
+
+.lgw-container .shopware-menu-link a:hover{
+    color:#019ce2;
+    text-decoration: none;
 }
 .lgw-container .sub-link{
     color:#464646;
