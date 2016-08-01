@@ -42,9 +42,6 @@ $kernel->boot();
 if ($kernel->isHttpCacheEnabled()) {
     $kernel = new AppCache($kernel, $kernel->getHttpCacheConfig());
 }
-require_once('../Components/LengowSync.php');
-var_dump(Shopware_Plugins_Backend_Lengow_Components_LengowSync::getOptionData());
-die();
 
 if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
     $mode                   = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : null;
