@@ -160,6 +160,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         return $result;
     }
 
+    /**
+     * Get a shop with a given token
+     * @param $token mixed Token
+     * @return bool|\Shopware\Models\Shop\Shop Searched shop, false if not found
+     */
     public static function getShopByToken($token)
     {
         $shops = self::getActiveShops();
@@ -175,6 +180,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         return false;
     }
 
+    public static function getShopUrl($shop)
+    {
+        return self::getBaseUrl($shop) . $shop->getBaseUrl();
+    }
+
     /**
      * Get the base url of the plugin
      *
@@ -185,8 +195,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static function getBaseUrl($shop = null)
     {
         if ($shop == null) {
-            $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-            $shop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
+            $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
         }
         $is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '';
         $host = $shop->getHost() ? $shop->getHost() : $_SERVER['SERVER_NAME'];

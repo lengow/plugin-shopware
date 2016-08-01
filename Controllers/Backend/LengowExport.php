@@ -274,7 +274,8 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                     'lengowStatus' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                         'lengowShopActive',
                         $shop
-                    )
+                    ),
+                    'domain' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopUrl($shop)
                 );
             }
         } else {

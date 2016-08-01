@@ -344,7 +344,9 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             // Listen to click on the link to synchronize the shop
             var link = Ext.get('synchronizeShop');
             if (link) {
-                link.on('click', me.getSynchronizeIframe);
+                link.on('click', function() {
+                    me.fireEvent('displaySyncIframe');
+                });
             }
         }
     },
@@ -359,13 +361,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             configName = ['lengowExportVariationEnabled', 'lengowExportOutOfStock', 'lengowExportSelectionEnabled'];
 
         me.fireEvent('getConfigValue', configName, selectedShop);
-    },
-
-    /**
-     * Display synchronize shop iframe
-     */
-    getSynchronizeIframe: function () {
-        Ext.create('Shopware.apps.Lengow.view.main.Sync').show();
     },
 
     /**

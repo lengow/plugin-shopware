@@ -9,7 +9,8 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
         me.control({
             'product-listing-grid': {
                 setStatusInLengow: me.onSetStatusInLengow,
-                getConfigValue: me.onGetConfigValue
+                getConfigValue: me.onGetConfigValue,
+                displaySyncIframe: me.onDisplaySyncIframe
             },
             'lengow-export-container': {
                 getFeed: me.onGetFeed,
@@ -132,13 +133,39 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
                     defaultShopId = Ext.decode(response.responseText)['data'],
                     childNodes = tree.getRootNode().childNodes;
 
+                // Look for default shop in the tree
                 Ext.each(childNodes, function(child) {
                     if (child.get('id') == defaultShopId) {
+                        // Simulate click
                         tree.getSelectionModel().select(child);
                         tree.fireEvent('itemclick', view, child);
                         return true;
                     }
                 });
+            }
+        });
+    },
+
+    /**
+     * Display iframe to synchronize shop
+     */
+    onDisplaySyncIframe: function() {
+        var syncWindow;
+        Ext.Ajax.request({
+            url: '{url controller="Lengow" action="getIsNewMerchant"}',
+            method: 'POST',
+            type: 'json',
+            success: function(response) {
+                var data = Ext.decode(response.responseText)['data'];
+                // Display sync iframe
+                syncWindow = Ext.create('Shopware.apps.Lengow.view.main.Sync', {
+                    panelHtml: data['panelHtml'],
+                    syncLink: true
+                });
+                syncWindow.initFrame();
+                // Show main window
+                syncWindow.show();
+                syncWindow.maximize();
             }
         });
     }
