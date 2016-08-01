@@ -6,11 +6,30 @@ de:
       select_no: "Nein"
   window:
     tab:
+      home: "Home"
       export: "Produkte"
       import: "Import"
       logs: "Protokolle"
       settings: "Konfigurieren"
       register: "Registrieren lassen"
+  dashboard:
+    screen:
+      welcome_back: "Hallo! Willkommen zurück!"
+      go_to_lengow: "Zum Lengow"
+      products_title: "Produkts"
+      products_text: "Schauen Sie sich auf alle Produkte, so dass Sie Ihren Katalog vorbereiten können"
+      orders_title: "Orders"
+      orders_text: "Manage your orders directly on your PrestaShop dashboard"
+      settings_title: "Settings"
+      settings_text: "Configure your PrestaShop plugin main settings"
+      partner_business: "Lengow, your business partner"
+      stat_turnover: "Turnover"
+      stat_nb_orders: "Orders"
+      stat_more_stats: "Want more stats?"
+      some_help_title: "Need some help?"
+      get_in_touch: "Get in touch with Lengow."
+      visit_help_center: "Visit our Help Center"
+      configure_plugin: "for detailed information on how to configure your PrestaShop plugin properly"
   settings:
     lengow_main_settings:
       label: "Haupteinstellungen"
@@ -52,7 +71,7 @@ de:
       label: "Import-Einstellungen"
       description: "Set import settings"
       decrease_stock:
-        label: "I want to decrease my stock"
+        label: "Decrease products send by marketplaces"
         description: "Use this option to take into account your marketplaces orders on your stock in your Shopware backoffice"
   export:
     grid:

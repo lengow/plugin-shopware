@@ -7,9 +7,10 @@ en:
       import: "Import"
       logs: "Logs"
       settings: "Config"
-      register: "Get registered"
   menu:
     preprod_active: "Pre-production mode"
+    counter: "Trial period: %{counter} day(s) left"
+    upgrade_account: "Upgrade"
   footer:
     legals: "Legal notices"
     plugin_lengow: "Lengow Shopware Plugin"

@@ -1,16 +1,36 @@
 en:
   title: "Lengow"
-  global:
-    select:
-      select_yes: "Oui"
-      select_no: "Non"
   window:
     tab:
+      home: "Accueil"
       export: "Produits"
       logs: "Import"
       logs: "Logs"
       settings: "Configuration"
-      register: "Ma solution Lengow"
+  menu:
+    preprod_active: "mode préproduction "
+    counter: "Période d'essai : %{counter} jour(s) restant(s)"
+    upgrade_account: "Mettre à jour"
+  footer:
+    legals: "Mentions légales"
+    plugin_lengow: "Lengow Shopware Plugin"
+  dashboard:
+    screen:
+      welcome_back: "Bonjour ! Bienvenue parmi nous !"
+      go_to_lengow: "Aller sur la plateforme Lengow"
+      products_title: "Produits"
+      products_text: "Consulter tous vos produits disponibles pour préparer votre catalogue"
+      orders_text: "Gérer vos commandes directement sur votre tableau de bord Shopware."
+      settings_title: "Paramètrage"
+      settings_text: "Configurer les principaux paramètres de votre plugin PrestaShop"
+      partner_business: "Lengow, partenaire de votre activité e-commerce"
+      stat_turnover: "Chiffre d'affaires"
+      stat_nb_orders: "Commandes"
+      stat_more_stats: "Plus de statistiques ?"
+      some_help_title: "Besoin d'aide ?"
+      get_in_touch: "Prenez contact avec les équipes Lengow."
+      visit_help_center: "Visitez notre Help Center"
+      configure_plugin: "pour plus d'informations sur la configuration de votre plugin Shopware"
   settings:
     lengow_main_settings:
       label: "Paramètres généraux"
@@ -19,13 +39,13 @@ en:
         label: "Activer la boutique"
         description: "Activer cette boutique dans Lengow"
       account:
-        label: "Account ID"
+        label: "Identifiant Lengow"
         description: "Votre account ID Lengow"
       access:
-        label: "Access Token"
+        label: "Token d'accès"
         description: "Votre token d'accès"
       secret:
-        label: "Secret Token"
+        label: "Token secret"
         description: "Votre token secret"
       ip:
         label: "IP autorisées"
@@ -46,14 +66,23 @@ en:
         label: "Exporter uniquement la sélection Lengow"
         description: "Activate this option if you do not want to export all of your avaible products. Then, only select the products you want to export"
       dispatcher:
-        label: "Default dispatcher"
+        label: "Transporteur par défaut"
         description: "Select the default dispatcher that you would like to apply to your orders"
     lengow_import_settings:
       label: "Paramètres d'import"
       description: "Gestion des paramètes d'import"
       decrease_stock:
-        label: "Je souhaite diminuer mes stocks"
+        label: "Diminuer les stocks des produits expédiés par les places de marché"
         description: "Use this option to take into account your marketplaces orders on your stock in your Shopware backoffice"
+      enable_import:
+        label: "Activer l'import"
+        description: "Activer cette option pour décrémenter les stocks de votre backoffice Shopware"
+      import_days:
+        label: "Réimporter les commandes passées depuis (en jours)"
+        description: "Activer cette option si vous avez des commandes en erreurs. Cela vous permet de réimporter toutes les commandes effectuées pendant cette période"
+      preprod_mode:
+        label: "Activer le mode pré production"
+        description: "Use pre-production mode for testing and to simulate fictitious orders. Please note that you have to activate this setting on your pre-production server ONLY"
   export:
     grid:
       column:
@@ -70,8 +99,8 @@ en:
         remove: "Supprimer de l'export"
       label:
         counter:
-          count: "products exported over"
-          total: "products available"
+          count: "produits exportés sur "
+          total: "produits disponibles"
         status:
           synchronized: "Synchronisée"
           not_synchronized: "Synchroniser ma boutique avec Lengow"
@@ -90,7 +119,7 @@ en:
         root: "Boutiques"
   order:
     screen:
-      import_charge_second: "Restez avec nous; ça ne va pas durer longtemps (2 min average waiting time)"
+      import_charge_second: "Restez avec nous; ça ne va pas durer longtemps"
     panel:
       description: "Importer et décrémenter les stocks des commandes importées depuis <b>%{nb_days}</b> jours."
       last_import: "Dernière synchronisation : <b>%{import_date}</b>"
