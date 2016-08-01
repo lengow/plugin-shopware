@@ -42,6 +42,9 @@ $kernel->boot();
 if ($kernel->isHttpCacheEnabled()) {
     $kernel = new AppCache($kernel, $kernel->getHttpCacheConfig());
 }
+require_once('../Components/LengowSync.php');
+var_dump(Shopware_Plugins_Backend_Lengow_Components_LengowSync::getOptionData());
+die();
 
 if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
     $mode                   = isset($_REQUEST["mode"]) ? $_REQUEST["mode"] : null;
@@ -70,18 +73,18 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
                 $selectedProducts  = explode(',', $ids);
             }
             $params = array(
-                'format'                => $format,
-                'mode'                  => $mode,
-                'stream'                => $stream,
-                'productIds'            => $selectedProducts,
-                'limit'                 => $limit,
-                'offset'                => $offset,
-                'exportOutOfStock'      => $outStock,
-                'exportVariation'       => $exportVariation,
-                'exportDisabledProduct' => $exportDisabledProduct,
-                'exportLengowSelection' => $exportLengowSelection,
-                'languageId'            => $languageId,
-                'logOutput'             => $logOutput
+                'format'                 => $format,
+                'mode'                   => $mode,
+                'stream'                 => $stream,
+                'productIds'             => $selectedProducts,
+                'limit'                  => $limit,
+                'offset'                 => $offset,
+                'exportOutOfStock'       => $outStock,
+                'exportVariationEnabled' => $exportVariation,
+                'exportDisabledProduct'  => $exportDisabledProduct,
+                'exportLengowSelection'  => $exportLengowSelection,
+                'languageId'             => $languageId,
+                'logOutput'              => $logOutput
             );
             try {
                 $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, $params);

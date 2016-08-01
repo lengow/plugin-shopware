@@ -77,10 +77,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
      * Refer to createConfig() in Bootstrap.php
      */
     private $configFields = array(
-        'exportVariation',
+        'exportVariationEnabled',
         'exportOutOfStock',
         'exportDisabledProduct',
-        'exportLengowSelection'
+        'exportSelectionEnabled'
     );
 
     /**
@@ -116,12 +116,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     /**
      * @var boolean Export variant articles
      */
-    private $exportVariation;
+    private $exportVariationEnabled;
 
     /**
      * @var boolean Export Lengow products only
      */
-    private $exportLengowSelection;
+    private $exportSelectionEnabled;
 
     /**
      * @var boolean Enable/disable log output
@@ -314,7 +314,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 );
                 $productsToExport[] = $lengowParentProduct;
             }
-            if ($this->exportVariation && !$isSimple) {
+            if ($this->exportVariationEnabled && !$isSimple) {
                 $productsToExport[] = $lengowVariantProduct;
             }
         }
@@ -426,7 +426,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $builder->andWhere('details.active = 1');
         }
         // Export only Lengow products
-        if ($this->exportLengowSelection) {
+        if ($this->exportSelectionEnabled) {
             $builder->andWhere('attributes.lengowShop'.$this->shop->getId().'Active = 1');
         }
         // Export out of stock products
@@ -434,7 +434,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $builder->andWhere('details.inStock > 0');
         }
         // If no variation, get only parent products
-        if (!$this->exportVariation) {
+        if (!$this->exportVariationEnabled) {
             $builder->andWhere('details.kind = 1');
         }
         $builder->distinct()
@@ -468,13 +468,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     public function getTotalProducts()
     {
         $exportOutOfStockDefaultValue = $this->exportOutOfStock;
-        $exportLengowSelectionDefaultValue = $this->exportLengowSelection;
+        $exportLengowSelectionDefaultValue = $this->exportSelectionEnabled;
         $this->exportOutOfStock = true; // Force out of stock products
-        $this->exportLengowSelection = false;
+        $this->exportSelectionEnabled = false;
         $products = $this->getIdToExport();
         $total = count($products);
         // As Shopware uses default articles as "parents", we need to count it twice
-        if ($this->exportVariation) {
+        if ($this->exportVariationEnabled) {
             foreach ($products as $article) {
                 if ($article['kind'] == 1 && $article['isParent'] != null) {
                     $total++;
@@ -483,7 +483,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         }
         // Reset default value
         $this->exportOutOfStock = $exportOutOfStockDefaultValue;
-        $this->exportLengowSelection = $exportLengowSelectionDefaultValue;
+        $this->exportSelectionEnabled = $exportLengowSelectionDefaultValue;
         return $total;
     }
 
@@ -497,7 +497,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         $products = $this->getIdToExport();
         $total = count($products);
         // As Shopware uses default articles as "parents", we need to count it twice
-        if ($this->exportVariation) {
+        if ($this->exportVariationEnabled) {
             foreach ($products as $article) {
                 if ($article['kind'] == 1 && $article['isParent'] != null) {
                     $total++;

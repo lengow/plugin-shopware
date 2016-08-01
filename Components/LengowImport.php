@@ -164,7 +164,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         $this->preprod_mode = (
             isset($params['preprod_mode'])
             ? (bool)$params['preprod_mode']
-            : (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowPreprodMode')
+            : (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowImportPreprodEnabled')
         );
         $this->type_import = (isset($params['type']) ? $params['type'] : 'manual');
         $this->log_output = (isset($params['log_output']) ? (bool)$params['log_output'] : false);
@@ -687,7 +687,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     public static function isInProcess()
     {
         $timestamp = (int)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'LENGOW_IMPORT_IN_PROGRESS'
+            'lengowImportInProgress'
         );
         if ($timestamp > 0) {
             // security check : if last import is more than 60 seconds old => authorize new import to be launched
@@ -708,7 +708,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     public static function restTimeToImport()
     {
         $timestamp = (int)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'LENGOW_IMPORT_IN_PROGRESS'
+            'lengowImportInProgress'
         );
         if ($timestamp > 0) {
             return $timestamp + (60 * 1) - time();
@@ -722,7 +722,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     public static function setInProcess()
     {
         self::$processing = true;
-        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('LENGOW_IMPORT_IN_PROGRESS', time());
+        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('lengowImportInProgress', time());
     }
 
     /**
@@ -731,7 +731,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     public static function setEnd()
     {
         self::$processing = false;
-        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('LENGOW_IMPORT_IN_PROGRESS', -1);
+        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('lengowImportInProgress', -1);
     }
 
     /**
@@ -763,9 +763,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $repository = $em->getRepository('Shopware\CustomModels\Lengow\Settings');
         /** @var Shopware\CustomModels\Lengow\Settings $cron */
-        $cron = $repository->findOneBy(array('name' => 'LENGOW_LAST_IMPORT_CRON'));
+        $cron = $repository->findOneBy(array('name' => 'lengowLastImportCron'));
         /** @var Shopware\CustomModels\Lengow\Settings $manual */
-        $manual = $repository->findOneBy(array('name' => 'LENGOW_LAST_IMPORT_MANUAL'));
+        $manual = $repository->findOneBy(array('name' => 'lengowLastImportManual'));
         if ($cron->getDateUpd() > $manual->getDateUpd()) {
             return $cron->getDateUpd()->format('l d F Y @ H:i');
         } else {

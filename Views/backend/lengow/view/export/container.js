@@ -139,7 +139,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
             items: [
                 {
                     xtype: 'checkboxfield',
-                    id: 'lengowExportVariation',
+                    id: 'lengowExportVariationEnabled',
                     boxLabel: me.snippets.checkbox.variations,
                     listeners: {
                         change: function(checkbox){
@@ -171,7 +171,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
                 },
                 {
                     xtype: 'checkboxfield',
-                    id: 'lengowExportLengowSelection',
+                    id: 'lengowExportSelectionEnabled',
                     boxLabel: me.snippets.checkbox.selection,
                     listeners: {
                         change: function(checkbox){

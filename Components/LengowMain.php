@@ -84,7 +84,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function checkIp()
     {
-        $ips = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAuthorizedIps');
+        $ips = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAuthorizedIp');
         $ips = trim(str_replace(array("\r\n", ',', '-', '|', ' '), ';', $ips), ';');
         $ips = explode(';', $ips);
         $authorizedIps = array_merge($ips, self::$IPS_LENGOW);
@@ -234,16 +234,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     {
         // If no shop, get global value
         if (is_null($shop)) {
-            $token = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('LENGOW_GLOBAL_TOKEN');
+            $token = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowGlobalToken');
             if ($token && strlen($token) > 0) {
                 return $token;
             } else {
                 $token =  bin2hex(openssl_random_pseudo_bytes(16));
-                Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('LENGOW_GLOBAL_TOKEN', $token);
+                Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('lengowGlobalToken', $token);
             }
         } else {
             $token = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'LENGOW_SHOP_TOKEN',
+                'lengowShopToken',
                 $shop
             );
             if ($token && strlen($token) > 0) {
@@ -251,7 +251,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             } else {
                 $token =  bin2hex(openssl_random_pseudo_bytes(16));
                 Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-                    'LENGOW_SHOP_TOKEN',
+                    'lengowShopToken',
                     $token,
                     $shop
                 );
@@ -344,12 +344,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     {
         if ($type === 'cron') {
             Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-                'LENGOW_LAST_IMPORT_CRON',
+                'lengowLastImportCron',
                 time()
             );
         } else {
             Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-                'LENGOW_LAST_IMPORT_MANUAL',
+                'lengowLastImportManual',
                 time()
             );
         }

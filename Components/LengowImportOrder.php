@@ -165,7 +165,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             // check if the order is shipped by marketplace
             if ($this->shipped_by_mp) {
                 $importMpOrdersOption = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                    'lengowDecreaseStock'
+                    'lengowImportShipMpEnabled'
                 );
                 // If decrease stocks from mp option is disabled
                 if (!$importMpOrdersOption) {

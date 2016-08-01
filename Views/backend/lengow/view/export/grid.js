@@ -356,7 +356,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
     initConfigCheckboxes: function() {
         var me = this,
             selectedShop = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id'),
-            configName = ['lengowExportVariation', 'lengowExportOutOfStock', 'lengowExportLengowSelection'];
+            configName = ['lengowExportVariationEnabled', 'lengowExportOutOfStock', 'lengowExportSelectionEnabled'];
 
         me.fireEvent('getConfigValue', configName, selectedShop);
     },

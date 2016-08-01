@@ -435,7 +435,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'description'   => 'settings/lengow_main_settings/secret/description',
                 'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
-            'lengowAuthorizedIps' => array(
+            'lengowAuthorizedIp' => array(
                 'type'          => 'text',
                 'label'         => 'settings/lengow_main_settings/ip/label',
                 'required'      => true,
@@ -459,12 +459,12 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             $selection[] = array($dispatch->getId(), $dispatch->getName());
         }
         $exportFormElements = array(
-            'lengowExportVariation' => array(
+            'lengowExportVariationEnabled' => array(
                 'type'          => 'boolean',
                 'label'         => 'settings/lengow_export_settings/variation/label',
                 'required'      => true,
                 'editable'      => false,
-                'value'         => 1,
+                'value'         => true,
                 'description'   => 'settings/lengow_export_settings/variation/description',
                 'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
@@ -473,7 +473,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'label'         => 'settings/lengow_export_settings/out_stock/label',
                 'required'      => true,
                 'editable'      => false,
-                'value'         => 0,
+                'value'         => false,
                 'description'   => 'settings/lengow_export_settings/out_stock/description',
                 'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
@@ -482,16 +482,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'label'         => 'settings/lengow_export_settings/disabled_products/label',
                 'required'      => true,
                 'editable'      => false,
-                'value'         => 0,
+                'value'         => false,
                 'description'   => 'settings/lengow_export_settings/disabled_products/description',
                 'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
-            'lengowExportLengowSelection' => array(
+            'lengowExportSelectionEnabled' => array(
                 'type'          => 'boolean',
                 'label'         => 'settings/lengow_export_settings/lengow_selection/label',
                 'required'      => true,
                 'editable'      => false,
-                'value'         => 1,
+                'value'         => true,
                 'description'   => 'settings/lengow_export_settings/lengow_selection/description',
                 'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
@@ -515,15 +515,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'type'          => 'boolean',
                 'label'         => 'settings/lengow_import_settings/enable_import/label',
                 'editable'      => false,
-                'value'         => 0,
+                'value'         => false,
                 'required'      => false,
                 'description'   => 'settings/lengow_import_settings/enable_import/description'
             ),
-            'lengowDecreaseStock' => array(
+            'lengowImportShipMpEnabled' => array(
                 'type'          => 'boolean',
                 'label'         => 'settings/lengow_import_settings/decrease_stock/label',
                 'editable'      => false,
-                'value'         => 0,
+                'value'         => false,
                 'required'      => false,
                 'description'   => 'settings/lengow_import_settings/decrease_stock/description'
             ),
@@ -536,10 +536,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'editable'      => false,
                 'description'   => 'settings/lengow_import_settings/import_days/description'
             ),
-            'lengowPreprodMode' => array(
+            'lengowImportPreprodEnabled' => array(
                 'type'          => 'boolean',
                 'label'         => 'settings/lengow_import_settings/preprod_mode/label',
-                'value'         => 0,
+                'value'         => false,
                 'description'   => 'settings/lengow_import_settings/preprod_mode/description'
             )
         );

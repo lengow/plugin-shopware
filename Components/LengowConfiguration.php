@@ -25,11 +25,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * @var $LENGOW_SETTINGS array Specific Lengow settings in s_lengow_settings table
      */
     public static $LENGOW_SETTINGS = array(
-        'LENGOW_IMPORT_IN_PROGRESS',
-        'LENGOW_LAST_IMPORT_CRON',
-        'LENGOW_LAST_IMPORT_MANUAL',
-        'LENGOW_GLOBAL_TOKEN',
-        'LENGOW_SHOP_TOKEN'
+        'lengowImportInProgress',
+        'lengowLastImportCron',
+        'lengowLastImportManual',
+        'lengowGlobalToken',
+        'lengowShopToken',
+        'lengowAccountStatusUpdate',
+        'lengowAccountStatus'
     );
 
     /**
@@ -46,20 +48,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         // Force plugin to register custom models thanks to afterInit() method.
         // Avoid issue when synchronizing account
         Shopware()->Plugins()->Backend()->Lengow();
-        // If shop no shop, get default one
-        if ($shop == null) {
-            $shop = self::getDefaultShop();
-        }
         // If Lengow setting
         if (in_array($configName, self::$LENGOW_SETTINGS)) {
             $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-            $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy(
-                array('name' => $configName, 'shopId' => $shop->getId())
-            );
+            $criteria = array('name' => $configName);
+            if ($shop != null) {
+                $criteria['shopId'] = $shop->getId();
+            }
+            $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy($criteria);
             if ($config != null) {
                 $value = $config->getValue();
             }
         } else {
+            // If shop no shop, get default one
+            if ($shop == null) {
+                $shop = self::getDefaultShop();
+            }
             $lengowConf = new Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration();
             $value = $lengowConf->get($configName, $shop->getId());
         }
@@ -79,16 +83,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         // Force plugin to register custom models thanks to afterInit() method.
         // Avoid issue when synchronizing account
         Shopware()->Plugins()->Backend()->Lengow();
-        // If shop no shop, get default one
-        if ($shop == null) {
-            $shop = self::getDefaultShop();
-        }
-        // If Lengow setting
+        // If Lengow global setting
         if (in_array($configName, self::$LENGOW_SETTINGS)) {
             $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-            $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy(
-                array('name' => $configName, 'shopId' => $shop->getId())
-            );
+            $criteria = array('name' => $configName);
+            if ($shop != null) {
+                $criteria['shopId'] = $shop->getId();
+            }
+            $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy($criteria);
             // If null, create a new lengow config
             if ($config == null) {
                 $config = new \Shopware\CustomModels\Lengow\Settings();
@@ -101,6 +103,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             $em->persist($config);
             $em->flush($config);
         } else {
+            // If shop no shop, get default one
+            if ($shop == null) {
+                $shop = self::getDefaultShop();
+            }
             $lengowConf = new Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration();
             $lengowConf->save($configName, $value, $shop->getId());
         }
@@ -221,5 +227,90 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             ->setValue($value);
         $em->persist($option);
         $em->flush($option);
+    }
+
+    public static function getKeys()
+    {
+        static $keys = null;
+        $keys = array(
+            'LENGOW_ACCOUNT_ID' => array(),
+            'LENGOW_ACCESS_TOKEN' => array('shop' => true),
+            'LENGOW_SECRET_TOKEN' => array('shop' => true),
+            'LENGOW_SHOP_ACTIVE' => array('shop' => true),
+            'LENGOW_SHOP_TOKEN' => array('shop' => true),
+            'LENGOW_EXPORT_SELECTION_ENABLED' => array('shop' => true),
+            'LENGOW_EXPORT_VARIATION_ENABLED' => array('shop' => true),
+            // TODO : register last export date
+            /*'LENGOW_LAST_EXPORT' => array(
+                'readonly'      => true,
+                'shop'          => true,
+                'label'         => $locale->t('lengow_setting.lengow_last_export_title'),
+            ),*/
+            'LENGOW_IMPORT_DAYS' => array(),
+            'LENGOW_IMPORT_PREPROD_ENABLED' => array(),
+            'LENGOW_IMPORT_SHIP_MP_ENABLED' => array(),
+            'LENGOW_IMPORT_IN_PROGRESS' => array(),
+            'LENGOW_LAST_IMPORT_CRON' => array(),
+            'LENGOW_LAST_IMPORT_MANUAL' => array(),
+            'LENGOW_GLOBAL_TOKEN' => array(),
+            'LENGOW_AUTHORIZED_IP' => array(),
+            // TODO : register last order stat synchronization
+            /*'LENGOW_ORDER_STAT' => array(
+                'type'          => 'json',
+                'label'         => $locale->t('lengow_setting.lengow_order_stat_title'),
+                'export'        => false
+            ),
+            'LENGOW_ORDER_STAT_UPDATE' => array(
+                'type'          => 'datetime',
+                'label'         => $locale->t('lengow_setting.lengow_order_stat_update_title'),
+                'export'        => false
+            ),*/
+            'LENGOW_ACCOUNT_STATUS' => array(),
+            'LENGOW_ACCOUNT_STATUS_UPDATE' => array(),
+        );
+        return $keys;
+    }
+
+    /**
+     * @param $shop \Shopware\Models\Shop\Shop
+     * @return array
+     */
+    public static function getAllValues($shop = null)
+    {
+        $rows = array();
+        $keys = self::getKeys();
+        foreach ($keys as $key => $value) {
+            $toCamelCase = self::camelCase(strtolower($key));
+            if (isset($value['export']) && !$value['export']) {
+                continue;
+            }
+            if ($shop) {
+                if (isset($value['shop']) && $value['shop'] == 1) {
+                    $rows[$key] = self::getConfig($toCamelCase, $shop);
+                }
+            } else {
+                $rows[$key] = self::getConfig($toCamelCase);
+            }
+        }
+        return $rows;
+    }
+
+    /**
+     * Transform from Snake_Case to camelCase
+     * @param $str string String to convert
+     * @param array
+     * @return string Converted camelCase string
+     */
+    public static function camelCase($str, array $noStrip = [])
+    {
+        // non-alpha and non-numeric characters become spaces
+        $str = preg_replace('/[^a-z0-9' . implode("", $noStrip) . ']+/i', ' ', $str);
+        $str = trim($str);
+        // uppercase the first character of each word
+        $str = ucwords($str);
+        $str = str_replace(" ", "", $str);
+        $str = lcfirst($str);
+
+        return $str;
     }
 }

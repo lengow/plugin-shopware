@@ -104,12 +104,13 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
             },
             success: function(response) {
                 var values = Ext.decode(response.responseText)['data'];
+                // Set shop config for checkboxes
                 Ext.each(configList, function(config) {
                     var status = values[config];
-                    Ext.getCmp(config).setValue(status === 1);
+                    Ext.getCmp(config).setValue(status);
                 });
 
-                if (!Ext.getCmp('lengowExportLengowSelection').getValue()) {
+                if (!Ext.getCmp('lengowExportSelectionEnabled').getValue()) {
                     Ext.getCmp('exportGrid').setDisabled(true);
                 }
             }
