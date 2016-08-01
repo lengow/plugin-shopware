@@ -126,7 +126,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             'type'           => 'shopware',
             'version'        => Shopware::VERSION,
             'plugin_version' => Shopware()->Plugins()->Backend()->Lengow()->getVersion(),
-//            'options'        => LengowConfiguration::getAllValues()
+            'options'        => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAllValues()
         );
         $activeShops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops();
         foreach ($activeShops as $shop) {
@@ -141,7 +141,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 'domain_url' => $shop->getHost() . $shop->getBaseUrl(),
                 'feed_url'   => $exportUrl,
                 'cron_url'   => $importUrl,
-//                'options'    => LengowConfiguration::getAllValues($shop->id)
+                'options'    => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAllValues($shop)
             );
         }
         return $data;
@@ -158,9 +158,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     {
         if (!$force) {
             $updated_at =  Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'LENGOW_ACCOUNT_STATUS_UPDATE');
+                'lengowAccountStatusUpdate');
             if (!is_null($updated_at) && (time() - strtotime($updated_at)) < self::$cacheTime) {
-                $config = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('LENGOW_ACCOUNT_STATUS');
+                $config = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAccountStatus');
                 return json_decode($config);
             }
         }
@@ -177,10 +177,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 $jsonStatus = json_encode($status);
                 $date = date('Y-m-d H:i:s');
                 Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-                    'LENGOW_ACCOUNT_STATUS',
+                    'lengowAccountStatus',
                     $jsonStatus);
                 Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-                    'LENGOW_ACCOUNT_STATUS_UPDATE',
+                    'lengowAccountStatusUpdate',
                     $date);
                 return $status;
             }

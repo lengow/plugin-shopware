@@ -25,10 +25,20 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
 {
     public function getIsNewMerchantAction()
     {
+        $panelHtml = '
+        <div class="lgw-container">
+            <div class="lgw-content-section text-center">
+                <iframe id="lengow_iframe" scrolling="no" style="display: none; overflow-y: hidden;" frameborder="0"></iframe>
+            </div>
+        </div>
+        <input type="hidden" id="lengow_ajax_link">
+        <input type="hidden" id="lengow_sync_link">';
         $this->View()->assign(
             array(
                 'success' => true,
-                'data'    => Shopware_Plugins_Backend_Lengow_Components_LengowMain::isNewMerchant()
+                'data'    => array(
+                    'panelHtml' => $panelHtml,
+                    'isSync' => !Shopware_Plugins_Backend_Lengow_Components_LengowMain::isNewMerchant())
             )
         );
     }

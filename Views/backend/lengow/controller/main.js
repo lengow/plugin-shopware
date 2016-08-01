@@ -20,9 +20,9 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
             method: 'POST',
             type: 'json',
             success: function(response) {
-                var status = Ext.decode(response.responseText)['data'];
+                var data = Ext.decode(response.responseText)['data'];
                 // If not a new merchant, display Lengow plugin
-                if (status) {
+                if (!data['isSync']) {
                     me.mainWindow = me.getView('main.Home').create({
                         exportStore: Ext.create('Shopware.apps.Lengow.store.Article'),
                         logStore: Ext.create('Shopware.apps.Lengow.store.Logs')
@@ -30,9 +30,16 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
 
                     me.initImportTab();
                 } else {
-                    // Else, display login iframe
-                    me.mainWindow = me.getView('main.Sync').create().show();
+                    // Display sync iframe
+                    me.mainWindow = me.getView('main.Sync').create({
+                        panelHtml: data['panelHtml'],
+                        isSync: data['isSync'],
+                        syncLink: false
+                    });
+                    me.mainWindow.initFrame();
                 }
+                // Show main window
+                me.mainWindow.show();
                 me.mainWindow.maximize();
             }
         });

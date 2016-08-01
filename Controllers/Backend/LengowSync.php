@@ -26,15 +26,33 @@ use Doctrine\ORM\Query\QueryExpressionVisitor;
  */
 class Shopware_Controllers_Backend_LengowSync extends Shopware_Controllers_Backend_ExtJs
 {
-    public function indexAction()
+    public function getIsSyncAction()
     {
-        $this->View()->loadTemplate('backend/lengow_sync/app.js');
-    }
-
-    public function getUrlAction()
-    {
-        $result['name'] = 'Register';
-        $result['url']  = 'http://cms.lengow.int/sync/';
-        $this->View()->assign(array('success' => true, 'data' => $result));
+        $isSync = isset($_REQUEST['isSync']) ? $_REQUEST['isSync'] : false;
+        $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : false;
+        if ($action) {
+            switch ($action) {
+                case 'get_sync_data':
+                    $data = array();
+                    $data['function'] = 'sync';
+                    $data['parameters'] = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getSyncData();
+                    $this->View()->assign(array(
+                        'success' => true,
+                        'data'    => $data
+                    ));
+                    break;
+                case 'sync':
+                    $data = isset($_REQUEST['data']) ?$_REQUEST['data'] : false;
+                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::sync($data);
+                    break;
+                case 'refresh_status':
+                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatusAccount(true);
+                    /*$lengow_link = new LengowLink();
+                    Tools::redirectAdmin($lengow_link->getAbsoluteAdminLink('AdminLengowHome'));*/
+                    break;
+            }
+        } else {
+            $this->View()->assign(array('isSync' => $isSync));
+        }
     }
 }
