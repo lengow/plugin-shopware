@@ -671,9 +671,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function isNewMerchant()
     {
-        $result = array(
-            'isNewMerchant' => true
-        );
+        $result = true;
         $shops = self::getShops();
         foreach ($shops as $shop) {
             if ($shop->getActive()) {
@@ -682,12 +680,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
                     $shop
                 );
                 if ($accountId != 0) {
-                    $result['isNewMerchant'] = false;
+                    $result = false;
                     break;
                 }
             }
         }
-        $result['isSync'] = false;
         return $result;
+    }
+
+    public static function isSync()
+    {
+        return false;
     }
 }

@@ -31,7 +31,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         'lengowGlobalToken',
         'lengowShopToken',
         'lengowAccountStatusUpdate',
-        'lengowAccountStatus'
+        'lengowAccountStatus',
+        'lengowOrderStat',
+        'lengowOrderStatUpdate'
     );
 
     /**
@@ -61,7 +63,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             }
         } else {
             // If shop no shop, get default one
-            if ($shop == null) {
+            if (!($shop instanceof \Shopware\Models\Shop\Shop)) {
                 $shop = self::getDefaultShop();
             }
             $lengowConf = new Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration();
@@ -104,7 +106,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             $em->flush($config);
         } else {
             // If shop no shop, get default one
-            if ($shop == null) {
+            if (!($shop instanceof \Shopware\Models\Shop\Shop)) {
                 $shop = self::getDefaultShop();
             }
             $lengowConf = new Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration();

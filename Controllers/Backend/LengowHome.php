@@ -36,10 +36,7 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
         $isPreProdActive = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
             'lengowImportPreprodEnabled'
         );
-        $stats = array(
-            'turnover'  => '0,00',
-            'orders'    => 0
-        );
+        $stats = Shopware_Plugins_Backend_Lengow_Components_LengowStatistic::get();
         // Params used for translations
         $params = array(
             'menu/counter' => array('counter' => $days)
@@ -94,11 +91,11 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
                     <div class="lgw-row lgw-home-stats">
                         <div class="lgw-col-4 lgw-col-offset-2">
                             <h5>' . $translations['stat_turnover'] . '</h5>
-                            <span class="stats-big-value">' . $stats['turnover'] . '</span>
+                            <span class="stats-big-value">' . $stats->total_order . '</span>
                         </div>
                         <div class="lgw-col-4">
                             <h5>' . $translations['stat_nb_orders'] . '</h5>
-                            <span class="stats-big-value">' . $stats['orders'] . '</span>
+                            <span class="stats-big-value">' . $stats->nb_order . '</span>
                         </div>
                     </div>
                     <p>

@@ -22,7 +22,7 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
             success: function(response) {
                 var data = Ext.decode(response.responseText)['data'];
                 // If not a new merchant, display Lengow plugin
-                if (!data['isSync']) {
+                if (!data['isNewMerchant']) {
                     me.mainWindow = me.getView('main.Home').create({
                         exportStore: Ext.create('Shopware.apps.Lengow.store.Article'),
                         logStore: Ext.create('Shopware.apps.Lengow.store.Logs')

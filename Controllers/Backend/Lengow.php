@@ -38,7 +38,8 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
                 'success' => true,
                 'data'    => array(
                     'panelHtml' => $panelHtml,
-                    'isSync' => !Shopware_Plugins_Backend_Lengow_Components_LengowMain::isNewMerchant())
+                    'isNewMerchant' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::isNewMerchant()),
+                    'isSync' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::isSync()
             )
         );
     }
