@@ -152,7 +152,7 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
     onDisplaySyncIframe: function() {
         var syncWindow;
         Ext.Ajax.request({
-            url: '{url controller="Lengow" action="getIsNewMerchant"}',
+            url: '{url controller="Lengow" action="getSyncIframe"}',
             method: 'POST',
             type: 'json',
             success: function(response) {

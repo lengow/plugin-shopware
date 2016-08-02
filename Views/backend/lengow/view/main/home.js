@@ -30,7 +30,8 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
         me.items = [
             me.createTabPanel()
         ];
-
+        me.tbar = me.getToolbar();
+        me.fireEvent('initToolbar');
         me.callParent(arguments);
     },
 
@@ -157,6 +158,30 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
         });
         var logs = new LogWindow;
         logs.show();
+    },
+
+    /**
+     * Get main window toolbar to display preprod mod and trial days left
+     */
+    getToolbar: function() {
+        return {
+            id: 'lengowMainToolbar',
+            height: 28,
+            style: {
+                background: '#F7F7F7'
+            },
+            items: [{
+                xtype: 'label',
+                id: 'lgw-preprod-label'
+            },
+            {
+                xtype: 'tbfill'
+            },
+            {
+                xtype: 'label',
+                id: 'lgw-trial-label'
+            }]
+        };
     }
 });
 //{/block}

@@ -59,7 +59,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
                 ]
             }
         ];
-
         me.callParent(arguments);
     },
 

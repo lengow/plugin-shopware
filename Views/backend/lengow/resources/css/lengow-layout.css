@@ -405,8 +405,7 @@ body.page-sidebar-closed .lengow-nav-bottom{
     color:white;
     background:#e55a4d;
     padding:5px 10px;
-    position:absolute;
-    top:0px;
+    position:relative;
     left: 0px;
     font-size:12px;
     z-index:2;

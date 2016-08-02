@@ -1,14 +1,15 @@
-.lengow-nav #menucountertrial{
+#menucountertrial{
     padding:0 15px;
+    font-size: 15px;
+    color: #464646;
 }
-.lengow-nav #menucountertrial a{
+#menucountertrial a{
     display:inline-block;
-    text-decoration:underline;
+    text-decoration:none;
     padding:0 0px;
     margin-left:5px;
 }
-
-.lengow-nav #menucountertrial a:hover{
+#menucountertrial a:hover{
     background:none;
     color:#00aeef;
     text-decoration:underline;
@@ -17,23 +18,10 @@
 /*************************************************/
 /*                      HOME                     */
 /*************************************************/
-
-.adminlengowhome #lgw-preprod{
-    color:white;
-    background:#e55a4d;
-    padding:5px 10px;
-    position:absolute;
-    left:0px;
-    font-size:12px;
-    z-index:2;
-    top:0px;
-}
-
 .lgw-home-header{
     height:240px;
     color:white;
     padding:60px 30px 0;
-    /*background: url("../img/header.png") #2E3340 no-repeat center;*/
     background:#2e3340;
 }
 .lgw-home-header h1{
@@ -43,12 +31,6 @@
 
 .lgw-home-stats{
     margin:60px 0 30px;
-}
-
-/** Sync (login/register) panel **/
-#syncPanel-body {
-    background-color: #f7f7f7;
-    padding-top: 20px;
 }
 
 /*************************************************/
@@ -73,6 +55,11 @@
     width:100%;
     height:850px;
     margin: 0 auto;
+}
+/** Sync (login/register) panel **/
+#syncPanel-body {
+    background-color: #f7f7f7;
+    padding-top: 20px;
 }
 
 .lgw-connect{
@@ -128,7 +115,6 @@ body.lgw-home-iframe .lgw-content-section p{
 
 .lengow_shop_status_label {
     color:#555;
-    font-weight:normal;
     margin-top: 5px;
     font: 400 12px/1.42857 "Open Sans",Helvetica,Arial,sans-serif;
 }

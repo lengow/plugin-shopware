@@ -7,6 +7,12 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
         var me = this;
         me.displayMainWindow();
         me.callParent(arguments);
+
+        me.control({
+            'lengow-main-home': {
+                initToolbar: me.onInitToolbar
+            }
+        });
     },
 
     /**
@@ -16,7 +22,7 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
     displayMainWindow: function() {
         var me = this;
         Ext.Ajax.request({
-            url: '{url controller="Lengow" action="getIsNewMerchant"}',
+            url: '{url controller="Lengow" action="getSyncIframe"}',
             method: 'POST',
             type: 'json',
             success: function(response) {
@@ -57,6 +63,29 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                 var status = Ext.decode(response.responseText)['data'];
                 if (!status) {
                     Ext.getCmp('lengowTabPanel').child('#lengowImportTab').tab.hide();
+                }
+            }
+        });
+    },
+
+    /**
+     * Get preprod/trial translations and html before updating concerned labels created in the toolbar
+     */
+    onInitToolbar: function() {
+        Ext.Ajax.request({
+            url: '{url controller="Lengow" action="getToolbarContent"}',
+            method: 'POST',
+            type: 'json',
+            success: function(response) {
+                var data = Ext.decode(response.responseText)['data'],
+                    count = Object.keys(data).length;
+                if (count > 0) {
+                    Ext.iterate(data, function (selector, htmlContent) {
+                        Ext.getCmp(selector).update(htmlContent);
+                    });
+                } else {
+                    // Hide tabbar if nothing to show
+                    Ext.getCmp('lengowMainToolbar').hide();
                 }
             }
         });

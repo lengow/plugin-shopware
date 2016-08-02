@@ -28,31 +28,12 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
      */
     public function getHomeContentAction()
     {
-        $accountStatus = json_decode(Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowAccountStatus'
-        ));
-        $accountType = $accountStatus->type;
-        $days = $accountStatus->day;
-        $isPreProdActive = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowImportPreprodEnabled'
-        );
         $stats = Shopware_Plugins_Backend_Lengow_Components_LengowStatistic::get();
-        // Params used for translations
-        $params = array(
-            'menu/counter' => array('counter' => $days)
-        );
-        $translations = $this->getTranslations($params);
+        $translations = $this->getTranslations();
         $htmlContent = '
         <div id="lengow_home_wrapper">
-            <div class="lgw-container">';
-        if ($isPreProdActive) {
-            $htmlContent.= '<div id="lgw-preprod" class="adminlengowhome">' . $translations['preprod_active'] . '</div>';
-        }
-        if ($accountType == 'free_trial' && $days != 0) {
-            $htmlContent.= '<p class="text-right" id="menucountertrial">' . $translations['counter'] .
-                '<a href="http://www.lengow.com/" target="_blank">&nbsp;' . $translations['upgrade_account'] . '</a></p>';
-        }
-        $htmlContent.='<div class="lgw-box lgw-home-header text-center">
+            <div class="lgw-container">
+                <div class="lgw-box lgw-home-header text-center">
                     <img src="/engine/Shopware/Plugins/Community/Backend/Lengow/Views/backend/lengow/resources/img/lengow-white-big.png" alt="lengow">
                     <h1>' . $translations['welcome_back'] . '</h1>
                     <a href="http://solution.lengow.com" class="lgw-btn" target="_blank">
@@ -137,10 +118,9 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
 
     /**
      * Get translations relative to the home page
-     * @param array $params List of parameters used in translation
      * @return array List of translations
      */
-    protected function getTranslations($params = array())
+    protected function getTranslations()
     {
         $keys = array(
             'dashboard/screen/' => array(
@@ -163,26 +143,16 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
                 'configure_plugin'),
             'footer/' => array(
                 'legals',
-                'plugin_lengow'),
-            'menu/' => array(
-                'preprod_active',
-                'counter',
-                'upgrade_account')
+                'plugin_lengow')
         );
         // Get locale from session
         $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
         $translations = array();
         foreach ($keys as $path => $key) {
             foreach ($key as $value) {
-                $logParams = array();
-                // Check existence of param
-                if (array_key_exists($path.$value, $params)) {
-                    $logParams = $params[$path.$value];
-                }
                 $translations[$value] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
                     $path . $value,
-                    $locale,
-                    $logParams
+                    $locale
                 );
             }
         }
