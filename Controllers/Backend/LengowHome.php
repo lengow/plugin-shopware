@@ -46,7 +46,8 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
                 'get_in_touch',
                 'visit_help_center',
                 'help_center_link',
-                'configure_plugin')
+                'configure_plugin',
+            )
         );
         $translations = Shopware_Plugins_Backend_Lengow_Components_LengowElements::getTranslationsFromArray($keys);
         $htmlContent = '
@@ -54,9 +55,9 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
             <div class="lgw-container">
                 <div class="lgw-box lgw-home-header text-center">
                     <img src="/engine/Shopware/Plugins/Community/Backend/Lengow/Views/backend/lengow/resources/img/lengow-white-big.png" alt="lengow">
-                    <h1>' . $translations['welcome_back'] . '</h1>
+                    <h1>'.$translations['welcome_back'].'</h1>
                     <a href="http://my.lengow.io" class="lgw-btn" target="_blank">
-                        ' . $translations['go_to_lengow'] . '
+                        '.$translations['go_to_lengow'].'
                     </a>
                 </div>
                 <div class="lgw-row lgw-home-menu text-center">
@@ -64,8 +65,8 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
                         <a id="lengowExportTab" href="#" class="lgw-box-link">
                             <div class="lgw-box">
                                 <img src="/engine/Shopware/Plugins/Community/Backend/Lengow/Views/backend/lengow/resources/img/home-products.png" class="img-responsive">
-                                <h2>' . $translations['products_title'] . '</h2>
-                                <p>' . $translations['products_text'] . '</p>
+                                <h2>'.$translations['products_title'].'</h2>
+                                <p>'.$translations['products_text'].'</p>
                             </div>
                         </a>
                     </div>
@@ -73,8 +74,8 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
                         <a id="lengowSettingsTab" href="#" class="lgw-box-link">
                             <div class="lgw-box">
                                 <img src="/engine/Shopware/Plugins/Community/Backend/Lengow/Views/backend/lengow/resources/img/home-settings.png" class="img-responsive">
-                                <h2>' . $translations['settings_title'] . '</h2>
-                                <p>' . $translations['settings_text'] . '</p>
+                                <h2>'.$translations['settings_title'].'</h2>
+                                <p>'.$translations['settings_text'].'</p>
                             </div>
                         </a>
                     </div>
@@ -83,36 +84,36 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
                     <div class="lgw-col-12 center-block">
                         <img src="/engine/Shopware/Plugins/Community/Backend/Lengow/Views/backend/lengow/resources/img/picto-stats.png" class="img-responsive">
                     </div>
-                    <h2>' . $translations['partner_business'] . '</h2>
+                    <h2>'.$translations['partner_business'].'</h2>
                     <div class="lgw-row lgw-home-stats">
                         <div class="lgw-col-4 lgw-col-offset-2">
-                            <h5>' . $translations['stat_turnover'] . '</h5>
-                            <span class="stats-big-value">' . $stats['total_order'] . '</span>
+                            <h5>'.$translations['stat_turnover'].'</h5>
+                            <span class="stats-big-value">'.$stats['total_order'].'</span>
                         </div>
                         <div class="lgw-col-4">
-                            <h5>' . $translations['stat_nb_orders'] . '</h5>
-                            <span class="stats-big-value">' . $stats['nb_order'] . '</span>
+                            <h5>'.$translations['stat_nb_orders'].'</h5>
+                            <span class="stats-big-value">'.$stats['nb_order'].'</span>
                         </div>
                     </div>
                     <p>
                         <a href="http://my.lengow.io" target="_blank" class="lgw-btn lgw-btn-white">
-                            ' . $translations['stat_more_stats'] . '
+                            '.$translations['stat_more_stats'].'
                         </a>
                     </p>
                 </div>
                 <div class="lgw-box">
-                    <h2>' . $translations['some_help_title'] . '</h2>
+                    <h2>'.$translations['some_help_title'].'</h2>
                     <p>
-                        <a href="#" id="lengowHelpTab">' . $translations['get_in_touch'] . ' </a>
+                        <a href="#" id="lengowHelpTab">'.$translations['get_in_touch'].' </a>
                     </p>
                     <p>
-                        <a href="' . $translations['help_center_link'] . '" target="_blank">'
+                        <a href="'.$translations['help_center_link'].'" target="_blank">'
                             .$translations['visit_help_center'].
-                        '</a> ' . $translations['configure_plugin'] . '
+                        '</a> '.$translations['configure_plugin'].'
                     </p>
                 </div>
             </div>
-            ' . Shopware_Plugins_Backend_Lengow_Components_LengowElements::getFooter() . '
+            '.Shopware_Plugins_Backend_Lengow_Components_LengowElements::getFooter().'
         </div>';
         $this->View()->assign(
             array(
