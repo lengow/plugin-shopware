@@ -45,6 +45,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowStatistic
         $return = array();
         $return['total_order'] = 0;
         $return['nb_order'] = 0;
+        $return['currency'] = '';
         //get stats by shop
         $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops();
         $i = 0;
@@ -70,6 +71,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowStatistic
             if (isset($result->level0)) {
                 $return['total_order'] += $result->level0->revenue;
                 $return['nb_order'] += $result->level0->transactions;
+                $return['currency'] = $result->currency->iso_a3;
             }
             $account_ids[] = $account_id;
             $i++;
