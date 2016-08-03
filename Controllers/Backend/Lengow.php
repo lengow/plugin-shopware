@@ -29,18 +29,22 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
         $panelHtml = '
             <div class="lgw-container">
                 <div class="lgw-content-section text-center">
-                    <iframe id="lengow_iframe" scrolling="no" style="display: none; overflow-y: hidden;" frameborder="0"></iframe>
+                    <iframe id="lengow_iframe" 
+                        scrolling="no"
+                        style="display: none; overflow-y: hidden;"
+                        frameborder="0"></iframe>
                 </div>
             </div>
             <input type="hidden" id="lengow_ajax_link">
-            <input type="hidden" id="lengow_sync_link">';
+            <input type="hidden" id="lengow_sync_link">
+        ';
         $this->View()->assign(
             array(
                 'success' => true,
                 'data'    => array(
-                    'panelHtml' => $panelHtml,
+                    'panelHtml'     => $panelHtml,
                     'isNewMerchant' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::isNewMerchant()),
-                    'isSync' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::isSync()
+                    'isSync'        => Shopware_Plugins_Backend_Lengow_Components_LengowMain::isSync()
             )
         );
     }
