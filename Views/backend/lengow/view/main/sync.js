@@ -58,11 +58,15 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
             //    return;
             console.log(event.data);
 
-            /*switch (event.data.function) {
+            switch (event.data.function) {
                 case 'sync':
                     Ext.Ajax.request({
                         url: href,
                         method: 'POST',
+                        params: {
+                            action: 'sync',
+                            data: event.data.parameters
+                        },
                         type: 'script'
                     });
                     break;
@@ -79,7 +83,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
                 case 'reload':
                     location.reload();
                     break;
-            }*/
+            }
         }
     }
 });
