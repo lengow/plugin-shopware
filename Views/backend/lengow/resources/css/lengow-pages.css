@@ -9,6 +9,9 @@
     padding:0 0px;
     margin-left:5px;
 }
+#menucountertrial a:visited{
+    color: #00aeef;
+}
 #menucountertrial a:hover{
     background:none;
     color:#00aeef;
