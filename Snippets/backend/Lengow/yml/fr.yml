@@ -1,4 +1,4 @@
-en:
+fr:
   title: "Lengow"
   window:
     tab:
@@ -7,12 +7,14 @@ en:
       logs: "Import"
       logs: "Logs"
       settings: "Configuration"
+      help: "Aide"
   menu:
     preprod_active: "mode préproduction "
     counter: "Période d'essai : %{counter} jour(s) restant(s)"
     upgrade_account: "Mettre à jour"
   footer:
     legals: "Mentions légales"
+    lengow_url: "http://www.lengow.com/"
     plugin_lengow: "Lengow Shopware Plugin"
   dashboard:
     screen:
@@ -20,7 +22,6 @@ en:
       go_to_lengow: "Aller sur la plateforme Lengow"
       products_title: "Produits"
       products_text: "Consulter tous vos produits disponibles pour préparer votre catalogue"
-      orders_text: "Gérer vos commandes directement sur votre tableau de bord Shopware."
       settings_title: "Paramètrage"
       settings_text: "Configurer les principaux paramètres de votre plugin PrestaShop"
       partner_business: "Lengow, partenaire de votre activité e-commerce"
@@ -30,7 +31,29 @@ en:
       some_help_title: "Besoin d'aide ?"
       get_in_touch: "Prenez contact avec les équipes Lengow."
       visit_help_center: "Visitez notre Help Center"
+      help_center_link: "https://fr.knowledgeowl.com/"
       configure_plugin: "pour plus d'informations sur la configuration de votre plugin Shopware"
+  help:
+    screen:
+      title: "Get a little help from your support team!"
+      contain_text_support: "Ask us anything about Lengow or share feedback at"
+      mail_lengow_support: "support.lengow.zendesk@lengow.com."
+      mail_lengow_support_title: "Account Information:"
+      mailto_subject: "Prestashop Lengow Plugin #Need assistance"
+      need_some_help: "Need some help?"
+      contain_text_support_hour: "We’ll do our best to get back to you during regular business hours (Monday to Friday – 9am to 6pm GMT+1)."
+      find_answer: "You can also find answers in our "
+      link_shopware_guide: "Shopware dedicated guide"
+  legals:
+    screen:
+      simplified_company: "Société par actions simplifiés "
+      social_capital: "Capital social :"
+      cnil_declaration: "Déclaration CNIL :"
+      company_registration_number: "RCS de Nantes :"
+      vat_identification_number: "Numéro de TVA intracommunautaire :"
+      address: "Adresse"
+      contact: "Contact"
+      hosting: "Hébergement"
   settings:
     lengow_main_settings:
       label: "Paramètres généraux"
@@ -71,12 +94,12 @@ en:
     lengow_import_settings:
       label: "Paramètres d'import"
       description: "Gestion des paramètes d'import"
-      decrease_stock:
-        label: "Diminuer les stocks des produits expédiés par les places de marché"
-        description: "Use this option to take into account your marketplaces orders on your stock in your Shopware backoffice"
       enable_import:
         label: "Activer l'import"
         description: "Activer cette option pour décrémenter les stocks de votre backoffice Shopware"
+      decrease_stock:
+        label: "Diminuer les stocks des produits expédiés par les places de marché"
+        description: "Use this option to take into account your marketplaces orders on your stock in your Shopware backoffice"
       import_days:
         label: "Réimporter les commandes passées depuis (en jours)"
         description: "Activer cette option si vous avez des commandes en erreurs. Cela vous permet de réimporter toutes les commandes effectuées pendant cette période"
@@ -97,6 +120,11 @@ en:
       line:
         add: "Ajouter à l'export"
         remove: "Supprimer de l'export"
+      checkbox:
+        edit_all: " Sélectionner l'ensemble de vos produits "
+        variations: "Inclure les produits déclinés"
+        out_stock: "Inclure les produits hors stock"
+        selection: "Inclure une sélection de produits"
       label:
         counter:
           count: "produits exportés sur "
@@ -104,11 +132,6 @@ en:
         status:
           synchronized: "Synchronisée"
           not_synchronized: "Synchroniser ma boutique avec Lengow"
-      checkbox:
-        edit_all: " Sélectionner l'ensemble de vos produits "
-        variations: "Inclure les produits déclinés"
-        out_stock: "Inclure les produits hors stock"
-        selection: "Inclure une sélection de produits"
       button:
         add: "Ajouter à l'export"
         remove: "Supprimer de l'export"
@@ -121,9 +144,11 @@ en:
     screen:
       import_charge_second: "Restez avec nous; ça ne va pas durer longtemps"
     panel:
+      no_notification: "Aucune notification sur les commandes"
       description: "Importer et décrémenter les stocks des commandes importées depuis <b>%{nb_days}</b> jours."
       last_import: "Dernière synchronisation : <b>%{import_date}</b>"
       order_new: "%{nb_order} commandes(s) décrémentées"
+      order_error_link: "%{nb_order} commande(s) avec des erreurs (<a href='%{log_url}' target='_blank'>Voir les logs pour plus d'information</a>)"
       order_update: "%{nb_order} commandes(s) mise(s) à jour"
       order_error: "%{nb_order} commande(s) avec des erreurs"
       order_import_failed: "Echec de l'import (<a href='%{log_url}' target='_blank'>Voir les logs pour plus d'information</a>)"

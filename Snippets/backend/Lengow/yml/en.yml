@@ -7,12 +7,14 @@ en:
       import: "Import"
       logs: "Logs"
       settings: "Config"
+      help: "Help"
   menu:
     preprod_active: "Pre-production mode"
     counter: "Trial period: %{counter} day(s) left"
     upgrade_account: "Upgrade"
   footer:
     legals: "Legal notices"
+    lengow_url: "http://www.lengow.com/"
     plugin_lengow: "Lengow Shopware Plugin"
   dashboard:
     screen:
@@ -20,8 +22,6 @@ en:
       go_to_lengow: "Go to Lengow"
       products_title: "Products"
       products_text: "Take a look at all available products so that you can prepare your catalogue"
-      orders_title: "Orders"
-      orders_text: "Manage your orders directly on your Shopware dashboard"
       settings_title: "Settings"
       settings_text: "Configure your Shopware plugin main settings"
       partner_business: "Lengow, your business partner"
@@ -31,7 +31,29 @@ en:
       some_help_title: "Need some help?"
       get_in_touch: "Get in touch with Lengow."
       visit_help_center: "Visit our Help Center"
+      help_center_link: "https://en.knowledgeowl.com/"
       configure_plugin: "for detailed information on how to configure your Shopware plugin properly"
+  help:
+    screen:
+      title: "Get a little help from your support team!"
+      contain_text_support: "Ask us anything about Lengow or share feedback at"
+      mail_lengow_support: "support.lengow.zendesk@lengow.com."
+      mail_lengow_support_title: "Account Information:"
+      mailto_subject: "Shopware Lengow Plugin #Need assistance"
+      need_some_help: "Need some help?"
+      contain_text_support_hour: "We’ll do our best to get back to you during regular business hours (Monday to Friday – 9am to 6pm GMT+1)."
+      find_answer: "You can also find answers in our "
+      link_shopware_guide: "Shopware dedicated guide"
+  legals:
+    screen:
+      simplified_company: "Simplified limited liability company"
+      social_capital: "Social capital:"
+      cnil_declaration: "CNIL declaration:"
+      company_registration_number: "Company Registration Number, Nantes:"
+      vat_identification_number: "VAT identification number:"
+      address: "Address"
+      contact: "Contact"
+      hosting: "Hosting"
   settings:
     lengow_main_settings:
       label: "Main settings"

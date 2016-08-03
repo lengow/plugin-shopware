@@ -1,9 +1,5 @@
 de:
   title: "Lengow"
-  global:
-    select:
-      select_yes: "Ja"
-      select_no: "Nein"
   window:
     tab:
       home: "Home"
@@ -11,7 +7,7 @@ de:
       import: "Import"
       logs: "Protokolle"
       settings: "Konfigurieren"
-      register: "Registrieren lassen"
+      help: "Help"
   dashboard:
     screen:
       welcome_back: "Hallo! Willkommen zurück!"
