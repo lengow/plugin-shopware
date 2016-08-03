@@ -34,7 +34,7 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                     me.mainWindow = me.getView('main.Home').create({
                         exportStore: Ext.create('Shopware.apps.Lengow.store.Article'),
                         logStore: Ext.create('Shopware.apps.Lengow.store.Logs')
-                    }).show();
+                    });
 
                     me.initImportTab();
                 } else {
@@ -47,7 +47,6 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                     me.mainWindow.initFrame();
                 }
                 // Show main window
-                me.mainWindow.show();
                 me.mainWindow.maximize();
             }
         });
@@ -86,8 +85,11 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                         Ext.getCmp(selector).update(htmlContent);
                     });
                 } else {
-                    // Hide tabbar if nothing to show
-                    Ext.getCmp('lengowMainToolbar').hide();
+                    var toolbar = Ext.getCmp('lengowMainToolbar');
+                    if (toolbar !== 'undefined') {
+                        // Hide tabbar if nothing to show
+                        toolbar.hide();
+                    }
                 }
             }
         });

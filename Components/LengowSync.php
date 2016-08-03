@@ -169,7 +169,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 $config = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                     'lengowAccountStatus'
                 );
-                return json_decode($config);
+                return json_decode($config, true);
             }
         }
         // TODO call API for return a customer id or false
