@@ -140,6 +140,9 @@ ul,li{
 
 
 .lgw-container{
+    font: 400 12px/1.42857 "Open Sans",Helvetica,Arial,sans-serif;
+    font-style: normal;
+    font-variant: normal;
     font-family: 'Open Sans', sans-serif;
     font-size: 15px;
     color: #464646;
@@ -163,7 +166,13 @@ ul,li{
 }
 
 .lgw-container h3{
+    display: block;
     font-size: 19px;
+    -webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    font-weight: bold;
 }
 
 .lgw-container h4{
