@@ -95,6 +95,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
                     style: {
                         background: '#F7F7F7'
                     },
+                    overflowY: 'scroll',
                     hidden: true
                 }
             ],
