@@ -92,6 +92,9 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
                 {
                     layout: 'border',
                     id: 'lengowLegalsTab',
+                    style: {
+                        background: '#F7F7F7'
+                    },
                     hidden: true
                 }
             ],

@@ -50,11 +50,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             $exportUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getExportUrl($shop);
             $importUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getImportUrl($shop);
             $token = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop);
-            $host = $shop->getHost() ? $shop->getHost() : $_SERVER['SERVER_NAME'];
-            $path = $shop->getBaseUrl() ? $shop->getBaseUrl() : '';
+            $domain = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopUrl($shop);
             $data['shops'][$shopId]['token'] = $token;
             $data['shops'][$shopId]['name'] = $shop->getName();
-            $data['shops'][$shopId]['domain'] = $host . $path;
+            $data['shops'][$shopId]['domain'] = $domain;
             $data['shops'][$shopId]['feed_url'] = $exportUrl;
             $data['shops'][$shopId]['cron_url'] = $importUrl;
             $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, array());

@@ -88,7 +88,7 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
                     <div class="lgw-row lgw-home-stats">
                         <div class="lgw-col-4 lgw-col-offset-2">
                             <h5>'.$translations['stat_turnover'].'</h5>
-                            <span class="stats-big-value">'.$stats['total_order'].'</span>
+                            <span class="stats-big-value">'.$stats['total_order'].' '.$stats['currency'].'</span>
                         </div>
                         <div class="lgw-col-4">
                             <h5>'.$translations['stat_nb_orders'].'</h5>
