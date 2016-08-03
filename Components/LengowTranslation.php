@@ -126,4 +126,28 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
         }
         return array_key_exists($isoCode, self::$translation);
     }
+
+    /**
+     * Get translations from an array
+     * @param $keys
+     * @return array
+     */
+    public static function getTranslationsFromArray($keys)
+    {
+        // Get locale from session
+        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
+        $lengowTranslation = new Shopware_Plugins_Backend_Lengow_Components_LengowTranslation();
+        $translations = array();
+        foreach ($keys as $path => $key) {
+            foreach ($key as $value) {
+                if (preg_match('/^(([a-z\_]*\/){1,3}[a-z\_]*)(\[(.*)\]|)$/', $path.$value, $result)) {
+                    if (isset($result[1])) {
+                        $tKey = $result[1];
+                    }
+                    $translations[$value] = $lengowTranslation->t($tKey, array(), $locale);
+                }
+            }
+        }
+        return $translations;
+    }
 }

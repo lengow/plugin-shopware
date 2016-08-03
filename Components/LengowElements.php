@@ -70,7 +70,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
     public static function getFooter()
     {
         $keys = array('footer/' => array('legals', 'plugin_lengow', 'lengow_url'));
-        $translations = self::getTranslationsFromArray($keys);
+        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
         $html = '<div class="lgw-container lgw-footer-vold clear">
                 <div class="lgw-content-section text-center">
                     <div id="lgw-footer">
@@ -105,7 +105,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
             'address',
             'contact',
             'hosting'));
-        $translations = self::getTranslationsFromArray($keys);
+        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
         $html = '<div class="lgw-container">
             <div class="lgw-box lengow_legals_wrapper">
                 <h3>SAS Lengow</h3> ' . $translations['simplified_company'].'<br />
@@ -122,28 +122,5 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
             </div>
         </div>';
         return $html;
-    }
-
-    /**
-     * Get translation from array
-     *
-     * @param string $keys
-     *
-     * @return array
-     */
-    public static function getTranslationsFromArray($keys)
-    {
-        // Get locale from session
-        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
-        $translations = array();
-        foreach ($keys as $path => $key) {
-            foreach ($key as $value) {
-                $translations[$value] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                    $path.$value,
-                    $locale
-                );
-            }
-        }
-        return $translations;
     }
 }

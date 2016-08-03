@@ -39,7 +39,7 @@ class Shopware_Controllers_Backend_LengowHelp extends Shopware_Controllers_Backe
                 'need_some_help',
                 'mail_lengow_support')
         );
-        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowElements::getTranslationsFromArray($keys);
+        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
         $html = '<div class="lgw-container">
                 <div class="lgw-box lengow_help_wrapper text-center">
                     <h2>' . $translations['title'] . '</h2>
@@ -73,7 +73,7 @@ class Shopware_Controllers_Backend_LengowHelp extends Shopware_Controllers_Backe
                 'need_some_help',
                 'mail_lengow_support')
         );
-        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowElements::getTranslationsFromArray($keys);
+        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
         $mailTo = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getSyncData();
         $mail = 'support.lengow.zendesk@lengow.com';
         $subject = $translations['mailto_subject'];

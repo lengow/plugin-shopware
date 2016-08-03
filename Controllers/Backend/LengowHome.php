@@ -48,7 +48,7 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
                 'help_center_link',
                 'configure_plugin')
         );
-        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowElements::getTranslationsFromArray($keys);
+        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
         $htmlContent = '
         <div id="lengow_home_wrapper">
             <div class="lgw-container">
