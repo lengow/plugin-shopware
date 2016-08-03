@@ -164,7 +164,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         $this->preprod_mode = (
             isset($params['preprod_mode'])
             ? (bool)$params['preprod_mode']
-            : (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowImportPreprodEnabled')
+            : (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowImportPreprodEnabled'
+            )
         );
         $this->type_import = (isset($params['type']) ? $params['type'] : 'manual');
         $this->log_output = (isset($params['log_output']) ? (bool)$params['log_output'] : false);

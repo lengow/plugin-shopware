@@ -21,6 +21,11 @@
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowElements
 {
+    /**
+     * Get Header html
+     *
+     * @return string
+     */
     public static function getHeader()
     {
         Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatusAccount();
@@ -52,11 +57,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
             $html['lgw-trial-label'] =
                 '<p class="text-right" id="menucountertrial">'.$counterTranslation.
                 '<a href="http://my.lengow.io" target="_blank">'.$upgradeTranslation.'</a>
-                    </p>';
+                </p>';
         }
         return $html;
     }
 
+    /**
+     * Get Footer html
+     *
+     * @return string
+     */
     public static function getFooter()
     {
         $keys = array('footer/' => array('legals', 'plugin_lengow', 'lengow_url'));
@@ -65,9 +75,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                 <div class="lgw-content-section text-center">
                     <div id="lgw-footer">
                         <p class="pull-right">
-                            <a href="#" id="lengowLegalsTab" class="sub-link" title="Legal">' . $translations['legals'] . '</a>
-                             | ' . $translations['plugin_lengow'] . ' -
-                            <a href=' . $translations['lengow_url'] . ' target="_blank" class="sub-link" title="Lengow.com">Lengow.com</a>
+                            <a href="#" id="lengowLegalsTab" class="sub-link" title="Legal">
+                            '.$translations['legals']
+                            .'</a>
+                             | '.$translations['plugin_lengow'].' -
+                            <a href='.$translations['lengow_url'].' target="_blank" class="sub-link" title="Lengow.com">
+                            Lengow.com
+                            </a>
                         </p>
                     </div>
                 </div>
@@ -75,6 +89,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
         return $html;
     }
 
+    /**
+     * Get Legals html
+     *
+     * @return string
+     */
     public static function getLegals()
     {
         $keys = array('legals/screen/' => array(
@@ -89,14 +108,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
         $translations = self::getTranslationsFromArray($keys);
         $html = '<div class="lgw-container">
             <div class="lgw-box lengow_legals_wrapper">
-                <h3>SAS Lengow</h3> ' . $translations['simplified_company'] . '<br />
-                ' . $translations['social_capital'] . '368 778 € <br />
-                ' . $translations['cnil_declaration'] . '1748784 v 0 <br />
-                ' . $translations['company_registration_number'] . '513 381 434 <br />
-                ' . $translations['vat_identification_number'] . 'FR42513381434 <br />
-                <h3>' . $translations['address'] . '</h3>6 rue René Viviani <br /> 44200 Nantes
-                <h3>' . $translations['contact'] . '</h3> contact@lengow.com <br /> +33 (0)2 85 52 64 14
-                <h3>' . $translations['hosting'] . '</h3>Linkbynet<br />
+                <h3>SAS Lengow</h3> ' . $translations['simplified_company'].'<br />
+                '.$translations['social_capital'].'368 778 € <br />
+                '.$translations['cnil_declaration'].'1748784 v 0 <br />
+                '.$translations['company_registration_number'].'513 381 434 <br />
+                '.$translations['vat_identification_number'] . 'FR42513381434 <br />
+                <h3>'.$translations['address'].'</h3>6 rue René Viviani <br /> 44200 Nantes
+                <h3>'.$translations['contact'].'</h3> contact@lengow.com <br /> +33 (0)2 85 52 64 14
+                <h3>'.$translations['hosting'].'</h3>Linkbynet<br />
                 RCS Bobigny : 430 359 927<br />
                 5-9 Rue, de l’Industrie – 93200 Saint-Denis<br />
                 +33 (0)1 48 13 00 00
@@ -105,6 +124,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
         return $html;
     }
 
+    /**
+     * Get translation from array
+     *
+     * @param string $keys
+     *
+     * @return array
+     */
     public static function getTranslationsFromArray($keys)
     {
         // Get locale from session
@@ -113,7 +139,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
         foreach ($keys as $path => $key) {
             foreach ($key as $value) {
                 $translations[$value] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                    $path . $value,
+                    $path.$value,
                     $locale
                 );
             }
