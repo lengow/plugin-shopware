@@ -43,7 +43,7 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                         panelHtml: data['panelHtml'],
                         isSync: data['isSync'],
                         syncLink: false
-                    });
+                    }).show();
                     me.mainWindow.initFrame();
                 }
                 // Show main window
