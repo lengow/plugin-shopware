@@ -39,7 +39,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowStatistic
                 'lengowOrderStatUpdate');
             if ((time() - strtotime($updatedAt)) < self::$cacheTime) {
                 $stats = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowOrderStat');
-                return json_decode($stats);
+                return json_decode($stats, true);
             }
         }
         $return = array();

@@ -327,6 +327,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowLogs',
             'onGetLogControllerPath'
         );
+        // Help controller
+        $this->subscribeEvent(
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowHelp',
+            'onGetHelpControllerPath'
+        );
         $this->subscribeEvent(
             'Enlight_Controller_Front_DispatchLoopStartup',
             'onStartDispatch'
@@ -348,6 +353,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         return $this->Path().'Controllers/Backend/Lengow.php';
     }
 
+    /**
+     * Returns the path to Lengow home controller
+     *
+     * @return string
+     */
     public function onGetHomeControllerPath()
     {
         return $this->Path().'Controllers/Backend/LengowHome.php';
@@ -391,6 +401,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public function onGetLogControllerPath()
     {
         return $this->Path().'Controllers/Backend/LengowLogs.php';
+    }
+
+    /**
+     * Returns the path to Lengow help controller
+     *
+     * @return string
+     */
+    public function onGetHelpControllerPath()
+    {
+        return $this->Path().'Controllers/Backend/LengowHelp.php';
     }
 
     /**

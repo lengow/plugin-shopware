@@ -1,10 +1,5 @@
 <?php
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Criteria;
-use Doctrine\ORM\Query\Expr;
-use Doctrine\ORM\Query\QueryExpressionVisitor;
-
 /**
  * Copyright 2016 Lengow SAS.
  *
@@ -47,8 +42,6 @@ class Shopware_Controllers_Backend_LengowSync extends Shopware_Controllers_Backe
                     break;
                 case 'refresh_status':
                     Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatusAccount(true);
-                    /*$lengow_link = new LengowLink();
-                    Tools::redirectAdmin($lengow_link->getAbsoluteAdminLink('AdminLengowHome'));*/
                     break;
             }
         } else {

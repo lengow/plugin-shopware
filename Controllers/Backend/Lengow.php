@@ -1,7 +1,5 @@
 <?php
 
-use Doctrine\ORM\Query\Expr;
-
 /**
  * Copyright 2016 Lengow SAS.
  *
@@ -52,41 +50,20 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
      */
     public function getToolbarContentAction()
     {
-        Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatusAccount();
-        $data = array();
-        $accountStatus = json_decode(Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowAccountStatus'
-        ));
-        $isPreProdActive = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowImportPreprodEnabled'
-        );
-        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
-        $preprodTranslation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-            'menu/preprod_active',
-            $locale
-        );
-        $counterTranslation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-            'menu/counter',
-            $locale,
-            array('counter' => $accountStatus->day)
-        );
-        $upgradeTranslation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-            'menu/upgrade_account',
-            $locale
-        );
-        if ($isPreProdActive) {
-            $data['lgw-preprod-label'] = '<div id="lgw-preprod" class="adminlengowhome">'.$preprodTranslation.'</div>';
-        }
-        if ($accountStatus->type == 'free_trial' && $accountStatus->day != 0) {
-            $data['lgw-trial-label'] =
-                    '<p class="text-right" id="menucountertrial">'.$counterTranslation.
-                        '<a href="http://www.lengow.com/" target="_blank">'.$upgradeTranslation.'</a>
-                    </p>';
-        }
         $this->View()->assign(
             array(
                 'success' => true,
-                'data'    => $data
+                'data'    => Shopware_Plugins_Backend_Lengow_Components_LengowElements::getHeader()
+            )
+        );
+    }
+
+    public function getLegalsTabContentAction()
+    {
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data'    => Shopware_Plugins_Backend_Lengow_Components_LengowElements::getLegals()
             )
         );
     }

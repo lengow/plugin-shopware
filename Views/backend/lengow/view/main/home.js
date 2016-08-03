@@ -6,6 +6,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
     alias: 'widget.lengow-main-home',
 
     // Window properties
+    id: 'lengowMainWindow',
     border: false,
     layout: 'border',
 
@@ -16,7 +17,8 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
             export: '{s name="window/tab/export" namespace="backend/Lengow/translation"}Export{/s}',
             import: '{s name="window/tab/import" namespace="backend/Lengow/translation"}Import{/s}',
             logs: '{s name="window/tab/logs" namespace="backend/Lengow/translation"}Logs{/s}',
-            settings: '{s name="window/tab/settings" namespace="backend/Lengow/translation"}Settings{/s}'
+            settings: '{s name="window/tab/settings" namespace="backend/Lengow/translation"}Settings{/s}',
+            help: '{s name="window/tab/help" namespace="backend/Lengow/translation"}Help{/s}'
         }
     },
 
@@ -32,6 +34,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
         ];
         me.tbar = me.getToolbar();
         me.fireEvent('initToolbar');
+        me.fireEvent('initLegalsTab');
         me.callParent(arguments);
     },
 
@@ -48,9 +51,8 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
             items: [
                 // Home tab
                 {
-                    title: me.snippets.tab.home,
-                    id: 'homePanel',
-                    xtype: 'lengow-home-panel',
+                    id: 'lengowDashboardTab',
+                    xtype: 'lengow-dashboard-panel',
                     layout: 'border'
                 },
                 // Export tab
@@ -65,13 +67,8 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
                 {
                     title: me.snippets.tab.import,
                     layout: 'border',
-                    id: 'lengowImportTab',
-                    tabConfig: {
-                        listeners: {
-                            click: function (tab, e) {
-                            }
-                        }
-                    }
+                    hidden: true,
+                    id: 'lengowImportTab'
                 },
                 // Log tab
                 {
@@ -84,6 +81,18 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
                     title: me.snippets.tab.settings,
                     layout: 'border',
                     id: 'lengowSettingsTab'
+                },
+                // Help tab
+                {
+                    layout: 'border',
+                    xtype: 'lengow-help-panel',
+                    id: 'lengowHelpTab'
+                },
+                // Legals tab, hidden
+                {
+                    layout: 'border',
+                    id: 'lengowLegalsTab',
+                    hidden: true
                 }
             ],
 
@@ -104,6 +113,13 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
                         me.showLogsWindow();
                         return false; // avoid switching tab
                     }
+                },
+                'tabchange': function() {
+                    me.fireEvent('initLinkListener');
+                },
+                'afterrender': function() {
+                    // Load dashboard content when main panel is ready
+                    me.fireEvent('loadDashboardContent');
                 }
             }
         });

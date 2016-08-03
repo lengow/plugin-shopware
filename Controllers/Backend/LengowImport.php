@@ -1,7 +1,5 @@
 <?php
 
-use Doctrine\ORM\Query\Expr;
-
 /**
  * Copyright 2016 Lengow SAS.
  *

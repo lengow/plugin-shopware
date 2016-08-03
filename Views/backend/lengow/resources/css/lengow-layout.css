@@ -198,8 +198,7 @@ ul,li{
     text-decoration: underline;
 }
 
-.lgw-container .shopware-menu-link a:hover{
-    color:#019ce2;
+.lgw-container .lgw-box-link:hover{
     text-decoration: none;
 }
 .lgw-container .sub-link{

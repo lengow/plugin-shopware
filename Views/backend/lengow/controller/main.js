@@ -10,7 +10,9 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
 
         me.control({
             'lengow-main-home': {
-                initToolbar: me.onInitToolbar
+                initToolbar: me.onInitToolbar,
+                initLinkListener: me.onInitLinkListener,
+                initLegalsTab: me.onInitLegalsTab
             }
         });
     },
@@ -61,8 +63,8 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
             type: 'json',
             success: function(response) {
                 var status = Ext.decode(response.responseText)['data'];
-                if (!status) {
-                    Ext.getCmp('lengowTabPanel').child('#lengowImportTab').tab.hide();
+                if (status) {
+                    Ext.getCmp('lengowTabPanel').child('#lengowImportTab').tab.show();
                 }
             }
         });
@@ -87,6 +89,30 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                     // Hide tabbar if nothing to show
                     Ext.getCmp('lengowMainToolbar').hide();
                 }
+            }
+        });
+    },
+
+    onInitLinkListener: function() {
+        // Get Lengow links (products & settings dashboard boxes, help link, ...)
+        var tabShortcuts = Ext.query("a[id^=lengow][id$=Tab]");
+        // For each one, listen on click and trigger concerned tab
+        Ext.each(tabShortcuts, function(item) {
+            item.onclick = function() {
+                var tabEl = Ext.getCmp(item.id); // Get tab reference
+                Ext.getCmp('lengowTabPanel').setActiveTab(tabEl);
+            };
+        });
+    },
+
+    onInitLegalsTab: function() {
+        Ext.Ajax.request({
+            url: '{url controller="Lengow" action="getLegalsTabContent"}',
+            method: 'POST',
+            type: 'json',
+            success: function(response) {
+                var html = Ext.decode(response.responseText)['data'];
+                Ext.getCmp('lengowLegalsTab').update(html);
             }
         });
     }

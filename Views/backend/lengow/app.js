@@ -9,22 +9,23 @@ Ext.define('Shopware.apps.Lengow', {
 
     controllers: [
         'Main',
+        'Dashboard',
         'Export',
-        'Import'
+        'Import',
+        'Help'
     ],
-
     views: [
         'main.Home',
         'main.Sync',
-        'home.Panel',
+        'dashboard.Panel',
         'export.Panel',
         'export.Container',
         'export.Grid',
         'export.Tree',
         'import.Panel',
-        'logs.Panel'
+        'logs.Panel',
+        'help.Panel'
     ],
-
     models: [
         'Article',
         'Logs',
