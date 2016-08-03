@@ -36,7 +36,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowStatistic
     {
         if (!$force) {
             $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowOrderStatUpdate');
+                'lengowOrderStatUpdate'
+            );
             if ((time() - strtotime($updatedAt)) < self::$cacheTime) {
                 $stats = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowOrderStat');
                 return json_decode($stats, true);
@@ -52,7 +53,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowStatistic
         foreach ($shops as $shop) {
             $account_id = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowAccountId',
-                $shop);
+                $shop
+            );
             if (!$account_id || in_array($account_id, $account_ids) || empty($account_id)) {
                 continue;
             }
@@ -78,10 +80,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowStatistic
         $return['nb_order'] = (int)$return['nb_order'];
         Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
             'lengowOrderStat',
-            json_encode($return));
+            json_encode($return)
+        );
         Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
             'lengowOrderStatUpdate',
-            date('Y-m-d H:i:s'));
+            date('Y-m-d H:i:s')
+        );
         return $return;
     }
 }

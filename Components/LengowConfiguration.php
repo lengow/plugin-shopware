@@ -129,8 +129,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * Get config from db
      * Shopware < 5.0.0 compatibility
      * > 5.0.0 : Use Shopware()->Plugins()->Backend()->Lengow()->get('config_writer')->get() instead
-     * @param string $name Config name
-     * @param int $shopId Shop id
+     *
+     * @param string  $name   Config name
+     * @param integer $shopId Shop id
+     *
      * @return mixed Config value|null
      */
     public function get($name, $shopId = 1)
@@ -150,8 +152,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * Save new config in the db
      * Shopware < 5.0.0 compatibility
      * > 5.0.0 : Use Shopware()->Plugins()->Backend()->Lengow()->get('config_writer')->save() instead
-     * @param string $name New config name
-     * @param mixed $value Config value
+     *
+     * @param string   $name   New config name
+     * @param mixed    $value  Config value
      * @param null|int $shopId Shop concerned by this config
      */
     public function save($name, $value, $shopId = 1)
@@ -170,14 +173,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
 
     /**
      * Search element config by name
-     * @param string $name Config name to search
+     *
+     * @param string   $name   Config name to search
      * @param int|null $shopId Shop id
+     *
      * @return \Doctrine\ORM\QueryBuilder
      */
     private function getConfigValueByNameQuery($name, $shopId = 1)
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $connection = $em->getConnection();;
+        $connection = $em->getConnection();
         $query = $connection->createQueryBuilder();
         $query->select([
             'element.id as elementId',
@@ -187,7 +192,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         ]);
 
         $query->from('s_core_config_elements', 'element')
-            ->leftJoin('element', 's_core_config_values', 'elementValues', 'elementValues.element_id = element.id AND elementValues.shop_id = :shopId')
+            ->leftJoin(
+                'element',
+                's_core_config_values',
+                'elementValues',
+                'elementValues.element_id = element.id AND elementValues.shop_id = :shopId'
+            )
             ->where('element.name = :name')
             ->setParameter(':shopId', $shopId)
             ->setParameter(':name', $name);
@@ -197,8 +207,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
 
     /**
      * Update existing config
-     * @param mixed $value New config value
-     * @param int $valueId Shopware\Models\Config\Value id
+     *
+     * @param mixed   $value   New config value
+     * @param integer $valueId Shopware\Models\Config\Value id
+     *
      * @throws \Doctrine\ORM\ORMException
      */
     private function update($value, $valueId)
@@ -212,9 +224,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
 
     /**
      * Insert new configuration in the db
-     * @param mixed $value Config value
-     * @param int $shopId Shop id
-     * @param int $elementId Shopware\Models\Config\Element id
+     *
+     * @param mixed   $value     Config value
+     * @param integer $shopId    Shop id
+     * @param integer $elementId Shopware\Models\Config\Element id
+     *
      * @throws \Doctrine\ORM\ORMException
      */
     private function insert($value, $shopId, $elementId)
@@ -231,50 +245,38 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         $em->flush($option);
     }
 
+    /**
+     * Get all Lengow Keys for option synchronisation
+     *
+     * @return array
+     */
     public static function getKeys()
     {
         static $keys = null;
         $keys = array(
-            'LENGOW_ACCOUNT_ID' => array(),
-            'LENGOW_ACCESS_TOKEN' => array('shop' => true),
-            'LENGOW_SECRET_TOKEN' => array('shop' => true),
-            'LENGOW_SHOP_ACTIVE' => array('shop' => true),
-            'LENGOW_SHOP_TOKEN' => array('shop' => true),
+            'LENGOW_ACCOUNT_ID'               => array('shop' => true),
+            'LENGOW_ACCESS_TOKEN'             => array('shop' => true),
+            'LENGOW_SECRET_TOKEN'             => array('shop' => true),
+            'LENGOW_SHOP_ACTIVE'              => array('shop' => true),
+            'LENGOW_SHOP_TOKEN'               => array('shop' => true),
             'LENGOW_EXPORT_SELECTION_ENABLED' => array('shop' => true),
             'LENGOW_EXPORT_VARIATION_ENABLED' => array('shop' => true),
-            // TODO : register last export date
-            /*'LENGOW_LAST_EXPORT' => array(
-                'readonly'      => true,
-                'shop'          => true,
-                'label'         => $locale->t('lengow_setting.lengow_last_export_title'),
-            ),*/
-            'LENGOW_IMPORT_DAYS' => array(),
-            'LENGOW_IMPORT_PREPROD_ENABLED' => array(),
-            'LENGOW_IMPORT_SHIP_MP_ENABLED' => array(),
-            'LENGOW_IMPORT_IN_PROGRESS' => array(),
-            'LENGOW_LAST_IMPORT_CRON' => array(),
-            'LENGOW_LAST_IMPORT_MANUAL' => array(),
-            'LENGOW_GLOBAL_TOKEN' => array(),
-            'LENGOW_AUTHORIZED_IP' => array(),
-            // TODO : register last order stat synchronization
-            /*'LENGOW_ORDER_STAT' => array(
-                'type'          => 'json',
-                'label'         => $locale->t('lengow_setting.lengow_order_stat_title'),
-                'export'        => false
-            ),
-            'LENGOW_ORDER_STAT_UPDATE' => array(
-                'type'          => 'datetime',
-                'label'         => $locale->t('lengow_setting.lengow_order_stat_update_title'),
-                'export'        => false
-            ),*/
-            'LENGOW_ACCOUNT_STATUS' => array(),
-            'LENGOW_ACCOUNT_STATUS_UPDATE' => array(),
+            'LENGOW_LAST_EXPORT'              => array('shop' => true),
+            'LENGOW_IMPORT_DAYS'              => array('global' => true),
+            'LENGOW_IMPORT_PREPROD_ENABLED'   => array('global' => true),
+            'LENGOW_IMPORT_SHIP_MP_ENABLED'   => array('global' => true),
+            'LENGOW_IMPORT_IN_PROGRESS'       => array('global' => true),
+            'LENGOW_LAST_IMPORT_CRON'         => array('global' => true),
+            'LENGOW_LAST_IMPORT_MANUAL'       => array('global' => true),
+            'LENGOW_GLOBAL_TOKEN'             => array('global' => true),
+            'LENGOW_AUTHORIZED_IP'            => array('global' => true),
         );
         return $keys;
     }
 
     /**
      * @param $shop \Shopware\Models\Shop\Shop
+     *
      * @return array
      */
     public static function getAllValues($shop = null)
@@ -283,15 +285,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         $keys = self::getKeys();
         foreach ($keys as $key => $value) {
             $toCamelCase = self::camelCase(strtolower($key));
-            if (isset($value['export']) && !$value['export']) {
-                continue;
-            }
             if ($shop) {
-                if (isset($value['shop']) && $value['shop'] == 1) {
+                if (isset($value['shop']) && $value['shop']) {
                     $rows[$key] = self::getConfig($toCamelCase, $shop);
                 }
             } else {
-                $rows[$key] = self::getConfig($toCamelCase);
+                if (isset($value['global']) && $value['global']) {
+                    $rows[$key] = self::getConfig($toCamelCase);
+                }
             }
         }
         return $rows;
@@ -299,20 +300,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
 
     /**
      * Transform from Snake_Case to camelCase
-     * @param $str string String to convert
-     * @param array
+     *
+     * @param string $str     String to convert
+     * @param array  $noStrip
+     *
      * @return string Converted camelCase string
      */
-    public static function camelCase($str, array $noStrip = [])
+    public static function camelCase($str, array $noStrip = array())
     {
         // non-alpha and non-numeric characters become spaces
-        $str = preg_replace('/[^a-z0-9' . implode("", $noStrip) . ']+/i', ' ', $str);
+        $str = preg_replace('/[^a-z0-9'.implode("", $noStrip).']+/i', ' ', $str);
         $str = trim($str);
         // uppercase the first character of each word
         $str = ucwords($str);
         $str = str_replace(" ", "", $str);
         $str = lcfirst($str);
-
         return $str;
     }
 }
