@@ -215,8 +215,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         $form->setLabel($this->getTranslation('settings/'.$name.'/label'));
         $form->setDescription($this->getTranslation('settings/'.$name.'/description'));
         /** @var Shopware\Models\Shop\Locale[] $locales */
-        $locales = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager()->getRepository(
-            '\Shopware\Models\Shop\Locale')->findAll();
+        $locales = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager()
+            ->getRepository('\Shopware\Models\Shop\Locale')
+            ->findAll();
         foreach ($elements as $key => $options) {
             $type = $options['type'];
             array_shift($options);
