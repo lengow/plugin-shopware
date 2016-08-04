@@ -34,7 +34,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         'lengowAccountStatus',
         'lengowOrderStat',
         'lengowOrderStatUpdate',
-        'lengowOptionCmsUpdate'
+        'lengowOptionCmsUpdate',
+        'lengowLastExport'
     );
 
     /**

@@ -114,6 +114,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     private $exportOutOfStock;
 
     /**
+     * Update export date.
+     */
+    protected $updateExportDate;
+
+    /**
      * @var boolean Export variant articles
      */
     private $exportVariationEnabled;
@@ -361,6 +366,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             }
         }
         $success = $this->feed->end();
+        if ($this->updateExportDate) {
+            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
+                'lengowLastExport',
+                date('Y-m-d H:i:s'),
+                $this->shop);
+        }
         if (!$success) {
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(

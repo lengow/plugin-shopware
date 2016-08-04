@@ -39,7 +39,7 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
                 target: '_blank', // Avoids leaving the page
                 success: function(response, opts){
                     var url = opts.result.url;
-                    window.open(url + '?stream=1&shop=' + selectedShop);
+                    window.open(url + '?stream=1&update_export_date=0&shop=' + selectedShop);
                 }
             });
     	}
