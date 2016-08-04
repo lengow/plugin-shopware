@@ -16,10 +16,12 @@ default:
       import_not_active: "Import option is not enabled in Lengow's settings"
     exception:
       credentials_not_valid: "Credentials invalid for this shop"
+      marketplace_not_present: "Lengow error: %{markeplace_name} does not feature in the marketplace list"
       product_is_a_parent: "article %{product_id} is a parent ID. Article variation is needed"
       no_connection_webservice: "connection didn't work with the Lengow webservice in shop %{name_shop} (%{id_shop})"
       error_lengow_webservice: "Lengow webservice: %{error_code} - %{error_message} in shop %{name_shop} (%{id_shop})"
       crendetials_not_valid: "account ID, token access or secret token are not valid in shop %{name_shop} (%{id_shop})"
+      timeout_api: "API call has been blocked by a timeout"
   log:
     install:
       start: "## start install ##"
@@ -34,6 +36,9 @@ default:
       end: "## end uninstall ##"
       remove_model: "Removing custom model %{name}"
       remove_column: "Removing column %{column} from %{table} table"
+    connector:
+      call_api: "call %{curl_url}"
+      error_api: "API call failed - %{error_code}"
     import:
       start: "## start %{type} import ##"
       end: "## end %{type} import ##"
@@ -74,6 +79,7 @@ default:
       count_product: "%{numberOfProducts} article(s) exported"
       export_failed: "export failed - %{decoded_message}"
       your_feed_available_here: "Your feed is available here: <a href='%{feed_url}' target='_blank'>%{feed_url}</a>"
+      error_unable_to_create_folder: "unable to create folder %{folder_path}. Make sure it is writable"
       error_folder_not_writable: "Export file generation did not end properly. Please make sure the export folder is writable"
       error_no_product_combination: "Unable to retrieve article combinations"
       error_illegal_export_format: "Illegal export format"

@@ -255,7 +255,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Connector',
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                        'log.connector.call_api',
+                        'log/connector/call_api',
                         array('curl_url' => $opts[CURLOPT_URL])
                     )
                 );
@@ -280,10 +280,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         $error = curl_errno($ch);
         if (in_array($error, array(CURLE_OPERATION_TIMEDOUT, CURLE_OPERATION_TIMEOUTED))) {
             $timeout = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'lengow_log.exception.timeout_api'
+                'lengow_log/exception/timeout_api'
             );
             $error_message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'log.connector.error_api',
+                'log/connector/error_api',
                 array(
                     'error_code' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($timeout)
                 )
@@ -294,7 +294,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         curl_close($ch);
         if ($result === false) {
             $error_message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'log.connector.error_api',
+                'log/connector/error_api',
                 array('error_code' => $error)
             );
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log('Connector', $error_message);
