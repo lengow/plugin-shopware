@@ -55,11 +55,11 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
     $logOutput              = isset($_REQUEST["log_output"]) ? (bool)$_REQUEST["log_output"] : !$stream;
     $exportVariation        = isset($_REQUEST["variation"]) ? (bool)$_REQUEST["variation"] : null;
     $exportDisabledProduct  = isset($_REQUEST["inactive"]) ? (bool)$_REQUEST["inactive"] : null;
-    $languageId             = isset($_REQUEST["language"]) ? $_REQUEST["language"] : null;
     $shopId                 = isset($_REQUEST['shop']) ? $_REQUEST['shop'] : null;
     $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
     // If shop name has been filled
     if ($shopId) {
+        /** @var \Shopware\Models\Shop\Shop $shop */
         $shop = $em->getRepository('Shopware\Models\Shop\Shop')->find($shopId);
         // A shop with this name exist
         if ($shop) {
@@ -80,7 +80,6 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
                 'exportVariationEnabled' => $exportVariation,
                 'exportDisabledProduct'  => $exportDisabledProduct,
                 'exportLengowSelection'  => $exportLengowSelection,
-                'languageId'             => $languageId,
                 'logOutput'              => $logOutput
             );
             try {

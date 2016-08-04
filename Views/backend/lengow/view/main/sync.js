@@ -59,7 +59,6 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
 
             switch (event.data.function) {
                 case 'sync':
-                    console.log('sync');
                     Ext.Ajax.request({
                         url: '{url controller="LengowSync" action="getIsSync"}',
                         method: 'POST',
