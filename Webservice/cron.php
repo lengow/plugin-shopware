@@ -28,6 +28,7 @@ require_once('../Bootstrap.php');
 require_once('../Components/LengowMain.php');
 require_once('../Components/LengowImport.php');
 require_once('../Components/LengowConfiguration.php');
+require_once('../Components/LengowSync.php');
 
 $environment = getenv('ENV') ?: getenv('REDIRECT_ENV') ?: 'production';
 
@@ -37,8 +38,7 @@ if ($kernel->isHttpCacheEnabled()) {
     $kernel = new AppCache($kernel, $kernel->getHttpCacheConfig());
 }
 
-
-$em = Shopware()->Models();
+$em = Shopware()->Models(); 
 $lengowPlugin = $em->getRepository('Shopware\Models\Plugin\Plugin')->findOneBy(array('name' => 'Lengow'));
 
 // If the plugin has not been installed
@@ -88,9 +88,10 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
         $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport($params);
         $import->exec();
     }
-    // sync options between Lengow and Shopware
-    // if (!$sync || $sync === 'option') {
-    // }
+     // sync options between Lengow and Shopware
+     if (!$sync || $sync === 'option') {
+         Shopware_Plugins_Backend_Lengow_Components_LengowSync::setCmsOption();
+     }
     // sync option is not valid
     if ($sync && ($sync !== 'order' && $sync !== 'action' && $sync !== 'option')) {
         header('HTTP/1.1 400 Bad Request');
