@@ -29,12 +29,13 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
         var me = this;
 
         me.title = me.snippets.title;
+        me.fireEvent('loadDashboardContent');
+        me.fireEvent('initToolbar');
+        me.fireEvent('initLegalsTab');
         me.items = [
             me.createTabPanel()
         ];
         me.tbar = me.getToolbar();
-        me.fireEvent('initToolbar');
-        me.fireEvent('initLegalsTab');
         me.callParent(arguments);
     },
 
@@ -120,10 +121,6 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
                 },
                 'tabchange': function() {
                     me.fireEvent('initLinkListener');
-                },
-                'afterrender': function() {
-                    // Load dashboard content when main panel is ready
-                    me.fireEvent('loadDashboardContent');
                 }
             }
         });
