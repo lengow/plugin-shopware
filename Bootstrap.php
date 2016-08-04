@@ -64,7 +64,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function install()
     {
-        $this->log('log/install/start');
+        self::log('log/install/start');
         if (!$this->assertMinimumVersion('4.2.0')) {
             throw new \RuntimeException('At least Shopware 4.2.0 is required');
         }
@@ -76,15 +76,17 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'parent'     => $this->Menu()->findOneBy('label', 'Einstellungen'),
             'class'      => 'lengow--icon'
         ));
-        $this->log('log/install/add_menu');
-        $this->createConfig();
-        $this->updateSchema();
+        self::log('log/install/add_menu');
+        $lengowForm = new Shopware_Plugins_Backend_Lengow_Bootstrap_Form();
+        $lengowForm->createConfig();
+        $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
+        $lengowDatabase->updateSchema();
         $this->registerMyEvents();
         $this->registerCustomModels();
-        $this->createCustomModels();
-        $this->setLengowSettings();
+        $lengowDatabase->createCustomModels();
+        $lengowDatabase->setLengowSettings();
         $this->Plugin()->setActive(true);
-        $this->log('log/install/end');
+        self::log('log/install/end');
         return array('success' => true, 'invalidateCache' => array('backend'));
     }
 
@@ -119,7 +121,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function uninstall()
     {
-        $this->log('log/uninstall/start');
+        self::log('log/uninstall/start');
         $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShops();
         // Remove custom attributes
         // For each article attributes, remove lengow columns
@@ -130,116 +132,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'lengow',
                 $columnName
             );
-            $this->log('log/uninstall/remove_column', array(
+            self::log('log/uninstall/remove_column', array(
                 'column' => $columnName,
                 'table'  => 's_articles_attributes'
             ));
         }
         $this->getEntityManager()->generateAttributeModels(array('s_articles_attributes'));
-        $this->removeCustomModels();
-        $this->log('log/uninstall/end');
+        $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
+        $lengowDatabase->removeCustomModels();
+        self::log('log/uninstall/end');
         return true;
-    }
-
-    /**
-     * Remove custom models from database
-     */
-    protected function removeCustomModels()
-    {
-        $em = self::getEntityManager();
-        $schemaTool = new Doctrine\ORM\Tools\SchemaTool($em);
-        $models = array(
-            's_lengow_settings' => $em->getClassMetadata('Shopware\CustomModels\Lengow\Settings')
-        );
-        foreach ($models as $tableName => $model) {
-            // Check that the table does not exist
-            if ($this->tableExist($tableName)) {
-                $schemaTool->dropSchema(array($model));
-                $this->log('log/uninstall/remove_model', array('name' => $model->getName()));
-            }
-        }
-    }
-
-    /**
-     * Update Shopware models.
-     * Add lengowActive attribute for each shop in Attributes model
-     */
-    protected function updateSchema()
-    {
-        $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShops();
-        foreach ($shops as $shop) {
-            $attributeName = 'shop'.$shop->getId().'_active';
-            $this->Application()->Models()->addAttribute(
-                's_articles_attributes',
-                'lengow',
-                $attributeName,
-                'boolean'
-            );
-            $this->log('log/install/add_column', array(
-                'column' => $attributeName,
-                'table'  => 's_articles_attributes'
-            ));
-        }
-        $this->getEntityManager()->generateAttributeModels(array('s_articles_attributes'));
-    }
-
-    /**
-     * Add custom models used by Lengow in the database
-     */
-    protected function createCustomModels()
-    {
-        $em = self::getEntityManager();
-        $schemaTool = new Doctrine\ORM\Tools\SchemaTool($em);
-        $models = array(
-            's_lengow_order'    => $em->getClassMetadata('Shopware\CustomModels\Lengow\Order'),
-            's_lengow_settings' => $em->getClassMetadata('Shopware\CustomModels\Lengow\Settings')
-        );
-        foreach ($models as $tableName => $model) {
-            // Check that the table does not exist
-            if (!$this->tableExist($tableName)) {
-                $schemaTool->createSchema(array($model));
-                $this->log('log/install/add_model', array('name' => $model->getName()));
-            }
-        }
-    }
-
-    /**
-     * Create settings used in import process and add them in s_lengow_settings table
-     */
-    protected function setLengowSettings()
-    {
-        $em = self::getEntityManager();
-        $lengowSettings = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::$LENGOW_SETTINGS;
-        $repository = $em->getRepository('Shopware\CustomModels\Lengow\Settings');
-        $defaultShop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
-        foreach ($lengowSettings as $key) {
-            $setting = $repository->findOneBy(array('name' => $key));
-            // If the setting does not already exist, create it
-            if ($setting == null) {
-                $setting = new Shopware\CustomModels\Lengow\Settings;
-                $setting->setName($key)
-                    ->setShop($defaultShop)
-                    ->setValue(0)
-                    ->setDateAdd(new DateTime())
-                    ->setDateUpd(new DateTime());
-                $em->persist($setting);
-                $em->flush($setting);
-            }
-        }
-    }
-
-    /**
-     * Check if a database table exists
-     *
-     * @param string $tableName Table name
-     *
-     * @return bool True if table exists in db
-     */
-    private function tableExist($tableName)
-    {
-        $sql = "SHOW TABLES LIKE '".$tableName."'";
-        $result = Shopware()->Db()->fetchRow($sql);
-        return !empty($result);
     }
 
     /**
@@ -355,11 +257,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
     /**
      * Returns the path to Lengow home controller
+     * Check s_article_attributes table and create new column if a shop has been created
+     * since Lengow plugin has been installed
      *
      * @return string
      */
     public function onGetHomeControllerPath()
     {
+        // Force updating schema to make sure Lengow columns are sets for all shops
+        $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
+        $lengowDatabase->updateSchema();
         return $this->Path().'Controllers/Backend/LengowHome.php';
     }
 
@@ -414,245 +321,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * Create basic settings for the plugin
-     * Accessible in Configuration/Basic Settings/Additional settings menu
-     */
-    private function createConfig()
-    {
-        $mainForm = $this->Form();
-        // Main settings
-        $mainSettingsElements = array(
-            'lengowShopActive' => array(
-                'type'          => 'boolean',
-                'label'         => 'settings/lengow_main_settings/enable/label',
-                'editable'      => false,
-                'value'         => 0,
-                'description'   => 'settings/lengow_main_settings/enable/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
-            ),
-            'lengowAccountId' => array(
-                'type'          => 'number',
-                'label'         => 'settings/lengow_main_settings/account/label',
-                'required'      => true,
-                'minValue'      => 0,
-                'value'         => 0,
-                'description'   => 'settings/lengow_main_settings/account/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
-            ),
-            'lengowAccessToken' => array(
-                'type'          => 'text',
-                'label'         => 'settings/lengow_main_settings/access/label',
-                'required'      => true,
-                'value'         => 0,
-                'description'   => 'settings/lengow_main_settings/access/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
-            ),
-            'lengowSecretToken' => array(
-                'type'          => 'text',
-                'label'         => 'settings/lengow_main_settings/secret/label',
-                'required'      => true,
-                'value'         => 0,
-                'description'   => 'settings/lengow_main_settings/secret/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
-            ),
-            'lengowAuthorizedIp' => array(
-                'type'          => 'text',
-                'label'         => 'settings/lengow_main_settings/ip/label',
-                'required'      => true,
-                'value'         => '127.0.0.1',
-                'description'   => 'settings/lengow_main_settings/ip/description'
-            )
-        );
-        // Auto-generate form
-        $mainSettingForm = $this->createSettingForm('lengow_main_settings', $mainSettingsElements);
-        $mainSettingForm->setParent($mainForm);
-        // Export settings
-        $dispatches = self::getEntityManager()->getRepository('Shopware\Models\Dispatch\Dispatch')->findBy(
-            array('type' => 0)
-        );
-        $selection = array();
-        $defaultValue = null;
-        if (count($dispatches) > 0) {
-            $defaultValue = $dispatches[0]->getId();
-        }
-        foreach ($dispatches as $dispatch) {
-            $selection[] = array($dispatch->getId(), $dispatch->getName());
-        }
-        $exportFormElements = array(
-            'lengowExportVariationEnabled' => array(
-                'type'          => 'boolean',
-                'label'         => 'settings/lengow_export_settings/variation/label',
-                'required'      => true,
-                'editable'      => false,
-                'value'         => true,
-                'description'   => 'settings/lengow_export_settings/variation/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
-            ),
-            'lengowExportOutOfStock' => array(
-                'type'          => 'boolean',
-                'label'         => 'settings/lengow_export_settings/out_stock/label',
-                'required'      => true,
-                'editable'      => false,
-                'value'         => false,
-                'description'   => 'settings/lengow_export_settings/out_stock/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
-            ),
-            'lengowExportDisabledProduct' => array(
-                'type'          => 'boolean',
-                'label'         => 'settings/lengow_export_settings/disabled_products/label',
-                'required'      => true,
-                'editable'      => false,
-                'value'         => false,
-                'description'   => 'settings/lengow_export_settings/disabled_products/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
-            ),
-            'lengowExportSelectionEnabled' => array(
-                'type'          => 'boolean',
-                'label'         => 'settings/lengow_export_settings/lengow_selection/label',
-                'required'      => true,
-                'editable'      => false,
-                'value'         => true,
-                'description'   => 'settings/lengow_export_settings/lengow_selection/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
-            ),
-            'lengowDefaultDispatcher' => array(
-                'type'          => 'select',
-                'label'         => 'settings/lengow_export_settings/dispatcher/label',
-                'required'      => true,
-                'editable'      => false,
-                'value'         => $defaultValue,
-                'store'         => $selection,
-                'description'   => 'settings/lengow_export_settings/dispatcher/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
-            )
-        );
-        // Auto-generate form
-        $exportSettingForm = $this->createSettingForm('lengow_export_settings', $exportFormElements);
-        $exportSettingForm->setParent($mainForm);
-        // Import settings
-        $importFormElements = array(
-            'lengowEnableImport' => array(
-                'type'          => 'boolean',
-                'label'         => 'settings/lengow_import_settings/enable_import/label',
-                'editable'      => false,
-                'value'         => false,
-                'required'      => false,
-                'description'   => 'settings/lengow_import_settings/enable_import/description'
-            ),
-            'lengowImportShipMpEnabled' => array(
-                'type'          => 'boolean',
-                'label'         => 'settings/lengow_import_settings/decrease_stock/label',
-                'editable'      => false,
-                'value'         => false,
-                'required'      => false,
-                'description'   => 'settings/lengow_import_settings/decrease_stock/description'
-            ),
-            'lengowImportDays' => array(
-                'type'          => 'number',
-                'label'         => 'settings/lengow_import_settings/import_days/label',
-                'value'         => 5,
-                'minValue'      => 0,
-                'maxValue'      => 99,
-                'editable'      => false,
-                'description'   => 'settings/lengow_import_settings/import_days/description'
-            ),
-            'lengowImportPreprodEnabled' => array(
-                'type'          => 'boolean',
-                'label'         => 'settings/lengow_import_settings/preprod_mode/label',
-                'value'         => false,
-                'description'   => 'settings/lengow_import_settings/preprod_mode/description'
-            )
-        );
-        // Auto-generate form
-        $importSettingForm = $this->createSettingForm('lengow_import_settings', $importFormElements);
-        $importSettingForm->setParent($mainForm);
-        $forms = array($mainSettingForm, $exportSettingForm, $importSettingForm);
-        $mainForm->setChildren($forms);
-        // Translate sub categories (sub-forms settings names)
-        $locales = self::getEntityManager()->getRepository('\Shopware\Models\Shop\Locale')->findAll();
-        foreach ($forms as $form) {
-            $formName = $form->getName();
-            foreach ($locales as $locale) {
-                $isoCode = $locale->getLocale();
-                if (Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::containsIso($isoCode)) {
-                    $formLabel = $this->getTranslation('settings/'.$formName.'/label', $isoCode);
-                    $formDescription = $this->getTranslation('settings/'.$formName.'/description', $isoCode);
-                    $translationModel = new \Shopware\Models\Config\FormTranslation();
-                    $translationModel->setLabel($formLabel);
-                    $translationModel->setDescription($formDescription);
-                    $translationModel->setLocale($locale);
-                    $form->addTranslation($translationModel);
-                }
-            }
-        }
-        $this->log('log/install/add_form', array('formName' => $this->getName()));
-    }
-
-    /**
      * Log when installing/uninstalling the plugin
      *
      * @param $key string Translation key
      * @param $params array Parameters to put in the translations
      */
-    protected function log($key, $params = array())
+    public static function log($key, $params = array())
     {
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
             'Install',
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage($key, $params)
         );
-    }
-
-    /**
-     * Create settings forms for the plugin (basic settings)
-     *
-     * @param $name string Name of the form
-     * @param $elements array Options for this form
-     *
-     * @return \Shopware\Models\Config\Form
-     */
-    protected function createSettingForm($name, $elements)
-    {
-        $form = new \Shopware\Models\Config\Form;
-        $form->setName($name);
-        $form->setLabel($this->getTranslation('settings/'.$name.'/label'));
-        $form->setDescription($this->getTranslation('settings/'.$name.'/description'));
-        $locales = self::getEntityManager()->getRepository('\Shopware\Models\Shop\Locale')->findAll();
-        foreach ($elements as $key => $options) {
-            $type = $options['type'];
-            array_shift($options);
-            // Create main element
-            $form->setElement($type, $key, $options);
-            // Get the form element by name
-            $elementModel = $form->getElement($key);
-            // Translate fields for this form
-            foreach ($locales as $locale) {
-                $isoCode = $locale->getLocale();
-                if (Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::containsIso($isoCode)) {
-                    $label = $this->getTranslation($options['label'], $isoCode);
-                    $description = $this->getTranslation($options['description'], $isoCode);
-                    $translationModel = new \Shopware\Models\Config\ElementTranslation();
-                    $translationModel->setLabel($label);
-                    $translationModel->setDescription($description);
-                    $translationModel->setLocale($locale);
-                    $elementModel->addTranslation($translationModel);
-                }
-            }
-        }
-        $this->log('log/install/settings', array('settingName' => $name));
-        return $form;
-    }
-
-    /**
-     * Get translations for basic settings
-     *
-     * @param $key     string Key of the translation
-     * @param $isoCode string Locale iso code (English by default)
-     *
-     * @return string Translation
-     */
-    protected function getTranslation($key, $isoCode = null)
-    {
-        $translation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($key, $isoCode);
-        return stripslashes($translation);
     }
 }
