@@ -108,7 +108,12 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
                 // Set shop config for checkboxes
                 Ext.each(configList, function(config) {
                     var status = values[config];
-                    Ext.getCmp(config).setValue(status);
+                    var checkbox = Ext.getCmp(config);
+                    // Avoid launching listener updateCounter function
+                    // when checking option get from db
+                    checkbox.skipCounterUpdate = true;
+                    checkbox.setValue(status);
+                    checkbox.skipCounterUpdate = false;
                 });
 
                 if (!Ext.getCmp('lengowExportSelectionEnabled').getValue()) {

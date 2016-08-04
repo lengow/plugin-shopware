@@ -145,10 +145,13 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
                             var selectedShop = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id'),
                                 value = checkbox.getValue(),
                                 id = checkbox.getId();
-                            // Change shops settings in db
-                            me.fireEvent('setConfigValue', selectedShop, id, value);
-                            // Update counter value
-                            Ext.getCmp('exportGrid').updateCounter();
+                            // @see Shopware.apps.Lengow.controller.Export:onGetConfigValue
+                            if (!checkbox.skipCounterUpdate) {
+                                // Change shops settings in db
+                                me.fireEvent('setConfigValue', selectedShop, id, value);
+                                // Update counter value
+                                Ext.getCmp('exportGrid').updateCounter();
+                            }
                         }
                     }
                 },
@@ -161,10 +164,13 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
                             var selectedShop = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id'),
                                 value = checkbox.getValue(),
                                 id = checkbox.getId();
-                            // Change shops settings in db
-                            me.fireEvent('setConfigValue', selectedShop, id, value);
-                            // Update counter value
-                            Ext.getCmp('exportGrid').updateCounter();
+                            // @see Shopware.apps.Lengow.controller.Export:onGetConfigValue
+                            if (!checkbox.skipCounterUpdate) {
+                                // Change shops settings in db
+                                me.fireEvent('setConfigValue', selectedShop, id, value);
+                                // Update counter value
+                                Ext.getCmp('exportGrid').updateCounter();
+                            }
                         }
                     }
                 },
@@ -179,10 +185,13 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
                                 id = checkbox.getId();
                             // Disable grid
                             Ext.getCmp('exportGrid').setDisabled(!value);
-                            // Change shops settings in db
-                            me.fireEvent('setConfigValue', selectedShop, id, value);
-                            // Update counter value
-                            Ext.getCmp('exportGrid').updateCounter();
+                            // @see Shopware.apps.Lengow.controller.Export:onGetConfigValue
+                            if (!checkbox.skipCounterUpdate) {
+                                // Change shops settings in db
+                                me.fireEvent('setConfigValue', selectedShop, id, value);
+                                // Update counter value
+                                Ext.getCmp('exportGrid').updateCounter();
+                            }
                         }
                     }
                 },

@@ -131,7 +131,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
     }, 
 
     /**
-     * Create a checkbock (v4)/enabled-disabled form(v5) column form
+     * Create a checkbox (v4)/enabled-disabled form(v5) column form
      * @param name Field key of the Article model
      * @param header Header to display for this column
      */
