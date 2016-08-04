@@ -36,11 +36,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
             // Check that the table does not exist
             if (!$this->tableExist($tableName)) {
                 $schemaTool->createSchema(array($model));
-                Shopware_Plugins_Backend_Lengow_Bootstrap::log('log/install/add_model',
-                    array('name' => $model->getName()));
+                Shopware_Plugins_Backend_Lengow_Bootstrap::log(
+                    'log/install/add_model',
+                    array('name' => $model->getName())
+                );
             } else {
-                Shopware_Plugins_Backend_Lengow_Bootstrap::log('log/install/model_already_exists',
-                    array('name' => $model->getName()));
+                Shopware_Plugins_Backend_Lengow_Bootstrap::log(
+                    'log/install/model_already_exists',
+                    array('name' => $model->getName())
+                );
             }
         }
     }
@@ -60,8 +64,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
             // Check that the table does not exist
             if ($this->tableExist($tableName)) {
                 $schemaTool->dropSchema(array($model));
-                Shopware_Plugins_Backend_Lengow_Bootstrap::log('log/uninstall/remove_model',
-                    array('name' => $model->getName()));
+                Shopware_Plugins_Backend_Lengow_Bootstrap::log(
+                    'log/uninstall/remove_model',
+                    array('name' => $model->getName())
+                );
             }
         }
     }
