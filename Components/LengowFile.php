@@ -45,7 +45,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
         if (!is_resource($this->instance)) {
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'log.export.error_unable_to_create_file',
+                    'log/export/error_unable_to_create_file',
                     array(
                         'file_name'   => $file_name,
                         'folder_name' => $folder_name

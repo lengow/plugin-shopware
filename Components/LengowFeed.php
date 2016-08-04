@@ -106,7 +106,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
             if (!mkdir($folder_path)) {
                 throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                        'log.export.error_unable_to_create_folder',
+                        'log/export/error_unable_to_create_folder',
                         array('folder_path' => $folder_path)
                     )
                 );
@@ -115,8 +115,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
         if ($this->part_file_name) {
             $file_name = $this->part_file_name;
         } else {
-            // TODO : put iso_code in file name
-            // ex. Prestashop : -'.Context::getContext()->language->iso_code.'
             $file_name = 'flux-'.time().'.'.$this->format;
         }
         $this->file = new Shopware_Plugins_Backend_Lengow_Components_LengowFile($this->export_folder, $file_name);
@@ -270,15 +268,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     {
         $this->write('footer');
         if (!$this->stream) {
-            //TODO : put iso_code in file name
-            // ex. Prestashop : -'.Context::getContext()->language->iso_code.'
             $old_file_name = 'flux.'.$this->format;
             $old_file = new Shopware_Plugins_Backend_Lengow_Components_LengowFile($this->export_folder, $old_file_name);
             if ($old_file->exists()) {
                 $old_file_path = $old_file->getPath();
                 $old_file->delete();
             }
-            $rename = false;
             if (isset($old_file_path)) {
                 $rename = $this->file->rename($old_file_path);
                 $this->file->file_name = $old_file_name;

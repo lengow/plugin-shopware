@@ -74,7 +74,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
         if (!isset(self::$MARKETPLACES[$this->id_shop]->{$this->name})) {
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'lengow_log.exception.marketplace_not_present',
+                    'lengow_log/exception/marketplace_not_present',
                     array('marketplace_name' => $this->name)
                 )
             );

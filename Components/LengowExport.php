@@ -101,12 +101,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     /**
      * @var integer Limit number of results
      */
-    private $limit = 0;
+    private $limit;
 
     /**
      * @var integer Get results from specific index
      */
-    private $offset = 0;
+    private $offset;
 
     /**
      * @var boolean Export out of stock articles
@@ -336,11 +336,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         );
         // Write products in the feed when the header is ready
         foreach ($productsToExport as $product) {
-            if ($this->offset != 0 && $this->offset > $numberOfProducts) {
+            if ($this->offset != null && $this->offset > $numberOfProducts) {
                 $numberOfProducts++;
                 continue;
             }
-            if ($this->limit != 0 && $this->limit <= $displayedProducts) {
+            if ($this->limit != null && $this->limit <= $displayedProducts) {
                 break;
             }
             $data = $this->getFields($product);
