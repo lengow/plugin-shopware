@@ -316,7 +316,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         $access_token = null;
         $secret_token = null;
         if ($shop == null) {
-            $shopCollection = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops();
+            $shopCollection = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowActiveShops();
             if (count($shopCollection) > 0) {
                 $shop = $shopCollection[0];
             }
@@ -356,18 +356,33 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         }
         try {
             list($account_id, $access_token, $secret_token) = self::getAccessId($shop);
-            $connector  = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector(
-                $access_token,
-                $secret_token
-            );
-            $results = $connector->$type(
-                $url,
-                array_merge(array('account_id' => $account_id), $params),
-                'stream',
-                $body
-            );
+            if ($account_id != 0 && $access_token !== 0 && $secret_token !== 0) {
+                $connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector(
+                    $access_token,
+                    $secret_token
+                );
+                $results = $connector->$type(
+                    $url,
+                    array_merge(array('account_id' => $account_id), $params),
+                    'stream',
+                    $body
+                );
+            } else {
+                if ($shop == null) {
+                    $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
+                }
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                    'Connector',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                        'lengow_log/error/account_id_empty',
+                        array('name_shop' => $shop->getName(), 'id_shop' => $shop->getId())
+                    ),
+                    true
+                );
+                return false;
+            }
         } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
-            return false;
+            return $e->getMessage();
         }
         return json_decode($results);
     }
