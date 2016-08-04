@@ -57,8 +57,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             $data['shops'][$shopId]['feed_url'] = $exportUrl;
             $data['shops'][$shopId]['cron_url'] = $importUrl;
             $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, array());
-            $data['shops'][$shopId]['nb_product_total'] = $export->getTotalProducts();
-            $data['shops'][$shopId]['nb_product_exported'] = $export->getExportedProducts();
+            $data['shops'][$shopId]['total_product_number'] = $export->getTotalProducts();
+            $data['shops'][$shopId]['exported_product_number'] = $export->getExportedProducts();
         }
         return $data;
     }
@@ -149,8 +149,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 'domain_url'            => $shop->getHost() . $shop->getBaseUrl(),
                 'feed_url'              => $exportUrl,
                 'cron_url'              => $importUrl,
-                'nb_product_total'      => $export->getTotalProducts(),
-                'nb_product_exported'   => $export->getExportedProducts(),
+                'exported_product_number' => $export->getTotalProducts(),
+                'total_product_number'  => $export->getExportedProducts(),
                 'options'               => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAllValues($shop)
             );
         }

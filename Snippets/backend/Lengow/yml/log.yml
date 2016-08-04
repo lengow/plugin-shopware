@@ -26,6 +26,7 @@ default:
     install:
       start: "## start install ##"
       end: "## end install ##"
+      model_already_exists: "Skipping model %{name} : already existing in database."
       add_column: "Adding column %{column} to %{table} table"
       settings: "Adding setting %{settingName}"
       add_form: "Creating %{formName} form"
