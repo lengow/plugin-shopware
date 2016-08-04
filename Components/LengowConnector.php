@@ -65,8 +65,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @var string URL of the API Lengow
      */
     // const LENGOW_API_URL = 'http://api.lengow.io:80';
-    const LENGOW_API_URL = 'http://api.lengow.net:80';
-    // const LENGOW_API_URL = 'http://10.100.1.82:8081';
+//    const LENGOW_API_URL = 'http://api.lengow.net:80';
+     const LENGOW_API_URL = 'http://10.100.1.82:8081';
 
     /**
      * @var string URL of the SANDBOX Lengow
@@ -131,11 +131,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $format return format of API
      * @param string $body
      *
-     * @return array The formated data response
+     * @return array The format data response
      */
     public function get($method, $array = array(), $format = 'json', $body = '')
     {
         return $this->call($method, $array, 'GET', $format, $body);
+    }
+
+    /**
+     * Put API call
+     *
+     * @param string $method Lengow method API call
+     * @param array  $array  Lengow method API parameters
+     * @param string $format return format of API
+     * @param string $body
+     *
+     * @return array The formated data response
+     */
+    public function put($method, $array = array(), $format = 'json', $body = '')
+    {
+        return $this->call($method, $array, 'PUT', $format, $body);
     }
 
     /**

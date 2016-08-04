@@ -169,7 +169,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     {
         $shops = self::getActiveShops();
         foreach ($shops as $shop) {
-            $shopToken = $enabledInLengow = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            $shopToken = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowShopToken',
                 $shop
             );

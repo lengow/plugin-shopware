@@ -62,6 +62,10 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
         );
     }
 
+    /**
+     * Get legal tab content
+     * Display information about Lengow SAS
+     */
     public function getLegalsTabContentAction()
     {
         $this->View()->assign(

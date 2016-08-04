@@ -84,8 +84,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                     }
                     if (strlen($v) > 0) {
                         $list_key[$k] = true;
+                        $translationKey = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::camelCase(
+                            'lengow_'.strtolower($k));
                         Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-                            'LENGOW_'.strtoupper($k),
+                            $translationKey,
                             $v,
                             $shop
                         );
@@ -150,6 +152,32 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             );
         }
         return $data;
+    }
+
+    /**
+     * Set CMS options
+     *
+     * @param boolean $force Force cache Update
+     *
+     * @return boolean
+     */
+    public static function setCmsOption($force = false)
+    {
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::isNewMerchant()) {
+            return false;
+        }
+        if (!$force) {
+            $updated_at =  Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowOptionCmsUpdate');
+            if (!is_null($updated_at) && (time() - strtotime($updated_at)) < self::$cacheTime) {
+                return false;
+            }
+        }
+        $options = json_encode(self::getOptionData());
+        Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('put', '/v3.0/cms', null, array(), $options);
+        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
+            'lengowOptionCmsUpdate', date('Y-m-d H:i:s'));
+        return true;
     }
 
     /**

@@ -33,7 +33,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         'lengowAccountStatusUpdate',
         'lengowAccountStatus',
         'lengowOrderStat',
-        'lengowOrderStatUpdate'
+        'lengowOrderStatUpdate',
+        'lengowOptionCmsUpdate'
     );
 
     /**
@@ -270,6 +271,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'LENGOW_LAST_IMPORT_MANUAL'       => array('global' => true),
             'LENGOW_GLOBAL_TOKEN'             => array('global' => true),
             'LENGOW_AUTHORIZED_IP'            => array('global' => true),
+            'LENGOW_OPTION_CMS_UPDATE'        => array('global' => true)
         );
         return $keys;
     }
