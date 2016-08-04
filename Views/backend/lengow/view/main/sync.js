@@ -37,7 +37,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
                     method: 'POST',
                     type: 'json',
                     params: {
-                        action: 'get_sync_data'
+                        syncAction: 'get_sync_data'
                     },
                     success: function (data) {
                         var response = Ext.decode(data.responseText).data;
@@ -56,32 +56,40 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
         function receiveMessage(event) {
             //if (event.origin !== "http://solution.lengow.com")
             //    return;
-            console.log(event.data);
 
             switch (event.data.function) {
                 case 'sync':
+                    console.log('sync');
                     Ext.Ajax.request({
-                        url: href,
+                        url: '{url controller="LengowSync" action="getIsSync"}',
                         method: 'POST',
+                        type: 'json',
                         params: {
-                            action: 'sync',
-                            data: event.data.parameters
-                        },
-                        type: 'script'
+                            syncAction: 'sync',
+                            data: Ext.encode(event.data.parameters)
+                        }
                     });
                     break;
                 case 'sync_and_reload':
                     Ext.Ajax.request({
-                        url: href,
+                        url: '{url controller="LengowSync" action="getIsSync"}',
                         method: 'POST',
-                        type: 'script',
+                        type: 'json',
+                        params: {
+                            syncAction: 'sync',
+                            data: Ext.encode(event.data.parameters)
+                        },
                         success: function() {
-                            location.reload();
+                            Shopware.app.Application.addSubApplication({
+                                name: 'Shopware.apps.Lengow'
+                            });
                         }
                     });
                     break;
                 case 'reload':
-                    location.reload();
+                    Shopware.app.Application.addSubApplication({
+                        name: 'Shopware.apps.Lengow'
+                    });
                     break;
             }
         }

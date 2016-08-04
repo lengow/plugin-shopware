@@ -23,8 +23,8 @@ class Shopware_Controllers_Backend_LengowSync extends Shopware_Controllers_Backe
 {
     public function getIsSyncAction()
     {
-        $isSync = isset($_REQUEST['isSync']) ? $_REQUEST['isSync'] : false;
-        $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : false;
+        $isSync = $this->Request()->getParam('isSync', false);
+        $action = $this->Request()->getParam('syncAction', false);
         if ($action) {
             switch ($action) {
                 case 'get_sync_data':
@@ -37,7 +37,7 @@ class Shopware_Controllers_Backend_LengowSync extends Shopware_Controllers_Backe
                     ));
                     break;
                 case 'sync':
-                    $data = isset($_REQUEST['data']) ?$_REQUEST['data'] : false;
+                    $data = json_decode($this->Request()->getParam('data', false), true);
                     Shopware_Plugins_Backend_Lengow_Components_LengowSync::sync($data);
                     break;
                 case 'refresh_status':
