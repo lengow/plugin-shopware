@@ -22,7 +22,7 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
 {
     /**
-     * @var translation
+     * @var array $translation
      */
     protected static $translation = null;
 
@@ -132,7 +132,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
      * @param $keys
      * @return array
      */
-    public static function getTranslationsFromArray($keys)
+    public static function getTranslationsFromArray($keys, $params = array())
     {
         // Get locale from session
         $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
@@ -140,11 +140,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
         $translations = array();
         foreach ($keys as $path => $key) {
             foreach ($key as $value) {
+                $translationParam = array();
                 if (preg_match('/^(([a-z\_]*\/){1,3}[a-z\_]*)(\[(.*)\]|)$/', $path.$value, $result)) {
                     if (isset($result[1])) {
                         $tKey = $result[1];
                     }
-                    $translations[$value] = $lengowTranslation->t($tKey, array(), $locale);
+                    if (isset($params[$key])) {
+                        $translationParam = $params[$key];
+                    }
+                    $translations[$value] = $lengowTranslation->t($tKey, $translationParam, $locale);
                 }
             }
         }

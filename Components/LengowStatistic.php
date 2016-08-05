@@ -63,7 +63,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowStatistic
             $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
                 'get',
                 '/v3.0/stats',
-                $shop->getId(),
+                $shop,
                 array(
                     'date_from' => date('c', strtotime(date('Y-m-d').' -10 years')),
                     'date_to'   => date('c'),
