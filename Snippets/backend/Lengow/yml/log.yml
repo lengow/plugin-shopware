@@ -122,7 +122,7 @@ default:
       checksum_help: "Some files have been changed by the customer"
       checksum_help_label: "Go to Checksum page"
       global_information: "Global information"
-      prestashop_version: "PrestaShop version"
+      shopware_version: "Shopware version"
       plugin_version: "Plugin version"
       ip_server: "Server IP"
       ip_authorized: "IP authorised"

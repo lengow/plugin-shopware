@@ -97,7 +97,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
         }
         $logs = array();
         foreach ($files as $file) {
-            preg_match('/\/lengow\/logs\/logs-([0-9]{4}-[0-9]{2}-[0-9]{2})\.txt/', $file->getPath(), $match);
+            preg_match('/logs-([0-9]{4}-[0-9]{2}-[0-9]{2})\.txt/', $file->getPath(), $match);
             $logs[] = array(
                 'full_path' => $file->getPath(),
                 'short_path' => 'logs-'.$match[1].'.txt',

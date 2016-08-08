@@ -180,6 +180,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         return false;
     }
 
+    /**
+     * @param $shop Shopware\Models\Shop\Shop
+     * @return string
+     */
     public static function getShopUrl($shop)
     {
         return self::getBaseUrl() . $shop->getBaseUrl();
@@ -225,11 +229,56 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      *
      * @return string Import url for the shop
      */
-    public static function getImportUrl($shop)
+    public static function getImportUrl($shop = null)
     {
+        if ($shop == null) {
+            $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
+        }
         $base = self::getBaseUrl($shop);
         $pluginUrl = self::getPathPlugin();
         return $base.$pluginUrl.'Webservice/cron.php?shop='.$shop->getId();
+    }
+
+    /**
+     * Get last import (type and timestamp)
+     *
+     * @return mixed
+     */
+    public static function getLastImport()
+    {
+        $timestamp_cron = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowLastImportCron');
+        $timestamp_manual = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowLastImportManual');
+        if ($timestamp_cron && $timestamp_manual) {
+            if ((int)$timestamp_cron > (int) $timestamp_manual) {
+                return array('type' => 'cron', 'timestamp' => (int)$timestamp_cron);
+            } else {
+                return array('type' => 'manual', 'timestamp' => (int)$timestamp_manual);
+            }
+        } elseif ($timestamp_cron && !$timestamp_manual) {
+            return array('type' => 'cron', 'timestamp' => (int)$timestamp_cron);
+        } elseif ($timestamp_manual && !$timestamp_cron) {
+            return array('type' => 'manual', 'timestamp' => (int)$timestamp_manual);
+        }
+        return array('type' => 'none', 'timestamp' => 'none');
+    }
+
+    /**
+     * Check if import is already in process
+     *
+     * @return boolean
+     */
+    public static function isInProcess()
+    {
+        $timestamp = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowImportInProgress');
+        if ($timestamp > 0) {
+            // security check : if last import is more than 60 seconds old => authorize new import to be launched
+            if (($timestamp + (60 * 1)) < time()) {
+                Shopware_Plugins_Backend_Lengow_Components_LengowImport::setEnd();
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     /**

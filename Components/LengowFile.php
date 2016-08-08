@@ -180,7 +180,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
      */
     public static function getFilesFromFolder($folder)
     {
-        $sep = DIRECTORY_SEPARATOR;
         $folder_path = Shopware()->Plugins()->Backend()->Lengow()->Path() . $folder;
         if (!file_exists($folder_path)) {
             return false;

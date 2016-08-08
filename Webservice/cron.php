@@ -38,7 +38,7 @@ if ($kernel->isHttpCacheEnabled()) {
     $kernel = new AppCache($kernel, $kernel->getHttpCacheConfig());
 }
 
-$em = Shopware()->Models(); 
+$em = Shopware()->Models();
 $lengowPlugin = $em->getRepository('Shopware\Models\Plugin\Plugin')->findOneBy(array('name' => 'Lengow'));
 
 // If the plugin has not been installed
