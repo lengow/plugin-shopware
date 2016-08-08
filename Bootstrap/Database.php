@@ -81,18 +81,21 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
         $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShops();
         /** @var Shopware_Plugins_Backend_Lengow_Bootstrap $lengowBootstrap */
         $lengowBootstrap = Shopware()->Plugins()->Backend()->Lengow();
+        $tableName = 's_articles_attributes';
         foreach ($shops as $shop) {
             $attributeName = 'shop'.$shop->getId().'_active';
-            $lengowBootstrap->Application()->Models()->addAttribute(
-                's_articles_attributes',
-                'lengow',
-                $attributeName,
-                'boolean'
-            );
-            $lengowBootstrap::log('log/install/add_column', array(
-                'column' => $attributeName,
-                'table'  => 's_articles_attributes'
-            ));
+            if (!$this->columnExists($tableName, 'lengow_'.$attributeName)) {
+                $lengowBootstrap->Application()->Models()->addAttribute(
+                    $tableName,
+                    'lengow',
+                    $attributeName,
+                    'boolean'
+                );
+                $lengowBootstrap::log('log/install/add_column', array(
+                    'column' => $attributeName,
+                    'table' => $tableName
+                ));
+            }
         }
         $lengowBootstrap::getEntityManager()->generateAttributeModels(array('s_articles_attributes'));
     }
@@ -132,6 +135,18 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
     protected function tableExist($tableName)
     {
         $sql = "SHOW TABLES LIKE '".$tableName."'";
+        $result = Shopware()->Db()->fetchRow($sql);
+        return !empty($result);
+    }
+
+    /**
+     * @param $tableName
+     * @param $columnName
+     * @return mixed
+     */
+    protected function columnExists($tableName, $columnName)
+    {
+        $sql= "SHOW COLUMNS FROM ".$tableName." LIKE '".$columnName . "'";
         $result = Shopware()->Db()->fetchRow($sql);
         return !empty($result);
     }
