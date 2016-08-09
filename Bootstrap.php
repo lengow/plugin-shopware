@@ -144,9 +144,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     {
         $ctrl = $args->getSubject();
         $view = $ctrl->View();
-        $view->extendsTemplate('backend/lengow/resources/lengow-components.tpl');
-        $view->extendsTemplate('backend/lengow/resources/lengow-layout.tpl');
-        $view->extendsTemplate('backend/lengow/resources/lengow-pages.tpl');
+        $view->extendsTemplate('backend/lengow/resources/lengow-template.tpl');
     }
 
     /**
