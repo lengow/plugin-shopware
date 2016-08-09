@@ -108,6 +108,8 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
         return Ext.create('Ext.form.Panel', {
             title: me.snippets.filterTitle,
             bodyPadding: 5,
+            id: 'lengowFilterPanel',
+            hidden: true,
             items: [{
                 xtype: 'radiogroup',
                 listeners: {

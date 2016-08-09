@@ -32,6 +32,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
         me.items = [
             {
                 xtype: 'lengow-category-panel',
+                id: 'lengowWestPanel',
                 region: 'west',
                 store: me.store,
                 width: 250,
@@ -185,6 +186,9 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
                                 id = checkbox.getId();
                             // Disable grid
                             Ext.getCmp('exportGrid').setDisabled(!value);
+                            // Display filters
+                            Ext.getCmp('lengowFilterPanel').setVisible(value);
+                            Ext.getCmp('lengowWestPanel').doLayout();
                             // @see Shopware.apps.Lengow.controller.Export:onGetConfigValue
                             if (!checkbox.skipCounterUpdate) {
                                 // Change shops settings in db
