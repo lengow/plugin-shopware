@@ -123,6 +123,13 @@ fr:
         label: "Activer le mode pré production"
         description: "Use pre-production mode for testing and to simulate fictitious orders. Please note that you have to activate this setting on your pre-production server ONLY"
   export:
+    filter:
+      filter_title: "Filtre"
+      no_filter: "Aucun filtre"
+      lengow_products: "Articles Lengow"
+      active_products: "Articles actifs"
+      in_stock: "En stock"
+      no_category: "Sans categories"
     grid:
       column:
         number: "Numéro d'article"

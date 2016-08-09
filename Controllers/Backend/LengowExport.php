@@ -32,6 +32,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     {
         $treeId         = $this->Request()->getParam('categoryId');
         $filterParams   = $this->Request()->getParam('filter', array());
+        $filterBy       = $this->Request()->getParam('filterBy');
         $order          = $this->Request()->getParam('sort', null);
         $start          = $this->Request()->getParam('start', 0);
         $limit          = $this->Request()->getParam('limit', 20);
@@ -45,6 +46,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             $categoryId = $ids[1];
         }
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        /** @var Shopware\Models\Shop\Shop $shop */
         $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
         $filters = array();
         foreach ($filterParams as $singleFilter) {
@@ -74,16 +76,15 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             ->andWhere('prices.customerGroupKey = \'EK\'')
             ->andWhere('details.kind = 1')
             ->andWhere('attributes.articleDetailId = details.id');
-        // Search criteria
-        if (isset($filters['search'])) {
-            $searchFilter = '%' . $filters['search'] . '%';
-            $condition = 'details.number LIKE :searchFilter OR ' .
-                'articles.name LIKE :searchFilter OR ' .
-                'suppliers.name LIKE :searchFilter';
-            $builder->andWhere($condition)
-                ->setParameter('searchFilter', $searchFilter);
-        }
-        if ($categoryId !== 'NaN' && $categoryId != null) {
+        // Filter category
+        if ($filterBy == 'inStock') {
+            $builder->andWhere('details.inStock > 0');
+        } elseif ($filterBy == 'lengowProduct') {
+            $builder->andWhere('attributes.lengowShop'.$shopId.'Active = 1');
+        } elseif ($filterBy == 'noCategory') {
+            $builder->leftJoin('articles.allCategories', 'allCategories')
+                ->andWhere('allCategories.id IS NULL');
+        } elseif ($categoryId !== 'NaN' && $categoryId != null) {
             $mainCategory = null;
             if ($isShopSelected) {
                 $mainCategory = $shop->getCategory();
@@ -95,6 +96,15 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             $builder->leftJoin('articles.categories', 'categories')
                 ->innerJoin('articles.allCategories', 'allCategories')
                 ->andWhere($where);
+        }
+        // Search criteria
+        if (isset($filters['search'])) {
+            $searchFilter = '%' . $filters['search'] . '%';
+            $condition = 'details.number LIKE :searchFilter OR ' .
+                'articles.name LIKE :searchFilter OR ' .
+                'suppliers.name LIKE :searchFilter';
+            $builder->andWhere($condition)
+                ->setParameter('searchFilter', $searchFilter);
         }
         // Make sure that whe don't get a cold here
         $columns = array(
@@ -271,12 +281,10 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                     'leaf' => $mainCategory->isLeaf(),
                     'text' => $shop->getName(),
                     'id' => $shop->getId(),
-                    // TODO : Edit API account call
                     'lengowStatus' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                         'lengowShopActive',
                         $shop
-                    ),
-                    'domain' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopUrl($shop)
+                    )
                 );
             }
         } else {
@@ -348,7 +356,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
 
     /**
      * Get the default shop in Shopware
-     * Used to display datas when launching Lengow
+     * Used to display default shop data in grid when starting Lengow
      */
     public function getDefaultShopAction()
     {

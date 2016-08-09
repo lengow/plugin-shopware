@@ -7,6 +7,15 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
     layout: 'fit',
     bodyStyle: 'background:#fff;',
 
+    snippets: {
+        filterTitle:    '{s name=export/filter/filter_title namespace="backend/Lengow/translation"}Filter{/s}',
+        noFilter:       '{s name=export/filter/no_filter namespace="backend/Lengow/translation"}No filter{/s}',
+        lengowProducts: '{s name=export/filter/lengow_products namespace="backend/Lengow/translation"}Lengow\'s products{/s}',
+        activeProducts: '{s name=export/filter/active_products namespace="backend/Lengow/translation"}Active products{/s}',
+        inStock:        '{s name=export/filter/in_stock namespace="backend/Lengow/translation"}In stock{/s}',
+        noCategory:     '{s name=export/filter/no_category namespace="backend/Lengow/translation"}No categories{/s}'
+    },
+
     initComponent: function () {
         var me = this;
 
@@ -34,7 +43,8 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                 align: 'stretch'
             },
             items: [
-                me.createTree()
+                me.createTree(),
+                me.createFilterPanel()
             ]
         });
 
@@ -48,7 +58,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
      */
     createTree: function () {
         var me = this,
-                tree;
+            tree;
 
         tree = Ext.create('Shopware.apps.Lengow.view.export.Tree', {
             listeners: {
@@ -63,7 +73,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
 
                         if (record.get('id') === 'root') {
                             return false; // Do nothing if root is selected
-                        } 
+                        }
 
                         store.getProxy().extraParams.categoryId = record.get('id');
 
@@ -90,7 +100,38 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
         });
 
         return tree;
-    }
+    },
+
+    createFilterPanel: function() {
+        var me = this;
+
+        return Ext.create('Ext.form.Panel', {
+            title: me.snippets.filterTitle,
+            bodyPadding: 5,
+            items: [{
+                xtype: 'radiogroup',
+                listeners: {
+                    change: {
+                        fn: function(view, newValue) {
+                            me.store.getProxy().extraParams.filterBy = newValue.filter;
+                            me.store.load();
+                        },
+                        scope: me
+                    }
+                },
+                columns: 1,
+                vertical: true,
+                collapsible: true,
+                items: [
+                    { boxLabel: me.snippets.noFilter, name: 'filter', inputValue: 'none', checked: true  },
+                    { boxLabel: me.snippets.lengowProducts, name: 'filter', inputValue: 'lengowProduct' },
+                    { boxLabel: me.snippets.activeProducts, name: 'filter', inputValue: 'activeProduct' },
+                    { boxLabel: me.snippets.inStock, name: 'filter', inputValue: 'inStock'  },
+                    { boxLabel: me.snippets.noCategory, name: 'filter', inputValue: 'noCategory' }
+                ]
+            }]
+        });
+    },
 
 });
 //{/block}
