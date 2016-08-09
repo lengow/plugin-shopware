@@ -36,26 +36,21 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     /**
      * @inheritdoc
      */
-    public function getLabel()
-    {
-        return 'Lengow';
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getInfo()
     {
+        $info = json_decode(file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'plugin.json'), true);
+        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
+        $lang = explode('_', $locale)[0];
         return array(
             'version'     => $this->getVersion(),
-            'label'       => $this->getLabel(),
+            'label'       => $info['label'][$lang],
             'source'      => $this->getSource(),
-            'author'      => 'Lengow SAS',
-            'supplier'    => 'Lengow SAS',
-            'copyright'   => 'Copyright (c) 2016, Lengow',
-            'description' => '',
-            'support'     => 'support.lengow.zendesk@lengow.com',
-            'link'        => 'http://lengow.com'
+            'author'      => $info['author'],
+            'supplier'    => $info['supplier'],
+            'copyright'   => $info['copyright'],
+            'description' => $info['description'][$lang],
+            'support'     => $info['support_mail'][$lang],
+            'link'        => $info['link']
         );
     }
 
@@ -122,23 +117,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public function uninstall()
     {
         self::log('log/uninstall/start');
-        $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShops();
         // Remove custom attributes
-        // For each article attributes, remove lengow columns
-        foreach ($shops as $shop) {
-            $columnName = 'shop'.$shop->getId().'_active';
-            $this->Application()->Models()->removeAttribute(
-                's_articles_attributes',
-                'lengow',
-                $columnName
-            );
-            self::log('log/uninstall/remove_column', array(
-                'column' => $columnName,
-                'table'  => 's_articles_attributes'
-            ));
-        }
-        $this->getEntityManager()->generateAttributeModels(array('s_articles_attributes'));
         $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
+        $lengowDatabase->removeLengowColumns();
         $lengowDatabase->removeCustomModels();
         self::log('log/uninstall/end');
         return true;

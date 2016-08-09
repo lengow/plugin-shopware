@@ -48,6 +48,40 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
             }
         }
     }
+    /**
+     * Update Shopware models.
+     * Add lengowActive attribute for each shop in Attributes model
+     */
+    public function updateSchema()
+    {
+        $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShops();
+        /** @var Shopware_Plugins_Backend_Lengow_Bootstrap $lengowBootstrap */
+        $lengowBootstrap = Shopware()->Plugins()->Backend()->Lengow();
+        $tableName = 's_articles_attributes';
+        foreach ($shops as $shop) {
+            $attributeName = 'shop'.$shop->getId().'_active';
+            if (!$this->columnExists($tableName, 'lengow_'.$attributeName)) {
+                // Check Shopware\Bundle\AttributeBundle\Service\CrudService::update compatibility
+                if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.0')) {
+                    $crudService = $lengowBootstrap->get('shopware_attribute.crud_service');
+                    $crudService->update($tableName, 'lengow_'.$attributeName, 'boolean');
+                } else {
+                    // @legacy Shopware < 5.2
+                    $lengowBootstrap->Application()->Models()->addAttribute(
+                        $tableName,
+                        'lengow',
+                        $attributeName,
+                        'boolean'
+                    );
+                }
+                $lengowBootstrap::log('log/install/add_column', array(
+                    'column' => $attributeName,
+                    'table' => $tableName
+                ));
+            }
+        }
+        $lengowBootstrap::getEntityManager()->generateAttributeModels(array('s_articles_attributes'));
+    }
 
     /**
      * Remove custom models from database
@@ -72,29 +106,41 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
         }
     }
 
-    /**
-     * Update Shopware models.
-     * Add lengowActive attribute for each shop in Attributes model
-     */
-    public function updateSchema()
+    public function removeLengowColumns()
     {
         $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShops();
         /** @var Shopware_Plugins_Backend_Lengow_Bootstrap $lengowBootstrap */
         $lengowBootstrap = Shopware()->Plugins()->Backend()->Lengow();
         $tableName = 's_articles_attributes';
+        // For each article attributes, remove lengow columns
         foreach ($shops as $shop) {
             $attributeName = 'shop'.$shop->getId().'_active';
-            if (!$this->columnExists($tableName, 'lengow_'.$attributeName)) {
-                $lengowBootstrap->Application()->Models()->addAttribute(
-                    $tableName,
-                    'lengow',
-                    $attributeName,
-                    'boolean'
+            if ($this->columnExists($tableName, 'lengow_'.$attributeName)) {
+                // Check Shopware\Bundle\AttributeBundle\Service\CrudService::delete compatibility
+                if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.0')) {
+                    $crudService = $lengowBootstrap->get('shopware_attribute.crud_service');
+                    $crudService->delete($tableName, 'lengow_'.$attributeName);
+                } else {
+                    // @legacy Shopware < 5.2
+                    $lengowBootstrap->Application()->Models()->removeAttribute(
+                        $tableName,
+                        'lengow',
+                        $attributeName
+                    );
+                }
+                $lengowBootstrap::log(
+                    'log/uninstall/remove_column', array(
+                        'column' => $attributeName,
+                        'table' => 's_articles_attributes'
+                    )
                 );
-                $lengowBootstrap::log('log/install/add_column', array(
-                    'column' => $attributeName,
-                    'table' => $tableName
-                ));
+            } else {
+                $lengowBootstrap::log(
+                    'log/uninstall/column_not_exists', array(
+                        'column' => $attributeName,
+                        'table' => 's_articles_attributes'
+                    )
+                );
             }
         }
         $lengowBootstrap::getEntityManager()->generateAttributeModels(array('s_articles_attributes'));
