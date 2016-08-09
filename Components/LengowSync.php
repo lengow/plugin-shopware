@@ -51,14 +51,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             $importUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getImportUrl($shop);
             $token = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop);
             $domain = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopUrl($shop);
-            $data['shops'][$shopId]['token'] = $token;
-            $data['shops'][$shopId]['name'] = $shop->getName();
-            $data['shops'][$shopId]['domain'] = $domain;
-            $data['shops'][$shopId]['feed_url'] = $exportUrl;
-            $data['shops'][$shopId]['cron_url'] = $importUrl;
             $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, array());
-            $data['shops'][$shopId]['total_product_number'] = $export->getTotalProducts();
-            $data['shops'][$shopId]['exported_product_number'] = $export->getExportedProducts();
+            $data['shops'][$shopId]['token']                    = $token;
+            $data['shops'][$shopId]['name']                     = $shop->getName();
+            $data['shops'][$shopId]['domain']                   = $domain;
+            $data['shops'][$shopId]['feed_url']                 = $exportUrl;
+            $data['shops'][$shopId]['cron_url']                 = $importUrl;
+            $data['shops'][$shopId]['total_product_number']     = $export->getTotalProducts();
+            $data['shops'][$shopId]['exported_product_number']  = $export->getExportedProducts();
+            $data['shops'][$shopId]['configured']               = self::checkSyncShop($shop);
         }
         return $data;
     }
@@ -192,6 +193,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             date('Y-m-d H:i:s')
         );
         return true;
+    }
+
+    /**
+     * Check that a shop is activated and has account id and tokens non-empty
+     * @param $shop Shopware\Models\Shop\Shop Shop to check
+     * @return bool true if the shop is ready to be sync
+     */
+    public static function checkSyncShop($shop)
+    {
+        return Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowShopActive', $shop)
+            && Shopware_Plugins_Backend_Lengow_Components_LengowCheck::isValidAuth($shop);
     }
 
     /**
