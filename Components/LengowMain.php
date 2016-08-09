@@ -561,6 +561,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         return $value;
     }
 
+    public static function compareVersion($versionToCompare)
+    {
+        return version_compare(Shopware::VERSION, $versionToCompare, ">=");
+    }
+
+
     /**
      * Replace all accented chars by their equivalent non accented chars.
      *

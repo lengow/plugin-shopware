@@ -136,7 +136,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     }
                 }
                 return $host.$baseUrl.$sep.'detail'.$sep.'index'.$sep
-                    .'sArticle'.$sep.$idProduct.$sep.'sCategory'.$sep.$idCategory;
+                .'sArticle'.$sep.$idProduct.$sep.'sCategory'.$sep.$idCategory;
                 break;
             case 'price_excl_tax':
                 $price = $this->price->getPrice();
@@ -263,33 +263,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     private function getImagePath($index)
     {
         try {
-            $host = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getBaseUrl().'/';
             /** @var Shopware\Models\Article\Image[] $product_images */
             $product_images = $this->product->getImages();
             $image = $product_images[$index - 1];
             // Get image for parent product
             if (!$this->isVariation && $image != null) {
-                if ($image->getMedia() != null) {
-                    /** @var Shopware\Models\Media\Media $media */
-                    $media = $image->getMedia();
-                    if ($media->getPath() != null) {
-                        $mediaPath = $media->getPath();
-                        return $host.$mediaPath;
-                    }
-                }
+                return $this->formatImagePath($image);
             } else {
                 /** @var Shopware\Models\Article\Image[] $variation_images */
                 $variation_images = $this->details->getImages();
                 $index_variation = $index - count($product_images) - 1;
                 $image = $variation_images[$index_variation];
                 if ($image != null) {
-                    if ($image->getMedia() != null) {
-                        $media = $image->getMedia();
-                        if ($media->getPath() != null) {
-                            $mediaPath = $media->getPath();
-                            return $host.$mediaPath;
-                        }
-                    }
+                    return $this->formatImagePath($image);
                 }
             }
         } catch (Exception $e) {
@@ -299,13 +285,40 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     'log/export/error_media_not_found',
                     array(
                         'detailsId' => $this->details->getId(),
-                        'detailsName' => $this->product->getName()
+                        'detailsName' => $this->product->getName(),
+                        'message' => $e->getMessage()
                     )
                 ),
                 $this->logOutput
             );
         }
         return '';
+    }
+
+    /**
+     * @param $image Shopware\Models\Article\Image $product_image
+     * @return string
+     * @throws Exception
+     */
+    private function formatImagePath($image)
+    {
+        $isMediaManagerSupported = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0');
+        $result = '';
+        if ($isMediaManagerSupported) {
+            if ($image->getMedia() != null) {
+                /** @var Shopware\Models\Media\Media $media */
+                $media = $image->getMedia();
+                if ($media->getPath() != null) {
+                    $mediaService = Shopware()->Container()->get('shopware_media.media_service');
+                    $result = $mediaService->getUrl($media->getPath());
+                }
+            }
+        } else {
+            $is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '';
+            $domain = $_SERVER['SERVER_NAME'];
+            $result = 'http'.$is_https.'://'.$domain.'/media/image/'.$image->getPath().'.'.$image->getExtension();
+        }
+        return $result;
     }
 
     /**

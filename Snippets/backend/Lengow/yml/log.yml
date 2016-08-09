@@ -84,7 +84,7 @@ default:
       error_folder_not_writable: "Export file generation did not end properly. Please make sure the export folder is writable"
       error_no_product_combination: "Unable to retrieve article combinations"
       error_illegal_export_format: "Illegal export format"
-      error_media_not_found: "Media images not found for article : '%{detailsName}' (%{detailsId})"
+      error_media_not_found: "Media images not found for article '%{detailsName}' (%{detailsId}) : '%{message}'"
       error_unable_to_create_file: "unable to create file %{file_name} in %{folder_name}"
     exception:
       product_not_be_found: "article %{product_id} could not be found"
