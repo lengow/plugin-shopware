@@ -305,6 +305,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $isMediaManagerSupported = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0');
         $result = '';
         $is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 'https://' : 'http://';
+        $domain = $is_https.$_SERVER['SERVER_NAME'];
         if ($isMediaManagerSupported) {
             if ($image->getMedia() != null) {
                 /** @var Shopware\Models\Media\Media $media */
@@ -312,11 +313,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 if ($media->getPath() != null) {
                     $mediaService = Shopware()->Container()->get('shopware_media.media_service');
                     // Get image virtual path (ie : .../media/image/0a/20/03/my-image.png)
-                    $result = $is_https.$mediaService->getUrl($media->getPath());
+                    $imagePath = $mediaService->getUrl($media->getPath());
+                    $firstOccurrence = strpos($imagePath, '/media');
+                    $result = $domain.substr($imagePath, $firstOccurrence);
                 }
             }
         } else {
-            $domain = $is_https.$_SERVER['SERVER_NAME'];
             $result = $domain.'/media/image/'.$image->getPath().'.'.$image->getExtension();
         }
         return $result;
