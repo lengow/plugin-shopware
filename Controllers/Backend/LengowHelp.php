@@ -43,11 +43,12 @@ class Shopware_Controllers_Backend_LengowHelp extends Shopware_Controllers_Backe
                 'help_center_link'
             )
         );
+        $mailTo = $this->getMailTo();
         $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
         $html = '<div class="lgw-container">
                 <div class="lgw-box lengow_help_wrapper text-center">
                     <h2>'.$translations['title'].'</h2>
-                    <p>'.$translations['contain_text_support'].' '.$this->getMailTo().'</p>
+                    <p>'.$translations['contain_text_support'].' '.$mailTo.'</p>
                     <p>'.$translations['contain_text_support_hour'].'</p>
                     <p>'.$translations['find_answer'].'
                         <a href="'.$translations['help_center_link'].'" target="_blank" title="Help Center">
@@ -83,7 +84,8 @@ class Shopware_Controllers_Backend_LengowHelp extends Shopware_Controllers_Backe
         $mailTo = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getSyncData();
         $mail = 'support.lengow.zendesk@lengow.com';
         $subject = $translations['mailto_subject'];
-        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('get', '/v3.0/cms');
+        $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
+        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('get', '/v3.0/cms', $shop);
         $body = '%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A'
             . $translations['mail_lengow_support_title'] . '%0D%0A';
         if (isset($result->cms)) {
