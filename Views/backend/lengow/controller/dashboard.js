@@ -30,6 +30,8 @@ Ext.define('Shopware.apps.Lengow.controller.Dashboard', {
                     displayTabBar = data['displayTabBar'],
                     html = data['data'],
                     dashboardPanel = Ext.getCmp('lengowDashboardTab');
+                // Waiting message while dashboard is not loaded
+                dashboardPanel.getEl().mask('Loading...', 'x-mask-loading');
                 // Load html in the panel
                 dashboardPanel.update(html);
                 // If bad payer or end of free trial
@@ -41,7 +43,7 @@ Ext.define('Shopware.apps.Lengow.controller.Dashboard', {
                 }
                 // Make sure to listen on links after html is loaded
                 Ext.getCmp('lengowMainWindow').fireEvent('initLinkListener');
-                Ext.getCmp('lengowMainWindow').show();
+                dashboardPanel.getEl().unmask();
             }
         });
     },

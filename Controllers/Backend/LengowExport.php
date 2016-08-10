@@ -274,6 +274,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $result = array();
         // If the root is selected, return list of enabled shops
         if ($parentId == 'root') {
+            /** @var Shopware\Models\Shop\Shop[] $shops */
             $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
             foreach ($shops as $shop) {
                 $mainCategory = $shop->getCategory();

@@ -38,19 +38,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function getInfo()
     {
-        $info = json_decode(file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'plugin.json'), true);
-        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
-        $lang = explode('_', $locale)[0];
         return array(
             'version'     => $this->getVersion(),
-            'label'       => $info['label'][$lang],
+            'label'       => 'Lengow',
             'source'      => $this->getSource(),
-            'author'      => $info['author'],
-            'supplier'    => $info['supplier'],
-            'copyright'   => $info['copyright'],
-            'description' => $info['description'][$lang],
-            'support'     => $info['support_mail'][$lang],
-            'link'        => $info['link']
+            'author'      => 'Lengow',
+            'supplier'    => 'Lengow',
+            'copyright'   => 'Lengow',
+            'description' => 'Lengow',
+            'support'     => 'Lengow',
+            'link'        => 'Lengow'
         );
     }
 
@@ -63,6 +60,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         if (!$this->assertMinimumVersion('4.2.0')) {
             throw new \RuntimeException('At least Shopware 4.2.0 is required');
         }
+        $this->registerController('Backend', 'Lengow');
         $this->createMenuItem(array(
             'label'      => 'Lengow',
             'controller' => 'Lengow',
@@ -119,32 +117,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         self::log('log/uninstall/start');
         // Remove custom attributes
         $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
-        $lengowDatabase->removeLengowColumns();
+        $lengowDatabase->removeAllLengowColumns();
         $lengowDatabase->removeCustomModels();
         self::log('log/uninstall/end');
         return true;
-    }
-
-    /**
-     * This callback function is triggered at the very beginning of the dispatch process and allows
-     * us to register additional events on the fly. This way you won't ever need to reinstall you
-     * plugin for new events - any event and hook can simply be registerend in the event subscribers
-     *
-     * @param $args Enlight_Event_EventArgs
-     */
-    public function onStartDispatch(Enlight_Event_EventArgs $args)
-    {
-        $this->registerMyComponents();
-        $this->registerMyTemplateDir();
-        $this->registerMySnippets();
-        $this->registerMyEvents();
-    }
-
-    public function onPostDispatchBackendIndex(Enlight_Controller_ActionEventArgs $args)
-    {
-        $ctrl = $args->getSubject();
-        $view = $ctrl->View();
-        $view->extendsTemplate('backend/lengow/resources/lengow-template.tpl');
     }
 
     /**
@@ -156,24 +132,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * Registers snippets used for translation
-     */
-    private function registerMySnippets()
-    {
-        $this->Application()->Snippets()->addConfigDir($this->Path().'Snippets/');
-    }
-
-    /**
-     * Registers components
-     */
-    private function registerMyComponents()
-    {
-        $this->Application()->Loader()->registerNamespace('Shopware\Lengow', $this->Path());
-        $this->Application()->Loader()->registerNamespace('Shopware\Lengow\Components', $this->Path().'Components/');
-        $this->Application()->Loader()->registerNamespace('Shopware\Models\Lengow', $this->Path().'Models/');
-    }
-
-    /**
      * Register events
      */
     private function registerMyEvents()
@@ -181,7 +139,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         // Main controller
         $this->subscribeEvent(
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_Lengow',
-            'onGetMainControllerPath'
+            'getDefaultControllerPath'
         );
         // Home controller
         $this->subscribeEvent(
@@ -213,25 +171,42 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowHelp',
             'onGetHelpControllerPath'
         );
-        $this->subscribeEvent(
-            'Enlight_Controller_Front_DispatchLoopStartup',
-            'onStartDispatch'
-        );
         // Backend events
         $this->subscribeEvent(
             'Enlight_Controller_Action_PostDispatch_Backend_Index',
             'onPostDispatchBackendIndex'
         );
+        // Backend events
+        $this->subscribeEvent(
+            'Enlight_Controller_Action_PostDispatch_Backend_Config',
+            'onPostDispatchBackendConfig'
+        );
     }
 
     /**
-     * Returns the path to Lengow main controller
-     *
-     * @return string
+     * Listen to basic settings changes. Add/remove lengow column from s_articles_attributes
+     * @param $args Enlight_Event_EventArgs $arguments
      */
-    public function onGetMainControllerPath()
+    public function onPostDispatchBackendConfig($args)
     {
-        return $this->Path().'Controllers/Backend/Lengow.php';
+        $request = $args->getSubject()->Request();
+        $controllerName = $request->getControllerName();
+        $repositoryName = $request->get('_repositoryClass');
+        if ($controllerName == 'Config' && $repositoryName == 'shop') {
+            $action = $request->getActionName();
+            $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
+            $data = $request->getPost();
+            // If new shop, get last entity put in db
+            if ($action == 'saveValues') {
+                $shop = self::getEntityManager()->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array(), array('id' => 'DESC'));
+                $lengowDatabase->addLengowColumns(array($shop->getId()));
+            } elseif ($action == 'deleteValues') {
+                $shopId = isset($data['id']) ? $data['id'] : null;
+                if (!empty($shopId)) {
+                    $lengowDatabase->removeLengowColumn(array($shopId));
+                }
+            }
+        }
     }
 
     /**
@@ -243,9 +218,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function onGetHomeControllerPath()
     {
-        // Force updating schema to make sure Lengow columns are sets for all shops
-        $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
-        $lengowDatabase->updateSchema();
         return $this->Path().'Controllers/Backend/LengowHome.php';
     }
 
@@ -297,6 +269,18 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public function onGetHelpControllerPath()
     {
         return $this->Path().'Controllers/Backend/LengowHelp.php';
+    }
+
+    /**
+     * Load Lengow icon
+     * @param Enlight_Controller_ActionEventArgs $args
+     */
+    public function onPostDispatchBackendIndex(Enlight_Controller_ActionEventArgs $args)
+    {
+        $this->registerMyTemplateDir();
+        $ctrl = $args->getSubject();
+        $view = $ctrl->View();
+        $view->extendsTemplate('backend/lengow/resources/lengow-template.tpl');
     }
 
     /**

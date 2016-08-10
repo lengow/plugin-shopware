@@ -34,14 +34,14 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                     me.mainWindow = me.getView('main.Home').create({
                         exportStore: Ext.create('Shopware.apps.Lengow.store.Article'),
                         logStore: Ext.create('Shopware.apps.Lengow.store.Logs')
-                    });
+                    }).show();
 
                     me.initImportTab();
                 } else {
                     // Display sync iframe
                     me.mainWindow = me.getView('main.Sync').create({
                         panelHtml: data['panelHtml'],
-                        isSync: data['isSync'],
+                        isSync: false,
                         syncLink: false
                     }).show();
                     me.mainWindow.initFrame();
