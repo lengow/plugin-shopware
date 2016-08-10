@@ -84,8 +84,7 @@ class Shopware_Controllers_Backend_LengowHelp extends Shopware_Controllers_Backe
         $mailTo = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getSyncData();
         $mail = 'support.lengow.zendesk@lengow.com';
         $subject = $translations['mailto_subject'];
-        $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
-        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('get', '/v3.0/cms', $shop);
+        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('get', '/v3.0/cms');
         $body = '%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A'
             . $translations['mail_lengow_support_title'] . '%0D%0A';
         if (isset($result->cms)) {

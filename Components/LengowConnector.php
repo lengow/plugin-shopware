@@ -319,6 +319,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
             $shopCollection = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowActiveShops();
             if (count($shopCollection) > 0) {
                 $shop = $shopCollection[0];
+            } else {
+                $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
             }
         }
         if ($shop != null) {
