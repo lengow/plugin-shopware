@@ -191,7 +191,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     {
         $request = $args->getSubject()->Request();
         $controllerName = $request->getControllerName();
-        $repositoryName = $request->get('_repositoryClass');
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.0.0')) {
+            $repositoryName = $request->get('_repositoryClass');
+        } else {
+            $repositoryName = $request->get('name');
+        }
         if ($controllerName == 'Config' && $repositoryName == 'shop') {
             $action = $request->getActionName();
             $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
