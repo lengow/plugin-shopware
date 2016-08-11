@@ -119,21 +119,25 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                 $lengowBootstrap::log(
                     'log/uninstall/remove_column', array(
                         'column' => $attributeName,
-                        'table' => 's_articles_attributes'
+                        'table' => $tableName
                     )
                 );
             } else {
                 $lengowBootstrap::log(
                     'log/uninstall/column_not_exists', array(
                         'column' => $attributeName,
-                        'table' => 's_articles_attributes'
+                        'table' => $tableName
                     )
                 );
             }
         }
-        $lengowBootstrap::getEntityManager()->generateAttributeModels(array('s_articles_attributes'));
+        $lengowBootstrap::getEntityManager()->generateAttributeModels(array($tableName));
     }
 
+    /**
+     * Add a new column to the s_articles_attributes table (if does not exist)
+     * @param $shopIds array List of shops to add
+     */
     public function addLengowColumns($shopIds)
     {
         /** @var Shopware_Plugins_Backend_Lengow_Bootstrap $lengowBootstrap */
@@ -162,7 +166,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                 ));
             }
         }
-        $lengowBootstrap::getEntityManager()->generateAttributeModels(array('s_articles_attributes'));
+        $lengowBootstrap::getEntityManager()->generateAttributeModels(array($tableName));
     }
 
     /**

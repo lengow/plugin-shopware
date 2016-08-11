@@ -115,7 +115,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
                         });
                         return false; // avoid switching tab
                     } else if (tabId == 'lengowLogsTab') {
-                        me.showLogsWindow();
+                        me.showLogsWindowTab();
                         return false; // avoid switching tab
                     }
                 },
@@ -159,7 +159,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
     /**
      * Display logs window
      */
-    showLogsWindow: function() {
+    showLogsWindowTab: function() {
         var me = this;
         Ext.define('LogWindow',{
             id: 'logWindow',

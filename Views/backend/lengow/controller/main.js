@@ -95,6 +95,10 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
         });
     },
 
+    /**
+     * Listen to Lengow links and display concerned tab
+     * (legals, export/settings blocks on the dashboard, help link, ...)
+     */
     onInitLinkListener: function() {
         // Get Lengow links (products & settings dashboard boxes, help link, ...)
         var tabShortcuts = Ext.query("a[id^=lengow][id$=Tab]");
@@ -107,6 +111,9 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
         });
     },
 
+    /**
+     * Load legals tab content
+     */
     onInitLegalsTab: function() {
         Ext.Ajax.request({
             url: '{url controller="Lengow" action="getLegalsTabContent"}',

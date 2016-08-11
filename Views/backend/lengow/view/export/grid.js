@@ -253,8 +253,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
     },
 
     /**
-     * Event listener method which fires when the user selects
-     * @event select
+     * Event listener method which fires when the user selects a nwe page size
      * @param [object] combo - Ext.form.field.ComboBox
      * @param [array] records - Array of selected entries
      * @return void
@@ -316,6 +315,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                 // Update counter
                 counter.el.update(label);
                 var labelPanel = Ext.getCmp('topPanel');
+                // Make sure the label fits well in the panel
                 labelPanel.doLayout();
             }
         });

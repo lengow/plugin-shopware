@@ -179,8 +179,6 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
 
     /**
      * Event listener function of articles store to export a list of products
-     *
-     * @return mixed
      */
     public function exportAction()
     {

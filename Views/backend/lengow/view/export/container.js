@@ -64,25 +64,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
     },
 
     /**
-     * Constructs the list where articles are displayed
-     * @returns Ext.Panel.Panel
-     */
-    productGrid: function() {
-        var me = this;
-
-        return Ext.create('Ext.Panel.Panel', {
-            layout: {
-                type:'vbox',
-                align:'stretch'
-            },
-            items: [
-                me.getFirstLine(),
-                me.getSecondLine()
-            ]
-        });
-    },
-
-    /**
      * Display first line on top of the grid
      * Contains shop status, shop name and icon to download feed
      */
