@@ -19,11 +19,11 @@
  * @copyright 2016 Lengow SAS
  * @license   http://www.apache.org/licenses/LICENSE-2.0
  */
-include 'views/header.php';
+require 'views/header.php';
 
 ?>
     <div class="container">
     <h1><?php echo $locale->t('toolbox/checksum/checksum_integrity'); ?></h1>
 <?php echo $check->checkFileMd5(); ?></div>
 <?php
-include 'views/footer.php';
+require 'views/footer.php';
