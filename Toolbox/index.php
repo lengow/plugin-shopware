@@ -19,7 +19,7 @@
  * @copyright 2016 Lengow SAS
  * @license   http://www.apache.org/licenses/LICENSE-2.0
  */
-include 'views/header.php';
+require 'views/header.php';
 
 $check = new Shopware_Plugins_Backend_Lengow_Components_LengowCheck();
 $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops();
@@ -41,4 +41,4 @@ $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops()
 
 </div>
 <?php
-include 'views/footer.php';
+require 'views/footer.php';

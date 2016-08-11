@@ -33,7 +33,7 @@ switch ($action) {
 }
 
 $listFile = Shopware_Plugins_Backend_Lengow_Components_LengowLog::getPaths();
-require_once('./views/header.php');
+require('./views/header.php');
 ?>
     <div class="container">
         <h1><?php echo $locale->t('toolbox/log/log_files'); ?></h1>
@@ -54,4 +54,4 @@ require_once('./views/header.php');
         </ul>
     </div><!-- /.container -->
 <?php
-include 'views/footer.php';
+require 'views/footer.php';
