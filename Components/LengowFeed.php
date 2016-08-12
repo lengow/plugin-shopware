@@ -42,7 +42,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     public $part_file_name;
 
     /**
-     * @var LengowFile temporary export file
+     * @var Shopware_Plugins_Backend_Lengow_Components_LengowFile temporary export file
      */
     protected $file;
 
@@ -329,7 +329,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     }
 
     /**
-     * v3
      * Format field names according to the given format
      *
      * @param string $str    field name
@@ -420,6 +419,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     {
         $sep = DIRECTORY_SEPARATOR;
         $folder = self::$LENGOW_EXPORT_FOLDER.$sep.self::formatFields($shopName, 'shop');
+        /** @var Shopware_Plugins_Backend_Lengow_Components_LengowFile[] $files */
         $files = Shopware_Plugins_Backend_Lengow_Components_LengowFile::getFilesFromFolder($folder);
         if (empty($files)) {
             return false;

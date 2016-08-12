@@ -181,8 +181,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
-     * @param $shop Shopware\Models\Shop\Shop
-     * @return string
+     * Get shop url for export
+     * @param $shop Shopware\Models\Shop\Shop Shop to get url from
+     * @return string Shop url
      */
     public static function getShopUrl($shop)
     {
@@ -346,6 +347,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function cleanLog()
     {
+        /** @var Shopware_Plugins_Backend_Lengow_Components_LengowFile[] $log_files */
         $log_files = Shopware_Plugins_Backend_Lengow_Components_LengowLog::getFiles();
         $days = array();
         $days[] = 'logs-'.date('Y-m-d').'.txt';
@@ -561,6 +563,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         return $value;
     }
 
+    /**
+     * Check if Shopware current version is older than the specified one
+     * @param $versionToCompare string Version to compare
+     * @return boolean True if current version is greater or equals than $versionToCompare
+     */
     public static function compareVersion($versionToCompare)
     {
         return version_compare(Shopware::VERSION, $versionToCompare, ">=");
@@ -741,10 +748,5 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             }
         }
         return $result;
-    }
-
-    public static function isSync()
-    {
-        return false;
     }
 }

@@ -176,7 +176,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Enlight_Controller_Action_PostDispatch_Backend_Index',
             'onPostDispatchBackendIndex'
         );
-        // Backend events
+        // Basic settings events
         $this->subscribeEvent(
             'Enlight_Controller_Action_PostDispatch_Backend_Config',
             'onPostDispatchBackendConfig'
@@ -191,11 +191,13 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     {
         $request = $args->getSubject()->Request();
         $controllerName = $request->getControllerName();
+        // Since 5.x, forms use _repositoryClass parameter to specify the repository to update
         if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.0.0')) {
             $repositoryName = $request->get('_repositoryClass');
         } else {
             $repositoryName = $request->get('name');
         }
+        // If action is from Shopware basics settings plugin and editing shop form
         if ($controllerName == 'Config' && $repositoryName == 'shop') {
             $action = $request->getActionName();
             $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
@@ -215,8 +217,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
     /**
      * Returns the path to Lengow home controller
-     * Check s_article_attributes table and create new column if a shop has been created
-     * since Lengow plugin has been installed
      *
      * @return string
      */
@@ -276,7 +276,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * Load Lengow icon
+     * Load Lengow icon. Triggered when Shopware backend is loaded
      * @param Enlight_Controller_ActionEventArgs $args
      */
     public function onPostDispatchBackendIndex(Enlight_Controller_ActionEventArgs $args)

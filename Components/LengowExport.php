@@ -150,6 +150,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     private $feed;
 
     /**
+     * Shop to export
      * @var \Shopware\Models\Shop\Shop Shopware Shop
      */
     private $shop;
@@ -323,6 +324,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 $productsToExport[] = $lengowVariantProduct;
             }
         }
+        // Update header content and make sure to have unique keys
         $header = array_merge(self::$DEFAULT_FIELDS, $this->productFields);
         $header = array_unique($header);
         // write header
@@ -341,6 +343,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         );
         // Write products in the feed when the header is ready
         foreach ($productsToExport as $product) {
+            // If offset specified in params
             if ($this->offset != null && $this->offset > $numberOfProducts) {
                 $numberOfProducts++;
                 continue;
@@ -353,7 +356,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $isFirst = false;
             $numberOfProducts++;
             $displayedProducts++;
-            // Log each time 10 products are exported
+            // Log each time 50 products are exported
             if ($displayedProducts > 0 && $displayedProducts % 50 == 0 && $displayedProducts < $total) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Export',
@@ -492,7 +495,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 }
             }
         }
-        // Reset default value
+        // Reset default values
         $this->exportOutOfStock = $exportOutOfStockDefaultValue;
         $this->exportSelectionEnabled = $exportLengowSelectionDefaultValue;
         return $total;

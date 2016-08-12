@@ -83,6 +83,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         $dispatches = $em->getRepository('Shopware\Models\Dispatch\Dispatch')->findBy(array('type' => 0));
         $selection = array();
         $defaultValue = null;
+        // Default dispatcher used to get shipping fees in export
         if (count($dispatches) > 0) {
             $defaultValue = $dispatches[0]->getId();
         }
@@ -184,8 +185,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         $locales = $em->getRepository('\Shopware\Models\Shop\Locale')->findAll();
         foreach ($forms as $form) {
             $formName = $form->getName();
+            // Available locales in Shopware
             foreach ($locales as $locale) {
                 $isoCode = $locale->getLocale();
+                // If the locale has been translated in Lengow
                 if (Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::containsIso($isoCode)) {
                     $formLabel = $this->getTranslation('settings/'.$formName.'/label', $isoCode);
                     $formDescription = $this->getTranslation('settings/'.$formName.'/description', $isoCode);

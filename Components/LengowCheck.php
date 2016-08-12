@@ -366,8 +366,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     }
 
     /**
-     * @param array $checklist
-     * @return null|string
+     * Get toolbox files status (if files have been deleted/edited or ok)
+     * @param array $checklist List of elements to generate
+     * @return null|string Html
      */
     private function getAdminContent($checklist = array())
     {

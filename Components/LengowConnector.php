@@ -146,7 +146,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $format return format of API
      * @param string $body
      *
-     * @return array The formated data response
+     * @return array The format data response
      */
     public function put($method, $array = array(), $format = 'json', $body = '')
     {
@@ -306,9 +306,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * Get Valid Account / Access / Secret
      *
-     * @param Shopware\Models\Shop\Shop $shop
+     * @param Shopware\Models\Shop\Shop $shop Shop to get settings from
      *
-     * @return array
+     * @return array Tokens and account id values for this shop
      */
     public static function getAccessId($shop = null)
     {

@@ -176,7 +176,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
      *
      * @param string $folder folder name
      *
-     * @return array
+     * @return Shopware_Plugins_Backend_Lengow_Components_LengowFile[] List of files
      */
     public static function getFilesFromFolder($folder)
     {

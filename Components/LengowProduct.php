@@ -62,7 +62,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     protected $shop;
 
     /**
-     * Shopware_Plugins_Backend_Lengow_Components_LengowProduct constructor.
+     * LengowProduct constructor.
      * @param $details Shopware\Models\Article\Detail Article detail
      * @param $shop Shopware\Models\Shop\Shop Shop the article belongs to
      * @param $type String simple|parent|child

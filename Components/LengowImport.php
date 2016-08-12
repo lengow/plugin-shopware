@@ -426,10 +426,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     /**
      * Call Lengow order API
      *
-     * @param  $shop Shopware\Models\Shop\Shop
+     * @param  $shop Shopware\Models\Shop\Shop Shop to get orders
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
-     * @return mixed
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException If error while connect to the API
+     * @return mixed List of orders found by the API for this shop
      */
     protected function getOrdersFromApi($shop)
     {
@@ -651,7 +651,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     unset($error_message);
                     continue;
                 }
-                // if re-import order -> return order informations
+                // if re-import order -> return order information
                 if (isset($order) && $this->import_one_order) {
                     return $order;
                 }

@@ -24,7 +24,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
     /**
      * Get Header html
      *
-     * @return string
+     * @return string Header page html
      */
     public static function getHeader()
     {
@@ -62,7 +62,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
     /**
      * Get Footer html
      *
-     * @return string
+     * @return string Footer page html
      */
     public static function getFooter()
     {

@@ -336,7 +336,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
 
     /**
      * Decrease stocks for a giving product
-     * @param $products
+     * @param $products array Product which needs stocks to be decreased
      */
     protected function decreaseStocks($products)
     {
@@ -363,7 +363,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     /**
      * Create a order in lengow orders table
      *
-     * @return boolean
+     * @return boolean True if Order has been successfully created in database
      */
     protected function createLengowOrder()
     {
@@ -375,6 +375,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         }
         try {
             $dateTime = new DateTime(date('Y-m-d H:i:s', strtotime($order_date)));
+            // Create Lengow order entity
             $lengowOrder = new Shopware\CustomModels\Lengow\Order();
             $lengowOrder->setShopId($this->shop->getId())
                 ->setDeliveryAddressId($this->delivery_address_id)

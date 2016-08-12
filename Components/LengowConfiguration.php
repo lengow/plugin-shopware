@@ -59,6 +59,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             if ($shop != null) {
                 $criteria['shopId'] = $shop->getId();
             }
+            /** @var Shopware\CustomModels\Lengow\Settings $config */
             $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy($criteria);
             if ($config != null) {
                 $value = $config->getValue();
@@ -94,6 +95,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             if ($shop != null) {
                 $criteria['shopId'] = $shop->getId();
             }
+            /** @var Shopware\CustomModels\Lengow\Settings $config */
             $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy($criteria);
             // If null, create a new lengow config
             if ($config == null) {
@@ -140,13 +142,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     public function get($name, $shopId = 1)
     {
         $query = $this->getConfigValueByNameQuery($name, $shopId);
-
         $result = $query->execute()->fetch(\PDO::FETCH_ASSOC);
-
         if ($result['configured']) {
             return unserialize($result['configured']);
         }
-
         return unserialize($result['value']);
     }
 
@@ -162,14 +161,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     public function save($name, $value, $shopId = 1)
     {
         $query = $this->getConfigValueByNameQuery($name, $shopId);
-
         $result = $query->execute()->fetch(\PDO::FETCH_ASSOC);
-
         if (isset($result['valueId']) && $result['valueId']) {
             $this->update($value, $result['valueId']);
             return;
         }
-
         $this->insert($value, $shopId, $result['elementId']);
     }
 
@@ -192,7 +188,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'elementValues.id as valueId',
             'elementValues.value as configured',
         ]);
-
         $query->from('s_core_config_elements', 'element')
             ->leftJoin(
                 'element',
@@ -278,9 +273,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     }
 
     /**
-     * @param $shop \Shopware\Models\Shop\Shop
-     *
-     * @return array
+     * Get all values for Lengow settings (used for synchronisation)
+     * @param $shop \Shopware\Models\Shop\Shop Shop to get config from
+     * @return array List of settings for this shop
      */
     public static function getAllValues($shop = null)
     {
