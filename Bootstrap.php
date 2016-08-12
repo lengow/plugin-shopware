@@ -38,16 +38,23 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function getInfo()
     {
+        $info = json_decode(file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'plugin.json'), true);
+        // Display html description if supported
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.0.0')) {
+            $description = file_get_contents($this->Path() . 'description.html');
+        } else {
+            $description = $info['description'];
+        }
         return array(
             'version'     => $this->getVersion(),
-            'label'       => 'Lengow',
+            'label'       => $info['label'],
             'source'      => $this->getSource(),
-            'author'      => 'Lengow',
-            'supplier'    => 'Lengow',
-            'copyright'   => 'Lengow',
-            'description' => 'Lengow',
-            'support'     => 'Lengow',
-            'link'        => 'Lengow'
+            'author'      => $info['author'],
+            'copyright'   => $info['copyright'],
+            'description' => $description,
+            'support'     => $info['support'],
+            'link'        => $info['link'],
+            'changes'     => $info['changes']
         );
     }
 
@@ -57,8 +64,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public function install()
     {
         self::log('log/install/start');
-        if (!$this->assertMinimumVersion('4.2.0')) {
-            throw new \RuntimeException('At least Shopware 4.2.0 is required');
+        if (!$this->assertMinimumVersion('4.3.0')) {
+            throw new \RuntimeException('At least Shopware 4.3.0 is required');
         }
         $this->registerController('Backend', 'Lengow');
         $this->createMenuItem(array(

@@ -1,21 +1,18 @@
 {
-    "label": {
-        "de": "Lengow",
-        "en": "Lengow"
-    },
+    "label": "Lengow",
     "author": "Lengow SAS",
     "copyright": "(c) by Lengow",
-    "description": {
-        "de": "Lengow können Sie ganz einfach Ihren Produktkatalog von Ihrem Shopware Shop exportieren und verkaufen auf Amazon, Cdiscount, Google Shopping, Criteo, LeGuide.com, Ebay, Rakuten, Priceminister . Wähle aus 1.800 verfügbaren Marketing-Kanäle!",
-        "en": "Lengow allows you to easily export your product catalogue from your Shopware store and sell on Amazon, Cdiscount, Google Shopping, Criteo, LeGuide.com, Ebay, Rakuten, Priceminister. Choose from our 1,800 available marketing channels!"
-    },
-    "support_mail": {
-      "de": "support.lengow.zendesk@lengow.com",
-      "en": "support.lengow.zendesk@lengow.com"
-    },
+    "description": "Lengow allows you to easily export your product catalogue from your Shopware store and sell on Amazon, Cdiscount, Google Shopping, Criteo, LeGuide.com, Ebay, Rakuten, Priceminister. Choose from our 1,800 available marketing channels!",
+    "support_mail": "support.lengow.zendesk@lengow.com",
     "license": "proprietary",
     "link": "http://lengow.com",
     "currentVersion": "1.0.0",
+    "changes": {
+        "1.0.0": {
+            "releasedate": "2016-09-01",
+            "line": "First release"
+        }
+    },
     "changelog": {
         "de": {
             "1.0.0": "Erstveröffentlichung"
