@@ -113,7 +113,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
             $attributeName = 'shop'.$shopId.'_active';
             if ($this->columnExists($tableName, 'lengow_'.$attributeName)) {
                 // Check Shopware\Bundle\AttributeBundle\Service\CrudService::delete compatibility
-                if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.0')) {
+                if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.2')) {
                     $crudService = $lengowBootstrap->get('shopware_attribute.crud_service');
                     $crudService->delete($tableName, 'lengow_'.$attributeName);
                 } else {
@@ -151,7 +151,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
         /** @var Shopware_Plugins_Backend_Lengow_Bootstrap $lengowBootstrap */
         $lengowBootstrap = Shopware()->Plugins()->Backend()->Lengow();
         // Check Shopware\Bundle\AttributeBundle\Service\CrudService::update compatibility
-        $crudCompatibility = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.0');
+        $crudCompatibility = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.2');
         $tableName = 's_articles_attributes';
         foreach ($shopIds as $shopId) {
             $attributeName = 'shop'.$shopId.'_active';
