@@ -156,6 +156,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     private $shop;
 
     /**
+     * Currency to use for the export
+     * @var Shopware\Models\Shop\Currency
+     */
+    private $currency;
+
+    /**
      * LengowExport constructor.
      *
      * @param Shopware\Models\Shop\Shop $shop   Shop to export
@@ -292,6 +298,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 $details,
                 $this->shop,
                 'child',
+                $this->currency,
                 $this->logOutput
             );
             $productAttributes = $lengowVariantProduct->getAttributes();
@@ -308,6 +315,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                     $details,
                     $this->shop,
                     'simple',
+                    $this->currency,
                     $this->logOutput
                 );
                 $productsToExport[] = $lengowParentProduct;
@@ -316,6 +324,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                     $details,
                     $this->shop,
                     'parent',
+                    $this->currency,
                     $this->logOutput
                 );
                 $productsToExport[] = $lengowParentProduct;

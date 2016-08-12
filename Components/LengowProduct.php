@@ -62,13 +62,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     protected $shop;
 
     /**
+     * @var $currency Shopware\Models\Shop\Currency Defined currency
+     */
+    protected $currency;
+
+    /**
+     * @var $factor float Currency factor (compare to Euro)
+     */
+    protected $factor;
+    /**
      * LengowProduct constructor.
      * @param $details Shopware\Models\Article\Detail Article detail
      * @param $shop Shopware\Models\Shop\Shop Shop the article belongs to
      * @param $type String simple|parent|child
+     * @param $currency Shopware\Models\Shop\Currency Currency used for the export
      * @param $logOutput boolean Display logs
      */
-    public function __construct($details, $shop, $type, $logOutput)
+    public function __construct($details, $shop, $type, $currency, $logOutput)
     {
         $this->product = $details->getArticle();
         $this->details = $details;
@@ -77,6 +87,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $this->type = $type;
         $this->logOutput = $logOutput;
         $this->isVariation = $type == 'child' ? true : false;
+        // Get default shop currency
+        if ($currency == null) {
+            $this->currency = $shop->getCurrency();
+        } else {
+            $this->currency = $currency;
+        }
+        $this->factor = $this->currency->getFactor();
         $this->getOptions();
         $this->getPrice();
     }
@@ -142,7 +159,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 $price = $this->price->getPrice();
                 $discount = $this->price->getPercent();
                 $discExclTax = $price * (1 - ($discount/100));
-                return number_format($discExclTax, 2);
+                return number_format($discExclTax*$this->factor, 2);
                 break;
             case 'price_incl_tax':
                 $price = $this->price->getPrice();
@@ -150,18 +167,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 $discInclTax = $price * (1 - ($discount/100));
                 $tax = $this->product->getTax()->getTax();
                 $priceDiscInclTax = round($discInclTax*(100+$tax)/100, 2);
-                return number_format($priceDiscInclTax, 2);
+                return number_format($priceDiscInclTax*$this->factor, 2);
                 break;
             case 'price_before_discount_excl_tax':
                 $price = $this->price->getPrice();
                 $priceExclTax = round($price, 2);
-                return number_format($priceExclTax, 2);
+                return number_format($priceExclTax*$this->factor, 2);
                 break;
             case 'price_before_discount_incl_tax':
                 $price = $this->price->getPrice();
                 $tax = $this->product->getTax()->getTax();
                 $priceInclTax = round($price*(100+$tax)/100, 2);
-                return number_format($priceInclTax, 2);
+                return number_format($priceInclTax*$this->factor, 2);
                 break;
             case 'discount_percent':
                 $productPrice = $this->details->getPrices()[0];
@@ -177,7 +194,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 return $this->getShippingCost();
                 break;
             case 'currency':
-                return $this->shop->getCurrency()->getCurrency();
+                return $this->currency->getCurrency();
                 break;
             case (preg_match('`image_url_([0-9]+)`', $name) ? true : false):
                 $index = explode('_', $name);
@@ -462,7 +479,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     }
                 }
             }
-            return number_format($shippingCost, 2);
+            return number_format($shippingCost*$this->factor, 2);
         } else {
             return number_format(0, 2);
         }
