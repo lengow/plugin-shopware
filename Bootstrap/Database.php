@@ -28,6 +28,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $schemaTool = new Doctrine\ORM\Tools\SchemaTool($em);
+        // List of models to add to the db
         $models = array(
             's_lengow_order'    => $em->getClassMetadata('Shopware\CustomModels\Lengow\Order'),
             's_lengow_settings' => $em->getClassMetadata('Shopware\CustomModels\Lengow\Settings')
@@ -85,6 +86,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
         }
     }
 
+    /**
+     * Delete all Lengow columns (lengowShopXActive) from table s_articles_attributes
+     */
     public function removeAllLengowColumns()
     {
         $shopIds = array();
@@ -95,6 +99,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
         $this->removeLengowColumn($shopIds);
     }
 
+    /**
+     * Delete list of columns from s_articles_attributes table
+     * @param $shopIds array List of shop ids
+     */
     public function removeLengowColumn($shopIds)
     {
         /** @var Shopware_Plugins_Backend_Lengow_Bootstrap $lengowBootstrap */
@@ -125,8 +133,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
             } else {
                 $lengowBootstrap::log(
                     'log/uninstall/column_not_exists', array(
-                        'column' => $attributeName,
-                        'table' => $tableName
+                        'column_name' => $attributeName,
+                        'table_name' => $tableName
                     )
                 );
             }

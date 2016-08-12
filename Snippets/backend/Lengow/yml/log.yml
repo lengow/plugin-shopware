@@ -37,6 +37,7 @@ default:
       end: "## end uninstall ##"
       remove_model: "Removing custom model %{name}"
       remove_column: "Removing column %{column} from %{table} table"
+      column_not_exists: "Skipping column %{column_name} : does not exists in table %{table_name}"
     connector:
       call_api: "call %{curl_url}"
       error_api: "API call failed - %{error_code}"
