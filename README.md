@@ -35,7 +35,7 @@
 
     mysql -u root -p -e "CREATE DATABASE shopware-x-x-x";
 
-8 - Se connecter sur prestashop pour lancer l'installation
+8 - Se connecter sur Shopware pour lancer l'installation
 
     http://shopware_x-x-x.local
 
@@ -50,7 +50,7 @@ Cloner le repo dans votre espace de travail :
     cd /var/www/shopware/shopware_x.x.x/engine/Shopware/Plugins/Community/Backend/
     git clone git@bitbucket.org:lengow-dev/shopware.git Lengow/
 
-### Installation dans Prestashop ###
+### Installation dans Shopware ###
 
 1 - Se connecter au Back office de Shopware à l'addresse http://shopware_x-x-x.local/backend/ (défaut : u=demo p=demo)
 
