@@ -26,7 +26,7 @@ $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops()
 ?>
 <div class="container">
     <h1> <?php echo $locale->t('toolbox/menu/lengow_toolbox') ?></h1>
-    <h3><i class="fa fa-check-square-o"></i> <?php echo $locale->t('toolbox/index/checklist_information') ?> </h3>
+    <h3><i class="fa fa-check-square-o"></i> <?php echo $locale->t('toolbox/index/checklist_information') ?></h3>
     <?php echo $check->getCheckList(); ?>
     <h3><i class="fa fa-cog"></i> <?php echo $locale->t('toolbox/index/global_information') ?></h3>
     <?php echo $check->getGlobalInformation(); ?>
@@ -38,7 +38,6 @@ $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops()
         echo $check->getInformationByStore($shop);
     }
     ?>
-
 </div>
 <?php
 require 'views/footer.php';

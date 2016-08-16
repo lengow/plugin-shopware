@@ -41,7 +41,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $info = json_decode(file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'plugin.json'), true);
         // Display html description if supported
         if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.0.0')) {
-            $description = file_get_contents($this->Path() . 'description.html');
+            $description = file_get_contents($this->Path().'description.html');
         } else {
             $description = $info['description'];
         }
@@ -52,7 +52,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'author'      => $info['author'],
             'copyright'   => $info['copyright'],
             'description' => $description,
-            'support'     => $info['support'],
+            'support'     => $info['support_mail'],
             'link'        => $info['link'],
             'changes'     => $info['changes']
         );
@@ -211,7 +211,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             $data = $request->getPost();
             // If new shop, get last entity put in db
             if ($action == 'saveValues') {
-                $shop = self::getEntityManager()->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array(), array('id' => 'DESC'));
+                $shop = self::getEntityManager()
+                    ->getRepository('Shopware\Models\Shop\Shop')
+                    ->findOneBy(array(), array('id' => 'DESC'));
                 $lengowDatabase->addLengowColumns(array($shop->getId()));
             } elseif ($action == 'deleteValues') {
                 $shopId = isset($data['id']) ? $data['id'] : null;

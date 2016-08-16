@@ -382,7 +382,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
                 'lengowLastExport',
                 date('Y-m-d H:i:s'),
-                $this->shop);
+                $this->shop
+            );
         }
         if (!$success) {
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(

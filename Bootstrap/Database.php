@@ -101,6 +101,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
 
     /**
      * Delete list of columns from s_articles_attributes table
+     *
      * @param $shopIds array List of shop ids
      */
     public function removeLengowColumn($shopIds)
@@ -125,16 +126,18 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                     );
                 }
                 $lengowBootstrap::log(
-                    'log/uninstall/remove_column', array(
+                    'log/uninstall/remove_column',
+                    array(
                         'column' => $attributeName,
                         'table' => $tableName
                     )
                 );
             } else {
                 $lengowBootstrap::log(
-                    'log/uninstall/column_not_exists', array(
+                    'log/uninstall/column_not_exists',
+                    array(
                         'column_name' => $attributeName,
-                        'table_name' => $tableName
+                        'table_name'  => $tableName
                     )
                 );
             }
@@ -144,6 +147,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
 
     /**
      * Add a new column to the s_articles_attributes table (if does not exist)
+     *
      * @param $shopIds array List of shops to add
      */
     public function addLengowColumns($shopIds)
@@ -155,10 +159,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
         $tableName = 's_articles_attributes';
         foreach ($shopIds as $shopId) {
             $attributeName = 'shop'.$shopId.'_active';
-            if (!$this->columnExists($tableName, 'lengow_' . $attributeName)) {
+            if (!$this->columnExists($tableName, 'lengow_'.$attributeName)) {
                 if ($crudCompatibility) {
                     $crudService = $lengowBootstrap->get('shopware_attribute.crud_service');
-                    $crudService->update($tableName, 'lengow_' . $attributeName, 'boolean');
+                    $crudService->update($tableName, 'lengow_'.$attributeName, 'boolean');
                 } else {
                     // @legacy Shopware < 5.2
                     $lengowBootstrap->Application()->Models()->addAttribute(

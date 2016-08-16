@@ -247,8 +247,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function getLastImport()
     {
-        $timestamp_cron = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowLastImportCron');
-        $timestamp_manual = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowLastImportManual');
+        $timestamp_cron = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            'lengowLastImportCron'
+        );
+        $timestamp_manual = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            'lengowLastImportManual'
+        );
         if ($timestamp_cron && $timestamp_manual) {
             if ((int)$timestamp_cron > (int) $timestamp_manual) {
                 return array('type' => 'cron', 'timestamp' => (int)$timestamp_cron);
@@ -270,7 +274,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function isInProcess()
     {
-        $timestamp = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowImportInProgress');
+        $timestamp = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            'lengowImportInProgress'
+        );
         if ($timestamp > 0) {
             // security check : if last import is more than 60 seconds old => authorize new import to be launched
             if (($timestamp + (60 * 1)) < time()) {

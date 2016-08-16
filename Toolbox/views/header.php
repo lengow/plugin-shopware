@@ -41,19 +41,19 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
                 <div class="container">
                     <div class="navbar-header">
                         <a class="navbar-brand" href="index.php">
-                            <i class="fa fa-rocket"></i> ' . $locale->t('toolbox/menu/lengow_toolbox') . '
+                            <i class="fa fa-rocket"></i> '.$locale->t('toolbox/menu/lengow_toolbox').'
                         </a>
                     </div>
                     <div id="navbar" class="collapse navbar-collapse">
                         <ul class="nav navbar-nav">
                             <li>
                                 <a href="checksum.php">
-                                    <i class="fa fa-search"></i> ' . $locale->t('toolbox/menu/checksum') . '
+                                    <i class="fa fa-search"></i> '.$locale->t('toolbox/menu/checksum').'
                                 </a>
                             </li>
                             <li>
                                 <a href="log.php">
-                                    <i class="fa fa-file-text-o"></i> ' . $locale->t('toolbox/menu/log') . '
+                                    <i class="fa fa-file-text-o"></i> '.$locale->t('toolbox/menu/log').'
                                 </a>
                             </li>
                         </ul>

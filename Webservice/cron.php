@@ -88,10 +88,10 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
         $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport($params);
         $import->exec();
     }
-     // sync options between Lengow and Shopware
-     if (!$sync || $sync === 'option') {
-         Shopware_Plugins_Backend_Lengow_Components_LengowSync::setCmsOption();
-     }
+    // sync options between Lengow and Shopware
+    if (!$sync || $sync === 'option') {
+        Shopware_Plugins_Backend_Lengow_Components_LengowSync::setCmsOption();
+    }
     // sync option is not valid
     if ($sync && ($sync !== 'order' && $sync !== 'action' && $sync !== 'option')) {
         header('HTTP/1.1 400 Bad Request');

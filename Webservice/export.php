@@ -57,7 +57,7 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
     $exportDisabledProduct  = isset($_REQUEST["inactive"]) ? (bool)$_REQUEST["inactive"] : null;
     $shopId                 = isset($_REQUEST['shop']) ? $_REQUEST['shop'] : null;
     $updateExportDate       = isset($_REQUEST['update_export_date']) ? (bool)$_REQUEST['update_export_date'] : true;
-    $currencyName           = isset($_REQUEST['cur']) ? $_REQUEST['cur'] : null;
+    $currencyName           = isset($_REQUEST['currency']) ? $_REQUEST['currency'] : null;
     $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
     // If shop name has been filled
     if ($shopId) {
@@ -74,7 +74,8 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
             $currency = null;
             // Look for existing currency with defined param
             if ($currencyName != null) {
-                $currency = $em->getRepository('Shopware\Models\Shop\Currency')->findOneBy(array('name' => $currencyName));
+                $currency = $em->getRepository('Shopware\Models\Shop\Currency')
+                    ->findOneBy(array('name' => $currencyName));
             }
             $params = array(
                 'format'                 => $format,

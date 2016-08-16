@@ -37,18 +37,18 @@ require('./views/header.php');
 ?>
     <div class="container">
         <h1><?php echo $locale->t('toolbox/log/log_files'); ?></h1>
-
         <ul class="list-group">
             <?php
             foreach ($listFile as $file) {
                 echo '<li class="list-group-item">';
-                echo '<a href="/engine/Shopware/Plugins/Community/Backend/Lengow/Toolbox/log.php?action=download&file='.urlencode($file['short_path']).'">
-    <i class="fa fa-download"></i> '.$file['name'].'</a>';
+                echo '<a href="/engine/Shopware/Plugins/Community/Backend/Lengow/Toolbox/log.php?action=download&file='
+                    .urlencode($file['short_path']).'">
+                    <i class="fa fa-download"></i> '.$file['name'].'</a>';
                 echo '</li>';
             }
             echo '<li class="list-group-item">';
             echo '<a href="/engine/Shopware/Plugins/Community/Backend/Lengow/Toolbox/log.php?action=download_all">
-        <i class="fa fa-download"></i> '.$locale->t('toolbox/log/download_all').'</a>';
+                <i class="fa fa-download"></i> '.$locale->t('toolbox/log/download_all').'</a>';
             echo '</li>';
             ?>
         </ul>
