@@ -34,7 +34,7 @@
 /Snippets/backend/Lengow/yml/de.yml|a1705275c40ffbab827ef490304bfb43
 /Snippets/backend/Lengow/yml/en.yml|4ad49de6de0c71ddb611e5a713004335
 /Snippets/backend/Lengow/yml/fr.yml|bce81521eb763169c75af502780ce009
-/Snippets/backend/Lengow/translation.ini|ffc320a8a1dfe23868d72bb7c5322af4
+/Snippets/backend/Lengow/translation.ini|da720e3edc2db121092684843a049d11
 /Toolbox/fonts/fontawesome-webfont.woff2|db812d8a70a4e88e888744c1c9a27e89
 /Toolbox/fonts/fontawesome-webfont.ttf|a3de2170e4e9df77161ea5d3f31b2668
 /Toolbox/fonts/fontawesome-webfont.woff|a35720c2fed2c7f043bc7e4ffb45e073
@@ -75,9 +75,9 @@
 /Views/backend/lengow/resources/img/home-products.png|99ff45448ea094f8c70b58a0cd4d9303
 /Views/backend/lengow/resources/img/logo-blue.png|ef3dc1f828b4441850b655cd4e4cf9aa
 /Views/backend/lengow/resources/img/home-orders.png|db05b21ec6b166d844b42c0e807cb265
-/Views/backend/lengow/resources/css/lengow-layout.css|71330fe1d9c53434b5211dec06c3eb57
-/Views/backend/lengow/resources/css/lengow-components.css|15703fb62c827f660a44f2c36aa6af68
-/Views/backend/lengow/resources/css/lengow-pages.css|203c59da988b7b8bc48ebb4bb331550c
+/Views/backend/lengow/resources/css/lengow-layout.css|a2a080ba4a3eee1ff4eb5e59407dde70
+/Views/backend/lengow/resources/css/lengow-components.css|743fcde65518d8b65d8f66421a08d66a
+/Views/backend/lengow/resources/css/lengow-pages.css|f32ddcacb62cbe9abfb49ed63f0ae522
 /Views/backend/lengow/app.js|e8d41a3fd32ddb488eb2c63677214bdc
 /Webservice/cron.php|2ecc9c513c3b34a011c184dc1b188f13
 /Webservice/export.php|53fbbc5a8a97d5dc6461ee48137d95a8
