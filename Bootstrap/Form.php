@@ -43,10 +43,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
             'lengowAccountId' => array(
-                'type'          => 'number',
+                'type'          => 'text',
                 'label'         => 'settings/lengow_main_settings/account/label',
                 'required'      => true,
-                'minValue'      => 0,
                 'value'         => 0,
                 'description'   => 'settings/lengow_main_settings/account/description',
                 'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP

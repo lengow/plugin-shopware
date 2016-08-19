@@ -2,7 +2,7 @@
 /description.html|04553f1af958ec66a42147aa4b0cc97c
 /plugin.json|60f125ad62ec5a2da205dd35edff6dd5
 /Bootstrap/Database.php|44fbee4db9e3e3c551c713ed77629146
-/Bootstrap/Form.php|8d200276a946ce67f8521f43209cddc3
+/Bootstrap/Form.php|7d5d342e238c14050b9f96893fd7f9e2
 /Components/LengowTranslation.php|1e8133d57934fe67b1a26bc2f7a82f5a
 /Components/LengowMain.php|0e04ae65ec1e5ff9a3508a65b783c7b9
 /Components/LengowFeed.php|1fce9ae96b369a543cf7b1bd786f7986
@@ -32,9 +32,9 @@
 /Models/Lengow/Settings.php|32dabd48fd9596ddd533857b10576b7e
 /Snippets/backend/Lengow/yml/log.yml|41261b44e67f7af666efc0a8f5f69f30
 /Snippets/backend/Lengow/yml/de.yml|a1705275c40ffbab827ef490304bfb43
-/Snippets/backend/Lengow/yml/en.yml|4ad49de6de0c71ddb611e5a713004335
+/Snippets/backend/Lengow/yml/en.yml|ae1e71695f5bae26a8872c109cc8057c
 /Snippets/backend/Lengow/yml/fr.yml|bce81521eb763169c75af502780ce009
-/Snippets/backend/Lengow/translation.ini|da720e3edc2db121092684843a049d11
+/Snippets/backend/Lengow/translation.ini|ecbcd19ba65bfe47c1b3c4ef87492429
 /Toolbox/fonts/fontawesome-webfont.woff2|db812d8a70a4e88e888744c1c9a27e89
 /Toolbox/fonts/fontawesome-webfont.ttf|a3de2170e4e9df77161ea5d3f31b2668
 /Toolbox/fonts/fontawesome-webfont.woff|a35720c2fed2c7f043bc7e4ffb45e073
@@ -76,7 +76,7 @@
 /Views/backend/lengow/resources/img/logo-blue.png|ef3dc1f828b4441850b655cd4e4cf9aa
 /Views/backend/lengow/resources/img/home-orders.png|db05b21ec6b166d844b42c0e807cb265
 /Views/backend/lengow/resources/css/lengow-layout.css|a2a080ba4a3eee1ff4eb5e59407dde70
-/Views/backend/lengow/resources/css/lengow-components.css|743fcde65518d8b65d8f66421a08d66a
+/Views/backend/lengow/resources/css/lengow-components.css|0d415bbdcb35c47f4cdfa57a4c5cef42
 /Views/backend/lengow/resources/css/lengow-pages.css|f32ddcacb62cbe9abfb49ed63f0ae522
 /Views/backend/lengow/app.js|e8d41a3fd32ddb488eb2c63677214bdc
 /Webservice/cron.php|2ecc9c513c3b34a011c184dc1b188f13

@@ -6,7 +6,7 @@ en:
       export: "Products"
       import: "Import"
       logs: "Logs"
-      settings: "Config"
+      settings: "Settings"
       help: "Help"
   dashboard:
     screen:
@@ -72,25 +72,25 @@ en:
   settings:
     lengow_main_settings:
       label: "Main settings"
-      description: "Set main settings"
+      description: "Below you will find your Lengow login details. \nAccount ID, Access Token and Secret Token are automatically completed at your first connection : please do not change them."
       enable:
         label: "Enable shop"
-        description: "Enable this shop for Lengow"
+        description: "Enable shop to work with Lengow"
       account:
         label: "Account ID"
-        description: "Your Lengow account ID"
+        description: "Your Lengow account ID. Please do not change it."
       access:
         label: "Access Token"
-        description: "Your access token"
+        description: "Your access token. Please do not change it."
       secret:
         label: "Secret Token"
-        description: "Your secret token"
+        description: "Your secret token. Please do not change it."
       ip:
         label: "Authorized IP"
-        description: "Authorized IP separated by ';'"
+        description: "Authorize IP to get access to your export feed. \nSeparate them ' ; '"
     lengow_export_settings:
       label: "Export settings"
-      description: "Set export settings"
+      description: "Define the settings to create your feed."
       variation:
         label: "Export product variations"
         description: "Use this option if you want to export all of your catalogue with variations"
@@ -101,20 +101,20 @@ en:
         label: "Export inactive products"
         description: "Enable this option if you want to export inactive products"
       lengow_selection:
-        label: "Export the selection only"
-        description: "Activate this option if you do not want to export all of your avaible products. Then, only select the products you want to export"
+        label: "Export specific products only"
+        description: "Activate this option if you do not want to export all of your avaible products. Then select your products one by one."
       dispatcher:
-        label: "Default dispatcher"
-        description: "Select the default dispatcher that you would like to apply to your orders"
+        label: "Default carrier"
+        description: "Select the default carrier that you would like to apply to your orders"
     lengow_import_settings:
       label: "Import settings"
-      description: "Set import settings"
+      description: "All your orders are centralized in your Lengow platform : choose here if you want to synchronize your orders and decrease your products stock in your Shopware backoffice"
       enable_import:
-        label: "Enable import process"
+        label: "Activate orders synchronisation"
         description: "Use this option to decrease stocks in your Shopware backoffice"
       decrease_stock:
-        label: "Decrease products send by marketplaces"
-        description: "Use this option to take into account your marketplaces orders on your stock in your Shopware backoffice"
+        label: "Decrease my stock with the orders sent by marketplaces"
+        description: "Use this option to take into account your orders sent by marketplaces on your stock in your Shopware backoffice"
       import_days:
         label: "Re-import all orders made since (in days)"
         description: "Activate this option if you have incorrect pending orders. It lets you re-import all orders that have been processed during this faulty period"
@@ -125,10 +125,10 @@ en:
     filter:
       filter_title: "Filter"
       no_filter: "No filter"
-      lengow_products: "Lengow's articles"
-      active_products: "Active articles"
+      lengow_products: "Lengow products"
+      active_products: "Active products"
       in_stock: "In stock"
-      no_category: "No categories"
+      no_category: "No category"
     grid:
       column:
         number: "Article number"
@@ -167,9 +167,9 @@ en:
       import_charge_second: "Please bear with us; this will not take long (2 min average waiting time)"
     panel:
       no_notification: "No new notification on order"
-      description: "Import orders and decrement your stocks from <b>%{nb_days}</b> days."
-      last_import: "Last synchronization : <b>%{import_date}</b>"
-      order_new: "%{nb_order} order(s) decremented"
+      description: "Import orders and decrease your stocks from <b>%{nb_days}</b> days."
+      last_import: "Last synchronisation : <b>%{import_date}</b>"
+      order_new: "%{nb_order} order(s) decreased"
       order_error_link: "%{nb_order} order(s) with errors (<a href='%{log_url}' target='_blank'>See logs for more information</a>)"
       order_error: "%{nb_order} order(s) with errors"
       order_import_failed: "Order import failed (<a href='%{log_url}' target='_blank'>See logs for more information</a>)"
