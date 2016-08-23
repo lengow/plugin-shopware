@@ -149,7 +149,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                 'configure_plugin',
             )
         );
-        $stats = Shopware_Plugins_Backend_Lengow_Components_LengowStatistic::get();
+        $stats = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatistic();
         $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
         $dashboardHtml = '
         <div id="lengow_home_wrapper">
