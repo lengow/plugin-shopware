@@ -193,7 +193,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     {
         if (!in_array($this->format, Shopware_Plugins_Backend_Lengow_Components_LengowFeed::$AVAILABLE_FORMATS)) {
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                'log/export/error_illegal_export_format'
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/export/error_illegal_export_format'
+                )
             );
         }
         return true;
@@ -493,8 +495,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     {
         $exportOutOfStockDefaultValue = $this->exportOutOfStock;
         $exportLengowSelectionDefaultValue = $this->exportSelectionEnabled;
+        $exportVariationDefaultValue = $this->exportVariationEnabled;
         $this->exportOutOfStock = true; // Force out of stock products
         $this->exportSelectionEnabled = false;
+        $this->exportVariationEnabled = true;
         $products = $this->getIdToExport();
         $total = count($products);
         // As Shopware uses default articles as "parents", we need to count it twice
@@ -508,6 +512,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         // Reset default values
         $this->exportOutOfStock = $exportOutOfStockDefaultValue;
         $this->exportSelectionEnabled = $exportLengowSelectionDefaultValue;
+        $this->exportVariationEnabled = $exportVariationDefaultValue;
         return $total;
     }
 

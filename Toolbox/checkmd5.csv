@@ -9,10 +9,10 @@
 /Components/LengowOrder.php|3c5d79dcd73aa8462934570705b93b02
 /Components/LengowConfiguration.php|45eb0602a950793f29c452c8c2827fc5
 /Components/LengowMarketplace.php|544e15d0bc431153a08b1b2691c6d7a7
-/Components/LengowExport.php|953862d610410cdd2f558db94f90d300
-/Components/LengowSync.php|eab1b2c1f9c1c496928eeeb2f5cadd54
+/Components/LengowExport.php|d0226d2ad2cf82c19b79bdb4ea684b03
+/Components/LengowSync.php|97345c03dc0c69810395f92d20f440cb
 /Components/LengowImport.php|207c62cda7fb65b9c1115d2160ba1eeb
-/Components/LengowElements.php|7059e7f2f6a07b511cf3a7e19f27b935
+/Components/LengowElements.php|f488a23f78e8e15f83e7121077ed43f7
 /Components/LengowLog.php|ae893cd59217c808132e57ff762454ae
 /Components/LengowImportOrder.php|6f370f0b6b62a8e74b14f1cc2e816f58
 /Components/LengowFile.php|dd92c797affdecbe874fee9159f555da
@@ -20,7 +20,6 @@
 /Components/LengowException.php|75f41c9316061191ea7e897f4f618fb0
 /Components/LengowConnector.php|a8722883e753fd80990ced587e5eaac6
 /Components/LengowCheck.php|7eac212d61488c5ef858dea6a5e078d7
-/Components/LengowStatistic.php|9f7f963b3260d4da83a94bfdac8bd444
 /Controllers/Backend/LengowHelp.php|204093539549d908b5c6a63392e8b023
 /Controllers/Backend/Lengow.php|26de1bff086a01222b1e731cfdab99e9
 /Controllers/Backend/LengowExport.php|aa7d25501c18bd94cd6dd11f08f0b810
