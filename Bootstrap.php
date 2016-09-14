@@ -73,7 +73,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'controller' => 'Lengow',
             'action'     => 'Index',
             'active'     => 1,
-            'parent'     => $this->Menu()->findOneBy(['label' => 'Einstellungen']),
+            'parent'     => $this->Menu()->findOneBy(array('label' => 'Einstellungen')),
             'class'      => 'lengow--icon'
         ));
         self::log('log/install/add_menu');

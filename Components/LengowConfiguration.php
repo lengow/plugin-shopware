@@ -182,12 +182,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $connection = $em->getConnection();
         $query = $connection->createQueryBuilder();
-        $query->select([
+        $query->select(array(
             'element.id as elementId',
             'element.value',
             'elementValues.id as valueId',
             'elementValues.value as configured',
-        ]);
+        ));
         $query->from('s_core_config_elements', 'element')
             ->leftJoin(
                 'element',

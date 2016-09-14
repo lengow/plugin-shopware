@@ -181,8 +181,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 return number_format($priceInclTax*$this->factor, 2);
                 break;
             case 'discount_percent':
-                $productPrice = $this->details->getPrices()[0];
-                return number_format($productPrice->getPercent(), 2);
+                $productPrice = $this->details->getPrices();
+                return number_format($productPrice[0]->getPercent(), 2);
                 break;
             case 'discount_start_date':
                 return '';
