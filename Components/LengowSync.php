@@ -229,11 +229,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             }
         }
         // TODO call API for return a customer id or false
-        //$result = LengowConnector::queryApi('get', '/v3.0/cms');
+        //$result = LengowConnector::queryApi('get', '/v3.0/accounts');
         $result = true;
         if ($result) {
             // TODO call API with customer id parameter for return status account
-            //$status = LengowConnector::queryApi('get', '/v3.0/cms');
+            //$status = LengowConnector::queryApi('get', '/v3.0/accounts');
             $status = array();
             $status['type'] = 'free_trial';
             $status['day'] = 10;

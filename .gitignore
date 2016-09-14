@@ -1,4 +1,4 @@
 .DS_Store
 Logs/*.txt
-export/*
-!export/index.php
+Export/*
+!Export/index.php
