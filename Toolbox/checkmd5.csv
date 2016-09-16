@@ -18,7 +18,7 @@
 /Components/LengowFile.php|dd92c797affdecbe874fee9159f555da
 /Components/LengowProduct.php|49d9da9f8bbabbb4f7735c98bd02817e
 /Components/LengowException.php|75f41c9316061191ea7e897f4f618fb0
-/Components/LengowConnector.php|a8722883e753fd80990ced587e5eaac6
+/Components/LengowConnector.php|5bb7152bef6e917d5e951a13f5b28a99
 /Components/LengowCheck.php|7eac212d61488c5ef858dea6a5e078d7
 /Controllers/Backend/LengowHelp.php|204093539549d908b5c6a63392e8b023
 /Controllers/Backend/Lengow.php|26de1bff086a01222b1e731cfdab99e9
@@ -30,10 +30,10 @@
 /Models/Lengow/Order.php|edd3b5dfabd4016921530624e9f06379
 /Models/Lengow/Settings.php|32dabd48fd9596ddd533857b10576b7e
 /Snippets/backend/Lengow/yml/log.yml|306a2298901a0f6cf5eecb3527f2c934
-/Snippets/backend/Lengow/yml/de.yml|a1705275c40ffbab827ef490304bfb43
-/Snippets/backend/Lengow/yml/en.yml|ae1e71695f5bae26a8872c109cc8057c
+/Snippets/backend/Lengow/yml/de.yml|dba6b3428c96ff354e1b97163f558c48
+/Snippets/backend/Lengow/yml/en.yml|8d91ce010d1f61d10d82faf2fa341b57
 /Snippets/backend/Lengow/yml/fr.yml|bce81521eb763169c75af502780ce009
-/Snippets/backend/Lengow/translation.ini|2abe91aac58ce3929e05a5526402da81
+/Snippets/backend/Lengow/translation.ini|c06e7f8ff927d8adb9a8be9f09559995
 /Toolbox/fonts/fontawesome-webfont.woff2|db812d8a70a4e88e888744c1c9a27e89
 /Toolbox/fonts/fontawesome-webfont.ttf|a3de2170e4e9df77161ea5d3f31b2668
 /Toolbox/fonts/fontawesome-webfont.woff|a35720c2fed2c7f043bc7e4ffb45e073
@@ -59,7 +59,7 @@
 /Views/backend/lengow/store/shops.js|74256bfa43b19fcf9309b7dd477ac482
 /Views/backend/lengow/view/dashboard/panel.js|cdc902c99214d512147d2ed814f1c632
 /Views/backend/lengow/view/logs/panel.js|fd9c5aaaed545bcf7b50bc31fce22c90
-/Views/backend/lengow/view/main/sync.js|b8f01d259fa407d218bdde38a9f16dbf
+/Views/backend/lengow/view/main/sync.js|d6bca3997996f020dc5ec1ad29b54b1b
 /Views/backend/lengow/view/main/home.js|2f0a5e0adc890f98597c418d9f47e817
 /Views/backend/lengow/view/import/panel.js|d96f5cb1e89b7f28bfa6d493a7c6ab61
 /Views/backend/lengow/view/help/panel.js|8e12d782d8e404ff7f6d2fa0964572aa

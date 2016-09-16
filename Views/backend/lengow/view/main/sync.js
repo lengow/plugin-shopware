@@ -23,11 +23,12 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
         var sync_iframe = document.getElementById("lengow_iframe");
         if (sync_iframe) {
             if (me.syncLink) {
-                //synchronisation des boutiques, à modifier lorsque l'API sera disponible
-                // sync_iframe.src = 'http://cms.lengow.io/sync/';
+                // me.url = 'http://cms.lengow.io/sync/';
+                // me.url = 'http://cms.lengow.net/sync/'
                 me.url = 'http://cms.lengow.dev/sync/';
             } else {
-                // sync_iframe.src = 'http://cms.lengow.io/';
+                // me.url = 'http://cms.lengow.io/';
+                // me.url = 'http://cms.lengow.net/';
                 me.url = 'http://cms.lengow.dev/';
             }
             sync_iframe.src = me.url;
