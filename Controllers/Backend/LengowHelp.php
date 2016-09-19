@@ -37,7 +37,8 @@ class Shopware_Controllers_Backend_LengowHelp extends Shopware_Controllers_Backe
                 'mailto_subject',
                 'mail_lengow_support_title',
                 'need_some_help',
-                'mail_lengow_support',
+                'link_lengow_support',
+                'title_lengow_support',
             ),
             'dashboard/screen/' => array(
                 'help_center_link'
