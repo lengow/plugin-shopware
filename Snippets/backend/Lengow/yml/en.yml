@@ -30,7 +30,7 @@ en:
       title_end_free_trial: "All good things come to an end"
       subtitle_end_free_trial: "You've reached the end of your trial!"
       first_description_end_free_trial: "Your free 15-day trial period on Lengow has now expired. We know that it is sad news, but the best is yet to come! We sincerely hope Lengow has helped you improve your business."
-      second_description_end_free_trial: "Your account will be suspended until you purchase a new subscription. All existing distributions and importations will also be suspended."
+      second_description_end_free_trial: "Your account will be suspended until you purchase a new subscription. All existing distributions and indexations will also be suspended."
       third_description_end_free_trial: "Don't forget that trial accounts are deleted 30 days after the end of the trial period. Make sure to upgrade so you do not lose the work you've done building channels."
       subtitle_bad_payer: "Your account has been temporarily shut down"
       first_description_bad_payer: "We are sorry to inform you that we have had to limit access to your account temporarily because the automatic payment of your subscription failed."
@@ -51,10 +51,11 @@ en:
   help:
     screen:
       title: "Get a little help from your support team!"
-      contain_text_support: "Ask us anything about Lengow or share feedback at"
-      mail_lengow_support: "support.lengow.zendesk@lengow.com."
-      mail_lengow_support_title: "Account Information:"
-      mailto_subject: "Shopware Lengow Plugin #Need assistance"
+      contain_text_support: "Ask us anything about Lengow or share feedback to"
+      title_lengow_support: "Lengow Support."
+      link_lengow_support: "https://supportlengow.zendesk.com/hc/en-us/requests/new"
+#      mail_lengow_support_title: "Account Information:"
+#      mailto_subject: "Shopware Lengow Plugin #Need assistance"
       need_some_help: "Need some help?"
       contain_text_support_hour: "We’ll do our best to get back to you during regular business hours (Monday to Friday – 9am to 6pm GMT+1)."
       find_answer: "You can also find answers in our "
@@ -72,7 +73,7 @@ en:
   settings:
     lengow_main_settings:
       label: "Main settings"
-      description: "Below you will find your Lengow login details.\nAccount ID, Access Token and Secret Token are automatically completed at your first connection : please do not change them."
+      description: "Below you will find your Lengow login details. \nAccount ID, Access Token and Secret Token are automatically completed at your first connection : please do not change them."
       enable:
         label: "Enable shop"
         description: "Enable shop to work with Lengow"
