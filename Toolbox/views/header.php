@@ -51,11 +51,6 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
                                     <i class="fa fa-search"></i> '.$locale->t('toolbox/menu/checksum').'
                                 </a>
                             </li>
-                            <li>
-                                <a href="log.php">
-                                    <i class="fa fa-file-text-o"></i> '.$locale->t('toolbox/menu/log').'
-                                </a>
-                            </li>
                         </ul>
                     </div>
                 </div>

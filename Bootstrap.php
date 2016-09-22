@@ -68,6 +68,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             throw new \RuntimeException('At least Shopware 4.3.0 is required');
         }
         $this->registerController('Backend', 'Lengow');
+        $this->registerController('Frontend', 'LengowController');
         $this->createMenuItem(array(
             'label'      => 'Lengow',
             'controller' => 'Lengow',
