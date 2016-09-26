@@ -23,9 +23,11 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
         var sync_iframe = document.getElementById("lengow_iframe");
         if (sync_iframe) {
             if (me.syncLink) {
-                me.url = 'http://cms.lengow.io/sync/';
+                // me.url = 'http://cms.lengow.io/sync/';
+                me.url = 'http://cms.lengow.net/sync/';
             } else {
-                me.url = 'http://cms.lengow.io/';
+                // me.url = 'http://cms.lengow.io/';
+                me.url = 'http://cms.lengow.net/';
             }
             sync_iframe.src = me.url;
             sync_iframe.onload = function() {

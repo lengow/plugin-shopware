@@ -54,8 +54,6 @@ en:
       contain_text_support: "Ask us anything about Lengow or share feedback to"
       title_lengow_support: "Lengow Support."
       link_lengow_support: "https://supportlengow.zendesk.com/hc/en-us/requests/new"
-#      mail_lengow_support_title: "Account Information:"
-#      mailto_subject: "Shopware Lengow Plugin #Need assistance"
       need_some_help: "Need some help?"
       contain_text_support_hour: "We’ll do our best to get back to you during regular business hours (Monday to Friday – 9am to 6pm GMT+1)."
       find_answer: "You can also find answers in our "
@@ -73,7 +71,7 @@ en:
   settings:
     lengow_main_settings:
       label: "Main settings"
-      description: "Below you will find your Lengow login details. \nAccount ID, Access Token and Secret Token are automatically completed at your first connection : please do not change them."
+      description: "Below you will find your Lengow login details.\nAccount ID, Access Token and Secret Token are automatically completed at your first connection : please do not change them."
       enable:
         label: "Enable shop"
         description: "Enable shop to work with Lengow"
