@@ -64,10 +64,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * @var string URL of the API Lengow
      */
-    const LENGOW_API_URL = 'https://api.lengow.io/';
-    //const LENGOW_API_URL = 'http://api.lengow.io:80';
-    //const LENGOW_API_URL = 'http://api.lengow.net:80';
-    //const LENGOW_API_URL = 'http://10.100.1.82:8080';
+    const LENGOW_API_URL = 'http://api.lengow.io:80';
 
     /**
      * @var string URL of the SANDBOX Lengow

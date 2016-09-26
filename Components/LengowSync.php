@@ -215,11 +215,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      *
      * @return mixed
      */
-    public static function getStatusAccount($force = true)
+    public static function getStatusAccount($force = false)
     {
         $account_id = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
             'lengowAccountId',
-            1
+            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop()
         );
         if (!$force) {
             $updated_at =  Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
@@ -233,12 +233,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             }
         }
 
-        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('get', '/api/v3.0/subscriptions?account_id='.$account_id);
+        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
+            'get',
+            '/v3.0/subscriptions?account_id='.$account_id
+        );
         if ($result) {
-            $status = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('get', '/api/v3.0/subscriptions?account_id='.$account_id);
 
-            $statussub['type'] = $status->subscription->billing_offer->type;
-            $statussub['day'] = -round((strtotime(date("c")) - strtotime($status->subscription->renewal))/86400);
+            $statussub['type'] = $result->subscription->billing_offer->type;
+            $statussub['day'] = -round((strtotime(date("c")) - strtotime($result->subscription->renewal))/86400);
+            if ($statussub['day'] < 0) $statussub['day'] = "0";
             if ($statussub) {
                 $jsonStatus = json_encode($statussub);
                 $date = date('Y-m-d H:i:s');
@@ -290,18 +293,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             if (!$account_id || in_array($account_id, $account_ids) || empty($account_id)) {
                 continue;
             }
-            // TODO test call API for return statistics
             $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
                 'get',
-                '/api/v3.0/stats',
+                '/v3.0/stats',
                 $shop,
                 array(
                     'date_from' => date('c', strtotime(date('Y-m-d').' -10 years')),
                     'date_to'   => date('c'),
                     'metrics'   => 'year',
-                    'account_id' => $account_id
                 )
             );
+
             if (isset($result->level0)) {
                 $return['total_order'] += $result->level0->revenue;
                 $return['nb_order'] += $result->level0->transactions;

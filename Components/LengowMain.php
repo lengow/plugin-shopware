@@ -219,8 +219,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static function getExportUrl($shop)
     {
         $base = self::getBaseUrl($shop);
-        $pluginUrl = self::getPathPlugin();
-        return $base.$pluginUrl.'Webservice/export.php?shop='.$shop->getId();
+        return $base.'/LengowController/export?shop='.$shop->getId();
     }
 
     /**
@@ -236,8 +235,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
         }
         $base = self::getBaseUrl($shop);
-        $pluginUrl = self::getPathPlugin();
-        return $base.$pluginUrl.'Webservice/cron.php?shop='.$shop->getId();
+        return $base.'/LengowController/cron?shop='.$shop->getId();
     }
 
     /**

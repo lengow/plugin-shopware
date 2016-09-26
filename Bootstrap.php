@@ -39,19 +39,13 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public function getInfo()
     {
         $info = json_decode(file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'plugin.json'), true);
-        // Display html description if supported
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.0.0')) {
-            $description = file_get_contents($this->Path().'description.html');
-        } else {
-            $description = $info['description'];
-        }
         return array(
             'version'     => $this->getVersion(),
             'label'       => $info['label'],
             'source'      => $this->getSource(),
             'author'      => $info['author'],
             'copyright'   => $info['copyright'],
-            'description' => $description,
+            'description' => $info['description'],
             'support'     => $info['support_mail'],
             'link'        => $info['link'],
             'changes'     => $info['changes']

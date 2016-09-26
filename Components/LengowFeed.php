@@ -341,15 +341,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
         switch ($format) {
             case 'csv':
                 return substr(
-                    strtoupper(
-                        preg_replace(
-                            '/[^a-zA-Z0-9_]+/',
-                            '',
-                            str_replace(
-                                array(' ', '\''),
-                                '_',
-                                Shopware_Plugins_Backend_Lengow_Components_LengowMain::replaceAccentedChars($str)
-                            )
+                    preg_replace(
+                        '/[^a-zA-Z0-9_]+/',
+                        '',
+                        str_replace(
+                            array(' ', '\''),
+                            '_',
+                            Shopware_Plugins_Backend_Lengow_Components_LengowMain::replaceAccentedChars($str)
                         )
                     ),
                     0,

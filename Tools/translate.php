@@ -22,7 +22,6 @@ $log_file = 'log';
 $defaultTranslation = null;
 $locales = array(
     'en' => 'GB',
-    'fr' => 'FR',
     'de' => 'DE'
 );
 

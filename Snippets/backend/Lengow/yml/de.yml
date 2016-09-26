@@ -23,7 +23,7 @@ de:
       some_help_title: "Hilfe benötigen?"
       get_in_touch: "Nehmen Sie Kontakt mit Lengow."
       visit_help_center: "Besuchen Sie Help Center"
-      help_center_link: "https://en.knowledgeowl.com/"
+      help_center_link: "https://en.lengow.help/help/shopware"
       configure_plugin: "detaillierte Informationen, wie Sie Ihren Shopware Plugin richtig konfigurieren"
   status:
     screen:

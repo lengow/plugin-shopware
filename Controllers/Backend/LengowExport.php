@@ -183,8 +183,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     public function exportAction()
     {
         $host = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getBaseUrl();
-        $pathPlugin = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getPathPlugin();
-        $exportUrl = $host . $pathPlugin.'Webservice/export.php';
+        $exportUrl = $host .'/LengowController/export';
         $this->View()->assign(array(
             'success' => true,
             'url' => $exportUrl
