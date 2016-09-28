@@ -21,6 +21,7 @@ remove_directory(){
         rm -rf $1
     fi
 }
+
 remove_files(){
     DIRECTORY=$1
     FILE=$2
@@ -34,14 +35,22 @@ remove_directories(){
     echo "- Delete $FILE : ""$VERT""DONE""$NORMAL"""
 }
 
-ARCHIVE_NAME='Lengow.zip'
+# Check parameters
+if [ -z "$1" ]; then
+    echo 'Version parameter is not set'
+    echo
+    exit 0
+else
+    VERSION="$1"
+    ARCHIVE_NAME='Lengow.'$VERSION'.zip'
+fi
 
 # Variables
-FOLDER_TMP="/tmp/Lengow"
-FOLDER_LOGS="/tmp/Lengow/Logs"
-FOLDER_EXPORT="/tmp/Lengow/Export"
-FOLDER_TOOLS="/tmp/Lengow/Tools"
-FOLDER_TRANSLATION="/tmp/Lengow/Snippets/backend/Lengow/yml"
+FOLDER_TMP="/tmp/Backend"
+FOLDER_LOGS="/tmp/Backend/Lengow/Logs"
+FOLDER_EXPORT="/tmp/Backend/Lengow/Export"
+FOLDER_TOOLS="/tmp/Backend/Lengow/Tools"
+FOLDER_TRANSLATION="/tmp/Backend/Lengow/Snippets/backend/Lengow/yml"
 
 VERT="\\033[1;32m"
 ROUGE="\\033[1;31m"
@@ -56,7 +65,7 @@ echo "##       ""$BLEU""Lengow Shopware""$NORMAL"" - Build Module          ##"
 echo "##                                                 ##"
 echo "#####################################################"
 echo
-FOLDER="$(dirname "$(pwd)")"
+FOLDER="$(dirname "$(dirname "$(pwd)")")"
 echo $FOLDER
 if [ ! -d "$FOLDER" ]; then
 	echo "Folder doesn't exist : ""$ROUGE""ERROR""$NORMAL"""
@@ -74,6 +83,8 @@ echo "- Create files checksum : ""$VERT""DONE""$NORMAL"""
 remove_directory $FOLDER_TMP
 #copy files
 cp -rRp $FOLDER $FOLDER_TMP
+# Remove .gitkeep
+remove_files $FOLDER_TMP ".gitkeep"
 # Remove Readme
 remove_files $FOLDER_TMP "README.md"
 # Remove .git
@@ -99,6 +110,6 @@ echo "- Remove Translation yml folder : ""$VERT""DONE""$NORMAL"""
 
 # Make zip
 cd /tmp
-zip "-r" $ARCHIVE_NAME "Lengow"
+zip "-r" $ARCHIVE_NAME "Backend"
 echo "- Build archive : ""$VERT""DONE""$NORMAL"""
 mv $ARCHIVE_NAME ~/Bureau
