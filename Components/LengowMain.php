@@ -88,6 +88,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         $ips = trim(str_replace(array("\r\n", ',', '-', '|', ' '), ';', $ips), ';');
         $ips = explode(';', $ips);
         $authorizedIps = array_merge($ips, self::$IPS_LENGOW);
+        $authorizedIps[] = $_SERVER['SERVER_ADDR'];
         $hostnameIp = $_SERVER['REMOTE_ADDR'];
         if (in_array($hostnameIp, $authorizedIps)) {
             return true;
