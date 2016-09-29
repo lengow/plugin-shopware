@@ -60,7 +60,7 @@ Ext.define('Shopware.apps.Lengow.controller.Dashboard', {
                 method: 'POST',
                 type: 'json',
                 params: {
-                    action: 'refresh_status'
+                    syncAction: 'refresh_status'
                 },
                 success: function() {
                     // Refresh Lengow by launching a new instance of the plugin
