@@ -226,7 +226,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         $products = $this->getIdToExport();
         // Clean logs
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanLog();
-        if ($this->mode != 'size') {
+        if ($this->mode == 'size') {
+            echo $this->getExportedProducts();
+        } elseif ($this->mode == 'total') {
+            echo $this->getTotalProducts();
+        } else {
             try {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Export',
@@ -274,8 +278,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                     $this->logOutput
                 );
             }
-        } else {
-            echo $this->getExportedProducts();
         }
     }
 
@@ -464,7 +466,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $builder->andWhere('details.kind = 1');
         }
         $builder->distinct()
-            ->orderBy('categories.id, details.kind')
+            ->orderBy('categories.id')
             ->groupBy('categories.id', 'details.id');
         return $builder->getQuery()->getArrayResult();
     }

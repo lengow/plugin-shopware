@@ -8,7 +8,7 @@
 /Components/LengowOrder.php|3c5d79dcd73aa8462934570705b93b02
 /Components/LengowConfiguration.php|4e9ef7a5b21f1bccb4d53893c0c38e89
 /Components/LengowMarketplace.php|544e15d0bc431153a08b1b2691c6d7a7
-/Components/LengowExport.php|d0226d2ad2cf82c19b79bdb4ea684b03
+/Components/LengowExport.php|9dab01d73f440047056e21bb5d33195e
 /Components/LengowSync.php|265950d2b60acd029abedb9d3478ceaa
 /Components/LengowImport.php|207c62cda7fb65b9c1115d2160ba1eeb
 /Components/LengowElements.php|f488a23f78e8e15f83e7121077ed43f7
@@ -18,7 +18,7 @@
 /Components/LengowProduct.php|49d9da9f8bbabbb4f7735c98bd02817e
 /Components/LengowException.php|75f41c9316061191ea7e897f4f618fb0
 /Components/LengowConnector.php|5bb7152bef6e917d5e951a13f5b28a99
-/Components/LengowCheck.php|7eac212d61488c5ef858dea6a5e078d7
+/Components/LengowCheck.php|6ff3cd1d50b3689908cb179636f1f501
 /Controllers/Backend/LengowHelp.php|86f04b9b2575cd09e4db67d91a7d29f3
 /Controllers/Backend/Lengow.php|26de1bff086a01222b1e731cfdab99e9
 /Controllers/Backend/LengowExport.php|f46fb5fe70ed16f0b01942e8e0d8a081
@@ -26,13 +26,14 @@
 /Controllers/Backend/LengowImport.php|4bb61e3a850188ba92759bf47b0ab0ab
 /Controllers/Backend/LengowHome.php|911ae13b4df8599a620a200dbe5a2f76
 /Controllers/Backend/LengowLogs.php|3b63ae8942b0db71d612b1b581176afb
-/Controllers/Frontend/LengowController.php|4275dd01a5582b8c67f0e54353a75357
+/Controllers/Frontend/LengowController.php|4ee22c1ad362009190f14dcf1cf3af44
 /Models/Lengow/Order.php|edd3b5dfabd4016921530624e9f06379
 /Models/Lengow/Settings.php|32dabd48fd9596ddd533857b10576b7e
 /Snippets/backend/Lengow/yml/log.yml|0038419bd77ac5ade70a82b8af8e77e2
 /Snippets/backend/Lengow/yml/de.yml|93e1a1bdc04de9edbb20d1e44f6088da
 /Snippets/backend/Lengow/yml/en.yml|8c9caecedf0b8042f0555a58aa494b46
-/Snippets/backend/Lengow/translation.ini|b79b1a477796a8a80286df80a4e99ba4
+/Snippets/backend/Lengow/yml/fr.yml|f266586e1aff734b36f1147b759f4391
+/Snippets/backend/Lengow/translation.ini|c00fcb2518cc3864dd17a0dc8b575da2
 /Toolbox/fonts/fontawesome-webfont.woff2|db812d8a70a4e88e888744c1c9a27e89
 /Toolbox/fonts/fontawesome-webfont.ttf|a3de2170e4e9df77161ea5d3f31b2668
 /Toolbox/fonts/fontawesome-webfont.woff|a35720c2fed2c7f043bc7e4ffb45e073

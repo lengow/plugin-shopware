@@ -22,7 +22,8 @@ $log_file = 'log';
 $defaultTranslation = null;
 $locales = array(
     'en' => 'GB',
-    'de' => 'DE'
+    'de' => 'DE',
+    'fr' => 'FR'
 );
 
 $directory = dirname(dirname(__FILE__)).'/Snippets/backend/Lengow/yml/';

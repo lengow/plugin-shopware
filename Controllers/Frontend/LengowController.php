@@ -37,12 +37,12 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             $stream = (bool) $this->Request()->getParam("stream", true);
             $offset = (int) $this->Request()->getParam("offset");
             $limit = (int) $this->Request()->getParam("limit");
-            $exportLengowSelection = (bool) $this->Request()->getParam("selection");
-            $outStock = (bool) $this->Request()->getParam("out_of_stock");
+            $exportLengowSelection = $this->Request()->getParam("selection");
+            $outStock =  $this->Request()->getParam("out_of_stock");
             $productsIds = $this->Request()->getParam("product_ids");
             $logOutput = (bool) $this->Request()->getParam("log_output", !$stream);
-            $exportVariation = (bool) $this->Request()->getParam("variation");
-            $exportDisabledProduct = (bool) $this->Request()->getParam("inactive");
+            $exportVariation = $this->Request()->getParam("variation");
+            $exportDisabledProduct = $this->Request()->getParam("inactive");
             $shopId = $this->Request()->getParam("shop");
             $updateExportDate = (bool) $this->Request()->getParam("update_export_date", true);
             $currencyName = $this->Request()->getParam("currency");
@@ -70,21 +70,21 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                             ->findOneBy(array('name' => $currencyName));
                     }
                     $params = array(
-                        'format' => $format,
-                        'mode' => $mode,
-                        'stream' => $stream,
-                        'productIds' => $selectedProducts,
-                        'limit' => $limit,
-                        'offset' => $offset,
-                        'exportOutOfStock' => $outStock,
+                        'format'                 => $format,
+                        'mode'                   => $mode,
+                        'stream'                 => $stream,
+                        'productIds'             => $selectedProducts,
+                        'limit'                  => $limit,
+                        'offset'                 => $offset,
+                        'exportOutOfStock'       => $outStock,
                         'exportVariationEnabled' => $exportVariation,
-                        'exportDisabledProduct' => $exportDisabledProduct,
-                        'exportLengowSelection' => $exportLengowSelection,
-                        'logOutput' => $logOutput,
-                        'updateExportDate' => $updateExportDate,
-                        'currency' => $currency
+                        'exportDisabledProduct'  => $exportDisabledProduct,
+                        'exportLengowSelection'  => $exportLengowSelection,
+                        'logOutput'              => $logOutput,
+                        'updateExportDate'       => $updateExportDate,
+                        'currency'               => $currency
                     );
-
+                    
                     try {
                         $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, $params);
                         $export->exec();
@@ -112,13 +112,15 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                         $shopsIds .= ($index == 0) ? '' : ', ';
                     }
                     $shopsIds .= ']';
-                    die('The following shop (' . $shopId . ') does not exist. Please specify a valid shop name in : ' . $shopsIds);
+                    die(
+                        'The following shop ('.$shopId.') does not exist. Please specify a valid shop name in : '.$shopsIds
+                    );
                 }
             } else {
                 die('Please specify a shop to export (ie. : ?shop=1)');
             }
         } else {
-            die('Unauthorized access for IP : ' . $_SERVER['REMOTE_ADDR']);
+            die('Unauthorized access for IP : '.$_SERVER['REMOTE_ADDR']);
         }
 
     }
@@ -188,11 +190,11 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             // sync option is not valid
             if ($sync && ($sync !== 'order' && $sync !== 'action' && $sync !== 'option')) {
                 header('HTTP/1.1 400 Bad Request');
-                die('Action: ' . $sync . ' is not a valid action');
+                die('Action: '.$sync.' is not a valid action');
             }
         } else {
             header('HTTP/1.1 400 Bad Request');
-            die('Unauthorized access for IP : ' . $_SERVER['REMOTE_ADDR']);
+            die('Unauthorized access for IP : '.$_SERVER['REMOTE_ADDR']);
         }
     }
 

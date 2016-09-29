@@ -1,0 +1,180 @@
+fr:
+  title: "Lengow"
+  window:
+    tab:
+      home: "Accueil"
+      export: "Produits"
+      import: "Import"
+      logs: "Logs"
+      settings: "Paramètres"
+      help: "Aide"
+  dashboard:
+    screen:
+      welcome_back: "Bonjour ! Bienvenue parmi nous !"
+      go_to_lengow: "Aller sur la plateforme Lengow"
+      products_title: "Produits"
+      products_text: "Consulter tous vos produits disponibles pour préparer votre catalogue"
+      settings_title: "Paramètres"
+      settings_text: "Configurer les paramètres principaux de votre plugin Shopware"
+      partner_business: "Lengow, partenaire de votre activité e-commerce"
+      stat_turnover: "Chiffre d'affaires"
+      stat_nb_orders: "Commandes"
+      stat_more_stats: "Plus de statistiques ?"
+      some_help_title: "Besoin d'aide ?"
+      get_in_touch: "Prenez contact avec les équipes Lengow."
+      visit_help_center: "Visitez notre Help Center"
+      help_center_link: "https://fr.lengow.help/help/shopware"
+      configure_plugin: "pour plus d'informations sur la configuration de votre plugin Shopware"
+  status:
+    screen:
+      title_end_free_trial: "Toutes les bonnes choses ont une fin..."
+      subtitle_end_free_trial: "Vous avez atteint la fin de votre période d'essai !"
+      first_description_end_free_trial: "Vos 15 jours d'essai gratuit sur la plateforme Lengow sont maintenant terminés. Nous espérons qu'ils ont été bénéfiques à votre activité e-commerce."
+      second_description_end_free_trial: "Votre compte va être désactivé jusqu'à ce que vous souscriviez à un abonnement sur la plateforme Lengow. Toutes les diffusions en cours ainsi que les importations vont être momentanément stoppées."
+      third_description_end_free_trial: "Votre compte d'essai sera supprimé 30 jours après expiration. Pour conserver l'intégralité des paramètres que vous avez défini, pensez à souscrire dès maintenant !"
+      subtitle_bad_payer: "Votre compte est temporairement fermé."
+      first_description_bad_payer: "Nous sommes désolé mais nous devons temporairement limiter l'accès à votre compte car le paiement automatique de votre abonnement n'a pu se faire."
+      second_description_bad_payer: "La publication de vos catalogues est aussi suspendue. Nous vous recommandons de prendre contact avec nous rapidement par mail"
+      phone_bad_payer: "ou par téléphone au +33 (0)2 85 52 64 15."
+      third_description_bad_payer: "Nous espérons vous revoir très rapidement parmi nous."
+      facturation_button: "Voir mes informations de facturation"
+      upgrade_account_button: "Je suis prêt à souscrire !"
+      refresh_action: "Actualiser mon compte"
+  menu:
+    preprod_active: "Mode préproduction"
+    counter: "Période d'essai : %{counter} jours restants"
+    upgrade_account: "Mettre à jour"
+  footer:
+    legals: "Mentions légales"
+    lengow_url: "http://www.lengow.com/fr/"
+    plugin_lengow: "Lengow Shopware Module"
+  help:
+    screen:
+      title: "Demandez de l'aide à notre équipe Support !"
+      contain_text_support: "Des questions, un feedback sur Lengow... transmettez vos demandes au "
+      title_lengow_support: "support Lengow"
+      link_lengow_support: "https://supportlengow.zendesk.com/hc/fr/requests/new"
+      need_some_help: "Besoin d'aide ?"
+      contain_text_support_hour: "Nous ferons notre maximum pour revenir vers vous au plus vite (Notre équipe Support est disponible du lundi au vendredi, de 9h à 18h)."
+      find_answer: "Vous pouvez aussi consulter"
+      link_shopware_guide: "notre guide dédié à Shopware"
+  legals:
+    screen:
+      simplified_company: "Société par actions simplifiées"
+      social_capital: "Capital social :"
+      cnil_declaration: "Déclaration CNIL :"
+      company_registration_number: "RCS de Nantes :"
+      vat_identification_number: "Numéro de TVA intracommunautaire :"
+      address: "Adresse"
+      contact: "Contact"
+      hosting: "Hébergement"
+  settings:
+    lengow_main_settings:
+      label: "Paramètres principaux"
+      description: "Vous trouverez ci-dessous vos identifiants de connexion à Lengow.\nLes ID Lengow, Access Token et Secret Token sont automatiquement complétés lors de votre première connexion : veuillez à ne pas les modifier."
+      enable:
+        label: "Activer la boutique"
+        description: "Activer la boutique pour la connecter à la plateforme Lengow"
+      account:
+        label: "ID du compte"
+        description: "Votre ID de compte Lengow. Veuillez ne pas le modifier."
+      access:
+        label: "Access Token"
+        description: "Votre Access Token. Veuillez ne pas le modifier."
+      secret:
+        label: "Secret Token"
+        description: "Votre Secret Token. Veuillez ne pas le modifier."
+      ip:
+        label: "IP autorisée(s)"
+        description: "IP autorisée(s) à accéder à votre flux d'export.\nSéparez-les par ' ; '"
+    lengow_export_settings:
+      label: "Paramètres d'export"
+      description: "Définissez les paramètres pour créer votre flux."
+      variation:
+        label: "Exporter les déclinaisons produit"
+        description: "Activez cette option si vous souhaitez exporter tout votre catalogue avec les déclinaisons produit"
+      out_stock:
+        label: "Exporter les produits hors stock"
+        description: "Activez cette option si vous souhaitez exporter vos produits hors stock"
+      disabled_products:
+        label: "Exporter les produits inactifs"
+        description: "Activez cette option si vous souhaitez exporter les produits inactifs"
+      lengow_selection:
+        label: "Exporter uniquement la sélection de produits"
+        description: "Activez cette option si vous ne voulez pas exporter tous vos produits disponibles. Sélectionnez ensuite les produits un par un."
+      dispatcher:
+        label: "Transporteur par défaut"
+        description: "Sélectionnez le transporteur par défaut à appliquer à vos commandes"
+    lengow_import_settings:
+      label: "Paramètres d'import"
+      description: "Toutes vos commandes sont centralisées sur votre plateforme Lengow : choisissez ici si vous voulez synchroniser vos commandes et diminuer les stocks dans votre backoffice Shopware."
+      enable_import:
+        label: "Activer la synchronisation des commandes"
+        description: "Activez cette option pour diminuer les stocks dans votre backoffice Shopware"
+      decrease_stock:
+        label: "Diminuez mon stock avec les commandes envoyées par les places de marché."
+        description: "Activez cette option pour prendre en compte les commandes des places de marché sur les stocks de votre backoffice Shopware."
+      import_days:
+        label: "Ré-importer toutes les commandes réalisées depuis (en jours)"
+        description: "Activez cette option si vous avez des commandes en erreur en attente. Cela vous permet de réimporter les commandes passées depuis le dernier import réussi."
+      preprod_mode:
+        label: "Activez le mode préproduction"
+        description: "Utilisez la pré-production pour tester et simuler des commandes fictives. Pour rappel, vous devez activer ces paramètres UNIQUEMENT sur votre serveur de préproduction."
+  export:
+    filter:
+      filter_title: "Filtre"
+      no_filter: "Pas de filtre"
+      lengow_products: "produits Lengow"
+      active_products: "Produits actifs"
+      in_stock: "En stock"
+      no_category: "Pas de catégorie"
+    grid:
+      column:
+        number: "Numéro de l'article"
+        name: "Nom"
+        supplier: "Fournisseur"
+        active: "Actif"
+        price: "Prix"
+        tax: "Taxe"
+        stock: "En stock"
+        export: "Inclure dans l'export ?"
+      line:
+        add: "Ajouter à l'export"
+        remove: "Retirer de l'export"
+      checkbox:
+        edit_all: "Sélectionner tous vos produits"
+        variations: "Inclure les produits déclinés"
+        out_stock: "Inclure les produits hors stock"
+        selection: "Inclure les produits spécifiques"
+      label:
+        counter:
+          count: "produits exportés sur"
+          total: "produits disponibles"
+        status:
+          synchronized: "Synchronisé"
+          not_synchronized: "Synchroniser ma boutique avec Lengow"
+      button:
+        add: "Ajouter à l'export"
+        remove: "Retirer de l'export"
+      search:
+        empty: "Rechercher..."
+    panel:
+      tree:
+        root: "Boutiques"
+  order:
+    screen:
+      import_charge_second: "Restez avec nous, cela ne va pas durer longtemps (2 min d'attente en moyenne)"
+    panel:
+      no_notification: "Pas de nouvelle notification sur vos commandes"
+      description: "Importez les commandes passées depuis <b>%{nb_days}</b> jours et diminuez vos stocks."
+      last_import: "Dernière synchronisation : <b>%{import_date}</b>"
+      order_new: "%{nb_order} commande(s) diminuée(s)"
+      order_error_link: "%{nb_order} commande(s) avec erreurs (<a href='%{log_url}' target='_blank'>Voir les logs pour plus d'informations</a>)"
+      order_error: "%{nb_order} commande(s) avec erreurs"
+      order_import_failed: "L'import de commande à échoué (<a href='%{log_url}' target='_blank'>Voir les logs pour plus d'informations</a>)"
+      button: "Démarrer l'import"
+  log:
+    panel:
+      empty_selection: "Veuillez choisir un fichier de log..."
+      button: "Télécharger les fichiers de log"
+      select_all: "Télécharger tous les fichiers"
