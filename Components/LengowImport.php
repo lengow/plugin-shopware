@@ -125,14 +125,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
      * Construct the import manager
      *
      * @param $params array Optional options
-     * string    $marketplace_sku    lengow marketplace order id to import
-     * string    $marketplace_name   lengow marketplace name to import
-     * integer   $shop_id            Id shop for current import
-     * boolean   $preprod_mode       Pre-prod mode
-     * string    $date_from          starting import date
-     * string    $date_to            ending import date
-     * integer   $limit              number of orders to import
-     * boolean   $log_output         display log messages
+     * string  marketplace_sku     lengow marketplace order id to import
+     * string  marketplace_name    lengow marketplace name to import
+     * string  type                type of current import
+     * integer delivery_address_id Lengow delivery address id to import
+     * integer shop_id             shop id for current import
+     * integer days                import period
+     * integer limit               number of orders to import
+     * boolean log_output          display log messages
+     * boolean preprod_mode        preprod mode
      */
     public function __construct($params = array())
     {
