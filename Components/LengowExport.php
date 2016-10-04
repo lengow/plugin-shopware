@@ -135,9 +135,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     private $exportOutOfStock;
 
     /**
-     * Update export date.
+     * @var boolean Update export date.
      */
-    protected $updateExportDate;
+    private $updateExportDate;
 
     /**
      * @var boolean Export variant articles

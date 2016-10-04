@@ -45,7 +45,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             $stream = (bool) $this->Request()->getParam("stream", true);
             $offset = (int) $this->Request()->getParam("offset");
             $limit = (int) $this->Request()->getParam("limit");
-            $exportLengowSelection = $this->Request()->getParam("selection");
+            $exportSelectionEnabled = $this->Request()->getParam("selection");
             $outStock =  $this->Request()->getParam("out_of_stock");
             $productsIds = $this->Request()->getParam("product_ids");
             $logOutput = (bool) $this->Request()->getParam("log_output", !$stream);
@@ -87,7 +87,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                         'exportOutOfStock'       => $outStock,
                         'exportVariationEnabled' => $exportVariation,
                         'exportDisabledProduct'  => $exportDisabledProduct,
-                        'exportLengowSelection'  => $exportLengowSelection,
+                        'exportSelectionEnabled' => $exportSelectionEnabled,
                         'logOutput'              => $logOutput,
                         'updateExportDate'       => $updateExportDate,
                         'currency'               => $currency
