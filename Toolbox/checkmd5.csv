@@ -26,7 +26,7 @@
 /Controllers/Backend/LengowImport.php|4bb61e3a850188ba92759bf47b0ab0ab
 /Controllers/Backend/LengowHome.php|911ae13b4df8599a620a200dbe5a2f76
 /Controllers/Backend/LengowLogs.php|3b63ae8942b0db71d612b1b581176afb
-/Controllers/Frontend/LengowController.php|628b1951877020e970a314d9e83bbfa3
+/Controllers/Frontend/LengowController.php|dbe54675f297bded629b5d14bcc17f9e
 /Models/Lengow/Order.php|edd3b5dfabd4016921530624e9f06379
 /Models/Lengow/Settings.php|32dabd48fd9596ddd533857b10576b7e
 /Snippets/backend/Lengow/yml/log.yml|0038419bd77ac5ade70a82b8af8e77e2

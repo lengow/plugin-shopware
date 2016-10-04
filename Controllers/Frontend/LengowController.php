@@ -48,7 +48,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             $exportLengowSelection = $this->Request()->getParam("selection");
             $outStock =  $this->Request()->getParam("out_of_stock");
             $productsIds = $this->Request()->getParam("product_ids");
-            $logOutput = (bool) $this->Request()->getParam("log_output", !$stream);?
+            $logOutput = (bool) $this->Request()->getParam("log_output", !$stream);
             $exportVariation = $this->Request()->getParam("variation");
             $exportDisabledProduct = $this->Request()->getParam("inactive");
             $shopId = $this->Request()->getParam("shop");
