@@ -23,7 +23,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
 {
 
     /**
-     *
+     * Export Lengow feed
      */
     public function exportAction()
     {
@@ -32,6 +32,14 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
 
         if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
 
+            // see all export params
+            $getParams = (bool) $this->Request()->getParam("get_params", false);
+            if ($getParams) {
+                echo Shopware_Plugins_Backend_Lengow_Components_LengowExport::getExportParams();
+                die();
+            }
+
+            // get all GET params for export
             $mode = $this->Request()->getParam("mode");
             $format = $this->Request()->getParam("format", 'csv');
             $stream = (bool) $this->Request()->getParam("stream", true);
@@ -40,12 +48,12 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             $exportLengowSelection = $this->Request()->getParam("selection");
             $outStock =  $this->Request()->getParam("out_of_stock");
             $productsIds = $this->Request()->getParam("product_ids");
-            $logOutput = (bool) $this->Request()->getParam("log_output", !$stream);
+            $logOutput = (bool) $this->Request()->getParam("log_output", !$stream);?
             $exportVariation = $this->Request()->getParam("variation");
             $exportDisabledProduct = $this->Request()->getParam("inactive");
             $shopId = $this->Request()->getParam("shop");
             $updateExportDate = (bool) $this->Request()->getParam("update_export_date", true);
-            $currencyName = $this->Request()->getParam("currency");
+            $currencyCode = $this->Request()->getParam("currency");
 
             $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
 
@@ -65,9 +73,9 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                     }
                     $currency = null;
                     // Look for existing currency with defined param
-                    if ($currencyName != null) {
+                    if ($currencyCode != null) {
                         $currency = $em->getRepository('Shopware\Models\Shop\Currency')
-                            ->findOneBy(array('name' => $currencyName));
+                            ->findOneBy(array('currency' => $currencyCode));
                     }
                     $params = array(
                         'format'                 => $format,
@@ -117,14 +125,19 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                     );
                 }
             } else {
+                header('HTTP/1.1 400 Bad Request');
                 die('Please specify a shop to export (ie. : ?shop=1)');
             }
         } else {
+            header('HTTP/1.1 403 Forbidden');
             die('Unauthorized access for IP : '.$_SERVER['REMOTE_ADDR']);
         }
 
     }
 
+    /**
+     * Synchronize stock and cms options
+     */
     public function cronAction()
     {
         // Disable template for export
@@ -193,9 +206,8 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 die('Action: '.$sync.' is not a valid action');
             }
         } else {
-            header('HTTP/1.1 400 Bad Request');
+            header('HTTP/1.1 403 Forbidden');
             die('Unauthorized access for IP : '.$_SERVER['REMOTE_ADDR']);
         }
     }
-
 }

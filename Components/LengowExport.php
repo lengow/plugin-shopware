@@ -22,6 +22,27 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 {
     /**
+     * All available params for export
+     */
+    public static $EXPORT_PARAMS = array(
+        'mode',
+        'format',
+        'stream',
+        'offset',
+        'limit',
+        'selection',
+        'out_of_stock',
+        'product_ids',
+        'variation',
+        'inactive',
+        'shop',
+        'currency',
+        'log_output',
+        'update_export_date',
+        'get_params'
+    );
+
+    /**
      * Default fields.
      */
     public static $DEFAULT_FIELDS = array(
@@ -536,5 +557,73 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             }
         }
         return $total;
+    }
+
+    /**
+     * Get all export available parameters
+     *
+     * @return string
+     */
+    public static function getExportParams()
+    {
+        $params = array();
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        foreach (self::$EXPORT_PARAMS as $param) {
+            switch ($param) {
+                case 'mode':
+                    $authorized_value = array('size', 'total');
+                    $type             = 'string';
+                    $example          = 'size';
+                    break;
+                case 'format':
+                    $authorized_value = Shopware_Plugins_Backend_Lengow_Components_LengowFeed::$AVAILABLE_FORMATS;
+                    $type             = 'string';
+                    $example          = 'csv';
+                    break;
+                case 'offset':
+                case 'limit':
+                    $authorized_value = 'all integers';
+                    $type             = 'integer';
+                    $example          = 100;
+                    break;
+                case 'product_ids':
+                    $authorized_value = 'all integers';
+                    $type             = 'string';
+                    $example          = '101,108,215';
+                    break;
+                case 'shop':
+                    $available_shops = array();
+                    $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findAll();
+                    foreach ($shops as $shop) {
+                        $available_shops[] = $shop->getId();
+                    }
+                    $authorized_value = $available_shops;
+                    $type             = 'integer';
+                    $example          = 1;
+                    break;
+                case 'currency':
+                    $available_currencies = array();
+                    $currencies = $em->getRepository('Shopware\Models\Shop\Currency')->findAll();
+                    foreach ($currencies as $currency) {
+                        $available_currencies[] = $currency->getCurrency();
+                    }
+                    $authorized_value = $available_currencies;
+                    $type             = 'string';
+                    $example          = 'EUR';
+                    break;
+                default:
+                    $authorized_value = array(0, 1);
+                    $type             = 'integer';
+                    $example          = 1;
+                    break;
+            }
+            $params[ $param ] = array(
+                'authorized_values' => $authorized_value,
+                'type'              => $type,
+                'example'           => $example
+            );
+        }
+
+        return json_encode($params);
     }
 }

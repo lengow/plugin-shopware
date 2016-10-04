@@ -9,7 +9,7 @@
     "currentVersion": "1.0.3",
     "changes": {
         "1.0.3": {
-            "releasedate": "2016-10-03",
+            "releasedate": "2016-10-04",
             "line": ""
         },
         "1.0.2": {
@@ -27,7 +27,7 @@
     },
     "changelog": {
         "en": {
-            "1.0.3": "Bugfix: refresh status for free trial",
+            "1.0.3": "Bugfix: refresh status for free trial; Bugfix: Fix bug with currency GET parameter; Feature: add new get_params parameter for export; Feature: add 403 and 400 headers for export process",
             "1.0.2": "Feature: add french translation; Feature: add new Lengow Logos; Bugfix: optimize getStatistic() for no API results; Bugfix: optimize getStatusAccount()",
             "1.0.1": "Bugfix: import and export url; Bugfix: get access to stats api; Bugfix: change csv head",
             "1.0.0": "First release"

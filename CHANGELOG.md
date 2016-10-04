@@ -1,7 +1,10 @@
 =============================================================
-Version 1.0.3 - 2016-10-03
+Version 1.0.3 - 2016-10-04
 =============================================================
     - Bugfix: refresh status for free trial
+    - Bugfix: Fix bug with currency GET parameter
+    - Feature: add new get_params parameter for export
+    - Feature: add 403 and 400 headers for export process
 
 =============================================================
 Version 1.0.2 - 2016-09-29
