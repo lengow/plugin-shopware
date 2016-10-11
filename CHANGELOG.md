@@ -2,6 +2,7 @@
 Version 1.0.4 - 2016-10-06
 =============================================================
     - Bugfix: change translations
+    - Bugfix: replace html br by space in cleanHtml function
 
 =============================================================
 Version 1.0.3 - 2016-10-04
