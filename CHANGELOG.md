@@ -30,11 +30,11 @@ Version 1.0.1 - 2016-09-26
 =============================================================
 Version 1.0.0 - 2016-09-21
 =============================================================
-    - Export process
-    - Decrement stocks while importing orders
-    - Backend plugin
-    - Shop synchronization with Lengow
-    - Trial period
-    - Dashboard
-    - Export grid
-    - Logs download
+    - Feature: Export process
+    - Feature: Decrement stocks while importing orders
+    - Feature: Backend plugin
+    - Feature: Shop synchronization with Lengow
+    - Feature: Trial period
+    - Feature: Dashboard
+    - Feature: Export grid
+    - Feature: Logs download
