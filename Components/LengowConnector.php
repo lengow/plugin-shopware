@@ -234,6 +234,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      */
     protected function makeRequest($type, $url, $args, $token, $body = '')
     {
+        // Define CURLE_OPERATION_TIMEDOUT for old php versions
+        defined("CURLE_OPERATION_TIMEDOUT") || define("CURLE_OPERATION_TIMEDOUT", CURLE_OPERATION_TIMEOUTED);
         $ch = curl_init();
         // Options
         $opts = self::$CURL_OPTS;
