@@ -107,9 +107,9 @@ en:
         description: "Select the default carrier that you would like to apply to your orders"
     lengow_import_settings:
       label: "Import settings"
-      description: "All your orders are centralized in your Lengow platform : choose here if you want to synchronize your orders and decrease your products stock in your Shopware backoffice"
+      description: "All your orders are centralized in your Lengow platform : choose here if you want to synchronize your orders in order to decrease your products stock in your Shopware backoffice"
       enable_import:
-        label: "Activate orders synchronisation"
+        label: "Activate stock synchronisation"
         description: "Use this option to decrease stocks in your Shopware backoffice"
       decrease_stock:
         label: "Decrease my stock with the orders sent by marketplaces"
@@ -166,7 +166,7 @@ en:
       import_charge_second: "Please bear with us; this will not take long (2 min average waiting time)"
     panel:
       no_notification: "No new notification on order"
-      description: "Import orders and decrease your stocks from <b>%{nb_days}</b> days."
+      description: "Import orders from <b>%{nb_days}</b> days in order to decrease your stocks."
       last_import: "Last synchronisation : <b>%{import_date}</b>"
       order_new: "%{nb_order} order(s) decreased"
       order_error_link: "%{nb_order} order(s) with errors (<a href='%{log_url}' target='_blank'>See logs for more information</a>)"

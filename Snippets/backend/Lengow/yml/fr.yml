@@ -107,18 +107,18 @@ fr:
         description: "Sélectionnez le transporteur par défaut à appliquer à vos commandes"
     lengow_import_settings:
       label: "Paramètres d'import"
-      description: "Toutes vos commandes sont centralisées sur votre plateforme Lengow : choisissez ici si vous voulez synchroniser vos commandes et diminuer les stocks dans votre backoffice Shopware."
+      description: "Toutes vos commandes sont centralisées sur votre plateforme Lengow : choisissez ici si vous voulez synchroniser vos commandes afin de diminuer les stocks dans votre backoffice Shopware."
       enable_import:
-        label: "Activer la synchronisation des commandes"
+        label: "Activer la synchronisation des stocks"
         description: "Activez cette option pour diminuer les stocks dans votre backoffice Shopware"
       decrease_stock:
-        label: "Diminuez mon stock avec les commandes envoyées par les places de marché."
+        label: "Diminuer mon stock avec les commandes envoyées par les places de marché."
         description: "Activez cette option pour prendre en compte les commandes des places de marché sur les stocks de votre backoffice Shopware."
       import_days:
         label: "Ré-importer toutes les commandes réalisées depuis (en jours)"
         description: "Activez cette option si vous avez des commandes en erreur en attente. Cela vous permet de réimporter les commandes passées depuis le dernier import réussi."
       preprod_mode:
-        label: "Activez le mode préproduction"
+        label: "Activer le mode préproduction"
         description: "Utilisez la pré-production pour tester et simuler des commandes fictives. Pour rappel, vous devez activer ces paramètres UNIQUEMENT sur votre serveur de préproduction."
   export:
     filter:
@@ -166,7 +166,7 @@ fr:
       import_charge_second: "Restez avec nous, cela ne va pas durer longtemps (2 min d'attente en moyenne)"
     panel:
       no_notification: "Pas de nouvelle notification sur vos commandes"
-      description: "Importez les commandes passées depuis <b>%{nb_days}</b> jours et diminuez vos stocks."
+      description: "Importez les commandes passées depuis <b>%{nb_days}</b> jours pour mettre à jour vos stocks."
       last_import: "Dernière synchronisation : <b>%{import_date}</b>"
       order_new: "%{nb_order} commande(s) diminuée(s)"
       order_error_link: "%{nb_order} commande(s) avec erreurs (<a href='%{log_url}' target='_blank'>Voir les logs pour plus d'informations</a>)"

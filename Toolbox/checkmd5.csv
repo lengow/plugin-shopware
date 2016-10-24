@@ -29,11 +29,11 @@
 /Controllers/Backend/LengowHelp.php|86f04b9b2575cd09e4db67d91a7d29f3
 /Models/Lengow/Order.php|edd3b5dfabd4016921530624e9f06379
 /Models/Lengow/Settings.php|32dabd48fd9596ddd533857b10576b7e
-/Snippets/backend/Lengow/yml/fr.yml|f266586e1aff734b36f1147b759f4391
-/Snippets/backend/Lengow/yml/de.yml|93e1a1bdc04de9edbb20d1e44f6088da
+/Snippets/backend/Lengow/yml/fr.yml|9dd6096a80a1c7d83b9458ef094e9c0e
+/Snippets/backend/Lengow/yml/de.yml|35b290eff917cd9ee55130ab6bcc04fb
 /Snippets/backend/Lengow/yml/log.yml|0e13741904e4bc012bb87dc37a76c407
-/Snippets/backend/Lengow/yml/en.yml|8c9caecedf0b8042f0555a58aa494b46
-/Snippets/backend/Lengow/translation.ini|374776d3c38f3e164c16249ec0a0f8ca
+/Snippets/backend/Lengow/yml/en.yml|966a2b73e2b256f7278421bad2b6470f
+/Snippets/backend/Lengow/translation.ini|60a28d5f022fa43a54621bf24534f5df
 /Toolbox/config.inc.php|b1f543ee896aaca1515e0d4ebc3fd27d
 /Toolbox/checksum.php|3c3b2358485ea2203165a6a44cc32188
 /Toolbox/css/font-awesome.css|bf4b58c946c9234e4a6b9f7a70d38006
