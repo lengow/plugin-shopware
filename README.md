@@ -12,7 +12,7 @@
 ### Installation dans Shopware ###
 
     cd ~/Documents/modules_lengow/shopware/Lengow/Tools
-    sh install.sh ~/Documents/docker_images/shopware526
+    sh install.sh ~/Documents/docker_images/shopware526/shopware
 
 Le script va créer des liens symboliques vers les sources du module
 Se connecter au Back office de Shopware et installer le plugin via le plugin manager (Configuration > Plugin Manager > Installed)
