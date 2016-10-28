@@ -14,7 +14,7 @@
 /Components/LengowExport.php|a8ba68266f7208cc33c4bafa51fcdb35
 /Components/LengowTranslation.php|1e8133d57934fe67b1a26bc2f7a82f5a
 /Components/LengowFile.php|dd92c797affdecbe874fee9159f555da
-/Components/LengowConnector.php|b413c56265f3ff6d52fde992b40802e9
+/Components/LengowConnector.php|d37d9286f323c949af98ca99e0a04870
 /Components/LengowException.php|75f41c9316061191ea7e897f4f618fb0
 /Components/LengowMarketplace.php|c4ec59fd595f70f2cad0605d0837e573
 /Components/LengowProduct.php|49d9da9f8bbabbb4f7735c98bd02817e
@@ -69,7 +69,7 @@
 /Views/backend/lengow/resources/lengow-template.tpl|15ab4381c4841e85cd77295f9c8e4d95
 /Views/backend/lengow/view/import/panel.js|d96f5cb1e89b7f28bfa6d493a7c6ab61
 /Views/backend/lengow/view/main/home.js|2f0a5e0adc890f98597c418d9f47e817
-/Views/backend/lengow/view/main/sync.js|4a9fc7ef78a6bea37d9fecc0e00782cb
+/Views/backend/lengow/view/main/sync.js|b36aa7a0013e2d451506527789ce7980
 /Views/backend/lengow/view/export/grid.js|4feb7862f43f666849d8e617e079acfa
 /Views/backend/lengow/view/export/panel.js|a745bad72477014dbe2467760bceecc1
 /Views/backend/lengow/view/export/container.js|4f5441a291ecd56513387689759e2a8a

@@ -66,6 +66,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      */
     // const LENGOW_API_URL = 'http://api.lengow.io:80';
     // const LENGOW_API_URL = 'http://api.lengow.net:80';
+    // const LENGOW_API_URL = 'http://api.lengow.rec:80';
     const LENGOW_API_URL = 'http://10.100.1.82:8081';
 
     /**
