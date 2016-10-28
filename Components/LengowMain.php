@@ -236,7 +236,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
         }
         $base = self::getBaseUrl($shop);
-        return $base.'/LengowController/cron?shop='.$shop->getId();
+        return $base.'/LengowController/cron';
     }
 
     /**

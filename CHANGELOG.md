@@ -2,34 +2,35 @@
 Version 1.0.4
 =============================================================
 
-    - Bugfix: change translations
-    - Bugfix: replace html br by space in cleanHtml function
+    - Bugfix: Change cron url with no shop parameter
+    - Bugfix: Change translations
+    - Bugfix: Replace html br by space in cleanHtml function
 
 =============================================================
 Version 1.0.3
 =============================================================
 
-    - Bugfix: refresh status for free trial
+    - Bugfix: Refresh status for free trial
     - Bugfix: Fix bug with currency GET parameter
-    - Feature: add new get_params parameter for export
-    - Feature: add 403 and 400 headers for export process
+    - Feature: Add new get_params parameter for export
+    - Feature: Add 403 and 400 headers for export process
 
 =============================================================
 Version 1.0.2
 =============================================================
 
-    - Feature: add french translation
-    - Feature: add new Lengow Logos
-    - Bugfix: optimize getStatistic() for no API results
-    - Bugfix: optimize getStatusAccount()
+    - Feature: Add french translation
+    - Feature: Add new Lengow Logos
+    - Bugfix: Optimize getStatistic() for no API results
+    - Bugfix: Optimize getStatusAccount()
 
 =============================================================
 Version 1.0.1
 =============================================================
 
-    - Bugfix: import and export url
-    - Bugfix: get access to stats api
-    - Bugfix: change csv head
+    - Bugfix: Import and export url
+    - Bugfix: Get access to stats api
+    - Bugfix: Change csv head
 
 =============================================================
 Version 1.0.0
