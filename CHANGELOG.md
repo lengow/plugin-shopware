@@ -2,6 +2,8 @@
 Version 1.0.4
 =============================================================
 
+    - Bugfix: Optimize curl request
+    - Bugfix: Optimize export process
     - Bugfix: Change cron url with no shop parameter
     - Bugfix: Change translations
     - Bugfix: Replace html br by space in cleanHtml function

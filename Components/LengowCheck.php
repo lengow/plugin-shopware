@@ -51,7 +51,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
             Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAccessToken', $shop),
             Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowSecretToken', $shop)
         );
-        $result = $connector->connect();
+        try {
+            $result = $connector->connect();
+        } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
+            return false;
+        }
         if (isset($result['token']) && $account_id != 0) {
             return true;
         } else {

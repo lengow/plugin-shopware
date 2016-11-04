@@ -22,6 +22,7 @@ default:
       error_lengow_webservice: "Lengow webservice: %{error_code} - %{error_message} in shop %{name_shop} (%{id_shop})"
       crendetials_not_valid: "account ID, token access or secret token are not valid in shop %{name_shop} (%{id_shop})"
       timeout_api: "API call has been blocked by a timeout"
+      error_curl: "Curl error %{error_code} - %{error_message}"
   log:
     install:
       start: "## start install ##"

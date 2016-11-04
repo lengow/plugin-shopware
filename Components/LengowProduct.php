@@ -212,7 +212,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 foreach ($this->attributes as $key => $variation) {
                     $result.= $key.', ';
                 }
-                return $result;
+                return rtrim($result, ', ');
                 break;
             case 'language':
                 return $this->shop->getLocale()->getLocale();
@@ -368,9 +368,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      *
      * @return array List of attributes
      */
-    public function getAttributes()
+    public static function getAllAttributes()
     {
-        return $this->attributes;
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select(array('groups.name AS name'))
+            ->from('Shopware\Models\Article\Configurator\Group', 'groups');
+        return $builder->getQuery()->getArrayResult();
     }
 
     /**
