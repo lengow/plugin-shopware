@@ -493,8 +493,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             } else {
                 if (!array_key_exists($article['parentId'], $articlesByParent)) {
                     $articlesByParent[$article['parentId']] = array(
-                        'type'   => 'parent',
-                        'childs' => array($article)
+                        'type'     => 'parent',
+                        'childs'   => array($article),
+                        'detailId' => $article['detailId'],
                     );
                 } else {
                     $articlesByParent[$article['parentId']]['childs'][] = $article;

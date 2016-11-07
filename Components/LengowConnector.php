@@ -80,7 +80,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     public static $CURL_OPTS = array (
         CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 300,
+        CURLOPT_TIMEOUT        => 20,
         CURLOPT_USERAGENT      => 'lengow-php-sdk',
     );
 
@@ -88,9 +88,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @var array lengow url for curl timeout
      */
     protected $lengow_urls = array (
-        self::LENGOW_API_URL.'/v3.0/subscriptions',
-        self::LENGOW_API_URL.'/v3.0/stats',
-        self::LENGOW_API_URL.'/v3.0/cms',
+        '/v3.0/orders'        => 15,
+        '/v3.0/marketplaces'  => 10, 
+        '/v3.0/subscriptions' => 5,
+        '/v3.0/stats'         => 5,
+        '/v3.0/cms'           => 5,
     );
 
     /**
@@ -176,7 +178,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      */
     private function callAction($api, $args, $type, $format = 'json', $body = '')
     {
-        $result = $this->makeRequest($type, self::LENGOW_API_URL.$api, $args, $this->token, $body);
+        $result = $this->makeRequest($type, $api, $args, $this->token, $body);
         return $this->format($result, $format);
     }
 
@@ -247,12 +249,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         // Define CURLE_OPERATION_TIMEDOUT for old php versions
         defined("CURLE_OPERATION_TIMEDOUT") || define("CURLE_OPERATION_TIMEDOUT", CURLE_OPERATION_TIMEOUTED);
         $ch = curl_init();
-        // Options
+        // Get default Curl options
         $opts = self::$CURL_OPTS;
-        // get special timeout for stats, subscription and cms API
-        if (in_array($url, $this->lengow_urls)) {
-            $opts[CURLOPT_TIMEOUT] = 5;
+        // get special timeout for specific Lengow API
+        if (array_key_exists($url, $this->lengow_urls)) {
+            $opts[CURLOPT_TIMEOUT] = $this->lengow_urls[$url];
         }
+        // get url for a specific environment
+        $url = self::LENGOW_API_URL.$url;
         $opts[CURLOPT_CUSTOMREQUEST] = strtoupper($type);
         $url = parse_url($url);
         $opts[CURLOPT_PORT] = $url['port'];
