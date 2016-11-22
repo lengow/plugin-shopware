@@ -1,5 +1,5 @@
 /Bootstrap.php|daeb18a8be7cced6b2885567bb2d6635
-/plugin.json|bd788ff4f69f879672a85bbec34e6946
+/plugin.json|73d411b48e0bb1ac235d655ce13dca5c
 /Bootstrap/Database.php|44fbee4db9e3e3c551c713ed77629146
 /Bootstrap/Form.php|7d5d342e238c14050b9f96893fd7f9e2
 /Components/LengowImportOrder.php|6f370f0b6b62a8e74b14f1cc2e816f58
@@ -14,12 +14,12 @@
 /Components/LengowExport.php|533bb705dd6bae56017fe6995a96e033
 /Components/LengowTranslation.php|1e8133d57934fe67b1a26bc2f7a82f5a
 /Components/LengowFile.php|dd92c797affdecbe874fee9159f555da
-/Components/LengowConnector.php|e38919b486cdde0c6c0a47c20dff57ce
+/Components/LengowConnector.php|179b88e7d479254da3d3aa8bdef56758
 /Components/LengowException.php|75f41c9316061191ea7e897f4f618fb0
 /Components/LengowMarketplace.php|c4ec59fd595f70f2cad0605d0837e573
 /Components/LengowProduct.php|f4cc181e56c2d5908c7d5e918d7999b9
 /Components/LengowConfiguration.php|4e9ef7a5b21f1bccb4d53893c0c38e89
-/Controllers/Frontend/LengowController.php|45ca6b2c23430ba7c98d700172dbfaf5
+/Controllers/Frontend/LengowController.php|239d2c2b3df416ce682ee3570d57194a
 /Controllers/Backend/LengowSync.php|5df5d09cf9f800408abe28f91d503859
 /Controllers/Backend/LengowImport.php|4bb61e3a850188ba92759bf47b0ab0ab
 /Controllers/Backend/Lengow.php|26de1bff086a01222b1e731cfdab99e9
@@ -65,11 +65,11 @@
 /Views/backend/lengow/resources/img/home-settings.png|4f7751e943137d3c10b71da358f7b1d7
 /Views/backend/lengow/resources/css/lengow-components.css|0d415bbdcb35c47f4cdfa57a4c5cef42
 /Views/backend/lengow/resources/css/lengow-layout.css|a2a080ba4a3eee1ff4eb5e59407dde70
-/Views/backend/lengow/resources/css/lengow-pages.css|011a8c9c43504d001dfb9ceed07c0049
+/Views/backend/lengow/resources/css/lengow-pages.css|b943079a0329ef8059ee7bf3a1a748c6
 /Views/backend/lengow/resources/lengow-template.tpl|15ab4381c4841e85cd77295f9c8e4d95
 /Views/backend/lengow/view/import/panel.js|d96f5cb1e89b7f28bfa6d493a7c6ab61
 /Views/backend/lengow/view/main/home.js|2f0a5e0adc890f98597c418d9f47e817
-/Views/backend/lengow/view/main/sync.js|b36aa7a0013e2d451506527789ce7980
+/Views/backend/lengow/view/main/sync.js|60be6f514a4f9d43a6d964d433feb348
 /Views/backend/lengow/view/export/grid.js|4feb7862f43f666849d8e617e079acfa
 /Views/backend/lengow/view/export/panel.js|a745bad72477014dbe2467760bceecc1
 /Views/backend/lengow/view/export/container.js|4f5441a291ecd56513387689759e2a8a
