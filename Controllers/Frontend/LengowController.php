@@ -29,105 +29,120 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
     {
         // Disable template for export
         $this->view->setTemplate(null);
-
+        $em = Shopware()->Models();
+        $lengowPlugin = $em->getRepository('Shopware\Models\Plugin\Plugin')->findOneBy(array('name' => 'Lengow'));
+        // If the plugin has not been installed
+        if ($lengowPlugin == null) {
+            header('HTTP/1.1 400 Bad Request');
+            die('Lengow module is not installed');
+        }
+        // Lengow module is not active
+        if (!$lengowPlugin->getActive()) {
+            header('HTTP/1.1 400 Bad Request');
+            die('Lengow module is not active');
+        }
         if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
-
             // see all export params
-            $getParams = (bool) $this->Request()->getParam("get_params", false);
-            if ($getParams) {
+            if ($this->Request()->getParam("get_params") == 1) {
                 echo Shopware_Plugins_Backend_Lengow_Components_LengowExport::getExportParams();
-                die();
-            }
-            // get all GET params for export
-            $mode = $this->Request()->getParam("mode");
-            $format = $this->Request()->getParam("format", 'csv');
-            $stream = (bool) $this->Request()->getParam("stream", true);
-            $offset = (int) $this->Request()->getParam("offset");
-            $limit = (int) $this->Request()->getParam("limit");
-            $exportSelectionEnabled = $this->Request()->getParam("selection");
-            $outStock =  $this->Request()->getParam("out_of_stock");
-            $productsIds = $this->Request()->getParam("product_ids");
-            $logOutput = (bool) $this->Request()->getParam("log_output", !$stream);
-            $exportVariation = $this->Request()->getParam("variation");
-            $exportDisabledProduct = $this->Request()->getParam("inactive");
-            $shopId = $this->Request()->getParam("shop");
-            $updateExportDate = (bool) $this->Request()->getParam("update_export_date", true);
-            $currencyCode = $this->Request()->getParam("currency");
-            // get Entity manager
-            $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-            // if shop name has been filled
-            if ($shopId) {
-                $shop = $em->getRepository('Shopware\Models\Shop\Shop')->find($shopId);
-                // a shop with this name exist
-                if ($shop) {
-                    $selectedProducts = array();
-                    if ($productsIds) {
-                        $ids = str_replace(array(';', '|', ':'), ',', $productsIds);
-                        $ids = preg_replace('/[^0-9\,]/', '', $ids);
-                        $selectedProducts = explode(',', $ids);
-                    }
-                    $currency = null;
-                    // Look for existing currency with defined param
-                    if ($currencyCode != null) {
-                        $currency = $em->getRepository('Shopware\Models\Shop\Currency')
-                            ->findOneBy(array('currency' => $currencyCode));
-                    }
-                    $params = array(
-                        'format'                 => $format,
-                        'mode'                   => $mode,
-                        'stream'                 => $stream,
-                        'productIds'             => $selectedProducts,
-                        'limit'                  => $limit,
-                        'offset'                 => $offset,
-                        'exportOutOfStock'       => $outStock,
-                        'exportVariationEnabled' => $exportVariation,
-                        'exportDisabledProduct'  => $exportDisabledProduct,
-                        'exportSelectionEnabled' => $exportSelectionEnabled,
-                        'logOutput'              => $logOutput,
-                        'updateExportDate'       => $updateExportDate,
-                        'currency'               => $currency
-                    );
-                    try {
-                        $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, $params);
-                        $export->exec();
-                    } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
-                        $errorMessage = $e->getMessage();
-                        $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                            $errorMessage
-                        );
-                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                            'Export',
-                            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                                'log/export/export_failed',
-                                array('decoded_message' => $decodedMessage)
-                            ),
-                            $logOutput
+            } else {
+                // get all GET params for export
+                $mode             = $this->Request()->getParam('mode');
+                $format           = $this->Request()->getParam('format');
+                $stream           = $this->Request()->getParam('stream');
+                $offset           = $this->Request()->getParam('offset');
+                $limit            = $this->Request()->getParam('limit');
+                $selection        = $this->Request()->getParam('selection');
+                $outOfStock       = $this->Request()->getParam('out_of_stock');
+                $productsIds      = $this->Request()->getParam('product_ids');
+                $logOutput        = $this->Request()->getParam('log_output');
+                $variation        = $this->Request()->getParam('variation');
+                $inactive         = $this->Request()->getParam('inactive');
+                $shopId           = $this->Request()->getParam('shop');
+                $updateExportDate = $this->Request()->getParam('update_export_date');
+                $currency         = $this->Request()->getParam('currency');
+                // get Entity manager
+                $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+                // if shop name has been filled
+                if ($shopId) {
+                    $shop = $em->getRepository('Shopware\Models\Shop\Shop')->find($shopId);
+                    // a shop with this name exist
+                    if ($shop) {
+                        try {
+                            $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport(
+                                $shop,
+                                array(
+                                    'format'             => $format,
+                                    'mode'               => $mode,
+                                    'stream'             => $stream,
+                                    'product_ids'        => $productsIds,
+                                    'limit'              => $limit,
+                                    'offset'             => $offset,
+                                    'out_of_stock'       => $outOfStock,
+                                    'variation'          => $variation,
+                                    'inactive'           => $inactive,
+                                    'selection'          => $selection,
+                                    'log_output'         => $logOutput,
+                                    'update_export_date' => $updateExportDate,
+                                    'currency'           => $currency
+                                )
+                            );
+                            $export->exec();
+                        } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
+                            $errorMessage = $e->getMessage();
+                            $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                                $errorMessage
+                            );
+                            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                                'Export',
+                                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                                    'log/export/export_failed',
+                                    array('decoded_message' => $decodedMessage)
+                                ),
+                                $logOutput
+                            );
+                        }
+                    } else {
+                        $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
+                        $index = count($shops);
+                        $shopsIds = '[';
+                        foreach ($shops as $shop) {
+                            $shopsIds .= $shop->getId();
+                            $index--;
+                            $shopsIds .= ($index == 0) ? '' : ', ';
+                        }
+                        $shopsIds .= ']';
+                        header('HTTP/1.1 400 Bad Request');
+                        die(
+                            Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                                'log/export/shop_dont_exist',
+                                null,
+                                array(
+                                    'shop_id'  => $shopId,
+                                    'shop_ids' => $shopsIds
+                                )
+                            )
                         );
                     }
                 } else {
-                    $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
-                    $index = count($shops);
-                    $shopsIds = '[';
-                    foreach ($shops as $shop) {
-                        $shopsIds .= $shop->getId();
-                        $index--;
-                        $shopsIds .= ($index == 0) ? '' : ', ';
-                    }
-                    $shopsIds .= ']';
+                    header('HTTP/1.1 400 Bad Request');
                     die(
-                        'The following shop ('.$shopId
-                        .') does not exist. Please specify a valid shop name in : '.$shopsIds
+                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                            'log/export/specify_shop'
+                        )
                     );
                 }
-            } else {
-                header('HTTP/1.1 400 Bad Request');
-                die('Please specify a shop to export (ie. : ?shop=1)');
             }
         } else {
             header('HTTP/1.1 403 Forbidden');
-            die('Unauthorized access for IP : '.$_SERVER['REMOTE_ADDR']);
+            die(
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                    'log/export/unauthorised_ip',
+                    null,
+                    array('ip' => $_SERVER['REMOTE_ADDR'])
+                )
+            );
         }
-
     }
 
     /**
@@ -135,7 +150,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
      */
     public function cronAction()
     {
-        // Disable template for export
+        // Disable template for cron
         $this->view->setTemplate(null);
         $em = Shopware()->Models();
         $lengowPlugin = $em->getRepository('Shopware\Models\Plugin\Plugin')->findOneBy(array('name' => 'Lengow'));
@@ -200,7 +215,13 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             }            
         } else {
             header('HTTP/1.1 403 Forbidden');
-            die('Unauthorized access for IP : '.$_SERVER['REMOTE_ADDR']);
+            die(
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                    'log/export/unauthorised_ip',
+                    null,
+                    array('ip' => $_SERVER['REMOTE_ADDR'])
+                )
+            );
         }
     }
 }

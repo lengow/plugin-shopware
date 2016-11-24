@@ -246,7 +246,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                     $attribute = $article->getAttribute();
                 }
                 if ($attribute != null) {
-                    $column = 'setLengowShop' . $shopId . 'Active';
+                    $column = 'setLengowShop'.$shopId.'Active';
                     $attribute->$column($status);
                     $em->persist($attribute);
                     $em->flush($attribute);

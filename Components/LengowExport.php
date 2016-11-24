@@ -24,7 +24,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     /**
      * All available params for export
      */
-    public static $EXPORT_PARAMS = array(
+    public static $exportParams = array(
         'mode',
         'format',
         'stream',
@@ -89,17 +89,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         'description_html'               => 'description_html',
         'meta_title'                     => 'meta_title',
         'meta_keyword'                   => 'meta_keyword',
-    );
-
-    /**
-     * Config elements
-     * Refer to createConfig() in Bootstrap.php
-     */
-    private $configFields = array(
-        'exportVariationEnabled',
-        'exportOutOfStock',
-        'exportDisabledProduct',
-        'exportSelectionEnabled'
     );
 
     /**
@@ -178,57 +167,108 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
      * LengowExport constructor.
      *
      * @param Shopware\Models\Shop\Shop $shop   Shop to export
-     * @param array                     $params Request params
+     * @param array                     $params optional options
+     * string  format             Format of exported files ('csv','yaml','xml','json')
+     * boolean stream             Stream file (1) or generate a file on server (0)
+     * integer offset             Offset of total product
+     * integer limit              Limit number of exported product
+     * boolean selection          Export product selection (1) or all products (0)
+     * boolean out_of_stock       Export out of stock product (1) Export only product in stock (0)
+     * string  product_ids        List of product ids separate with comma (1,2,3)
+     * string  currency           Currency iso code for price conversion
+     * string  mode               Export mode => size: display only exported products, total: display all products
+     * boolean variation          Export product Variation (1) Export parent product only (0)
+     * boolean log_output         See logs (1) or not (0)
+     * boolean update_export_date Change last export date in data base (1) or not (0)
      */
     public function __construct($shop, $params)
     {
         $this->shop = $shop;
         $this->em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        if ($params != null) {
-            foreach ($params as $key => $value) {
-                $this->$key = $value;
-            }
-            $this->setFormat();
-        }
-        $this->loadDefaultConfig();
+        $this->stream = isset($params['stream']) ? (bool)$params['stream'] : true;
+        $this->offset = isset($params['offset']) ? (int)$params['offset'] : 0;
+        $this->limit = isset($params['limit']) ? (int)$params['limit'] : 0;
+        $this->exportSelectionEnabled = isset($params['selection'])
+            ? (bool)$params['selection']
+            : Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowExportSelectionEnabled',
+                $this->shop
+            );
+        $this->exportOutOfStock = isset($params['out_of_stock']) ? (bool)$params['out_of_stock'] : true; 
+        $this->exportVariationEnabled = isset($params['variation']) ? (bool)$params['variation'] : true;
+        $this->exportDisabledProduct = isset($params['inactive'])
+            ? (bool)$params['inactive']
+            : Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowExportDisabledProduct',
+                $this->shop
+            );
+        $this->currency = isset($params['currency']) ? $params['currency'] : true;
+        $this->mode = isset($params['mode']) ? $params['mode'] : false;
+        $this->updateExportDate = isset($params['update_export_date']) ? (bool)$params['update_export_date'] : true;
+        $this->setFormat(isset($params['format']) ? $params['format'] : 'csv');
+        $this->setProductIds(isset($params['product_ids']) ? $params['product_ids'] : false);
+        $this->setCurrency(isset($params['currency']) ? $params['currency'] : false);
+        $this->setLogOutput(isset($params['log_output']) ? $params['log_output'] : true);
     }
 
     /**
      * Check whether or not the format exists
      * If not specified (null), get the default format of the configuration
      *
-     * @return boolean true if specified format is supported
-     *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException If the format isn't supported by Lengow
+     * @param string $format The export format
      */
-    private function setFormat()
+    private function setFormat($format)
     {
-        if (!in_array($this->format, Shopware_Plugins_Backend_Lengow_Components_LengowFeed::$AVAILABLE_FORMATS)) {
-            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'log/export/error_illegal_export_format'
-                )
-            );
-        }
-        return true;
+        $this->format = !in_array($format, Shopware_Plugins_Backend_Lengow_Components_LengowFeed::$AVAILABLE_FORMATS)
+            ? 'csv'
+            : $format;
     }
 
     /**
-     * Get values from shop config if params have not been set
+     * Set product ids to export
+     *
+     * @param string $productIds The product ids to export
      */
-    private function loadDefaultConfig()
+    private function setProductIds($productIds)
     {
-        foreach ($this->configFields as $field) {
-            if (!isset($this->$field)) {
-                $configName = 'lengow' . ucwords($field);
-                $this->$field = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                    $configName,
-                    $this->shop
-                );
+        if ($productIds) {
+            $exportedIds = explode(',', $productIds);
+            foreach ($exportedIds as $id) {
+                if (is_numeric($id) && $id > 0) {
+                    $this->productIds[] = (int)$id;
+                }
             }
         }
     }
 
+    /**
+     * Set Currency for export
+     *
+     * @param mixed $currencyCode currency code or not
+     */
+    private function setCurrency($currencyCode)
+    {
+        $currency = null;
+        if ($currencyCode) {
+            $currency = $this->em->getRepository('Shopware\Models\Shop\Currency')
+                ->findOneBy(array('currency' => $currencyCode));
+        }
+        if (is_null($currency)) {
+            $currency = $this->shop->getCurrency();
+        }
+        $this->currency = $currency;
+    }
+
+    /**
+     * Set Log output for export
+     *
+     * @param boolean $log_output See logs or not
+     */
+    private function setLogOutput($logOutput)
+    {
+        $this->logOutput = $this->stream ? false : $logOutput;
+    }
+    
     /**
      * Export process
      * Get products to export from the params and create the feed
@@ -366,9 +406,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 );
             }
             // clean data for next product
-            unset($details);
-            unset($product);
-            unset($productData);
+            unset($details, $product, $productData);
             if (function_exists('gc_collect_cycles')) {
                 gc_collect_cycles();
             }
@@ -389,13 +427,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             );
         }
         if (!$this->stream) {
-            $feed_url = $feed->getUrl();
-            if ($feed_url && php_sapi_name() != "cli") {
+            $feedUrl = $feed->getUrl();
+            if ($feedUrl && php_sapi_name() != "cli") {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Export',
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log/export/your_feed_available_here',
-                        array('feed_url' => $feed_url)
+                        array('feed_url' => $feedUrl)
                     ),
                     $this->logOutput
                 );
@@ -464,7 +502,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         }
         // Export disabled product
         if (!$this->exportDisabledProduct) {
-            $builder->andWhere('details.active = 1');
+            $builder->andWhere('articles.active = 1');
         }
         // Export only Lengow products
         if ($this->exportSelectionEnabled) {
@@ -570,57 +608,57 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     {
         $params = array();
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        foreach (self::$EXPORT_PARAMS as $param) {
+        foreach (self::$exportParams as $param) {
             switch ($param) {
                 case 'mode':
-                    $authorized_value = array('size', 'total');
-                    $type             = 'string';
-                    $example          = 'size';
+                    $authorizedValue = array('size', 'total');
+                    $type = 'string';
+                    $example = 'size';
                     break;
                 case 'format':
-                    $authorized_value = Shopware_Plugins_Backend_Lengow_Components_LengowFeed::$AVAILABLE_FORMATS;
-                    $type             = 'string';
-                    $example          = 'csv';
+                    $authorizedValue = Shopware_Plugins_Backend_Lengow_Components_LengowFeed::$AVAILABLE_FORMATS;
+                    $type = 'string';
+                    $example = 'csv';
                     break;
                 case 'offset':
                 case 'limit':
-                    $authorized_value = 'all integers';
-                    $type             = 'integer';
-                    $example          = 100;
+                    $authorizedValue = 'all integers';
+                    $type = 'integer';
+                    $example = 100;
                     break;
                 case 'product_ids':
-                    $authorized_value = 'all integers';
-                    $type             = 'string';
-                    $example          = '101,108,215';
+                    $authorizedValue = 'all integers';
+                    $type = 'string';
+                    $example = '101,108,215';
                     break;
                 case 'shop':
-                    $available_shops = array();
+                    $availableShops = array();
                     $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findAll();
                     foreach ($shops as $shop) {
-                        $available_shops[] = $shop->getId();
+                        $availableShops[] = $shop->getId();
                     }
-                    $authorized_value = $available_shops;
-                    $type             = 'integer';
-                    $example          = 1;
+                    $authorizedValue = $availableShops;
+                    $type = 'integer';
+                    $example = 1;
                     break;
                 case 'currency':
-                    $available_currencies = array();
+                    $availableCurrencies = array();
                     $currencies = $em->getRepository('Shopware\Models\Shop\Currency')->findAll();
                     foreach ($currencies as $currency) {
-                        $available_currencies[] = $currency->getCurrency();
+                        $availableCurrencies[] = $currency->getCurrency();
                     }
-                    $authorized_value = $available_currencies;
-                    $type             = 'string';
-                    $example          = 'EUR';
+                    $authorizedValue = $availableCurrencies;
+                    $type = 'string';
+                    $example = 'EUR';
                     break;
                 default:
-                    $authorized_value = array(0, 1);
-                    $type             = 'integer';
-                    $example          = 1;
+                    $authorizedValue = array(0, 1);
+                    $type = 'integer';
+                    $example = 1;
                     break;
             }
             $params[ $param ] = array(
-                'authorized_values' => $authorized_value,
+                'authorized_values' => $authorizedValue,
                 'type'              => $type,
                 'example'           => $example
             );

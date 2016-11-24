@@ -90,12 +90,6 @@ de:
     lengow_export_settings:
       label: "Exporteinstellungen"
       description: "Definieren Sie Einstellungen, um Ihres Feed zu erstellen."
-      variation:
-        label: "Variationen exportieren"
-        description: "Verwenden Sie diese Option, um Ihren Katalog mit Variationen zu exportieren"
-      out_stock:
-        label: "Nicht lieferbare Produkte exportieren"
-        description: "Verwenden Sie diese Option, um nicht lieferbare Produkte zu exportieren"
       disabled_products:
         label: "Inaktive Produkte exportieren"
         description: "Verwenden Sie diese Option, um inaktive Produkte zu exportieren"
@@ -143,8 +137,6 @@ de:
         remove: "Aus dem Export entfernern"
       checkbox:
         edit_all: "Alle Produkte auswählen"
-        variations: "Variationen inkludieren"
-        out_stock: "Nicht lieferbare Produkte inkludieren"
         selection: "Bestimmte Produkte inkludieren"
       label:
         counter:

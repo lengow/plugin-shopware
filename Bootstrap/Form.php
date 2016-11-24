@@ -90,24 +90,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             $selection[] = array($dispatch->getId(), $dispatch->getName());
         }
         $exportFormElements = array(
-            'lengowExportVariationEnabled' => array(
-                'type'          => 'boolean',
-                'label'         => 'settings/lengow_export_settings/variation/label',
-                'required'      => true,
-                'editable'      => false,
-                'value'         => true,
-                'description'   => 'settings/lengow_export_settings/variation/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
-            ),
-            'lengowExportOutOfStock' => array(
-                'type'          => 'boolean',
-                'label'         => 'settings/lengow_export_settings/out_stock/label',
-                'required'      => true,
-                'editable'      => false,
-                'value'         => false,
-                'description'   => 'settings/lengow_export_settings/out_stock/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
-            ),
             'lengowExportDisabledProduct' => array(
                 'type'          => 'boolean',
                 'label'         => 'settings/lengow_export_settings/disabled_products/label',

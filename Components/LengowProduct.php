@@ -87,12 +87,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $this->type = $type;
         $this->logOutput = $logOutput;
         $this->isVariation = $type == 'child' ? true : false;
-        // Get default shop currency
-        if ($currency == null) {
-            $this->currency = $shop->getCurrency();
-        } else {
-            $this->currency = $currency;
-        }
+        $this->currency = $currency;
         $this->factor = $this->currency->getFactor();
         $this->getOptions();
         $this->getPrice();

@@ -7,8 +7,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
 
     snippets: {
         checkbox: {
-            variations: '{s name="export/grid/checkbox/variations" namespace="backend/Lengow/translation"}{/s}',
-            out_stock: '{s name="export/grid/checkbox/out_stock" namespace="backend/Lengow/translation"}{/s}',
             selection: '{s name="export/grid/checkbox/selection" namespace="backend/Lengow/translation"}{/s}'
         }
     },
@@ -118,44 +116,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
             layout: 'hbox',
             margins: '7 0 7 0',
             items: [
-                {
-                    xtype: 'checkboxfield',
-                    id: 'lengowExportVariationEnabled',
-                    boxLabel: me.snippets.checkbox.variations,
-                    listeners: {
-                        change: function(checkbox){
-                            var selectedShop = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id'),
-                                value = checkbox.getValue(),
-                                id = checkbox.getId();
-                            // @see Shopware.apps.Lengow.controller.Export:onGetConfigValue
-                            if (!checkbox.skipCounterUpdate) {
-                                // Change shops settings in db
-                                me.fireEvent('setConfigValue', selectedShop, id, value);
-                                // Update counter value
-                                Ext.getCmp('exportGrid').updateCounter();
-                            }
-                        }
-                    }
-                },
-                {
-                    xtype: 'checkboxfield',
-                    id: 'lengowExportOutOfStock',
-                    boxLabel: me.snippets.checkbox.out_stock,
-                    listeners: {
-                        change: function(checkbox){
-                            var selectedShop = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id'),
-                                value = checkbox.getValue(),
-                                id = checkbox.getId();
-                            // @see Shopware.apps.Lengow.controller.Export:onGetConfigValue
-                            if (!checkbox.skipCounterUpdate) {
-                                // Change shops settings in db
-                                me.fireEvent('setConfigValue', selectedShop, id, value);
-                                // Update counter value
-                                Ext.getCmp('exportGrid').updateCounter();
-                            }
-                        }
-                    }
-                },
                 {
                     xtype: 'checkboxfield',
                     id: 'lengowExportSelectionEnabled',
