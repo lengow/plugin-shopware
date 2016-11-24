@@ -281,12 +281,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                 );
                 break;
             case "PUT":
-                if (isset($token)) {
-                    $opts[CURLOPT_HTTPHEADER] = array_merge($opts[CURLOPT_HTTPHEADER], array(
-                        'Content-Type: application/json',
-                        'Content-Length: '.strlen($body)
-                    ));
-                }
+                $opts[CURLOPT_HTTPHEADER] = array_merge($opts[CURLOPT_HTTPHEADER], array(
+                    'Content-Type: application/json',
+                    'Content-Length: '.strlen($body)
+                ));
                 $opts[CURLOPT_URL] = $url.'?'.http_build_query($args);
                 $opts[CURLOPT_POSTFIELDS] = $body;
                 break;

@@ -20,8 +20,8 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
 
         // Loading message
         Ext.getCmp('syncPanel').getEl().mask();
-        var syncIframe = document.getElementById("lengow_iframe");
-        if (syncIframe) {
+        var sync_iframe = document.getElementById("lengow_iframe");
+        if (sync_iframe) {
             if (me.syncLink) {
                 // me.url = 'http://cms.lengow.io/sync/';
                 // me.url = 'http://cms.lengow.net/sync/';
@@ -33,8 +33,8 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
                 me.url = 'http://cms.lengow.rec/';
                 // me.url = 'http://cms.lengow.dev/';
             }
-            syncIframe.src = me.url;
-            syncIframe.onload = function() {
+            sync_iframe.src = me.url;
+            sync_iframe.onload = function() {
                 Ext.Ajax.request({
                     url: '{url controller="LengowSync" action="getIsSync"}',
                     method: 'POST',
@@ -51,7 +51,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
                 });
             };
             // Show iframe content
-            syncIframe.style.display = "block";
+            sync_iframe.style.display = "block";
         }
 
         window.addEventListener('message', receiveMessage, false);
@@ -59,10 +59,6 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
         function receiveMessage(event) {
             switch (event.data.function) {
                 case 'sync':
-                    // Store lengow information into Shopware :
-                    // account_id
-                    // access_token
-                    // secret_token
                     Ext.Ajax.request({
                         url: '{url controller="LengowSync" action="getIsSync"}',
                         method: 'POST',
@@ -74,10 +70,6 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
                     });
                     break;
                 case 'sync_and_reload':
-                    // Store lengow information into Shopware and reload it
-                    // account_id
-                    // access_token
-                    // secret_token
                     Ext.Ajax.request({
                         url: '{url controller="LengowSync" action="getIsSync"}',
                         method: 'POST',
@@ -94,8 +86,6 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
                     });
                     break;
                 case 'reload':
-                case 'cancel':
-                    // Reload the parent page (after sync is ok)
                     Shopware.app.Application.addSubApplication({
                         name: 'Shopware.apps.Lengow'
                     });
