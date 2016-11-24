@@ -38,7 +38,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 echo Shopware_Plugins_Backend_Lengow_Components_LengowExport::getExportParams();
                 die();
             }
-
+            
             // get all GET params for export
             $mode = $this->Request()->getParam("mode");
             $format = $this->Request()->getParam("format", 'csv');
@@ -92,7 +92,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                         'updateExportDate'       => $updateExportDate,
                         'currency'               => $currency
                     );
-                    
+
                     try {
                         $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, $params);
                         $export->exec();
@@ -145,19 +145,16 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
 
         $em = Shopware()->Models();
         $lengowPlugin = $em->getRepository('Shopware\Models\Plugin\Plugin')->findOneBy(array('name' => 'Lengow'));
-
         // If the plugin has not been installed
         if ($lengowPlugin == null) {
             header('HTTP/1.1 400 Bad Request');
             die('Lengow module is not installed');
         }
-
         // Lengow module is not active
         if (!$lengowPlugin->getActive()) {
             header('HTTP/1.1 400 Bad Request');
             die('Lengow module is not active');
         }
-
         // Check ip authorization
         if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
 
@@ -204,7 +201,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             if ($sync && ($sync !== 'order' && $sync !== 'action' && $sync !== 'option')) {
                 header('HTTP/1.1 400 Bad Request');
                 die('Action: '.$sync.' is not a valid action');
-            }
+            }          
         } else {
             header('HTTP/1.1 403 Forbidden');
             die('Unauthorized access for IP : '.$_SERVER['REMOTE_ADDR']);

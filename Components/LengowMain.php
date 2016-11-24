@@ -236,7 +236,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
         }
         $base = self::getBaseUrl($shop);
-        return $base.'/LengowController/cron?shop='.$shop->getId();
+        return $base.'/LengowController/cron';
     }
 
     /**
@@ -481,7 +481,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function cleanHtml($html)
     {
-        $string = str_replace('<br />', '', nl2br($html));
+        $string = str_replace('<br />', ' ', nl2br($html));
         $string = trim(strip_tags(htmlspecialchars_decode($string)));
         $string = preg_replace('`[\s]+`sim', ' ', $string);
         $string = preg_replace('`"`sim', '', $string);

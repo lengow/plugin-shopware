@@ -276,11 +276,10 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             foreach ($shops as $shop) {
                 $mainCategory = $shop->getCategory();
                 $result[] = array(
-                    'leaf' => $mainCategory->isLeaf(),
-                    'text' => $shop->getName(),
-                    'id' => $shop->getId(),
-                    'lengowStatus' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                        'lengowShopActive',
+                    'leaf'         => $mainCategory->isLeaf(),
+                    'text'         => $shop->getName(),
+                    'id'           => $shop->getId(),
+                    'lengowStatus' => Shopware_Plugins_Backend_Lengow_Components_LengowSync::checkSyncShop(
                         $shop
                     )
                 );
@@ -303,7 +302,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                 $result[] = array(
                     'leaf' => $category->isLeaf(),
                     'text' => $category->getName(),
-                    'id' => $shopId.'_'.$category->getId() // Required to have a unique id in the tree
+                    'id'   => $shopId.'_'.$category->getId() // Required to have a unique id in the tree
                 );
             }
         }

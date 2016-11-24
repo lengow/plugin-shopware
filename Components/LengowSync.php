@@ -48,7 +48,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
         foreach ($activeShops as $shop) {
             $shopId = $shop->getId();
             $exportUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getExportUrl($shop);
-            $importUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getImportUrl($shop);
+            $importUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getImportUrl();
             $token = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop);
             $domain = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopUrl($shop);
             $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, array());
@@ -142,7 +142,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             );
             $token = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop);
             $exportUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getExportUrl($shop);
-            $importUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getImportUrl($shop);
+            $importUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getImportUrl();
             $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, array());
             $data['shops'][] = array(
                 'enabled'                 => $lengowStatus,

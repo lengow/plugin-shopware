@@ -66,7 +66,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      */
     // const LENGOW_API_URL = 'http://api.lengow.io:80';
     // const LENGOW_API_URL = 'http://api.lengow.net:80';
-    const LENGOW_API_URL = 'http://10.100.1.82:8081';
+    const LENGOW_API_URL = 'http://api.lengow.rec:80';
+    // const LENGOW_API_URL = 'http://10.100.1.82:8081';
 
     /**
      * @var string URL of the SANDBOX Lengow
@@ -79,8 +80,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     public static $CURL_OPTS = array (
         CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 300,
+        CURLOPT_TIMEOUT        => 20,
         CURLOPT_USERAGENT      => 'lengow-php-sdk',
+    );
+
+    /**
+     * @var array lengow url for curl timeout
+     */
+    protected $lengow_urls = array (
+        '/v3.0/orders'        => 15,
+        '/v3.0/marketplaces'  => 10, 
+        '/v3.0/subscriptions' => 5,
+        '/v3.0/stats'         => 5,
+        '/v3.0/cms'           => 5,
     );
 
     /**
@@ -166,7 +178,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      */
     private function callAction($api, $args, $type, $format = 'json', $body = '')
     {
-        $result = $this->makeRequest($type, self::LENGOW_API_URL.$api, $args, $this->token, $body);
+        $result = $this->makeRequest($type, $api, $args, $this->token, $body);
         return $this->format($result, $format);
     }
 
@@ -234,9 +246,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      */
     protected function makeRequest($type, $url, $args, $token, $body = '')
     {
+        // Define CURLE_OPERATION_TIMEDOUT for old php versions
+        defined("CURLE_OPERATION_TIMEDOUT") || define("CURLE_OPERATION_TIMEDOUT", CURLE_OPERATION_TIMEOUTED);
         $ch = curl_init();
-        // Options
+        // Get default Curl options
         $opts = self::$CURL_OPTS;
+        // get special timeout for specific Lengow API
+        if (array_key_exists($url, $this->lengow_urls)) {
+            $opts[CURLOPT_TIMEOUT] = $this->lengow_urls[$url];
+        }
+        // get url for a specific environment
+        $url = self::LENGOW_API_URL.$url;
         $opts[CURLOPT_CUSTOMREQUEST] = strtoupper($type);
         $url = parse_url($url);
         $opts[CURLOPT_PORT] = $url['port'];
@@ -277,8 +297,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         // Execute url request
         curl_setopt_array($ch, $opts);
         $result = curl_exec($ch);
-        $error = curl_errno($ch);
-        if (in_array($error, array(CURLE_OPERATION_TIMEDOUT, CURLE_OPERATION_TIMEOUTED))) {
+        $error_number = curl_errno($ch);
+        $error_text = curl_error($ch);
+        if (in_array($error_number, array(CURLE_OPERATION_TIMEDOUT, CURLE_OPERATION_TIMEOUTED))) {
             $timeout = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                 'lengow_log/exception/timeout_api'
             );
@@ -293,12 +314,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         }
         curl_close($ch);
         if ($result === false) {
+            $error_curl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                'lengow_log/exception/error_curl',
+                array(
+                    'error_code'    => $error_number,
+                    'error_message' => $error_text
+                )
+            );
             $error_message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                 'log/connector/error_api',
-                array('error_code' => $error)
+                array(
+                    'error_code' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($error_curl)
+                )
             );
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log('Connector', $error_message);
-            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($error);
+            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($error_curl);
         }
         return $result;
     }

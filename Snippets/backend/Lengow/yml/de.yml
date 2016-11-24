@@ -107,9 +107,9 @@ de:
         description: "Default-Carrier für Ihre Orders auswählen"
     lengow_import_settings:
       label: "Importeinstellungen"
-      description: "Bestellungen werden in Lengow zentralisiert. Hier können Sie die Bestellungen synchronisieren oder den Lagerbestand in Ihrem Shopware-Backoffice verringern"
+      description: "Bestellungen werden in Lengow zentralisiert. Hier können Sie die Bestellungen synchronisieren um den Lagerbestand in Ihrem Shopware-Backoffice zu verringern"
       enable_import:
-        label: "Orders Synchronisierung aktivieren"
+        label: "Lagerbestand Synchronisierung aktivieren"
         description: "Verwenden Sie diese Option, um den Lagerbestand in Ihrem Shopware-Backoffice zu verringern"
       decrease_stock:
         label: "Lagerbestand verringern für Bestellungen, die durch einen Marktplatz versandt werden"
@@ -166,7 +166,7 @@ de:
       import_charge_second: "Haben Sie bitte etwas Geduld, es dauert nicht lange (die durchschnittliche Wartezeit beträgt 2 min)"
     panel:
       no_notification: "Keine neue Benachrichtigung zur Bestellung"
-      description: "Bestellungen importieren und Lagerbestand verringern von <b>%{nb_days}</b> Tagen"
+      description: "Bestellungen importieren von <b>%{nb_days}</b> Tagen um Lagerbestand zu verringern"
       last_import: "Letzte Synchronisierung: <b>%{import_date}</b>"
       order_new: "%{nb_order} Bestellung(en) weniger"
       order_error_link: "%{nb_order} Bestellung/en mit Fehlern (<a href='%{log_url}' target='_blank'>Siehe Logs für weitere Informationen</a>)"

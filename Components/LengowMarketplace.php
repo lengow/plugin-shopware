@@ -81,7 +81,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
         }
         $this->marketplace = self::$MARKETPLACES[$this->id_shop]->{$this->name};
         if (!empty($this->marketplace)) {
-            $this->label_name = $this->marketplace->name;
             foreach ($this->marketplace->orders->status as $key => $state) {
                 foreach ($state as $value) {
                     $this->states_lengow[(string)$value] = (string)$key;
