@@ -449,9 +449,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             );
         }
         if (count($errorMessages) > 0) {
-            foreach ($errorMessages as $error_message) {
+            foreach ($errorMessages as $errorMessage) {
                 $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                    $error_message
+                    $errorMessage
                 );
                 $this->log('order_import_failed', array('decoded_message' => $decodedMessage));
             };

@@ -203,10 +203,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         if ($shop == null) {
             $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
         }
-        $is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '';
+        $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '';
         $host = $shop->getHost() ? $shop->getHost() : $_SERVER['SERVER_NAME'];
         $path = $shop->getBasePath() ? $shop->getBasePath() : '';
-        $url = 'http'.$is_https.'://'.$host.$path;
+        $url = 'http'.$isHttps.'://'.$host.$path;
         return $url;
     }
 

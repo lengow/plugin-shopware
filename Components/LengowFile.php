@@ -55,6 +55,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
         }
     }
 
+    public function __destruct()
+    {
+        $this->close();
+    }
+
     /**
      * Write content in file
      *
@@ -135,19 +140,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
         return Shopware()->Plugins()->Backend()->Lengow()->Path().$this->folderName;
     }
 
-    public function __destruct()
-    {
-        $this->close();
-    }
-
     /**
      * Rename file
      *
+     * @param string $newName
+     *
      * @return boolean
      */
-    public function rename($new_name)
+    public function rename($newName)
     {
-        return rename($this->getPath(), $new_name);
+        return rename($this->getPath(), $newName);
     }
 
     /**

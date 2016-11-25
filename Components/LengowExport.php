@@ -94,72 +94,72 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     /**
      * @var string Export format
      */
-    private $format;
+    protected $format;
 
     /**
      * @var boolean Display result on screen
      */
-    private $stream;
+    protected $stream;
 
     /**
      * @var array List of articles to display
      */
-    private $productIds = array();
+    protected $productIds = array();
 
     /**
      * @var integer Limit number of results
      */
-    private $limit;
+    protected $limit;
 
     /**
      * @var integer Get results from specific index
      */
-    private $offset;
+    protected $offset;
 
     /**
      * @var boolean Export out of stock articles
      */
-    private $outOfStock;
+    protected $outOfStock;
 
     /**
      * @var boolean Update export date.
      */
-    private $updateExportDate;
+    protected $updateExportDate;
 
     /**
      * @var boolean Export variant articles
      */
-    private $variation;
+    protected $variation;
 
     /**
      * @var boolean Export Lengow products only
      */
-    private $selection;
+    protected $selection;
 
     /**
      * @var boolean Enable/disable log output
      */
-    private $logOutput;
+    protected $logOutput;
 
     /**
      * @var boolean Export disabled articles
      */
-    private $inactive;
+    protected $inactive;
 
     /**
      * @var string Export mode (size|null)
      */
-    private $mode;
+    protected $mode;
 
     /**
      * @var \Shopware\Models\Shop\Shop Shopware Shop
      */
-    private $shop;
+    protected $shop;
 
     /**
      * @var Shopware\Models\Shop\Currency Currency to use for the export
      */
-    private $currency;
+    protected $currency;
 
     /**
      * LengowExport constructor.
