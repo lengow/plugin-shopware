@@ -22,9 +22,9 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
 {
     /**
-     * @var $LENGOW_SETTINGS array Specific Lengow settings in s_lengow_settings table
+     * @var $lengowSettings array Specific Lengow settings in s_lengow_settings table
      */
-    public static $LENGOW_SETTINGS = array(
+    public static $lengowSettings = array(
         'lengowImportInProgress',
         'lengowLastImportCron',
         'lengowLastImportManual',
@@ -53,7 +53,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         // Avoid issue when synchronizing account
         Shopware()->Plugins()->Backend()->Lengow();
         // If Lengow setting
-        if (in_array($configName, self::$LENGOW_SETTINGS)) {
+        if (in_array($configName, self::$lengowSettings)) {
             $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
             $criteria = array('name' => $configName);
             if ($shop != null) {
@@ -89,7 +89,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         // Avoid issue when synchronizing account
         Shopware()->Plugins()->Backend()->Lengow();
         // If Lengow global setting
-        if (in_array($configName, self::$LENGOW_SETTINGS)) {
+        if (in_array($configName, self::$lengowSettings)) {
             $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
             $criteria = array('name' => $configName);
             if ($shop != null) {
@@ -182,12 +182,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $connection = $em->getConnection();
         $query = $connection->createQueryBuilder();
-        $query->select(array(
-            'element.id as elementId',
-            'element.value',
-            'elementValues.id as valueId',
-            'elementValues.value as configured',
-        ));
+        $query->select(
+            array(
+                'element.id as elementId',
+                'element.value',
+                'elementValues.id as valueId',
+                'elementValues.value as configured',
+            )
+        );
         $query->from('s_core_config_elements', 'element')
             ->leftJoin(
                 'element',

@@ -56,7 +56,7 @@ if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
                 </div>
             </nav>';
 } else {
-    $is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 'https://' : 'http://';
-    $url = $is_https.$_SERVER['SERVER_NAME'];
+    $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 'https://' : 'http://';
+    $url = $isHttps.$_SERVER['SERVER_NAME'];
     header('Location: '.$url);
 }

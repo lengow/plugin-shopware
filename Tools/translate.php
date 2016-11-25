@@ -17,8 +17,8 @@
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-$default_locale = 'en';
-$log_file = 'log';
+$defaultLocale = 'en';
+$logFile = 'log';
 $defaultTranslation = null;
 $locales = array(
     'en' => 'GB',
@@ -38,7 +38,7 @@ $fp = fopen(dirname(dirname(__FILE__)).'/Snippets/backend/Lengow/translation.ini
 foreach ($locales as $key => $value) {
     $fileName = $directory.$key.'.yml';
     $ymlFile = yaml_parse_file($fileName);
-    $header = '[' . $key . '_' . $value . ']' . PHP_EOL;
+    $header = '['.$key.'_'.$value.']'.PHP_EOL;
     fwrite($fp, $header);
     foreach ($ymlFile as $language => $categories) {
         writeIniFile($fp, $categories);
@@ -48,10 +48,10 @@ foreach ($locales as $key => $value) {
 
 // Put default locale (en) and log translations into [default] section
 // Used by Shopware when user locale is not detected
-$englishTranslation = yaml_parse_file($directory.$default_locale.'.yml');
-$logTranslation = yaml_parse_file($directory.$log_file.'.yml');
+$englishTranslation = yaml_parse_file($directory.$defaultLocale.'.yml');
+$logTranslation = yaml_parse_file($directory.$logFile.'.yml');
 $defaultTranslation = array_merge($englishTranslation, $logTranslation);
-$header = '[default]' . PHP_EOL;
+$header = '[default]'.PHP_EOL;
 fwrite($fp, $header);
 foreach ($defaultTranslation as $language => $categories) {
     writeIniFile($fp, $categories);
@@ -74,7 +74,7 @@ function writeIniFile($fp, $text, &$frontKey = array())
         }
     } else {
         $content = addslashes(str_replace("\n", '<br />', $text));
-        $line = join('/', $frontKey) . ' = "' . $content . '"' . PHP_EOL;
+        $line = join('/', $frontKey).' = "'.$content.'"'.PHP_EOL;
         fwrite($fp, $line);
     }
 }

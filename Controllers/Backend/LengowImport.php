@@ -27,10 +27,12 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     public function getImportSettingStatusAction()
     {
         $status = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowEnableImport');
-        $this->View()->assign(array(
-            'success' => true,
-            'data'    => $status
-        ));
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data'    => $status
+            )
+        );
     }
 
     /**
@@ -53,10 +55,12 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             $locale,
             array('import_date' => $lastImport)
         );
-        $this->View()->assign(array(
-            'success' => true,
-            'data'    => $data
-        ));
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data'    => $data
+            )
+        );
     }
 
     /**
@@ -117,9 +121,11 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 $locale
             );
         }
-        $this->View()->assign(array(
-            'success' => true,
-            'data'    => $data
-        ));
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data'    => $data
+            )
+        );
     }
 }

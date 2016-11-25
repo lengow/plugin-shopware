@@ -22,7 +22,10 @@
 use Shopware\Kernel;
 use Shopware\Components\HttpCache\AppCache;
 
-include '../../../../../../../autoload.php';
+$toolboxPath = 'engine/Shopware/Plugins/Community/Backend/Lengow/Toolbox/';
+$currentDirectory = str_replace($toolboxPath, '', dirname($_SERVER['SCRIPT_FILENAME'])."/");
+
+require_once $currentDirectory.'autoload.php';
 
 require_once('../Bootstrap.php');
 require_once('../Components/LengowTranslation.php');
@@ -31,7 +34,6 @@ require_once('../Components/LengowConfiguration.php');
 require_once('../Components/LengowCheck.php');
 require_once('../Components/LengowFile.php');
 require_once('../Components/LengowLog.php');
-
 
 $environment = getenv('ENV') ?: getenv('REDIRECT_ENV') ?: 'production';
 

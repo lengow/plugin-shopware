@@ -38,9 +38,9 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
         }
         $this->View()->assign(
             array(
-                'success' => true,
+                'success'       => true,
                 'displayTabBar' => $showTabBar,
-                'data'    => $htmlContent
+                'data'          => $htmlContent
             )
         );
     }

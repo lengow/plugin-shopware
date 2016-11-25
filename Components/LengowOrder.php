@@ -24,20 +24,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     /**
      * Get ID record from lengow orders table
      *
-     * @param string  $marketplace_sku     Lengow order id
-     * @param string  $marketplace         Marketplace name
-     * @param integer $delivery_address_id Delivery address id
+     * @param string  $marketplaceSku    Lengow order id
+     * @param string  $marketplace       Marketplace name
+     * @param integer $deliveryAddressId Delivery address id
      *
      * @return mixed
      */
-    public static function getIdFromLengowOrders($marketplace_sku, $marketplace, $delivery_address_id)
+    public static function getIdFromLengowOrders($marketplaceSku, $marketplace, $deliveryAddressId)
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $repository = $em->getRepository('Shopware\CustomModels\Lengow\Order');
         $criteria = array(
-            'marketplaceSku'    => $marketplace_sku,
+            'marketplaceSku'    => $marketplaceSku,
             'marketplaceName'   => $marketplace,
-            'deliveryAddressId' => $delivery_address_id
+            'deliveryAddressId' => $deliveryAddressId
         );
         /** @var Shopware\CustomModels\Lengow\Order $lengowOrder */
         $lengowOrder = $repository->findOneBy($criteria);

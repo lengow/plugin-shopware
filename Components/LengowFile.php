@@ -24,12 +24,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
     /**
      * @var string file name
      */
-    public $file_name;
+    public $fileName;
 
     /**
      * @var string folder name that contains the file
      */
-    public $folder_name;
+    public $folderName;
 
     /**
      * @var ressource file hande
@@ -37,18 +37,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
     public $instance;
 
 
-    public function __construct($folder_name, $file_name = null, $mode = 'a+')
+    public function __construct($folderName, $fileName = null, $mode = 'a+')
     {
-        $this->file_name = $file_name;
-        $this->folder_name = $folder_name;
+        $this->fileName = $fileName;
+        $this->folderName = $folderName;
         $this->instance = self::getRessource($this->getPath(), $mode);
         if (!is_resource($this->instance)) {
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/export/error_unable_to_create_file',
                     array(
-                        'file_name'   => $file_name,
-                        'folder_name' => $folder_name
+                        'file_name'   => $fileName,
+                        'folder_name' => $folderName
                     )
                 )
             );
@@ -108,7 +108,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
             $sep = DIRECTORY_SEPARATOR;
             $base = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getBaseUrl();
             $lengowDir = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getPathPlugin();
-            $this->link = $base . $lengowDir . $this->folder_name . $sep . $this->file_name;
+            $this->link = $base.$lengowDir.$this->folderName.$sep.$this->fileName;
         }
         return $this->link;
 
@@ -122,7 +122,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
     public function getPath()
     {
         $sep = DIRECTORY_SEPARATOR;
-        return Shopware()->Plugins()->Backend()->Lengow()->Path() . $this->folder_name . $sep . $this->file_name;
+        return Shopware()->Plugins()->Backend()->Lengow()->Path().$this->folderName.$sep.$this->fileName;
     }
 
     /**
@@ -132,8 +132,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
      */
     public function getFolderPath()
     {
-        $sep = DIRECTORY_SEPARATOR;
-        return Shopware()->Plugins()->Backend()->Lengow()->Path() . $this->folder_name;
+        return Shopware()->Plugins()->Backend()->Lengow()->Path().$this->folderName;
     }
 
     public function __destruct()
@@ -180,13 +179,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
      */
     public static function getFilesFromFolder($folder)
     {
-        $folder_path = Shopware()->Plugins()->Backend()->Lengow()->Path() . $folder;
-        if (!file_exists($folder_path)) {
+        $folderPath = Shopware()->Plugins()->Backend()->Lengow()->Path().$folder;
+        if (!file_exists($folderPath)) {
             return false;
         }
-        $folder_content = scandir($folder_path);
+        $folderContent = scandir($folderPath);
         $files = array();
-        foreach ($folder_content as $file) {
+        foreach ($folderContent as $file) {
             if (!preg_match('/^\.[a-zA-Z\.]+$|^\.$|index\.php/', $file)) {
                 $files[] = new Shopware_Plugins_Backend_Lengow_Components_LengowFile($folder, $file);
             }

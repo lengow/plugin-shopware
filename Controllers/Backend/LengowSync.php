@@ -31,10 +31,12 @@ class Shopware_Controllers_Backend_LengowSync extends Shopware_Controllers_Backe
                     $data = array();
                     $data['function'] = 'sync';
                     $data['parameters'] = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getSyncData();
-                    $this->View()->assign(array(
-                        'success' => true,
-                        'data'    => $data
-                    ));
+                    $this->View()->assign(
+                        array(
+                            'success' => true,
+                            'data'    => $data
+                        )
+                    );
                     break;
                 case 'sync':
                     $data = json_decode($this->Request()->getParam('data', false), true);

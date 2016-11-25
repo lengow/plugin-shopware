@@ -23,7 +23,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Lengow Authorized IPs
      */
-    protected static $IPS_LENGOW = array(
+    protected static $ipsLengow = array(
         '46.19.183.204',
         '46.19.183.218',
         '46.19.183.222',
@@ -75,7 +75,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * @var integer life of log files in days
      */
-    public static $LOG_LIFE = 20;
+    public static $logLife = 20;
 
     /**
      * Check if current IP is authorized.
@@ -87,7 +87,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         $ips = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAuthorizedIp');
         $ips = trim(str_replace(array("\r\n", ',', '-', '|', ' '), ';', $ips), ';');
         $ips = explode(';', $ips);
-        $authorizedIps = array_merge($ips, self::$IPS_LENGOW);
+        $authorizedIps = array_merge($ips, self::$ipsLengow);
         $authorizedIps[] = $_SERVER['SERVER_ADDR'];
         $hostnameIp = $_SERVER['REMOTE_ADDR'];
         if (in_array($hostnameIp, $authorizedIps)) {
@@ -246,22 +246,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function getLastImport()
     {
-        $timestamp_cron = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+        $timestampCron = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
             'lengowLastImportCron'
         );
-        $timestamp_manual = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+        $timestampManual = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
             'lengowLastImportManual'
         );
-        if ($timestamp_cron && $timestamp_manual) {
-            if ((int)$timestamp_cron > (int) $timestamp_manual) {
-                return array('type' => 'cron', 'timestamp' => (int)$timestamp_cron);
+        if ($timestampCron && $timestampManual) {
+            if ((int)$timestampCron > (int) $timestampManual) {
+                return array('type' => 'cron', 'timestamp' => (int)$timestampCron);
             } else {
-                return array('type' => 'manual', 'timestamp' => (int)$timestamp_manual);
+                return array('type' => 'manual', 'timestamp' => (int)$timestampManual);
             }
-        } elseif ($timestamp_cron && !$timestamp_manual) {
-            return array('type' => 'cron', 'timestamp' => (int)$timestamp_cron);
-        } elseif ($timestamp_manual && !$timestamp_cron) {
-            return array('type' => 'manual', 'timestamp' => (int)$timestamp_manual);
+        } elseif ($timestampCron && !$timestampManual) {
+            return array('type' => 'cron', 'timestamp' => (int)$timestampCron);
+        } elseif ($timestampManual && !$timestampCron) {
+            return array('type' => 'manual', 'timestamp' => (int)$timestampManual);
         }
         return array('type' => 'none', 'timestamp' => 'none');
     }
@@ -352,18 +352,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function cleanLog()
     {
-        /** @var Shopware_Plugins_Backend_Lengow_Components_LengowFile[] $log_files */
-        $log_files = Shopware_Plugins_Backend_Lengow_Components_LengowLog::getFiles();
+        /** @var Shopware_Plugins_Backend_Lengow_Components_LengowFile[] $logFiles */
+        $logFiles = Shopware_Plugins_Backend_Lengow_Components_LengowLog::getFiles();
         $days = array();
         $days[] = 'logs-'.date('Y-m-d').'.txt';
-        for ($i = 1; $i < self::$LOG_LIFE; $i++) {
+        for ($i = 1; $i < self::$logLife; $i++) {
             $days[] = 'logs-'.date('Y-m-d', strtotime('-'.$i.'day')).'.txt';
         }
-        if (empty($log_files)) {
+        if (empty($logFiles)) {
             return;
         }
-        foreach ($log_files as $log) {
-            if (!in_array($log->file_name, $days)) {
+        foreach ($logFiles as $log) {
+            if (!in_array($log->fileName, $days)) {
                 $log->delete();
             }
         }
@@ -373,27 +373,27 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      * Decode message with params for translation
      *
      * @param string $message  Key to translate
-     * @param string $iso_code Language translation iso code
+     * @param string $isoCode Language translation iso code
      * @param mixed  $params   array Parameters to display in the translation message
      *
      * @return string
      */
-    public static function decodeLogMessage($message, $iso_code = null, $params = null)
+    public static function decodeLogMessage($message, $isoCode = null, $params = null)
     {
         if (preg_match('/^(([a-z\_]*\/){1,3}[a-z\_]*)(\[(.*)\]|)$/', $message, $result)) {
             if (isset($result[1])) {
                 $key = $result[1];
             }
             if (isset($result[4]) && is_null($params)) {
-                $str_param = $result[4];
-                $all_params = explode('|', $str_param);
-                foreach ($all_params as $param) {
+                $strParam = $result[4];
+                $allParams = explode('|', $strParam);
+                foreach ($allParams as $param) {
                     $result = explode('==', $param);
                     $params[$result[0]] = $result[1];
                 }
             }
             $locale = new Shopware_Plugins_Backend_Lengow_Components_LengowTranslation();
-            $message = $locale->t($key, $params, $iso_code);
+            $message = $locale->t($key, $params, $isoCode);
         }
         return $message;
     }
@@ -423,15 +423,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Writes log
      *
-     * @param string  $category        Category log
-     * @param string  $txt             log message
-     * @param boolean $force_output    output on screen
-     * @param string  $marketplace_sku lengow marketplace sku
+     * @param string  $category       Category log
+     * @param string  $txt            log message
+     * @param boolean $logOutput      output on screen
+     * @param string  $marketplaceSku lengow marketplace sku
      */
-    public static function log($category, $txt, $force_output = false, $marketplace_sku = null)
+    public static function log($category, $txt, $logOutput = false, $marketplaceSku = null)
     {
         $log = self::getLogInstance();
-        $log->write($category, $txt, $force_output, $marketplace_sku);
+        $log->write($category, $txt, $logOutput, $marketplaceSku);
     }
 
     /**
@@ -447,12 +447,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         if (is_null($params) || (is_array($params) && count($params) == 0)) {
             return $key;
         }
-        $all_params = array();
+        $allParams = array();
         foreach ($params as $param => $value) {
             $value = str_replace(array('|', '=='), array('', ''), $value);
-            $all_params[] = $param.'=='.$value;
+            $allParams[] = $param.'=='.$value;
         }
-        $message = $key.'['.join('|', $all_params).']';
+        $message = $key.'['.join('|', $allParams).']';
         return $message;
     }
 

@@ -129,7 +129,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                     'log/uninstall/remove_column',
                     array(
                         'column' => $attributeName,
-                        'table' => $tableName
+                        'table'  => $tableName
                     )
                 );
             } else {
@@ -172,10 +172,13 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                         'boolean'
                     );
                 }
-                $lengowBootstrap::log('log/install/add_column', array(
-                    'column' => $attributeName,
-                    'table' => $tableName
-                ));
+                $lengowBootstrap::log(
+                    'log/install/add_column',
+                    array(
+                        'column' => $attributeName,
+                        'table'  => $tableName
+                    )
+                );
             }
         }
         $lengowBootstrap::getEntityManager()->generateAttributeModels(array($tableName));
@@ -187,7 +190,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
     public function setLengowSettings()
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $lengowSettings = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::$LENGOW_SETTINGS;
+        $lengowSettings = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::$lengowSettings;
         $repository = $em->getRepository('Shopware\CustomModels\Lengow\Settings');
         $defaultShop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
         foreach ($lengowSettings as $key) {
@@ -229,7 +232,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
     {
         $sql= "DESCRIBE ".$tableName;
         $result = Shopware()->Db()->fetchAll($sql);
-        foreach ($result as $column => $data) {
+        foreach ($result as $data) {
             if ($data['Field'] == $columnName) {
                 return true;
             }

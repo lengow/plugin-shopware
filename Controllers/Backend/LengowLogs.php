@@ -29,19 +29,21 @@ class Shopware_Controllers_Backend_LengowLogs extends Shopware_Controllers_Backe
         $files = Shopware_Plugins_Backend_Lengow_Components_LengowLog::getFiles();
         $result = array();
         foreach ($files as $logFile) {
-            $name = $logFile->file_name;
+            $name = $logFile->fileName;
             $date = substr($name, 5, 11);
             $dateTime = new DateTime($date);
             $result[] = array(
-                'name' => $logFile->file_name,
+                'name' => $logFile->fileName,
                 'date' => date_format($dateTime, 'd m Y')
             );
         }
-        $this->View()->assign(array(
-            'success' => true,
-            'data'    => $result,
-            'total'   => count($result)
-        ));
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data'    => array_reverse($result),
+                'total'   => count($result)
+            )
+        );
     }
 
     /**

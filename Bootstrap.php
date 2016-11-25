@@ -63,14 +63,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         }
         $this->registerController('Backend', 'Lengow');
         $this->registerController('Frontend', 'LengowController');
-        $this->createMenuItem(array(
-            'label'      => 'Lengow',
-            'controller' => 'Lengow',
-            'action'     => 'Index',
-            'active'     => 1,
-            'parent'     => $this->Menu()->findOneBy(array('label' => 'Einstellungen')),
-            'class'      => 'lengow--icon'
-        ));
+        $this->createMenuItem(
+            array(
+                'label'      => 'Lengow',
+                'controller' => 'Lengow',
+                'action'     => 'Index',
+                'active'     => 1,
+                'parent'     => $this->Menu()->findOneBy(array('label' => 'Einstellungen')),
+                'class'      => 'lengow--icon'
+            )
+        );
         self::log('log/install/add_menu');
         $lengowForm = new Shopware_Plugins_Backend_Lengow_Bootstrap_Form();
         $lengowForm->createConfig();

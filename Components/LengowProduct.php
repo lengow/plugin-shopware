@@ -23,7 +23,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * array API nodes containing relevant data
      */
-    public static $PRODUCT_API_NODES = array(
+    public static $productApiNodes = array(
         'marketplace_product_id',
         'marketplace_status',
         'merchant_product_id',
@@ -275,17 +275,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     private function getImagePath($index)
     {
         try {
-            /** @var Shopware\Models\Article\Image[] $product_images */
-            $product_images = $this->product->getImages();
-            $image = $product_images[$index - 1];
+            /** @var Shopware\Models\Article\Image[] $productImages */
+            $productImages = $this->product->getImages();
+            $image = $productImages[$index - 1];
             // Get image for parent product
             if (!$this->isVariation && $image != null) {
                 return $this->formatImagePath($image);
             } else {
-                /** @var Shopware\Models\Article\Image[] $variation_images */
-                $variation_images = $this->details->getImages();
-                $index_variation = $index - count($product_images) - 1;
-                $image = $variation_images[$index_variation];
+                /** @var Shopware\Models\Article\Image[] $variationImages */
+                $variationImages = $this->details->getImages();
+                $indexVariation = $index - count($productImages) - 1;
+                $image = $variationImages[$indexVariation];
                 if ($image != null) {
                     return $this->formatImagePath($image);
                 }
@@ -316,8 +316,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         $isMediaManagerSupported = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0');
         $result = '';
-        $is_https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 'https://' : 'http://';
-        $domain = $is_https.$_SERVER['SERVER_NAME'];
+        $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 'https://' : 'http://';
+        $domain = $isHttps.$_SERVER['SERVER_NAME'];
         if ($isMediaManagerSupported) {
             if ($image->getMedia() != null) {
                 /** @var Shopware\Models\Media\Media $media */
@@ -533,7 +533,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     public static function extractProductDataFromAPI($api)
     {
         $temp = array();
-        foreach (self::$PRODUCT_API_NODES as $node) {
+        foreach (self::$productApiNodes as $node) {
             $temp[$node] = $api->{$node};
         }
         $temp['price_unit'] = (float)$temp['amount'] / (float)$temp['quantity'];

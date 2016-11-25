@@ -22,6 +22,11 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowElements
 {
     /**
+     * Lengow Authorized IPs
+     */
+    public static $imgFolder = '/engine/Shopware/Plugins/Community/Backend/Lengow/Views/backend/lengow/resources/img/';
+
+    /**
      * Get Header html
      *
      * @return string Header page html
@@ -149,41 +154,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                 'configure_plugin',
             )
         );
-        $stats = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatistic();
         $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
-        $dashboardHtml = '
-        <div id="lengow_home_wrapper">
-            <div class="lgw-container">
-                <div class="lgw-box lgw-home-header text-center">
-                    <img src="/engine/Shopware/Plugins/Community/Backend/Lengow/Views/backend/lengow/resources/img/lengow-white-big.png" alt="lengow">
-                    <h1>'.$translations['welcome_back'].'</h1>
-                    <a href="http://my.lengow.io" class="lgw-btn" target="_blank">
-                        '.$translations['go_to_lengow'].'
-                    </a>
-                </div>
-                <div class="lgw-row lgw-home-menu text-center">
-                    <div class="lgw-col-6">
-                        <a id="lengowExportTab" href="#" class="lgw-box-link">
-                            <div class="lgw-box">
-                                <img src="/engine/Shopware/Plugins/Community/Backend/Lengow/Views/backend/lengow/resources/img/home-products.png" class="img-responsive">
-                                <h2>'.$translations['products_title'].'</h2>
-                                <p>'.$translations['products_text'].'</p>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="lgw-col-6">
-                        <a id="lengowSettingsTab" href="#" class="lgw-box-link">
-                            <div class="lgw-box">
-                                <img src="/engine/Shopware/Plugins/Community/Backend/Lengow/Views/backend/lengow/resources/img/home-settings.png" class="img-responsive">
-                                <h2>'.$translations['settings_title'].'</h2>
-                                <p>'.$translations['settings_text'].'</p>
-                            </div>
-                        </a>
-                    </div>
-                </div>
+        // Get Lengow statistics
+        $stats = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatistic();
+        $statsHtml = '';
+        if ($stats['available']) {
+            $statsHtml = '
                 <div class="lgw-box text-center">
                     <div class="lgw-col-12 center-block">
-                        <img src="/engine/Shopware/Plugins/Community/Backend/Lengow/Views/backend/lengow/resources/img/picto-stats.png" class="img-responsive">
+                        <img src="'.self::$imgFolder.'picto-stats.png" class="img-responsive">
                     </div>
                     <h2>'.$translations['partner_business'].'</h2>
                     <div class="lgw-row lgw-home-stats">
@@ -202,15 +181,49 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                         </a>
                     </p>
                 </div>
-                <div class="lgw-box">
+            ';
+        }
+        // get Lengow Dashboard
+        $dashboardHtml = '
+        <div id="lengow_home_wrapper">
+            <div class="lgw-container">
+                <div class="lgw-box lgw-home-header text-center">
+                    <img src="'.self::$imgFolder.'lengow-white-big.png" alt="lengow">
+                    <h1>'.$translations['welcome_back'].'</h1>
+                    <a href="http://my.lengow.io" class="lgw-btn" target="_blank">
+                        '.$translations['go_to_lengow'].'
+                    </a>
+                </div>
+                <div class="lgw-row lgw-home-menu text-center">
+                    <div class="lgw-col-6">
+                        <a id="lengowExportTab" href="#" class="lgw-box-link">
+                            <div class="lgw-box">
+                                <img src="'.self::$imgFolder.'home-products.png" class="img-responsive">
+                                <h2>'.$translations['products_title'].'</h2>
+                                <p>'.$translations['products_text'].'</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="lgw-col-6">
+                        <a id="lengowSettingsTab" href="#" class="lgw-box-link">
+                            <div class="lgw-box">
+                                <img src="'.self::$imgFolder.'home-settings.png" class="img-responsive">
+                                <h2>'.$translations['settings_title'].'</h2>
+                                <p>'.$translations['settings_text'].'</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>'
+                .$statsHtml
+                .'<div class="lgw-box">
                     <h2>'.$translations['some_help_title'].'</h2>
                     <p>
                         <a href="#" id="lengowHelpTab">'.$translations['get_in_touch'].' </a>
                     </p>
                     <p>
                         <a href="'.$translations['help_center_link'].'" target="_blank">'
-        .$translations['visit_help_center'].
-        '</a> '.$translations['configure_plugin'].'
+                        .$translations['visit_help_center'].
+                        '</a> '.$translations['configure_plugin'].'
                     </p>
                 </div>
             </div>
@@ -253,12 +266,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                                 </a>
                             </div>
                             <div class="text-center">
-                                <a href="#" id="lgw-refresh" class="lgw-box-link">'.$translations['refresh_action'].'</a>
+                                <a href="#" id="lgw-refresh" class="lgw-box-link">'
+                                .$translations['refresh_action'].'</a>
                             </div>
                         </div>
                         <div class="lgw-col-6">
                             <div class="vertical-center">
-                                <img src="/engine/Shopware/Plugins/Community/Backend/Lengow/Views/backend/lengow/resources/img/logo-blue.png" class="center-block" alt="lengow"/>
+                                <img src="'.self::$imgFolder.'logo-blue.png" class="center-block" alt="lengow"/>
                             </div>
                         </div>
                     </div>
@@ -308,7 +322,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                     </div>
                     <div class="lgw-col-6">
                         <div class="vertical-center">
-                            <img src="/engine/Shopware/Plugins/Community/Backend/Lengow/Views/backend/lengow/resources/img/logo-blue.png" class="center-block" alt="lengow"/>
+                            <img src="'.self::$imgFolder.'logo-blue.png" class="center-block" alt="lengow"/>
                         </div>
                     </div>
                 </div>

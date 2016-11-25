@@ -71,20 +71,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      */
     public static function sync($params)
     {
-        foreach ($params as $shop_token => $values) {
-            $shop = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopByToken($shop_token);
+        foreach ($params as $shopToken => $values) {
+            $shop = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopByToken($shopToken);
             if ($shop) {
-                $list_key = array(
+                $listKey = array(
                     'account_id' => false,
                     'access_token' => false,
                     'secret_token' => false
                 );
                 foreach ($values as $k => $v) {
-                    if (!in_array($k, array_keys($list_key))) {
+                    if (!in_array($k, array_keys($listKey))) {
                         continue;
                     }
                     if (strlen($v) > 0) {
-                        $list_key[$k] = true;
+                        $listKey[$k] = true;
                         $translationKey = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::camelCase(
                             'lengow_'.strtolower($k)
                         );
@@ -96,7 +96,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                     }
                 }
                 $findFalseValue = false;
-                foreach ($list_key as $k => $v) {
+                foreach ($listKey as $k => $v) {
                     if (!$v) {
                         $findFalseValue = true;
                         break;
@@ -173,10 +173,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             return false;
         }
         if (!$force) {
-            $updated_at =  Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            $updatedAt =  Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowOptionCmsUpdate'
             );
-            if (!is_null($updated_at) && (time() - strtotime($updated_at)) < self::$cacheTime) {
+            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < self::$cacheTime) {
                 return false;
             }
         }
@@ -218,10 +218,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     public static function getStatusAccount($force = false)
     {
         if (!$force) {
-            $updated_at =  Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            $updatedAt =  Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowAccountStatusUpdate'
             );
-            if (!is_null($updated_at) && (time() - strtotime($updated_at)) < self::$cacheTime) {
+            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < self::$cacheTime) {
                 $config = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                     'lengowAccountStatus'
                 );
@@ -276,16 +276,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
         $return['total_order'] = 0;
         $return['nb_order'] = 0;
         $return['currency'] = '';
+        $return['available'] = false;
         //get stats by shop
         $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops();
         $i = 0;
-        $account_ids = array();
+        $accountIds = array();
         foreach ($shops as $shop) {
-            $account_id = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            $accountId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowAccountId',
                 $shop
             );
-            if (!$account_id || in_array($account_id, $account_ids) || empty($account_id)) {
+            if (!$accountId || in_array($accountId, $accountIds) || empty($accountId)) {
                 continue;
             }
             $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
@@ -303,9 +304,24 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 $return['total_order'] += $stats->revenue;
                 $return['nb_order'] += $stats->transactions;
                 $return['currency'] = $result->currency->iso_a3;
+            } else {
+                $stats = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowOrderStat');
+                if ($stats) {
+                    return json_decode($stats, true);
+                } else {
+                    return array(
+                        'total_order' => 0,
+                        'nb_order'    => 0,
+                        'currency'    => '',
+                        'available'   => false
+                    );
+                }
             }
-            $account_ids[] = $account_id;
+            $accountIds[] = $accountId;
             $i++;
+        }
+        if ($return['total_order'] > 0 || $return['nb_order'] > 0) {
+            $return['available'] = true;
         }
         $return['total_order'] = number_format($return['total_order'], 2, ',', ' ');
         $return['nb_order'] = (int)$return['nb_order'];

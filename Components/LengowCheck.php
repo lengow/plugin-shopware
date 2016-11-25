@@ -43,7 +43,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         if (!self::isCurlActivated()) {
             return false;
         }
-        $account_id = (int) Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+        $accountId = (int) Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
             'lengowAccountId',
             $shop
         );
@@ -56,7 +56,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
             return false;
         }
-        if (isset($result['token']) && $account_id != 0) {
+        if (isset($result['token']) && $accountId != 0) {
             return true;
         } else {
             return false;
@@ -177,13 +177,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     public static function getFileModified()
     {
         $pluginPath = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder();
-        $file_name = $pluginPath.'Toolbox'.DIRECTORY_SEPARATOR.'checkmd5.csv';
-        if (file_exists($file_name)) {
-            if (($file = fopen($file_name, "r")) !== false) {
+        $fileName = $pluginPath.'Toolbox'.DIRECTORY_SEPARATOR.'checkmd5.csv';
+        if (file_exists($fileName)) {
+            if (($file = fopen($fileName, "r")) !== false) {
                 while (($data = fgetcsv($file, 1000, "|")) !== false) {
-                    $file_path = $pluginPath.$data[0];
-                    $file_md5 = md5_file($file_path);
-                    if ($file_md5 !== $data[1]) {
+                    $filePath = $pluginPath.$data[0];
+                    $fileMd = md5_file($filePath);
+                    if ($fileMd !== $data[1]) {
                         return false;
                     }
                 }
@@ -201,21 +201,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
      */
     public function getImportInformation()
     {
-        $last_import = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLastImport();
-        $last_import_date = (
-        $last_import['timestamp'] == 'none'
+        $lastImport = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLastImport();
+        $lastImportDate = (
+        $lastImport['timestamp'] == 'none'
             ? $this->locale->t('toolbox/index/last_import_none')
-            : date('Y-m-d H:i:s', $last_import['timestamp'])
+            : date('Y-m-d H:i:s', $lastImport['timestamp'])
         );
-        if ($last_import['type'] == 'none') {
-            $last_import_type = $this->locale->t('toolbox/index/last_import_none');
-        } elseif ($last_import['type'] == 'cron') {
-            $last_import_type = $this->locale->t('toolbox/index/last_import_cron');
+        if ($lastImport['type'] == 'none') {
+            $lastImportType = $this->locale->t('toolbox/index/last_import_none');
+        } elseif ($lastImport['type'] == 'cron') {
+            $lastImportType = $this->locale->t('toolbox/index/last_import_cron');
         } else {
-            $last_import_type = $this->locale->t('toolbox/index/last_import_manual');
+            $lastImportType = $this->locale->t('toolbox/index/last_import_manual');
         }
         if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::isInProcess()) {
-            $import_in_progress = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+            $importInProgress = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
                 'toolbox.index.rest_time_to_import',
                 null,
                 array(
@@ -223,7 +223,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
                 )
             );
         } else {
-            $import_in_progress = $this->locale->t('toolbox/index/no_import');
+            $importInProgress = $this->locale->t('toolbox/index/no_import');
         }
         $checklist = array();
         $checklist[] = array(
@@ -236,15 +236,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         );
         $checklist[] = array(
             'title'   => $this->locale->t('toolbox/index/import_in_progress'),
-            'message' => $import_in_progress
+            'message' => $importInProgress
         );
         $checklist[] = array(
             'title'   => $this->locale->t('toolbox/index/shop_last_import'),
-            'message' => $last_import_date
+            'message' => $lastImportDate
         );
         $checklist[] = array(
             'title'   => $this->locale->t('toolbox/index/shop_type_import'),
-            'message' => $last_import_type
+            'message' => $lastImportType
         );
         return $this->getAdminContent($checklist);
     }
@@ -313,63 +313,66 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     {
         $checklist = array();
         $pluginPath = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder();
-        $file_name = $pluginPath.'Toolbox'.DIRECTORY_SEPARATOR.'checkmd5.csv';
+        $fileName = $pluginPath.'Toolbox'.DIRECTORY_SEPARATOR.'checkmd5.csv';
         $html = '<h3><i class="fa fa-commenting"></i> '.$this->locale->t('toolbox/checksum/summary').'</h3>';
-        $file_counter = 0;
-        if (file_exists($file_name)) {
-            $file_errors = array();
-            $file_deletes = array();
-            if (($file = fopen($file_name, "r")) !== false) {
+        $fileCounter = 0;
+        if (file_exists($fileName)) {
+            $fileErrors = array();
+            $fileDeletes = array();
+            if (($file = fopen($fileName, "r")) !== false) {
                 while (($data = fgetcsv($file, 1000, "|")) !== false) {
-                    $file_counter++;
-                    $file_path = $pluginPath.$data[0];
-                    if (file_exists($file_path)) {
-                        $file_md5 = md5_file($file_path);
-                        if ($file_md5 !== $data[1]) {
-                            $file_errors[] = array(
-                                'title' => $file_path,
+                    $fileCounter++;
+                    $filePath = $pluginPath.$data[0];
+                    if (file_exists($filePath)) {
+                        $fileMd = md5_file($filePath);
+                        if ($fileMd !== $data[1]) {
+                            $fileErrors[] = array(
+                                'title' => $filePath,
                                 'state' => 0
                             );
                         }
                     } else {
-                        $file_deletes[] = array(
-                            'title' => $file_path,
+                        $fileDeletes[] = array(
+                            'title' => $filePath,
                             'state' => 0
                         );
                     }
                 }
                 fclose($file);
             }
-            $totalFileInError = count($file_errors);
-            $totalFileDeleted = count($file_deletes);
+            $totalFileInError = count($fileErrors);
+            $totalFileDeleted = count($fileDeletes);
             $checklist[] = array(
-                'title' => $this->locale->t('toolbox/checksum/file_checked', array(
-                    'nb_file' => $file_counter
-                )),
+                'title' => $this->locale->t(
+                    'toolbox/checksum/file_checked',
+                    array('nb_file' => $fileCounter)
+                ),
                 'state' => 1
             );
             $checklist[] = array(
-                'title' => $this->locale->t('toolbox/checksum/file_modified', array(
-                    'nb_file' => count($file_errors)
-                )),
-                'state' => (count($file_errors) > 0 ? 0 : 1)
+                'title' => $this->locale->t(
+                    'toolbox/checksum/file_modified',
+                    array('nb_file' => count($fileErrors))
+                ),
+                'state' => (count($fileErrors) > 0 ? 0 : 1)
             );
             $checklist[] = array(
-                'title' => $this->locale->t('toolbox/checksum/file_deleted', array(
-                    'nb_file' => count($file_deletes)
-                )),
-                'state' => (count($file_deletes) > 0 ? 0 : 1)
+                'title' => $this->locale->t(
+                    'toolbox/checksum/file_deleted',
+                    array('nb_file' => count($fileDeletes))
+                ),
+                'state' => (count($fileDeletes) > 0 ? 0 : 1)
             );
             $html.= $this->getAdminContent($checklist);
             if ($totalFileInError > 0) {
                 $html.= '<h3><i class="fa fa-list"></i> '
                     .$this->locale->t('toolbox/checksum/list_modified_file').'</h3>';
-                $html.= $this->getAdminContent($file_errors);
+                $html.= $this->getAdminContent($fileErrors);
             }
             if ($totalFileDeleted > 0) {
                 $html.= '<h3><i class="fa fa-list"></i> '
                     .$this->locale->t('toolbox/checksum/list_deleted_file').'</h3>';
-                $html.= $this->getAdminContent($file_deletes);
+                $html.= $this->getAdminContent($fileDeletes);
             }
         } else {
             $checklist[] = array(
@@ -383,7 +386,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
 
     /**
      * Get toolbox files status (if files have been deleted/edited or ok)
+     *
      * @param array $checklist List of elements to generate
+     *
      * @return null|string Html
      */
     private function getAdminContent($checklist = array())

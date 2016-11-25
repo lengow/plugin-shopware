@@ -147,13 +147,15 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $totalProducts = count($builder->getQuery()->getArrayResult());
         $builder->setFirstResult($start)->setMaxResults($limit);
         $result = $builder->getQuery()->getArrayResult();
-        $this->View()->assign(array(
-            'success' => true,
-            'data'    => $result,
-            'total'   => $totalProducts,
-            'nbProductsAvailable' => $export->getTotalProducts(),
-            'nbExportedProducts' => $export->getExportedProducts()
-        ));
+        $this->View()->assign(
+            array(
+                'success'             => true,
+                'data'                => $result,
+                'total'               => $totalProducts,
+                'nbProductsAvailable' => $export->getTotalProducts(),
+                'nbExportedProducts'  => $export->getExportedProducts()
+            )
+        );
     }
 
     /**
@@ -184,10 +186,12 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     {
         $host = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getBaseUrl();
         $exportUrl = $host .'/LengowController/export';
-        $this->View()->assign(array(
-            'success' => true,
-            'url' => $exportUrl
-        ));
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'url'     => $exportUrl
+            )
+        );
     }
 
     /**
@@ -307,10 +311,12 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             }
         }
         sort($result);
-        $this->View()->assign(array(
-            'success' => true,
-            'data'    => $result
-        ));
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data'    => $result
+            )
+        );
     }
 
     /**
@@ -345,10 +351,12 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         foreach ($names as $name) {
             $result[$name] = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig($name, $shop);
         }
-        $this->View()->assign(array(
-            'success' => true,
-            'data'    => $result
-        ));
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data'    => $result
+            )
+        );
     }
 
     /**
@@ -358,9 +366,11 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     public function getDefaultShopAction()
     {
         $defaultShop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
-        $this->View()->assign(array(
-            'success' => true,
-            'data'    => $defaultShop->getId()
-        ));
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data'    => $defaultShop->getId()
+            )
+        );
     }
 }
