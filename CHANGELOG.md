@@ -1,4 +1,13 @@
 =============================================================
+Version 1.1.0
+=============================================================
+
+    - Feature: Add get_sync parameter for cron
+    - Feature: Add PSR-2 coding standards
+    - Feature: Delete out of stock and variation options for export
+    - Bugfix: Optimize Lengow Statistics
+
+=============================================================
 Version 1.0.4
 =============================================================
 
@@ -12,10 +21,10 @@ Version 1.0.4
 Version 1.0.3
 =============================================================
 
-    - Bugfix: Refresh status for free trial
-    - Bugfix: Fix bug with currency GET parameter
     - Feature: Add new get_params parameter for export
     - Feature: Add 403 and 400 headers for export process
+    - Bugfix: Refresh status for free trial
+    - Bugfix: Fix bug with currency GET parameter
 
 =============================================================
 Version 1.0.2
