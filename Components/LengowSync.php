@@ -305,9 +305,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 $return['nb_order'] += $stats->transactions;
                 $return['currency'] = $result->currency->iso_a3;
             } else {
-                $stats = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowOrderStat');
-                if ($stats) {
-                    return json_decode($stats, true);
+                $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                    'lengowOrderStatUpdate'
+                );
+                if ($updatedAt) {
+                    return json_decode(
+                        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowOrderStat'),
+                        true
+                    );
                 } else {
                     return array(
                         'total_order' => 0,
