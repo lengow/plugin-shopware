@@ -89,6 +89,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         'description_html'               => 'description_html',
         'meta_title'                     => 'meta_title',
         'meta_keyword'                   => 'meta_keyword',
+        'supplier'                       => 'supplier',
     );
 
     /**

@@ -30,7 +30,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
             <div class="lgw-container">
                 <div class="lgw-content-section text-center">
                     <iframe id="lengow_iframe" 
-                        scrolling="no"
+                        scrolling="yes"
                         style="display: none; overflow-y: hidden;"
                         frameborder="0"></iframe>
                 </div>

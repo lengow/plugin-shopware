@@ -253,6 +253,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             case 'meta_keyword':
                 return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->product->getKeywords());
                 break;
+            case 'supplier':
+                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
+                    $this->product->getSupplier()->getName()
+                );
+                break;
             default:
                 $result = '';
                 if (array_key_exists($name, $this->attributes) && $this->isVariation) {
