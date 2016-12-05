@@ -47,6 +47,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
             'lengowAccountId',
             $shop
         );
+        if (is_null($accountId) || $accountId == 0 || !is_numeric($accountId)) {
+            return false;
+        }
         $connector  = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector(
             Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAccessToken', $shop),
             Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowSecretToken', $shop)
@@ -56,7 +59,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
             return false;
         }
-        if (isset($result['token']) && $accountId != 0) {
+        if (isset($result['token'])) {
             return true;
         } else {
             return false;
