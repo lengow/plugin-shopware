@@ -237,7 +237,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     protected function makeRequest($type, $url, $args, $token, $body = '')
     {
         // Define CURLE_OPERATION_TIMEDOUT for old php versions
-        defined("CURLE_OPERATION_TIMEDOUT") || define("CURLE_OPERATION_TIMEDOUT", CURLE_OPERATION_TIMEOUTED);
+        defined('CURLE_OPERATION_TIMEDOUT') || define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);
         $ch = curl_init();
         // Get default Curl options
         $opts = self::$curlOpts;
@@ -260,7 +260,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         }
         $url = $url['scheme'].'://'.$url['host'].$url['path'];
         switch ($type) {
-            case "GET":
+            case 'GET':
                 $opts[CURLOPT_URL] = $url.'?'.http_build_query($args);
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Connector',
@@ -270,7 +270,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                     )
                 );
                 break;
-            case "PUT":
+            case 'PUT':
                 if (isset($token)) {
                     $opts[CURLOPT_HTTPHEADER] = array_merge(
                         $opts[CURLOPT_HTTPHEADER],
@@ -282,6 +282,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                 }
                 $opts[CURLOPT_URL] = $url.'?'.http_build_query($args);
                 $opts[CURLOPT_POSTFIELDS] = $body;
+                break;
+            case 'PATCH':
+                if (isset($token)) {
+                    $opts[CURLOPT_HTTPHEADER] = array_merge(
+                        $opts[CURLOPT_HTTPHEADER],
+                        array('Content-Type: application/json')
+                    );
+                }
+                $opts[CURLOPT_URL] = $url;
+                $opts[CURLOPT_POST] = count($args);
+                $opts[CURLOPT_POSTFIELDS] = json_encode($args);
                 break;
             default:
                 $opts[CURLOPT_URL] = $url;
