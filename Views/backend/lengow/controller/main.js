@@ -42,7 +42,8 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                     me.mainWindow = me.getView('main.Sync').create({
                         panelHtml: data['panelHtml'],
                         isSync: false,
-                        syncLink: false
+                        syncLink: false,
+                        langIsoCode: data['langIsoCode']
                     }).show();
                     me.mainWindow.initFrame();
                 }

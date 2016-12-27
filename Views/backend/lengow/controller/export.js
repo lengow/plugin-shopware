@@ -165,7 +165,8 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
                 // Display sync iframe
                 syncWindow = Ext.create('Shopware.apps.Lengow.view.main.Sync', {
                     panelHtml: data['panelHtml'],
-                    syncLink: true
+                    syncLink: true,
+                    langIsoCode: data['langIsoCode']
                 });
                 syncWindow.initFrame();
                 // Show main window

@@ -5,6 +5,8 @@ Version 1.1.0
     - Feature: Add get_sync parameter for cron
     - Feature: Add PSR-2 coding standards
     - Feature: Delete out of stock and variation options for export
+    - Feature: Add locale variable for Lengow Iframe
+    - Feature: Add supplier field for export
     - Bugfix: Optimize Lengow Statistics
 
 =============================================================

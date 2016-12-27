@@ -41,6 +41,7 @@ class Shopware_Controllers_Backend_LengowSync extends Shopware_Controllers_Backe
                 case 'sync':
                     $data = json_decode($this->Request()->getParam('data', false), true);
                     Shopware_Plugins_Backend_Lengow_Components_LengowSync::sync($data);
+                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatusAccount(true);
                     break;
                 case 'refresh_status':
                     Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatusAccount(true);
