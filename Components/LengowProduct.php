@@ -281,19 +281,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         try {
             /** @var Shopware\Models\Article\Image[] $productImages */
-            $productImages = $this->product->getImages();
-            $image = $productImages[$index - 1];
-            // Get image for parent product
-            if (!$this->isVariation && $image != null) {
+            $images = $this->isVariation ? $this->details->getImages() : $this->product->getImages();
+            $image = $images[$index - 1];
+            if ($image != null) {
                 return $this->formatImagePath($image);
-            } else {
-                /** @var Shopware\Models\Article\Image[] $variationImages */
-                $variationImages = $this->details->getImages();
-                $indexVariation = $index - count($productImages) - 1;
-                $image = $variationImages[$indexVariation];
-                if ($image != null) {
-                    return $this->formatImagePath($image);
-                }
             }
         } catch (Exception $e) {
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
@@ -301,9 +292,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/export/error_media_not_found',
                     array(
-                        'detailsId' => $this->details->getId(),
+                        'detailsId'   => $this->details->getId(),
                         'detailsName' => $this->product->getName(),
-                        'message' => $e->getMessage()
+                        'message'     => $e->getMessage()
                     )
                 ),
                 $this->logOutput
@@ -323,10 +314,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $result = '';
         $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 'https://' : 'http://';
         $domain = $isHttps.$_SERVER['SERVER_NAME'];
-        if ($isMediaManagerSupported) {
-            if ($image->getMedia() != null) {
-                /** @var Shopware\Models\Media\Media $media */
-                $media = $image->getMedia();
+        /** @var Shopware\Models\Media\Media $media */
+        $media = $this->isVariation ? $image->getParent()->getMedia() : $image->getMedia();
+        if ($media != null) {
+            if ($isMediaManagerSupported) {
                 if ($media->getPath() != null) {
                     $mediaService = Shopware()->Container()->get('shopware_media.media_service');
                     // Get image virtual path (ie : .../media/image/0a/20/03/my-image.png)
@@ -334,9 +325,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     $firstOccurrence = strpos($imagePath, '/media');
                     $result = $domain.substr($imagePath, $firstOccurrence);
                 }
+            } else {
+                if ($media->getPath() != null) { 
+                    $result = $domain.'/'.$media->getPath();
+                }
             }
-        } else {
-            $result = $domain.'/media/image/'.$image->getPath().'.'.$image->getExtension();
         }
         return $result;
     }

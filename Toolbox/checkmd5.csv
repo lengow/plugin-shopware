@@ -1,5 +1,5 @@
 /Bootstrap.php|ce45a7cce88cd9159fec8add890ba9fd
-/plugin.json|ed0ce2a95f234a558397c0b79867373f
+/plugin.json|79ecb68b27f2ad92af2d168fb162075a
 /Bootstrap/Database.php|5e063487cc4a1504876b74890f1b401b
 /Bootstrap/Form.php|c6a9659fdb7da4ccdb69b31eaf674b23
 /Components/LengowImportOrder.php|71f5a55e0bc307f1dd28bf1bbcc0ee69
@@ -17,7 +17,7 @@
 /Components/LengowConnector.php|329e18a0b04e56a3a9252ddff6b2da98
 /Components/LengowException.php|75f41c9316061191ea7e897f4f618fb0
 /Components/LengowMarketplace.php|275587dc6e9ec212ea20f42d77fc99f4
-/Components/LengowProduct.php|d986cc3b6444ad210fc7500a36ba4264
+/Components/LengowProduct.php|a2823e565c8a5a858ea353603b5c5e53
 /Components/LengowConfiguration.php|03fcdd0b4dbbd4235064f7bdc6fb85de
 /Controllers/Frontend/LengowController.php|a9fcca572ed6110aeacc574ae275cbd0
 /Controllers/Backend/LengowSync.php|58be45d44389dc086bec9b1bc2188096

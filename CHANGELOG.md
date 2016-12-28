@@ -7,6 +7,7 @@ Version 1.1.0
     - Feature: Delete out of stock and variation options for export
     - Feature: Add locale variable for Lengow Iframe
     - Feature: Add supplier field for export
+    - Bugfix: Get images for article variations
     - Bugfix: Optimize Lengow Statistics
 
 =============================================================
