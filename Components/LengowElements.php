@@ -78,10 +78,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                     <div id="lgw-footer">
                         <p class="pull-right">
                             <a href="#" id="lengowLegalsTab" class="sub-link" title="Legal">
-                            '.$translations['legals']
-                            .'</a>
-                             | '.$translations['plugin_lengow'].' -
-                            copyright © 2017  <a href='.$translations['lengow_url'].' target="_blank" class="sub-link" title="Lengow.com">
+                            '.$translations['legals'].'</a> | '
+                            .$translations['plugin_lengow']
+                            .' - v.'.Shopware()->Plugins()->Backend()->Lengow()->getVersion()
+                            .' | copyright © 2017  <a href='.$translations['lengow_url']
+                            .' target="_blank" class="sub-link" title="Lengow.com">
                             Lengow
                             </a>
                         </p>

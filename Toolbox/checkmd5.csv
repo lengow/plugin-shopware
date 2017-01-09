@@ -4,7 +4,7 @@
 /Bootstrap/Form.php|c6a9659fdb7da4ccdb69b31eaf674b23
 /Components/LengowImportOrder.php|71f5a55e0bc307f1dd28bf1bbcc0ee69
 /Components/LengowSync.php|3d96a63a3bd9853733c02e8b715bdb3e
-/Components/LengowElements.php|ea2ac2c9fcaa0716eb05e06dd383ef68
+/Components/LengowElements.php|b30e4f6c92b585b6a40a6abd1b839c71
 /Components/LengowImport.php|6eb62e033aaf34119cd040ab629eacb3
 /Components/LengowFeed.php|e29a7bacde1875538484eb41cee7702f
 /Components/LengowCheck.php|d9f3881260402385184409148f2a6eb0
@@ -30,10 +30,10 @@
 /Models/Lengow/Order.php|edd3b5dfabd4016921530624e9f06379
 /Models/Lengow/Settings.php|32dabd48fd9596ddd533857b10576b7e
 /Snippets/backend/Lengow/yml/fr.yml|39263fe14465c83d2ad770dc48b455af
-/Snippets/backend/Lengow/yml/de.yml|3848f8822ce4d68f272e6dfdf856b595
+/Snippets/backend/Lengow/yml/de.yml|acd7625e83c309cd6d8596b9de66ecdd
 /Snippets/backend/Lengow/yml/log.yml|0f80bad853d81a03c871edfacc989bac
 /Snippets/backend/Lengow/yml/en.yml|5f058b410c5e06ebc1c07e373a76060f
-/Snippets/backend/Lengow/translation.ini|37d3309b00049481f41b6a361eef3739
+/Snippets/backend/Lengow/translation.ini|34f8ccf1cda6705eb09c5658b292b848
 /Toolbox/config.inc.php|9c5f8afe373f301e9bb7d39fc4e42a70
 /Toolbox/checksum.php|3c3b2358485ea2203165a6a44cc32188
 /Toolbox/css/font-awesome.css|bf4b58c946c9234e4a6b9f7a70d38006
