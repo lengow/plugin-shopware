@@ -1,23 +1,35 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Components
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
 
 /**
- * Copyright 2016 Lengow SAS.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * Lengow Order Class
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
 {
@@ -25,10 +37,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      * Get ID record from lengow orders table
      *
      * @param string  $marketplaceSku    Lengow order id
-     * @param string  $marketplace       Marketplace name
-     * @param integer $deliveryAddressId Delivery address id
+     * @param string  $marketplace       marketplace name
+     * @param integer $deliveryAddressId Lengow delivery address id
      *
-     * @return mixed
+     * @return integer|false
      */
     public static function getIdFromLengowOrders($marketplaceSku, $marketplace, $deliveryAddressId)
     {
@@ -39,7 +51,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             'marketplaceName'   => $marketplace,
             'deliveryAddressId' => $deliveryAddressId
         );
-        /** @var Shopware\CustomModels\Lengow\Order $lengowOrder */
+        // @var Shopware\CustomModels\Lengow\Order $lengowOrder
         $lengowOrder = $repository->findOneBy($criteria);
         if ($lengowOrder != null) {
             return $lengowOrder->getId();

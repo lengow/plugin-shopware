@@ -1,23 +1,35 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Bootstrap
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
 
 /**
- * Copyright 2016 Lengow SAS.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * Form Class
  */
 class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
 {
@@ -27,9 +39,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
      */
     public function createConfig()
     {
-        /** @var Shopware_Plugins_Backend_Lengow_Bootstrap $lengowBootstrap */
+        // @var Shopware_Plugins_Backend_Lengow_Bootstrap $lengowBootstrap
         $lengowBootstrap = Shopware()->Plugins()->Backend()->Lengow();
-        /** @var Shopware\Models\Config\Form $mainForm */
+        // @var Shopware\Models\Config\Form $mainForm
         $mainForm = $lengowBootstrap->Form();
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         // Main settings
@@ -78,7 +90,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         $mainSettingForm = $this->createSettingForm('lengow_main_settings', $mainSettingsElements);
         $mainSettingForm->setParent($mainForm);
         // Export settings
-        /** @var Shopware\Models\Dispatch\Dispatch[] $dispatches */
+        // @var Shopware\Models\Dispatch\Dispatch[] $dispatches
         $dispatches = $em->getRepository('Shopware\Models\Dispatch\Dispatch')->findBy(array('type' => 0));
         $selection = array();
         $defaultValue = null;
@@ -162,7 +174,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         $forms = array($mainSettingForm, $exportSettingForm, $importSettingForm);
         $mainForm->setChildren($forms);
         // Translate sub categories (sub-forms settings names)
-        /** @var \Shopware\Models\Shop\Locale[] $locales */
+        // @var \Shopware\Models\Shop\Locale[] $locales
         $locales = $em->getRepository('\Shopware\Models\Shop\Locale')->findAll();
         foreach ($forms as $form) {
             $formName = $form->getName();
@@ -187,8 +199,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
     /**
      * Create settings forms for the plugin (basic settings)
      *
-     * @param $name string Name of the form
-     * @param $elements array Options for this form
+     * @param string $name     name of the form
+     * @param array  $elements options for this form
      *
      * @return \Shopware\Models\Config\Form
      */
@@ -198,7 +210,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         $form->setName($name);
         $form->setLabel($this->getTranslation('settings/'.$name.'/label'));
         $form->setDescription($this->getTranslation('settings/'.$name.'/description'));
-        /** @var Shopware\Models\Shop\Locale[] $locales */
+        // @var Shopware\Models\Shop\Locale[] $locales
         $locales = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager()
             ->getRepository('\Shopware\Models\Shop\Locale')
             ->findAll();
@@ -230,10 +242,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
     /**
      * Get translations for basic settings
      *
-     * @param $key     string Key of the translation
-     * @param $isoCode string Locale iso code (English by default)
+     * @param $key     string key of the translation
+     * @param $isoCode string locale iso code (English by default)
      *
-     * @return string Translation
+     * @return string
      */
     protected function getTranslation($key, $isoCode = null)
     {

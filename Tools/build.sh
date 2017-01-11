@@ -12,7 +12,7 @@
 
 remove_if_exist(){
     if [ -f $1 ]; then
-      rm $1
+        rm $1
     fi
 }
 

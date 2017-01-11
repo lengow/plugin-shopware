@@ -3,30 +3,41 @@
 use Doctrine\ORM\Query\Expr;
 
 /**
- * Copyright 2016 Lengow SAS.
+ * Copyright 2017 Lengow SAS
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
+ * NOTICE OF LICENSE
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
  *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Controllers
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
+
+/**
+ * Backend Lengow Export Controller
  */
 class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Backend_ExtJs
 {
     /**
      * Event listener function of articles store to list Lengow products
-     *
-     * @return mixed
      */
     public function getListAction()
     {
@@ -161,9 +172,9 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     /**
      * Generate where clause used to list articles from a selected category
      *
-     * @param Shopware\Models\Category\Category $selectedCategory List of children of the selected category
+     * @param Shopware\Models\Category\Category $selectedCategory Shopware category instance
      *
-     * @return string Exclusive clause which contains all sub-categories ids
+     * @return string
      */
     private function getAllCategoriesClause($selectedCategory)
     {
@@ -232,8 +243,8 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     /**
      * Edit Lengow status for articles from a specific category
      *
-     * @param Shopware\Models\Category\Category $category Selected category
-     * @param integer                           $shopId   Shop id
+     * @param Shopware\Models\Category\Category $category Shopware category instance
+     * @param integer                           $shopId   Shopware shop id
      * @param boolean                           $status   Lengow status to set for articles which belong to the category
      */
     private function setLengowStatusFromCategory($category, $shopId, $status)
@@ -266,7 +277,6 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
 
     /*
      * Get tree structure
-     * @throws \Doctrine\ORM\ORMException
      */
     public function getShopsTreeAction()
     {
@@ -275,7 +285,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $result = array();
         // If the root is selected, return list of enabled shops
         if ($parentId == 'root') {
-            /** @var Shopware\Models\Shop\Shop[] $shops */
+            // @var Shopware\Models\Shop\Shop[] $shops
             $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
             foreach ($shops as $shop) {
                 $mainCategory = $shop->getCategory();
@@ -299,7 +309,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                 $shopId = $shop->getId();
                 $categoryId = $shop->getCategory()->getId();
             }
-            /** @var \Shopware\Models\Category\Category $category */
+            // @var \Shopware\Models\Category\Category $category
             $category = $em->getReference('Shopware\Models\Category\Category', $categoryId);
             $categories = $category->getChildren();
             foreach ($categories as $category) {

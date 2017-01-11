@@ -1,34 +1,46 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Components
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
 
 /**
- * Copyright 2016 Lengow SAS.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * Lengow Marketplace Class
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
 {
 
     /**
-     * @var mixed all marketplaces allowed for an account ID
+     * @var array all marketplaces allowed for an account ID
      */
     public static $marketplaces = array();
 
     /**
-     * @var string the name of the marketplace
+     * @var string the code of the marketplace
      */
     public $name;
 
@@ -63,22 +75,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     public $argValues = array();
 
     /**
-     * @var \Shopware\Models\Shop\Shop Shopware Shop
+     * @var \Shopware\Models\Shop\Shop Shopware shop instance
      */
     public $shop;
 
     /**
-     * @var integer Shop id
+     * @var integer Shopware shop id
      */
     public $idShop;
 
     /**
-     * Construct a new Marketplace instance with xml configuration.
+     * Construct a new Marketplace instance with xml configuration
      *
-     * @param string  $name                   The name of the marketplace
-     * @param Shopware\Models\Shop\Shop $shop Shop object used for Connector
+     * @param string  $name                   name of the marketplace
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException marketplace not present
      */
     public function __construct($name, $shop = null)
     {
@@ -151,11 +163,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     }
 
     /**
-     * Get the real lengow's state
+     * Get the real lengow's order state
      *
-     * @param string $name The marketplace state
+     * @param string $name marketplace order state
      *
-     * @return string The lengow state
+     * @return string
      */
     public function getStateLengow($name)
     {

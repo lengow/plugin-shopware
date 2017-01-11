@@ -1,24 +1,33 @@
 <?php
-
 /**
- * Copyright 2016 Lengow SAS.
+ * Copyright 2017 Lengow SAS
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
+ * NOTICE OF LICENSE
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
  *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Toolbox
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
+
 require 'views/header.php';
 
 ?>

@@ -1,33 +1,40 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Components
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
 
 /**
- * Copyright 2016 Lengow SAS.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * Lengow Import Class
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 {
     /**
-     * Version.
-     */
-    const VERSION = '1.0.1';
-
-    /**
-     * @var integer shop id
+     * @var integer Shopware shop id
      */
     protected $shopId = null;
 
@@ -87,7 +94,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     protected $secret;
 
     /**
-     * @var Shopware_Plugins_Backend_Lengow_Components_LengowConnector Lengow connector
+     * @var Shopware_Plugins_Backend_Lengow_Components_LengowConnector Lengow connector instance
      */
     protected $connector;
 
@@ -124,7 +131,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     /**
      * Construct the import manager
      *
-     * @param $params array Optional options
+     * @param $params array optional options
      * string  marketplace_sku     lengow marketplace order id to import
      * string  marketplace_name    lengow marketplace name to import
      * string  type                type of current import
@@ -379,7 +386,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     /**
      * Check credentials for a shop
      *
-     * @param Shopware\Models\Shop\Shop $shop Shop
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
      *
      * @return boolean
      */
@@ -427,10 +434,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     /**
      * Call Lengow order API
      *
-     * @param  $shop Shopware\Models\Shop\Shop Shop to get orders
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException If error while connect to the API
-     * @return mixed List of orders found by the API for this shop
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException no connection with Lengow webservice /
+     *                                                                    credentials not valid
+     * 
+     * @return array
      */
     protected function getOrdersFromApi($shop)
     {
@@ -553,9 +562,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
      * Create or update order in Shopware
      *
      * @param mixed                     $orders API orders
-     * @param Shopware\Models\Shop\Shop $shop   Shop Id
+     * @param Shopware\Models\Shop\Shop $shop   Shopware shop instance
      *
-     * @return mixed
+     * @return array|false
      */
     protected function importOrders($orders, $shop)
     {
@@ -657,9 +666,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     return $order;
                 }
                 if (isset($order)) {
-                    if ($order['order_new'] == true) {
+                    if (isset($order['order_new']) && $order['order_new'] == true) {
                         $orderNew++;
-                    } elseif ($order['order_error'] == true) {
+                    } elseif (isset($order['order_error']) && $order['order_error'] == true) {
                         $orderError++;
                     }
                 }
@@ -740,7 +749,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
      * Check if order status is valid for import
      *
      * @param string                                                       $orderStateMarketplace order state
-     * @param Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace $marketplace           order marketplace
+     * @param Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace $marketplace           marketplace instance
      *
      * @return boolean
      */
@@ -758,7 +767,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     /**
      * Get last import launched manually or by the cron
      *
-     * @return string Date of the last import
+     * @return string
      */
     public static function getLastImport()
     {

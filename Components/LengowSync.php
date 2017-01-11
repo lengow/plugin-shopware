@@ -1,22 +1,31 @@
 <?php
 /**
- * Copyright 2016 Lengow SAS.
+ * Copyright 2017 Lengow SAS
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
+ * NOTICE OF LICENSE
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
  *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Components
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
 /**
@@ -25,7 +34,7 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowSync
 {
     /**
-     * Get Account Status every 5 hours
+     * @var integer cache time for statistic, account status and cms options
      */
     protected static $cacheTime = 18000;
 
@@ -65,9 +74,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     }
 
     /**
-     * Store Configuration Key From Lengow
+     * Set shop configuration key from Lengow
      *
-     * @param $params
+     * @param array $params Lengow API credentials
      */
     public static function sync($params)
     {
@@ -120,7 +129,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     }
 
     /**
-     * Get Sync Data (Inscription / Update)
+     * Check that a shop is activated and has account id and tokens non-empty
+     *
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     *
+     * @return boolean
+     */
+    public static function checkSyncShop($shop)
+    {
+        return Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowShopActive', $shop)
+            && Shopware_Plugins_Backend_Lengow_Components_LengowCheck::isValidAuth($shop);
+    }
+
+    /**
+     * Get options for all shops
      *
      * @return array
      */
@@ -163,7 +185,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     /**
      * Set CMS options
      *
-     * @param boolean $force Force cache Update
+     * @param boolean $force force cache Update
      *
      * @return boolean
      */
@@ -196,24 +218,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     }
 
     /**
-     * Check that a shop is activated and has account id and tokens non-empty
-     *
-     * @param $shop Shopware\Models\Shop\Shop Shop to check
-     *
-     * @return bool true if the shop is ready to be sync
-     */
-    public static function checkSyncShop($shop)
-    {
-        return Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowShopActive', $shop)
-            && Shopware_Plugins_Backend_Lengow_Components_LengowCheck::isValidAuth($shop);
-    }
-
-    /**
      * Get Status Account
      *
-     * @param boolean $force Force cache Update
+     * @param boolean $force force cache Update
      *
-     * @return mixed
+     * @return array|false
      */
     public static function getStatusAccount($force = false)
     {
@@ -257,7 +266,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     /**
      * Get Statistic with all shop
      *
-     * @param boolean $force Force cache Update
+     * @param boolean $force force cache Update
      *
      * @return array
      */

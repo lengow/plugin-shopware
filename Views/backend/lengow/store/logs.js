@@ -29,7 +29,7 @@ Ext.define('Shopware.apps.Lengow.store.Logs', {
 
             // Add record to download all logs
             var allLogs = { id: '', name: me.snippets.all, date: me.snippets.all};
-            store.insert(20, allLogs);
+            store.insert(0, allLogs);
         }
     },
 

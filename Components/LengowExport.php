@@ -1,28 +1,40 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Components
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
 
 /**
- * Copyright 2016 Lengow SAS.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * Lengow Export Class
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 {
     /**
-     * All available params for export
+     * @var array all available params for export
      */
     public static $exportParams = array(
         'mode',
@@ -43,7 +55,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     );
 
     /**
-     * Default fields.
+     * @var array default fields
      */
     public static $defaultFields = array(
         'id'                             => 'id',
@@ -93,79 +105,79 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     );
 
     /**
-     * @var string Export format
+     * @var string export format
      */
     protected $format;
 
     /**
-     * @var boolean Display result on screen
+     * @var boolean display result on screen
      */
     protected $stream;
 
     /**
-     * @var array List of articles to display
+     * @var array list of articles to display
      */
     protected $productIds = array();
 
     /**
-     * @var integer Limit number of results
+     * @var integer limit number of results
      */
     protected $limit;
 
     /**
-     * @var integer Get results from specific index
+     * @var integer get results from specific index
      */
     protected $offset;
 
     /**
-     * @var boolean Export out of stock articles
+     * @var boolean export out of stock articles
      */
     protected $outOfStock;
 
     /**
-     * @var boolean Update export date.
+     * @var boolean update export date.
      */
     protected $updateExportDate;
 
     /**
-     * @var boolean Export variant articles
+     * @var boolean export variant articles
      */
     protected $variation;
 
     /**
-     * @var boolean Export Lengow products only
+     * @var boolean export Lengow products only
      */
     protected $selection;
 
     /**
-     * @var boolean Enable/disable log output
+     * @var boolean enable/disable log output
      */
     protected $logOutput;
 
     /**
-     * @var boolean Export disabled articles
+     * @var boolean export disabled articles
      */
     protected $inactive;
 
     /**
-     * @var string Export mode (size|null)
+     * @var string export mode (size|null)
      */
     protected $mode;
 
     /**
-     * @var \Shopware\Models\Shop\Shop Shopware Shop
+     * @var \Shopware\Models\Shop\Shop Shopware Shop instance
      */
     protected $shop;
 
     /**
-     * @var Shopware\Models\Shop\Currency Currency to use for the export
+     * @var Shopware\Models\Shop\Currency Shopware Currency instance
      */
     protected $currency;
 
     /**
-     * LengowExport constructor.
+     * LengowExport constructor
      *
-     * @param Shopware\Models\Shop\Shop $shop   Shop to export
+     * @param Shopware\Models\Shop\Shop $shop   Shopware shop instance
      * @param array                     $params optional options
      * string  format             Format of exported files ('csv','yaml','xml','json')
      * boolean stream             Stream file (1) or generate a file on server (0)
@@ -207,14 +219,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         $this->setFormat(isset($params['format']) ? $params['format'] : 'csv');
         $this->setProductIds(isset($params['product_ids']) ? $params['product_ids'] : false);
         $this->setCurrency(isset($params['currency']) ? $params['currency'] : false);
-        $this->setLogOutput(isset($params['log_output']) ? $params['log_output'] : true);
+        $this->setLogOutput(isset($params['log_output']) ? (bool)$params['log_output'] : true);
     }
 
     /**
      * Check whether or not the format exists
      * If not specified (null), get the default format of the configuration
      *
-     * @param string $format The export format
+     * @param string $format export format
      */
     private function setFormat($format)
     {
@@ -226,7 +238,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     /**
      * Set product ids to export
      *
-     * @param string $productIds The product ids to export
+     * @param string|false $productIds product ids to export
      */
     private function setProductIds($productIds)
     {
@@ -243,7 +255,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     /**
      * Set Currency for export
      *
-     * @param mixed $currencyCode currency code or not
+     * @param string|false $currencyCode currency code or not
      */
     private function setCurrency($currencyCode)
     {
@@ -261,7 +273,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     /**
      * Set Log output for export
      *
-     * @param boolean $log_output See logs or not
+     * @param boolean $log_output see logs or not
      */
     private function setLogOutput($logOutput)
     {
@@ -340,10 +352,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     /**
      * Export products
      *
-     * @param $articles array List of articles to export
-     * @param $fields   array List of fields
+     * @param $articles array list of articles to export
+     * @param $fields   array list of fields
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException folder not writable
      */
     private function export($articles, $fields)
     {    
@@ -370,7 +382,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             if ($this->limit != null && $this->limit <= $displayedProducts) {
                 break;
             }
-            /** @var \Shopware\Models\Article\Detail $details */
+            // \Shopware\Models\Article\Detail $details
             $details = $this->em->getReference(
                 'Shopware\Models\Article\Detail',
                 $article['detailId']
@@ -461,7 +473,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     /**
      * Build the query from the params
      *
-     * @return array List of ids to export
+     * @return array
     */
     private function getIdToExport()
     {
@@ -567,7 +579,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     /**
      * Get number of products available for export
      *
-     * @return int Number of products found
+     * @return integer
      */
     public function getTotalProducts()
     {
@@ -589,7 +601,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     /**
      * Get number of products exported in Lengow
      *
-     * @return int Number of product exported
+     * @return integer
      */
     public function getExportedProducts()
     {

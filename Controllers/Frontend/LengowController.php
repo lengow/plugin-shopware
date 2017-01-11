@@ -1,32 +1,62 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Controllers
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
 
 /**
- * Copyright 2016 Lengow SAS.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * Frontend Lengow Controller
  */
 class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_Action
 {
-
     /**
      * Export Lengow feed
      */
     public function exportAction()
     {
+        /**
+         * List params
+         * string  mode               Number of products exported
+         * string  format             Format of exported files ('csv','yaml','xml','json')
+         * boolean stream             Stream file (1) or generate a file on server (0)
+         * integer offset             Offset of total product
+         * integer limit              Limit number of exported product
+         * boolean selection          Export product selection (1) or all products (0)
+         * boolean out_of_stock       Export out of stock product (1) Export only product in stock (0)
+         * string  product_ids        List of product id separate with comma (1,2,3)
+         * boolean variation          Export product Variation (1) Export parent product only (0)
+         * boolean inactive           Export inactive product (1) or not (0) 
+         * integer shop               Export a specific shop
+         * string  currency           Convert prices with a specific currency
+         * boolean log_output         See logs (1) or not (0)
+         * boolean update_export_date Change last export date in data base (1) or not (0)
+         * boolean get_params         See export parameters and authorized values in json format (1) or not (0)
+         */
+        
         // Disable template for export
         $this->view->setTemplate(null);
         $em = Shopware()->Models();
@@ -43,7 +73,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
         }
         if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
             // see all export params
-            if ($this->Request()->getParam("get_params") == 1) {
+            if ($this->Request()->getParam('get_params') == 1) {
                 echo Shopware_Plugins_Backend_Lengow_Components_LengowExport::getExportParams();
             } else {
                 // get all GET params for export
@@ -150,6 +180,20 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
      */
     public function cronAction()
     {
+        /**
+         * List params
+         * string  sync                Number of products exported
+         * integer days                Import period
+         * integer limit               Number of orders to import
+         * integer shop_id             Shop id to import
+         * string  $marketplace_sku    Lengow marketplace order id to import
+         * string  marketplace_name    Lengow marketplace name to import
+         * integer delivery_address_id Lengow delivery address id to import
+         * boolean preprod_mode        Activate preprod mode
+         * boolean log_output          See logs (1) or not (0)
+         * boolean get_sync            See synchronisation parameters in json format (1) or not (0)
+         */
+        
         // Disable template for cron
         $this->view->setTemplate(null);
         $em = Shopware()->Models();
@@ -170,32 +214,32 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             if ($this->Request()->getParam('get_sync') == 1) {
                 echo json_encode(Shopware_Plugins_Backend_Lengow_Components_LengowSync::getSyncData());
             } else {
-                $sync = $this->Request()->getParam("sync", false);
+                $sync = $this->Request()->getParam('sync', false);
                 if (!$sync || $sync === 'order') {
                     // array of params for import order
                     $params = array();
-                    if ($this->Request()->getParam("preprod_mode")) {
+                    if ($this->Request()->getParam('preprod_mode')) {
                         $params['preprod_mode'] = (bool)$this->Request()->getParam("preprod_mode");
                     }
-                    if ($this->Request()->getParam("log_output")) {
+                    if ($this->Request()->getParam('log_output')) {
                         $params['log_output'] = (bool)$this->Request()->getParam("log_output");
                     }
-                    if ($this->Request()->getParam("days")) {
+                    if ($this->Request()->getParam('days')) {
                         $params['days'] = (int)$this->Request()->getParam("days");
                     }
-                    if ($this->Request()->getParam("limit")) {
+                    if ($this->Request()->getParam('limit')) {
                         $params['limit'] = (int)$this->Request()->getParam("limit");
                     }
-                    if ($this->Request()->getParam("marketplace_sku")) {
+                    if ($this->Request()->getParam('marketplace_sku')) {
                         $params['marketplace_sku'] = (string)$this->Request()->getParam("marketplace_sku");
                     }
-                    if ($this->Request()->getParam("marketplace_name")) {
+                    if ($this->Request()->getParam('marketplace_name')) {
                         $params['marketplace_name'] = (string)$this->Request()->getParam("marketplace_name");
                     }
-                    if ($this->Request()->getParam("delivery_address_id")) {
+                    if ($this->Request()->getParam('delivery_address_id')) {
                         $params['delivery_address_id'] = (string)$this->Request()->getParam("delivery_address_id");
                     }
-                    if ($this->Request()->getParam("shop_id")) {
+                    if ($this->Request()->getParam('shop_id')) {
                         $params['shop_id'] = (int)$this->Request()->getParam("shop_id");
                     }
                     $params['type'] = 'cron';

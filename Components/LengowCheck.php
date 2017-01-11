@@ -1,31 +1,46 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Components
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
 
 /**
- * Copyright 2016 Lengow SAS.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * Lengow Check Class
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
 {
     /**
-     * @var $locale Shopware_Plugins_Backend_Lengow_Components_LengowTranslation Translation
+     * @var Shopware_Plugins_Backend_Lengow_Components_LengowTranslation Lengow translation instance
      */
     protected $locale;
 
+    /**
+    * Construct
+    */
     public function __construct()
     {
         $this->locale = new Shopware_Plugins_Backend_Lengow_Components_LengowTranslation();
@@ -34,7 +49,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     /**
     * Check API authentication
     *
-    * @param $shop Shopware\Models\Shop\Shop
+    * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
     *
     * @return boolean
     */
@@ -99,7 +114,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     /**
      * Get array of requirements and their status
      *
-     * @return mixed
+     * @return string
      */
     public function getCheckList()
     {
@@ -142,7 +157,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     /**
      * Get array of requirements and their status
      *
-     * @return mixed
+     * @return string
      */
     public function getGlobalInformation()
     {
@@ -200,7 +215,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     /**
      * Get array of requirements and their status
      *
-     * @return mixed
+     * @return string
      */
     public function getImportInformation()
     {
@@ -217,7 +232,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         } else {
             $lastImportType = $this->locale->t('toolbox/index/last_import_manual');
         }
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::isInProcess()) {
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowImport::isInProcess()) {
             $importInProgress = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
                 'toolbox.index.rest_time_to_import',
                 null,
@@ -255,9 +270,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     /**
      * Get array of requirements and their status
      *
-     * @param \Shopware\Models\Shop\Shop $shop
+     * @param \Shopware\Models\Shop\Shop $shop Shopware shop instance
      *
-     * @return mixed
+     * @return string
      */
     public function getInformationByStore($shop)
     {
@@ -310,7 +325,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     /**
      * Get files checksum
      *
-     * @return mixed
+     * @return string
      */
     public function checkFileMd5()
     {
@@ -390,14 +405,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     /**
      * Get toolbox files status (if files have been deleted/edited or ok)
      *
-     * @param array $checklist List of elements to generate
+     * @param array $checklist list of elements to generate
      *
-     * @return null|string Html
+     * @return string
      */
     private function getAdminContent($checklist = array())
     {
         if (empty($checklist)) {
-            return null;
+            return '';
         }
         $out = '<table class="table" cellpadding="0" cellspacing="0">';
         foreach ($checklist as $check) {

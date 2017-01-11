@@ -1,43 +1,55 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Components
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
 
 /**
- * Copyright 2016 Lengow SAS.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * Lengow Feed Class
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
 {
     /**
-     * Protection.
+     * @var string CSV Protection
      */
     const PROTECTION = '"';
 
     /**
-     * CSV separator
+     * @var string CSV separator
      */
     const CSV_SEPARATOR = '|';
 
     /**
-     * End of line.
+     * @var string end of line
      */
     const EOL = "\r\n";
 
     /**
-     * @var Shopware_Plugins_Backend_Lengow_Components_LengowFile temporary export file
+     * @var Shopware_Plugins_Backend_Lengow_Components_LengowFile Lengow File instance
      */
     protected $file;
 
@@ -72,12 +84,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     );
 
     /**
-     * @var boolean $stream
-     * @var string  $format
-     * @var string  $shopName
+     * @var string Lengow export folder
      */
     public static $lengowExportFolder = 'Export';
 
+    /**
+     * Construct
+     * 
+     * @var boolean $stream   export streaming or in a file
+     * @var string  $format   export format
+     * @var string  $shopName Shopware shop name
+     */
     public function __construct($stream, $format, $shopName)
     {
         $this->stream = $stream;
@@ -90,6 +107,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
 
     /**
      * Create export file
+     *
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException unable to create folder
      */
     public function initExportFile()
     {
@@ -113,9 +132,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
 
     /**
      * Write data in file
-     * @param string  $type     Type of data (header|body|footer)
-     * @param array   $data     Data to write
-     * @param boolean $isFirst True if first call (used for json format)
+     *
+     * @param string  $type    data type (header, body or footer)
+     * @param array   $data    export data
+     * @param boolean $isFirst is first product
      */
     public function write($type, $data = array(), $isFirst = null)
     {
@@ -144,7 +164,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     /**
      * Return feed header
      *
-     * @param array $data Data to display
+     * @param array $data export data
      *
      * @return string
      */
@@ -249,7 +269,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     /**
      * Finalize export generation
      *
-     * @return bool
+     * @return boolean
      */
     public function end()
     {
@@ -353,7 +373,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     }
 
     /**
-     * For YAML, add spaces to have good indentation.
+     * For YAML, add spaces to have good indentation
      *
      * @param string $name    the field name
      * @param string $maxSize space limit
@@ -374,9 +394,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
      * Get the maximum length of the fields
      * Used for indentYaml function
      *
-     * @param array $fields List of fields to export
+     * @param array $fields list of fields to export
      *
-     * @return integer Length of the longer field
+     * @return integer
      */
     protected function getFieldMaxSize($fields)
     {

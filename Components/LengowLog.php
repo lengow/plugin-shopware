@@ -1,23 +1,35 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Components
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
 
 /**
- * Copyright 2016 Lengow SAS.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * Lengow Log Class
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     extends Shopware_Plugins_Backend_Lengow_Components_LengowFile
@@ -27,9 +39,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
      */
     public static $lengowLogFolder = 'Logs';
 
+    /**
+     * @var Shopware_Plugins_Backend_Lengow_Components_LengowFile Lengow file instance
+     */
     protected $file;
 
-    public function __construct()
+    /**
+     * Construct
+     *
+     * @param string $fileName log file name
+     */
+    public function __construct($fileName = null)
     {
         if (empty($fileName)) {
             $this->fileName = 'logs-'.date('Y-m-d').'.txt';
@@ -45,10 +65,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     /**
      * Write log
      *
-     * @param string  $category       Category
+     * @param string  $category       log category
      * @param string  $message        log message
      * @param boolean $display        display on screen
-     * @param string  $marketplaceSku lengow order id
+     * @param string  $marketplaceSku Lengow order id
      */
     public function write($category, $message = "", $display = false, $marketplaceSku = null)
     {
@@ -67,7 +87,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     /**
      * Get log files path
      *
-     * @return mixed
+     * @return array|false
      *
      */
     public static function getPaths()
@@ -80,9 +100,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
         foreach ($files as $file) {
             preg_match('/logs-([0-9]{4}-[0-9]{2}-[0-9]{2})\.txt/', $file->getPath(), $match);
             $logs[] = array(
-                'full_path' => $file->getPath(),
+                'full_path'  => $file->getPath(),
                 'short_path' => 'logs-'.$match[1].'.txt',
-                'name' => $match[1].'.txt'
+                'link'       => $file->getLink(),
+                'name'       => $match[1].'.txt'
             );
         }
         return $logs;

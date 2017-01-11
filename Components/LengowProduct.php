@@ -1,27 +1,40 @@
 <?php
 /**
- * Copyright 2016 Lengow SAS.
+ * Copyright 2017 Lengow SAS
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
+ * NOTICE OF LICENSE
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
  *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Components
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
+
+/**
+ * Lengow Product Class
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 {
     /**
-     * array API nodes containing relevant data
+     * @var array API nodes containing relevant data
      */
     public static $productApiNodes = array(
         'marketplace_product_id',
@@ -32,51 +45,53 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         'amount'
     );
     /**
-     * @var $product Shopware\Models\Article\Article Shopware article
+     * @var Shopware\Models\Article\Article Shopware article instance
      */
     protected $product;
 
     /**
-     * @var $isVariation boolean Is this article a simple product (true) or a variation (false)
+     * @var boolean is this article a simple product (true) or a variation (false)
      */
     protected $isVariation = false;
 
     /**
-     * @var $details Shopware\Models\Article\Detail Article details
+     * @var Shopware\Models\Article\Detail Shopware article details instance
      */
     protected $details;
 
     /**
-     * @var $attributes String[] Specific attributes for the product
+     * @var array specific attributes for the product
      */
     protected $attributes;
 
     /**
-     * @var $price Shopware\Models\Article\Price Article price
+     * @var Shopware\Models\Article\Price Shopware article price instance
      */
     protected $price;
 
     /**
-     * @var $shop \Shopware\Models\Shop\Shop Shop the article belongs to
+     * @var Shopware\Models\Shop\Shop Shopware shop instance
      */
     protected $shop;
 
     /**
-     * @var $currency Shopware\Models\Shop\Currency Defined currency
+     * @var Shopware\Models\Shop\Currency Shopware currency instance
      */
     protected $currency;
 
     /**
-     * @var $factor float Currency factor (compare to Euro)
+     * @var float currency factor (compare to Euro)
      */
     protected $factor;
+
     /**
-     * LengowProduct constructor.
-     * @param $details Shopware\Models\Article\Detail Article detail
-     * @param $shop Shopware\Models\Shop\Shop Shop the article belongs to
-     * @param $type String simple|parent|child
-     * @param $currency Shopware\Models\Shop\Currency Currency used for the export
-     * @param $logOutput boolean Display logs
+     * Construct
+     * 
+     * @param Shopware\Models\Article\Detail $details   Shopware article detail instance
+     * @param Shopware\Models\Shop\Shop      $shop      Shopware shop instance
+     * @param string                         $type      article type
+     * @param Shopware\Models\Shop\Currency  $currency  Shopware currency instance
+     * @param boolean                        $logOutput display logs or not
      */
     public function __construct($details, $shop, $type, $currency, $logOutput)
     {
@@ -95,8 +110,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 
     /**
      * Retrieve Lengow product data
-     * @param $name String name of the data to get
-     * @return string Data value
+     *
+     * @param string $name name of the data to get
+     *
+     * @return string
      */
     public function getData($name)
     {
@@ -273,14 +290,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Get path images for the current product
      *
-     * @param $index int Index of the image to get
+     * @param integer $index index of the image
      *
-     * @return string Image path
+     * @return string
      */
     private function getImagePath($index)
     {
         try {
-            /** @var Shopware\Models\Article\Image[] $productImages */
+            // @var Shopware\Models\Article\Image[] $productImages
             $images = $this->isVariation ? $this->details->getImages() : $this->product->getImages();
             $image = $images[$index - 1];
             if ($image != null) {
@@ -304,9 +321,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     }
 
     /**
-     * @param $image Shopware\Models\Article\Image $product_image
+     * Get format image path
+     * 
+     * @param Shopware\Models\Article\Image $image Shopware article image instance
+     * 
      * @return string
-     * @throws Exception
      */
     private function formatImagePath($image)
     {
@@ -314,7 +333,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $result = '';
         $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 'https://' : 'http://';
         $domain = $isHttps.$_SERVER['SERVER_NAME'];
-        /** @var Shopware\Models\Media\Media $media */
+        // @var Shopware\Models\Media\Media $media
         $media = $this->isVariation ? $image->getParent()->getMedia() : $image->getMedia();
         if ($media != null) {
             if ($isMediaManagerSupported) {
@@ -359,7 +378,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Return products custom attributes
      *
-     * @return array List of attributes
+     * @return array
      */
     public static function getAllAttributes()
     {
@@ -372,9 +391,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Create the breadcrumb for this product
      *
-     * @return string The breadcrumb of the product
-     *
-     * @throws \Doctrine\ORM\ORMException
+     * @return string
      */
     private function getBreadcrumb()
     {
@@ -417,7 +434,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Get article shipping cost
      *
-     * @return float Shipping cost
+     * @return float
      */
     private function getShippingCost()
     {
@@ -430,7 +447,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 'lengowDefaultDispatcher',
                 $this->shop
             );
-            /** @var Shopware\Models\Dispatch\Dispatch $dispatch */
+            // @var Shopware\Models\Dispatch\Dispatch $dispatch
             $dispatch = $em->getReference('Shopware\Models\Dispatch\Dispatch', $dispatchId);
             $blockedCategories = $dispatch->getCategories();
             if ($this->getCategoryStatus($blockedCategories)) {
@@ -482,16 +499,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     }
 
     /**
-     * Check if the category the article belongs to
-     * is blocked for this dispatch
+     * Check if the category the article belongs is blocked for this dispatch
      *
-     * @param $blockedCategories Doctrine\Common\Collections\ArrayCollection Categories which are blocked
+     * @param Shopware\Models\Category\Category $blockedCategories Shopware category instance
      *
-     * @return boolean True if the category is active for dispatch
+     * @return boolean
      */
     private function getCategoryStatus($blockedCategories)
     {
-        /** @var Shopware\Models\Category\Category[] $productCategories */
+        // @var Shopware\Models\Category\Category[] $productCategories
         $productCategories = $this->product->getCategories();
         $result = true;
         foreach ($productCategories as $pCategory) {
@@ -524,7 +540,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Extract cart data from API
      *
-     * @param mixed $api
+     * @param mixed $api product datas
      *
      * @return array
      */
@@ -541,9 +557,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Check whether or not an article is a parent
      *
-     * @param $articleId string articleId_detailId
+     * @param string $articleId Lengow article id
      *
-     * @return bool true if article is a parent
+     * @return boolean
      */
     public static function checkIsParentProduct($articleId)
     {
@@ -562,9 +578,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Search a product by number, ean and id
      *
-     * @param $articleId string Article id
+     * @param string $articleId Lengow article id
      *
-     * @return integer Shopware\Models\Article\Detail id|null if not found
+     * @return array|null
      */
     public static function findArticle($articleId)
     {
@@ -604,11 +620,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Search a product by number, ean and id
      *
-     * @param $field String Field of Shopware\Models\Article\Detail to search in
-     * @param $value String Searched value
-     * @param $logOutput boolean True if error are displayed on stream
+     * @param string  $field     field of Shopware\Models\Article\Detail to search in
+     * @param string  $value     searched value
+     * @param boolean $logOutput display log or not
      *
-     * @return integer Shopware\Models\Article\Detail id|null if not found
+     * @return array|null
      */
     public static function advancedSearch($field, $value, $logOutput)
     {

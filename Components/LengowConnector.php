@@ -1,33 +1,40 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Components
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
 
 /**
- * Copyright 2016 Lengow SAS.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * Lengow Connector Class
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
 {
     /**
-     * @var string connector version
-     */
-    const VERSION = '1.0';
-
-    /**
-     * @var string URL of the API Lengow
+     * @var string url of the API Lengow
      */
     // const LENGOW_API_URL = 'http://api.lengow.io:80';
     // const LENGOW_API_URL = 'http://api.lengow.net:80';
@@ -35,12 +42,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     // const LENGOW_API_URL = 'http://10.100.1.82:8081';
 
     /**
-     * @var string URL of the SANDBOX Lengow
+     * @var string url of the SANDBOX Lengow
      */
     const LENGOW_API_SANDBOX_URL = 'http://api.lengow.net:80';
 
     /**
-     * @var array default options for curl
+     * @var array default options for Curl
      */
     public static $curlOpts = array (
         CURLOPT_CONNECTTIMEOUT => 10,
@@ -50,12 +57,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     );
 
     /**
-     * @var string the access token to connect
+     * @var string access token to connect
      */
     protected $accessToken;
 
     /**
-     * @var string the secret to connect
+     * @var string secret to connect
      */
     protected $secret;
 
@@ -65,17 +72,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     protected $token;
 
     /**
-     * @var integer ID account
+     * @var integer account id
      */
     protected $accountId;
 
     /**
-     * @var integer the user Id
+     * @var integer user id
      */
     protected $userId;
 
     /**
-     * @var array lengow url for curl timeout
+     * @var array lengow url for Curl timeout
      */
     protected $lengowUrls = array (
         '/v3.0/orders'        => 15,
@@ -86,10 +93,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     );
 
     /**
-     * Make a new Lengow API Connector.
+     * Make a new Lengow API Connector
      *
-     * @param string $accessToken Your access token
-     * @param string $secret      Your secret
+     * @param string $accessToken your access token
+     * @param string $secret      your secret
      */
     public function __construct($accessToken, $secret)
     {
@@ -102,7 +109,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      *
      * @param string $userToken The user token if is connected
      *
-     * @return mixed array [authorized token + account_id + user_id] or false
+     * @return array|false
      */
     public function connect($userToken = '')
     {
@@ -126,63 +133,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     }
 
     /**
-     * Get API call
-     *
-     * @param string $method Lengow method API call
-     * @param array  $array  Lengow method API parameters
-     * @param string $format return format of API
-     * @param string $body
-     *
-     * @return array The format data response
-     */
-    public function get($method, $array = array(), $format = 'json', $body = '')
-    {
-        return $this->call($method, $array, 'GET', $format, $body);
-    }
-
-    /**
-     * Put API call
-     *
-     * @param string $method Lengow method API call
-     * @param array  $array  Lengow method API parameters
-     * @param string $format return format of API
-     * @param string $body
-     *
-     * @return array The format data response
-     */
-    public function put($method, $array = array(), $format = 'json', $body = '')
-    {
-        return $this->call($method, $array, 'PUT', $format, $body);
-    }
-
-    /**
-     * Call API action
-     *
-     * @param string $api    Lengow method API call
-     * @param array  $args   Lengow method API parameters
-     * @param string $type   type of request GET|POST|PUT|HEAD|DELETE|PATCH
-     * @param string $format return format of API
-     * @param string $body
-     *
-     * @return array The format data response
-     */
-    private function callAction($api, $args, $type, $format = 'json', $body = '')
-    {
-        $result = $this->makeRequest($type, $api, $args, $this->token, $body);
-        return $this->format($result, $format);
-    }
-
-    /**
      * The API method
      *
      * @param string $method Lengow method API call
      * @param array  $array  Lengow method API parameters
      * @param string $type   type of request GET|POST|PUT|HEAD|DELETE|PATCH
      * @param string $format return format of API
-     * @param string $body
-     *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
-     * @return array The format data response
+     * @param string $body   body datas for request
+     * 
+     * @return array
      */
     public function call($method, $array = array(), $type = 'GET', $format = 'json', $body = '')
     {
@@ -199,12 +158,119 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     }
 
     /**
-     * Get data in specific format
+     * Get API call
      *
-     * @param mixed  $data
-     * @param string $format
+     * @param string $method Lengow method API call
+     * @param array  $array  Lengow method API parameters
+     * @param string $format return format of API
+     * @param string $body   body datas for request
      *
      * @return array The format data response
+     */
+    public function get($method, $array = array(), $format = 'json', $body = '')
+    {
+        return $this->call($method, $array, 'GET', $format, $body);
+    }
+
+    /**
+     * Post API call
+     *
+     * @param string $method Lengow method API call
+     * @param array  $array  Lengow method API parameters
+     * @param string $format return format of API
+     * @param string $body   body datas for request
+     *
+     * @return array
+     */
+    public function post($method, $array = array(), $format = 'json', $body = '')
+    {
+        return $this->call($method, $array, 'POST', $format, $body);
+    }
+
+    /**
+     * Head API call
+     *
+     * @param string $method Lengow method API call
+     * @param array  $array  Lengow method API parameters
+     * @param string $format return format of API
+     * @param string $body   body datas for request
+     *
+     * @return array
+     */
+    public function head($method, $array = array(), $format = 'json', $body = '')
+    {
+        return $this->call($method, $array, 'HEAD', $format, $body);
+    }
+
+    /**
+     * Put API call
+     *
+     * @param string $method Lengow method API call
+     * @param array  $array  Lengow method API parameters
+     * @param string $format return format of API
+     * @param string $body   body datas for request
+     *
+     * @return array The format data response
+     */
+    public function put($method, $array = array(), $format = 'json', $body = '')
+    {
+        return $this->call($method, $array, 'PUT', $format, $body);
+    }
+
+    /**
+     * Delete API call
+     *
+     * @param string $method Lengow method API call
+     * @param array  $array  Lengow method API parameters
+     * @param string $format return format of API
+     * @param string $body   body datas for request
+     *
+     * @return array
+     */
+    public function delete($method, $array = array(), $format = 'json', $body = '')
+    {
+        return $this->call($method, $array, 'DELETE', $format, $body);
+    }
+
+    /**
+     * Patch API call
+     *
+     * @param string $method Lengow method API call
+     * @param array  $array  Lengow method API parameters
+     * @param string $format return format of API
+     * @param string $body   body datas for request
+     *
+     * @return array
+     */
+    public function patch($method, $array = array(), $format = 'json', $body = '')
+    {
+        return $this->call($method, $array, 'PATCH', $format, $body);
+    }
+
+    /**
+     * Call API action
+     *
+     * @param string $api    Lengow method API call
+     * @param array  $args   Lengow method API parameters
+     * @param string $type   type of request GET|POST|PUT|HEAD|DELETE|PATCH
+     * @param string $format return format of API
+     * @param string $body   body datas for request
+     *
+     * @return array The format data response
+     */
+    private function callAction($api, $args, $type, $format = 'json', $body = '')
+    {
+        $result = $this->makeRequest($type, $api, $args, $this->token, $body);
+        return $this->format($result, $format);
+    }
+
+    /**
+     * Get data in specific format
+     *
+     * @param mixed  $data   Curl response data
+     * @param string $format return format of API
+     *
+     * @return array
      */
     private function format($data, $format)
     {
@@ -229,10 +295,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $url   Lengow API url
      * @param array  $args  Lengow method API parameters
      * @param string $token temporary access token
-     * @param string $body
+     * @param string $body  body datas for request
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
-     * @return array The format data response
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException get Curl error
+     * 
+     * @return array
      */
     protected function makeRequest($type, $url, $args, $token, $body = '')
     {
@@ -342,9 +409,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * Get Valid Account / Access / Secret
      *
-     * @param Shopware\Models\Shop\Shop $shop Shop to get settings from
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
      *
-     * @return array Tokens and account id values for this shop
+     * @return array
      */
     public static function getAccessId($shop = null)
     {
@@ -379,13 +446,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * Get result for a query Api
      *
-     * @param string                    $type   (GET / POST / PUT / PATCH)
-     * @param string                    $url
-     * @param Shopware\Models\Shop\Shop $shop
-     * @param array                     $params
-     * @param string                    $body
+     * @param string                    $type   request type (GET / POST / PUT / PATCH)
+     * @param string                    $url    request url
+     * @param Shopware\Models\Shop\Shop $shop   Shopware shop instance
+     * @param array                     $params request params
+     * @param string                    $body   body datas for request
      *
-     * @return array api result as array
+     * @return mixed
      */
     public static function queryApi($type, $url, $shop = null, $params = array(), $body = '')
     {
