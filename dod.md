@@ -6,12 +6,12 @@
 * Pas de modification de comportement de fonction :
 * Principe SOLID (au moins le S) :
 * Coding Style (PSR2) :
-* Documention Phpdoc au niveau du code :
+* Documentation Phpdoc au niveau du code :
 * Mise en place de log :
 * Mise en place de traductions :
 * Mettre à jour le changelog :
 * Mettre à jour Confluence :
-* Documention fonctionnelle sur confluence si feature :
+* Documentation fonctionnelle sur confluence si feature :
 * Listing du bug sur confluence si hotfix :
 * Démo préparée si nécessaire :
  	
@@ -30,7 +30,7 @@ Attention à ne pas modifier le comportement des fonctions déjà présentes
 ### Coding Style (PSR2) ###
 * http://www.php-fig.org/psr/psr-2/
 
-### Documention Phpdoc au niveau du code ###
+### Documentation Phpdoc au niveau du code ###
 * https://www.phpdoc.org/docs/latest/index.html
 
 ### Mise en place de log ###
@@ -46,10 +46,10 @@ Renseigner le changelog du module avec les identifiants "Feature:" ou "Bugfix:" 
 Renseigner le changelog dans Confluence :
 * https://lengow.atlassian.net/wiki/display/MV/Versions+Shopware
 
-### Documention sur confluence si feature ###
+### Documentation sur Confluence si feature ###
 * https://lengow.atlassian.net/wiki/pages/viewpage.action?pageId=90898477
 
-### Listing du bug sur confluence si hotfix ###
+### Listing du bug sur Confluence si hotfix ###
 * https://lengow.atlassian.net/wiki/display/MV/Bugs+et+corrections+Shopware
 
 ### Démo préparée si nécessaire ###
