@@ -85,6 +85,8 @@ remove_directory $FOLDER_TMP
 cp -rRp $FOLDER $FOLDER_TMP
 # Remove .gitkeep
 remove_files $FOLDER_TMP ".gitkeep"
+# Remove dod
+remove_files $FOLDER_TMP "dod.md"
 # Remove Readme
 remove_files $FOLDER_TMP "README.md"
 # Remove .git
