@@ -259,6 +259,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 );
                 return $status;
             }
+        } else {
+            $updatedAt =  Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowAccountStatusUpdate'
+            );
+            if ($updatedAt) {
+                $config = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                    'lengowAccountStatus'
+                );
+                return json_decode($config, true);
+            }
         }
         return false;
     }
