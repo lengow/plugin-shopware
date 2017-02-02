@@ -93,7 +93,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                             '.$translations['legals'].'</a> | '
                             .$translations['plugin_lengow']
                             .' - v.'.Shopware()->Plugins()->Backend()->Lengow()->getVersion()
-                            .' | copyright © 2017  <a href='.$translations['lengow_url']
+                            .' | copyright © '.date('Y').'  <a href='.$translations['lengow_url']
                             .' target="_blank" class="sub-link" title="Lengow.com">
                             Lengow
                             </a>

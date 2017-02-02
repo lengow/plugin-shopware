@@ -23,15 +23,15 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
         var syncIframe = document.getElementById("lengow_iframe");
         if (syncIframe) {
             if (me.syncLink) {
-                // me.url = 'http://cms.lengow.io/sync/';
-                // me.url = 'http://cms.lengow.net/sync/';
-                me.url = 'http://cms.lengow.rec/sync/';
-                // me.url = 'http://cms.lengow.dev/sync/';
+                // me.url = '//cms.lengow.io/sync/';
+                // me.url = '//cms.lengow.net/sync/';
+                me.url = '//cms.lengow.rec/sync/';
+                // me.url = '//cms.lengow.dev/sync/';
             } else {
-                // me.url = 'http://cms.lengow.io/';
-                // me.url = 'http://cms.lengow.net/';
-                me.url = 'http://cms.lengow.rec/';
-                // me.url = 'http://cms.lengow.dev/';
+                // me.url = '//cms.lengow.io/';
+                // me.url = '//cms.lengow.net/';
+                me.url = '//cms.lengow.rec/';
+                // me.url = '//cms.lengow.dev/';
             }
             syncIframe.src = me.url+'?lang='+me.langIsoCode;
             syncIframe.onload = function() {
