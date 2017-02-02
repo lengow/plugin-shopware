@@ -9,6 +9,7 @@ Version 1.1.0
     - Feature: Add supplier field for export
     - Bugfix: Get images for article variations
     - Bugfix: Optimize Lengow Statistics
+    - Bugfix: Add https protocol for Lengow iframe
 
 =============================================================
 Version 1.0.4
