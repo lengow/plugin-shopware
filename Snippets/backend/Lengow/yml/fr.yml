@@ -51,7 +51,7 @@ fr:
   help:
     screen:
       title: "Demandez de l'aide à notre équipe Support !"
-      contain_text_support: "Des questions, un feedback sur Lengow... transmettez vos demandes au "
+      contain_text_support: "Des questions, un feedback sur Lengow... transmettez vos demandes au"
       title_lengow_support: "support Lengow"
       link_lengow_support: "https://supportlengow.zendesk.com/hc/fr/requests/new"
       need_some_help: "Besoin d'aide ?"

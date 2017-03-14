@@ -86,7 +86,7 @@ de:
         description: "Ihr Geheimtoken. Bitte nicht ändern."
       ip:
         label: "Autorisierte IP-Adressen"
-        description: "Zugang zum Export Feed für die folgende IP-Adressen freigeben.\nGetrennt durch ; "
+        description: "Zugang zum Export Feed für die folgende IP-Adressen freigeben.\nGetrennt durch ;"
     lengow_export_settings:
       label: "Exporteinstellungen"
       description: "Definieren Sie Einstellungen, um Ihres Feed zu erstellen."

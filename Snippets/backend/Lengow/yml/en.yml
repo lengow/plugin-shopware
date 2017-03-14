@@ -51,7 +51,7 @@ en:
   help:
     screen:
       title: "Get a little help from your support team!"
-      contain_text_support: "Ask us anything about Lengow or share feedback to"
+      contain_text_support: "Ask us anything about Lengow or share feedback with"
       title_lengow_support: "Lengow Support."
       link_lengow_support: "https://supportlengow.zendesk.com/hc/en-us/requests/new"
       need_some_help: "Need some help?"
@@ -85,8 +85,8 @@ en:
         label: "Secret Token"
         description: "Your secret token. Please do not change it."
       ip:
-        label: "Authorized IP"
-        description: "Authorize IP to get access to your export feed. \nSeparate them ' ; '"
+        label: "Authorised IPs"
+        description: "Authorise IP to get access to your export feed.\nSeparate them ' ; '"
     lengow_export_settings:
       label: "Export settings"
       description: "Define the settings to create your feed."

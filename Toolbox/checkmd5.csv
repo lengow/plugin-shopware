@@ -29,11 +29,11 @@
 /Controllers/Backend/LengowHelp.php|8ead03fca8a6ce5c3e96b51fd7066899
 /Models/Lengow/Order.php|edd3b5dfabd4016921530624e9f06379
 /Models/Lengow/Settings.php|32dabd48fd9596ddd533857b10576b7e
-/Snippets/backend/Lengow/yml/fr.yml|39263fe14465c83d2ad770dc48b455af
-/Snippets/backend/Lengow/yml/de.yml|acd7625e83c309cd6d8596b9de66ecdd
+/Snippets/backend/Lengow/yml/fr.yml|3e19a5e9d8d94c49fa0ce2b2a0911366
+/Snippets/backend/Lengow/yml/de.yml|a6ee2ed191c1c1ac225d09841575bd66
 /Snippets/backend/Lengow/yml/log.yml|0f80bad853d81a03c871edfacc989bac
-/Snippets/backend/Lengow/yml/en.yml|5f058b410c5e06ebc1c07e373a76060f
-/Snippets/backend/Lengow/translation.ini|34f8ccf1cda6705eb09c5658b292b848
+/Snippets/backend/Lengow/yml/en.yml|dcf72e87ac5afdf2eee5e8e9f18d6005
+/Snippets/backend/Lengow/translation.ini|84a869c8aaaeee75b8e813eeca4d3d9b
 /Toolbox/config.inc.php|75fecd21b4f56228c53221fa0070df94
 /Toolbox/checksum.php|2161928f9b1d591a7043ed72c09b12a5
 /Toolbox/log.php|84421fe271acecc9b9e1d03a91f2a83d
