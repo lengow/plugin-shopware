@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * It is available through the world-wide-web at this URL:
  * https://www.gnu.org/licenses/agpl-3.0
  *
@@ -32,20 +32,20 @@ require 'views/header.php';
 
 $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops();
 ?>
-<div class="container">
-    <h1> <?php echo $locale->t('toolbox/menu/lengow_toolbox') ?></h1>
-    <h3><i class="fa fa-check-square-o"></i> <?php echo $locale->t('toolbox/index/checklist_information') ?></h3>
-    <?php echo $check->getCheckList(); ?>
-    <h3><i class="fa fa-cog"></i> <?php echo $locale->t('toolbox/index/global_information') ?></h3>
-    <?php echo $check->getGlobalInformation(); ?>
-    <h3><i class="fa fa-download"></i> <?php echo $locale->t('toolbox/index/import_information') ?></h3>
-    <?php echo $check->getImportInformation(); ?>
-    <h3><i class="fa fa-upload"></i> <?php echo $locale->t('toolbox/index/export_information') ?></h3>
-    <?php
-    foreach ($shops as $shop) {
-        echo $check->getInformationByStore($shop);
-    }
-    ?>
-</div>
+    <div class="container">
+        <h1> <?php echo $locale->t('toolbox/menu/lengow_toolbox') ?></h1>
+        <h3><i class="fa fa-check-square-o"></i> <?php echo $locale->t('toolbox/index/checklist_information') ?></h3>
+        <?php echo $check->getCheckList(); ?>
+        <h3><i class="fa fa-cog"></i> <?php echo $locale->t('toolbox/index/global_information') ?></h3>
+        <?php echo $check->getGlobalInformation(); ?>
+        <h3><i class="fa fa-download"></i> <?php echo $locale->t('toolbox/index/import_information') ?></h3>
+        <?php echo $check->getImportInformation(); ?>
+        <h3><i class="fa fa-upload"></i> <?php echo $locale->t('toolbox/index/export_information') ?></h3>
+        <?php
+        foreach ($shops as $shop) {
+            echo $check->getInformationByStore($shop);
+        }
+        ?>
+    </div>
 <?php
 require 'views/footer.php';

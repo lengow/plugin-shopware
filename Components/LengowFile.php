@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * It is available through the world-wide-web at this URL:
  * https://www.gnu.org/licenses/agpl-3.0
  *
@@ -44,7 +44,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
     public $folderName;
 
     /**
-     * @var ressource file hande
+     * @var string file link
+     */
+    public $link;
+
+    /**
+     * @var resource a file pointer resource
      */
     public $instance;
 
@@ -52,8 +57,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
      * Construct
      *
      * @param string $folderName Lengow folder name
-     * @param string $fileName   Lengow file name
-     * @param string $mode       type of access
+     * @param string $fileName Lengow file name
+     * @param string $mode type of access
      *
      * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException unable to create file
      */
@@ -61,13 +66,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
     {
         $this->fileName = $fileName;
         $this->folderName = $folderName;
-        $this->instance = self::getRessource($this->getPath(), $mode);
+        $this->instance = self::getResource($this->getPath(), $mode);
         if (!is_resource($this->instance)) {
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/export/error_unable_to_create_file',
                     array(
-                        'file_name'   => $fileName,
+                        'file_name' => $fileName,
                         'folder_name' => $folderName
                     )
                 )
@@ -117,7 +122,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
      *
      * @return resource
      */
-    public static function getRessource($path, $mode = 'a+')
+    public static function getResource($path, $mode = 'a+')
     {
         return fopen($path, $mode);
     }
@@ -136,7 +141,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
             $sep = DIRECTORY_SEPARATOR;
             $base = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getBaseUrl();
             $lengowDir = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getPathPlugin();
-            $this->link = $base.$lengowDir.$this->folderName.$sep.$this->fileName;
+            $this->link = $base . $lengowDir . $this->folderName . $sep . $this->fileName;
         }
         return $this->link;
 
@@ -150,7 +155,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
     public function getPath()
     {
         $sep = DIRECTORY_SEPARATOR;
-        return Shopware()->Plugins()->Backend()->Lengow()->Path().$this->folderName.$sep.$this->fileName;
+        return Shopware()->Plugins()->Backend()->Lengow()->Path() . $this->folderName . $sep . $this->fileName;
     }
 
     /**
@@ -160,7 +165,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
      */
     public function getFolderPath()
     {
-        return Shopware()->Plugins()->Backend()->Lengow()->Path().$this->folderName;
+        return Shopware()->Plugins()->Backend()->Lengow()->Path() . $this->folderName;
     }
 
     /**
@@ -200,11 +205,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
      *
      * @param string $folder folder name
      *
-     * @return array
+     * @return array|false
      */
     public static function getFilesFromFolder($folder)
     {
-        $folderPath = Shopware()->Plugins()->Backend()->Lengow()->Path().$folder;
+        $folderPath = Shopware()->Plugins()->Backend()->Lengow()->Path() . $folder;
         if (!file_exists($folderPath)) {
             return false;
         }

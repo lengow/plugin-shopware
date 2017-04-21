@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * It is available through the world-wide-web at this URL:
  * https://www.gnu.org/licenses/agpl-3.0
  *
@@ -52,7 +52,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     public function __construct($fileName = null)
     {
         if (empty($fileName)) {
-            $this->fileName = 'logs-'.date('Y-m-d').'.txt';
+            $this->fileName = 'logs-' . date('Y-m-d') . '.txt';
         } else {
             $this->fileName = $fileName;
         }
@@ -65,20 +65,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     /**
      * Write log
      *
-     * @param string  $category       log category
-     * @param string  $message        log message
-     * @param boolean $display        display on screen
-     * @param string  $marketplaceSku Lengow order id
+     * @param string $category log category
+     * @param string $message log message
+     * @param boolean $display display on screen
+     * @param string $marketplaceSku Lengow order id
      */
     public function write($category, $message = "", $display = false, $marketplaceSku = null)
     {
         $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($message);
         $log = date('Y-m-d H:i:s');
-        $log.= ' - '.(empty($category) ? '' : '['.$category.'] ');
-        $log.= ''.(empty($marketplaceSku) ? '' : 'order '.$marketplaceSku.' : ');
-        $log.= $decodedMessage."\r\n";
+        $log .= ' - ' . (empty($category) ? '' : '[' . $category . '] ');
+        $log .= '' . (empty($marketplaceSku) ? '' : 'order ' . $marketplaceSku . ' : ');
+        $log .= $decodedMessage . "\r\n";
         if ($display) {
-            echo $log.'<br />';
+            echo $log . '<br />';
             flush();
         }
         $this->file->write($log);
@@ -100,10 +100,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
         foreach ($files as $file) {
             preg_match('/logs-([0-9]{4}-[0-9]{2}-[0-9]{2})\.txt/', $file->getPath(), $match);
             $logs[] = array(
-                'full_path'  => $file->getPath(),
-                'short_path' => 'logs-'.$match[1].'.txt',
-                'link'       => $file->getLink(),
-                'name'       => $match[1].'.txt'
+                'full_path' => $file->getPath(),
+                'short_path' => 'logs-' . $match[1] . '.txt',
+                'link' => $file->getLink(),
+                'name' => $match[1] . '.txt'
             );
         }
         return $logs;
@@ -117,7 +117,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
      */
     public function getFileName()
     {
-        return Shopware()->Plugins()->Backend()->Lengow()->Path().self::$lengowLogFolder.'/'.$this->fileName;
+        return Shopware()->Plugins()->Backend()->Lengow()->Path() . self::$lengowLogFolder . '/' . $this->fileName;
     }
 
     /**
@@ -138,12 +138,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     public static function download($file = null)
     {
         if ($file && preg_match('/^logs-([0-9]{4}-[0-9]{2}-[0-9]{2})\.txt$/', $file, $match)) {
-            $filename = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder().
-                self::$lengowLogFolder.'/'.$file;
+            $filename = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder() .
+                self::$lengowLogFolder . '/' . $file;
             $handle = fopen($filename, "r");
             $contents = fread($handle, filesize($filename));
             header('Content-type: text/plain');
-            header('Content-Disposition: attachment; filename="'.$match[1].'.txt"');
+            header('Content-Disposition: attachment; filename="' . $match[1] . '.txt"');
             echo $contents;
             exit();
         } else {

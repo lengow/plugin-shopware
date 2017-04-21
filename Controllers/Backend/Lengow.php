@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * It is available through the world-wide-web at this URL:
  * https://www.gnu.org/licenses/agpl-3.0
  *
@@ -53,10 +53,10 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
         $this->View()->assign(
             array(
                 'success' => true,
-                'data'    => array(
-                    'panelHtml'     => $panelHtml,
+                'data' => array(
+                    'panelHtml' => $panelHtml,
                     'isNewMerchant' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::isNewMerchant(),
-                    'langIsoCode'   => substr(Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale(), 0, 2)
+                    'langIsoCode' => substr(Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale(), 0, 2)
                 )
             )
         );
@@ -70,7 +70,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
         $this->View()->assign(
             array(
                 'success' => true,
-                'data'    => Shopware_Plugins_Backend_Lengow_Components_LengowElements::getHeader()
+                'data' => Shopware_Plugins_Backend_Lengow_Components_LengowElements::getHeader()
             )
         );
     }
@@ -84,7 +84,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
         $this->View()->assign(
             array(
                 'success' => true,
-                'data'    => Shopware_Plugins_Backend_Lengow_Components_LengowElements::getLegals()
+                'data' => Shopware_Plugins_Backend_Lengow_Components_LengowElements::getLegals()
             )
         );
     }

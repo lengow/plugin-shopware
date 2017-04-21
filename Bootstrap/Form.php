@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * It is available through the world-wide-web at this URL:
  * https://www.gnu.org/licenses/agpl-3.0
  *
@@ -47,43 +47,43 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         // Main settings
         $mainSettingsElements = array(
             'lengowShopActive' => array(
-                'type'          => 'boolean',
-                'label'         => 'settings/lengow_main_settings/enable/label',
-                'editable'      => false,
-                'value'         => 0,
-                'description'   => 'settings/lengow_main_settings/enable/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
+                'type' => 'boolean',
+                'label' => 'settings/lengow_main_settings/enable/label',
+                'editable' => false,
+                'value' => 0,
+                'description' => 'settings/lengow_main_settings/enable/description',
+                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
             'lengowAccountId' => array(
-                'type'          => 'text',
-                'label'         => 'settings/lengow_main_settings/account/label',
-                'required'      => true,
-                'value'         => 0,
-                'description'   => 'settings/lengow_main_settings/account/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
+                'type' => 'text',
+                'label' => 'settings/lengow_main_settings/account/label',
+                'required' => true,
+                'value' => 0,
+                'description' => 'settings/lengow_main_settings/account/description',
+                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
             'lengowAccessToken' => array(
-                'type'          => 'text',
-                'label'         => 'settings/lengow_main_settings/access/label',
-                'required'      => true,
-                'value'         => 0,
-                'description'   => 'settings/lengow_main_settings/access/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
+                'type' => 'text',
+                'label' => 'settings/lengow_main_settings/access/label',
+                'required' => true,
+                'value' => 0,
+                'description' => 'settings/lengow_main_settings/access/description',
+                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
             'lengowSecretToken' => array(
-                'type'          => 'text',
-                'label'         => 'settings/lengow_main_settings/secret/label',
-                'required'      => true,
-                'value'         => 0,
-                'description'   => 'settings/lengow_main_settings/secret/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
+                'type' => 'text',
+                'label' => 'settings/lengow_main_settings/secret/label',
+                'required' => true,
+                'value' => 0,
+                'description' => 'settings/lengow_main_settings/secret/description',
+                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
             'lengowAuthorizedIp' => array(
-                'type'          => 'text',
-                'label'         => 'settings/lengow_main_settings/ip/label',
-                'required'      => true,
-                'value'         => '127.0.0.1',
-                'description'   => 'settings/lengow_main_settings/ip/description'
+                'type' => 'text',
+                'label' => 'settings/lengow_main_settings/ip/label',
+                'required' => true,
+                'value' => '127.0.0.1',
+                'description' => 'settings/lengow_main_settings/ip/description'
             )
         );
         // Auto-generate form
@@ -103,32 +103,32 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         }
         $exportFormElements = array(
             'lengowExportDisabledProduct' => array(
-                'type'          => 'boolean',
-                'label'         => 'settings/lengow_export_settings/disabled_products/label',
-                'required'      => true,
-                'editable'      => false,
-                'value'         => false,
-                'description'   => 'settings/lengow_export_settings/disabled_products/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
+                'type' => 'boolean',
+                'label' => 'settings/lengow_export_settings/disabled_products/label',
+                'required' => true,
+                'editable' => false,
+                'value' => false,
+                'description' => 'settings/lengow_export_settings/disabled_products/description',
+                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
             'lengowExportSelectionEnabled' => array(
-                'type'          => 'boolean',
-                'label'         => 'settings/lengow_export_settings/lengow_selection/label',
-                'required'      => true,
-                'editable'      => false,
-                'value'         => false,
-                'description'   => 'settings/lengow_export_settings/lengow_selection/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
+                'type' => 'boolean',
+                'label' => 'settings/lengow_export_settings/lengow_selection/label',
+                'required' => true,
+                'editable' => false,
+                'value' => false,
+                'description' => 'settings/lengow_export_settings/lengow_selection/description',
+                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
             'lengowDefaultDispatcher' => array(
-                'type'          => 'select',
-                'label'         => 'settings/lengow_export_settings/dispatcher/label',
-                'required'      => true,
-                'editable'      => false,
-                'value'         => $defaultValue,
-                'store'         => $selection,
-                'description'   => 'settings/lengow_export_settings/dispatcher/description',
-                'scope'         => Shopware\Models\Config\Element::SCOPE_SHOP
+                'type' => 'select',
+                'label' => 'settings/lengow_export_settings/dispatcher/label',
+                'required' => true,
+                'editable' => false,
+                'value' => $defaultValue,
+                'store' => $selection,
+                'description' => 'settings/lengow_export_settings/dispatcher/description',
+                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
             )
         );
         // Auto-generate form
@@ -137,35 +137,35 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         // Import settings
         $importFormElements = array(
             'lengowEnableImport' => array(
-                'type'          => 'boolean',
-                'label'         => 'settings/lengow_import_settings/enable_import/label',
-                'editable'      => false,
-                'value'         => false,
-                'required'      => false,
-                'description'   => 'settings/lengow_import_settings/enable_import/description'
+                'type' => 'boolean',
+                'label' => 'settings/lengow_import_settings/enable_import/label',
+                'editable' => false,
+                'value' => false,
+                'required' => false,
+                'description' => 'settings/lengow_import_settings/enable_import/description'
             ),
             'lengowImportShipMpEnabled' => array(
-                'type'          => 'boolean',
-                'label'         => 'settings/lengow_import_settings/decrease_stock/label',
-                'editable'      => false,
-                'value'         => false,
-                'required'      => false,
-                'description'   => 'settings/lengow_import_settings/decrease_stock/description'
+                'type' => 'boolean',
+                'label' => 'settings/lengow_import_settings/decrease_stock/label',
+                'editable' => false,
+                'value' => false,
+                'required' => false,
+                'description' => 'settings/lengow_import_settings/decrease_stock/description'
             ),
             'lengowImportDays' => array(
-                'type'          => 'number',
-                'label'         => 'settings/lengow_import_settings/import_days/label',
-                'value'         => 5,
-                'minValue'      => 0,
-                'maxValue'      => 99,
-                'editable'      => false,
-                'description'   => 'settings/lengow_import_settings/import_days/description'
+                'type' => 'number',
+                'label' => 'settings/lengow_import_settings/import_days/label',
+                'value' => 5,
+                'minValue' => 0,
+                'maxValue' => 99,
+                'editable' => false,
+                'description' => 'settings/lengow_import_settings/import_days/description'
             ),
             'lengowImportPreprodEnabled' => array(
-                'type'          => 'boolean',
-                'label'         => 'settings/lengow_import_settings/preprod_mode/label',
-                'value'         => false,
-                'description'   => 'settings/lengow_import_settings/preprod_mode/description'
+                'type' => 'boolean',
+                'label' => 'settings/lengow_import_settings/preprod_mode/label',
+                'value' => false,
+                'description' => 'settings/lengow_import_settings/preprod_mode/description'
             )
         );
         // Auto-generate form
@@ -183,8 +183,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 $isoCode = $locale->getLocale();
                 // If the locale has been translated in Lengow
                 if (Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::containsIso($isoCode)) {
-                    $formLabel = $this->getTranslation('settings/'.$formName.'/label', $isoCode);
-                    $formDescription = $this->getTranslation('settings/'.$formName.'/description', $isoCode);
+                    $formLabel = $this->getTranslation('settings/' . $formName . '/label', $isoCode);
+                    $formDescription = $this->getTranslation('settings/' . $formName . '/description', $isoCode);
                     $translationModel = new \Shopware\Models\Config\FormTranslation();
                     $translationModel->setLabel($formLabel);
                     $translationModel->setDescription($formDescription);
@@ -199,8 +199,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
     /**
      * Create settings forms for the plugin (basic settings)
      *
-     * @param string $name     name of the form
-     * @param array  $elements options for this form
+     * @param string $name name of the form
+     * @param array $elements options for this form
      *
      * @return \Shopware\Models\Config\Form
      */
@@ -208,8 +208,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
     {
         $form = new \Shopware\Models\Config\Form;
         $form->setName($name);
-        $form->setLabel($this->getTranslation('settings/'.$name.'/label'));
-        $form->setDescription($this->getTranslation('settings/'.$name.'/description'));
+        $form->setLabel($this->getTranslation('settings/' . $name . '/label'));
+        $form->setDescription($this->getTranslation('settings/' . $name . '/description'));
         // @var Shopware\Models\Shop\Locale[] $locales
         $locales = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager()
             ->getRepository('\Shopware\Models\Shop\Locale')
@@ -242,8 +242,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
     /**
      * Get translations for basic settings
      *
-     * @param $key     string key of the translation
-     * @param $isoCode string locale iso code (English by default)
+     * @param string $key key of the translation
+     * @param string $isoCode locale iso code (English by default)
      *
      * @return string
      */

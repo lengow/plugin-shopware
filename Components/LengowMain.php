@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * It is available through the world-wide-web at this URL:
  * https://www.gnu.org/licenses/agpl-3.0
  *
@@ -198,7 +198,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             if ($token && strlen($token) > 0) {
                 return $token;
             } else {
-                $token =  bin2hex(openssl_random_pseudo_bytes(16));
+                $token = bin2hex(openssl_random_pseudo_bytes(16));
                 Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('lengowGlobalToken', $token);
             }
         } else {
@@ -209,7 +209,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             if ($token && strlen($token) > 0) {
                 return $token;
             } else {
-                $token =  bin2hex(openssl_random_pseudo_bytes(16));
+                $token = bin2hex(openssl_random_pseudo_bytes(16));
                 Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
                     'lengowShopToken',
                     $token,
@@ -247,7 +247,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '';
         $host = $shop->getHost() ? $shop->getHost() : $_SERVER['SERVER_NAME'];
         $path = $shop->getBasePath() ? $shop->getBasePath() : '';
-        $url = 'http'.$isHttps.'://'.$host.$path;
+        $url = 'http' . $isHttps . '://' . $host . $path;
         return $url;
     }
 
@@ -261,7 +261,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static function getExportUrl($shop)
     {
         $base = self::getBaseUrl($shop);
-        return $base.'/LengowController/export?shop='.$shop->getId();
+        return $base . '/LengowController/export?shop=' . $shop->getId();
     }
 
     /**
@@ -277,7 +277,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
         }
         $base = self::getBaseUrl($shop);
-        return $base.'/LengowController/cron';
+        return $base . '/LengowController/cron';
     }
 
     /**
@@ -316,7 +316,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             'lengowLastImportManual'
         );
         if ($timestampCron && $timestampManual) {
-            if ((int)$timestampCron > (int) $timestampManual) {
+            if ((int)$timestampCron > (int)$timestampManual) {
                 return array('type' => 'cron', 'timestamp' => (int)$timestampCron);
             } else {
                 return array('type' => 'manual', 'timestamp' => (int)$timestampManual);
@@ -342,10 +342,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Writes log
      *
-     * @param string  $category       log category
-     * @param string  $txt            log message
-     * @param boolean $logOutput      output on screen
-     * @param string  $marketplaceSku lengow marketplace sku
+     * @param string $category log category
+     * @param string $txt log message
+     * @param boolean $logOutput output on screen
+     * @param string $marketplaceSku lengow marketplace sku
      */
     public static function log($category, $txt, $logOutput = false, $marketplaceSku = null)
     {
@@ -374,9 +374,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         // @var Shopware_Plugins_Backend_Lengow_Components_LengowFile[] $logFiles
         $logFiles = Shopware_Plugins_Backend_Lengow_Components_LengowLog::getFiles();
         $days = array();
-        $days[] = 'logs-'.date('Y-m-d').'.txt';
+        $days[] = 'logs-' . date('Y-m-d') . '.txt';
         for ($i = 1; $i < self::$logLife; $i++) {
-            $days[] = 'logs-'.date('Y-m-d', strtotime('-'.$i.'day')).'.txt';
+            $days[] = 'logs-' . date('Y-m-d', strtotime('-' . $i . 'day')) . '.txt';
         }
         if (empty($logFiles)) {
             return;
@@ -393,7 +393,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      *
      * @param string $message Key to translate
      * @param string $isoCode Language translation iso code
-     * @param mixed  $params  array Parameters to display in the translation message
+     * @param mixed $params array Parameters to display in the translation message
      *
      * @return string
      */
@@ -402,17 +402,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         if (preg_match('/^(([a-z\_]*\/){1,3}[a-z\_]*)(\[(.*)\]|)$/', $message, $result)) {
             if (isset($result[1])) {
                 $key = $result[1];
-            }
-            if (isset($result[4]) && is_null($params)) {
-                $strParam = $result[4];
-                $allParams = explode('|', $strParam);
-                foreach ($allParams as $param) {
-                    $result = explode('==', $param);
-                    $params[$result[0]] = $result[1];
+                if (isset($result[4]) && is_null($params)) {
+                    $strParam = $result[4];
+                    $allParams = explode('|', $strParam);
+                    foreach ($allParams as $param) {
+                        $result = explode('==', $param);
+                        $params[$result[0]] = $result[1];
+                    }
                 }
+                $locale = new Shopware_Plugins_Backend_Lengow_Components_LengowTranslation();
+                $message = $locale->t($key, $params, $isoCode);
             }
-            $locale = new Shopware_Plugins_Backend_Lengow_Components_LengowTranslation();
-            $message = $locale->t($key, $params, $isoCode);
         }
         return $message;
     }
@@ -420,8 +420,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Set message with params for translation
      *
-     * @param string $key    log key
-     * @param array  $params log parameters
+     * @param string $key log key
+     * @param array $params log parameters
      *
      * @return string
      */
@@ -433,16 +433,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         $allParams = array();
         foreach ($params as $param => $value) {
             $value = str_replace(array('|', '=='), array('', ''), $value);
-            $allParams[] = $param.'=='.$value;
+            $allParams[] = $param . '==' . $value;
         }
-        $message = $key.'['.join('|', $allParams).']';
+        $message = $key . '[' . join('|', $allParams) . ']';
         return $message;
     }
 
     /**
      * The shipping names options
      *
-     * @param string                    $name Marketplace name
+     * @param string $name Marketplace name
      * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
      *
      * @return Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
@@ -469,9 +469,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         $string = preg_replace('`[\s]+`sim', ' ', $string);
         $string = preg_replace('`"`sim', '', $string);
         $string = nl2br($string);
-        $pattern = '@<[\/\!]*?[^<>]*?>@si'; //nettoyage du code HTML
+        $pattern = '@<[\/\!]*?[^<>]*?>@si';
         $string = preg_replace($pattern, ' ', $string);
-        $string = preg_replace('/[\s]+/', ' ', $string); //nettoyage des espaces multiples
+        $string = preg_replace('/[\s]+/', ' ', $string);
         $string = trim($string);
         $string = str_replace('&nbsp;', ' ', $string);
         $string = str_replace('|', ' ', $string);
@@ -495,16 +495,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static function cleanData($value)
     {
         $value = preg_replace(
-            '/[\x00-\x08\x10\x0B\x0C\x0E-\x19\x7F]'.
-            '|[\x00-\x7F][\x80-\xBF]+'.
-            '|([\xC0\xC1]|[\xF0-\xFF])[\x80-\xBF]*'.
-            '|[\xC2-\xDF]((?![\x80-\xBF])|[\x80-\xBF]{2,})'.
+            '/[\x00-\x08\x10\x0B\x0C\x0E-\x19\x7F]' .
+            '|[\x00-\x7F][\x80-\xBF]+' .
+            '|([\xC0\xC1]|[\xF0-\xFF])[\x80-\xBF]*' .
+            '|[\xC2-\xDF]((?![\x80-\xBF])|[\x80-\xBF]{2,})' .
             '|[\xE0-\xEF](([\x80-\xBF](?![\x80-\xBF]))|(?![\x80-\xBF]{2})|[\x80-\xBF]{3,})/S',
             '',
             $value
         );
         $value = preg_replace(
-            '/\xE0[\x80-\x9F][\x80-\xBF]'.
+            '/\xE0[\x80-\x9F][\x80-\xBF]' .
             '|\xED[\xA0-\xBF][\x80-\xBF]/S',
             '',
             $value

@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * It is available through the world-wide-web at this URL:
  * https://www.gnu.org/licenses/agpl-3.0
  *
@@ -36,8 +36,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     /**
      * Get ID record from lengow orders table
      *
-     * @param string  $marketplaceSku    Lengow order id
-     * @param string  $marketplace       marketplace name
+     * @param string $marketplaceSku Lengow order id
+     * @param string $marketplace marketplace name
      * @param integer $deliveryAddressId Lengow delivery address id
      *
      * @return integer|false
@@ -47,8 +47,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $repository = $em->getRepository('Shopware\CustomModels\Lengow\Order');
         $criteria = array(
-            'marketplaceSku'    => $marketplaceSku,
-            'marketplaceName'   => $marketplace,
+            'marketplaceSku' => $marketplaceSku,
+            'marketplaceName' => $marketplace,
             'deliveryAddressId' => $deliveryAddressId
         );
         // @var Shopware\CustomModels\Lengow\Order $lengowOrder

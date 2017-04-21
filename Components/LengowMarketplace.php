@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * It is available through the world-wide-web at this URL:
  * https://www.gnu.org/licenses/agpl-3.0
  *
@@ -33,11 +33,15 @@
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
 {
-
     /**
      * @var array all marketplaces allowed for an account ID
      */
     public static $marketplaces = array();
+
+    /**
+     * @var mixed the current marketplace
+     */
+    public $marketplace;
 
     /**
      * @var string the code of the marketplace
@@ -87,7 +91,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     /**
      * Construct a new Marketplace instance with xml configuration
      *
-     * @param string  $name                   name of the marketplace
+     * @param string $name name of the marketplace
      * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
      *
      * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException marketplace not present
@@ -124,17 +128,25 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                 foreach ($action->optional_args as $optionalArg) {
                     $this->actions[(string)$key]['optional_args'][(string)$optionalArg] = $optionalArg;
                 }
-                foreach ($action->args_description as $key => $argDescription) {
+                foreach ($action->args_description as $argKey => $argDescription) {
                     $validValues = array();
                     if (isset($argDescription->valid_values)) {
                         foreach ($argDescription->valid_values as $code => $validValue) {
-                            $validValues[(string)$code] = (string)$validValue->label;
+                            $validValues[(string)$code] = isset($validValue->label)
+                                ? (string)$validValue->label
+                                : (string)$validValue;
                         }
                     }
-                    $this->argValues[(string)$key] = array(
-                        'default_value'      => (string)$argDescription->default_value,
-                        'accept_free_values' => (bool)$argDescription->accept_free_values,
-                        'valid_values'       => $validValues
+                    $defaultValue = isset($argDescription->default_value)
+                        ? (string)$argDescription->default_value
+                        : '';
+                    $acceptFreeValue = isset($argDescription->accept_free_values)
+                        ? (bool)$argDescription->accept_free_values
+                        : true;
+                    $this->argValues[(string)$argKey] = array(
+                        'default_value' => $defaultValue,
+                        'accept_free_values' => $acceptFreeValue,
+                        'valid_values' => $validValues
                     );
                 }
             }

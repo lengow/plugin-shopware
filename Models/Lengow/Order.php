@@ -61,7 +61,7 @@ class Order extends ModelEntity
     private $marketplaceName;
 
     /**
-     * @var string $orderDate
+     * @var \DateTime $orderDate
      *
      * @ORM\Column(name="order_date", type="datetime", nullable=false)
      */

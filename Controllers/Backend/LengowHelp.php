@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * It is available through the world-wide-web at this URL:
  * https://www.gnu.org/licenses/agpl-3.0
  *
@@ -59,25 +59,25 @@ class Shopware_Controllers_Backend_LengowHelp extends Shopware_Controllers_Backe
         $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
         $html = '<div class="lgw-container">
                 <div class="lgw-box lengow_help_wrapper text-center">
-                    <h2>'.$translations['title'].'</h2>
-                    <p>'.$translations['contain_text_support'].' 
-                        <a href="'.$translations['link_lengow_support'].'" target="_blank" title="Lengow Support">
-                        '.$translations['title_lengow_support'].'
+                    <h2>' . $translations['title'] . '</h2>
+                    <p>' . $translations['contain_text_support'] . ' 
+                        <a href="' . $translations['link_lengow_support'] . '" target="_blank" title="Lengow Support">
+                        ' . $translations['title_lengow_support'] . '
                         </a>
                     </p>
-                    <p>'.$translations['contain_text_support_hour'].'</p>
-                    <p>'.$translations['find_answer'].'
-                        <a href="'.$translations['help_center_link'].'" target="_blank" title="Help Center">
-                        '.$translations['link_shopware_guide'].'
+                    <p>' . $translations['contain_text_support_hour'] . '</p>
+                    <p>' . $translations['find_answer'] . '
+                        <a href="' . $translations['help_center_link'] . '" target="_blank" title="Help Center">
+                        ' . $translations['link_shopware_guide'] . '
                         </a>
                     </p>
                 </div>
             </div>';
-        $html.= Shopware_Plugins_Backend_Lengow_Components_LengowElements::getFooter();
+        $html .= Shopware_Plugins_Backend_Lengow_Components_LengowElements::getFooter();
         $this->View()->assign(
             array(
                 'success' => true,
-                'data'    => $html
+                'data' => $html
             )
         );
     }

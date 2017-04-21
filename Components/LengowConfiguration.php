@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * It is available through the world-wide-web at this URL:
  * https://www.gnu.org/licenses/agpl-3.0
  *
@@ -53,8 +53,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     /**
      * Get config from Shopware database
      *
-     * @param string                    $configName name of the setting to get
-     * @param Shopware\Models\Shop\Shop $shop       Shopware shop instance
+     * @param string $configName name of the setting to get
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
      *
      * @return mixed
      */
@@ -91,9 +91,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     /**
      * Set config new value in database
      *
-     * @param string                    $configName name of the setting to edit/add
-     * @param mixed                     $value      value to set for the setting
-     * @param Shopware\Models\Shop\Shop $shop       Shopware shop instance
+     * @param string $configName name of the setting to edit/add
+     * @param mixed $value value to set for the setting
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
      */
     public static function setConfig($configName, $value, $shop = null)
     {
@@ -146,7 +146,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * Shopware < 5.0.0 compatibility
      * > 5.0.0 : Use Shopware()->Plugins()->Backend()->Lengow()->get('config_writer')->get() instead
      *
-     * @param string  $name   config name
+     * @param string $name config name
      * @param integer $shopId Shopware shop id
      *
      * @return mixed
@@ -166,8 +166,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * Shopware < 5.0.0 compatibility
      * > 5.0.0 : Use Shopware()->Plugins()->Backend()->Lengow()->get('config_writer')->save() instead
      *
-     * @param string  $name   new config name
-     * @param mixed   $value  config value
+     * @param string $name new config name
+     * @param mixed $value config value
      * @param integer $shopId Shopware shop id
      */
     public function save($name, $value, $shopId = 1)
@@ -177,17 +177,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         if (isset($result['valueId']) && $result['valueId']) {
             $this->update($value, $result['valueId']);
         } else {
-            $this->insert($value, $shopId, $result['elementId']); 
+            $this->insert($value, $shopId, $result['elementId']);
         }
     }
 
     /**
      * Search element config by name
      *
-     * @param string  $name   config name to search
+     * @param string $name config name to search
      * @param integer $shopId Shopware shop id
      *
-     * @return \Doctrine\ORM\QueryBuilder
+     * @return \Doctrine\DBAL\Query\QueryBuilder
      */
     private function getConfigValueByNameQuery($name, $shopId = 1)
     {
@@ -219,7 +219,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     /**
      * Update existing config
      *
-     * @param mixed   $value   new config value
+     * @param mixed $value new config value
      * @param integer $valueId Shopware models config value id
      *
      * @throws \Doctrine\ORM\ORMException
@@ -236,8 +236,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     /**
      * Insert new configuration in the db
      *
-     * @param mixed   $value     Config value
-     * @param integer $shopId    Shopware shop id
+     * @param mixed $value Config value
+     * @param integer $shopId Shopware shop id
      * @param integer $elementId Shopware models config element id
      *
      * @throws \Doctrine\ORM\ORMException
@@ -265,23 +265,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     {
         static $keys = null;
         $keys = array(
-            'LENGOW_ACCOUNT_ID'               => array('shop' => true),
-            'LENGOW_ACCESS_TOKEN'             => array('shop' => true),
-            'LENGOW_SECRET_TOKEN'             => array('shop' => true),
-            'LENGOW_SHOP_ACTIVE'              => array('shop' => true),
-            'LENGOW_SHOP_TOKEN'               => array('shop' => true),
+            'LENGOW_ACCOUNT_ID' => array('shop' => true),
+            'LENGOW_ACCESS_TOKEN' => array('shop' => true),
+            'LENGOW_SECRET_TOKEN' => array('shop' => true),
+            'LENGOW_SHOP_ACTIVE' => array('shop' => true),
+            'LENGOW_SHOP_TOKEN' => array('shop' => true),
             'LENGOW_EXPORT_SELECTION_ENABLED' => array('shop' => true),
             'LENGOW_EXPORT_VARIATION_ENABLED' => array('shop' => true),
-            'LENGOW_LAST_EXPORT'              => array('shop' => true),
-            'LENGOW_IMPORT_DAYS'              => array('global' => true),
-            'LENGOW_IMPORT_PREPROD_ENABLED'   => array('global' => true),
-            'LENGOW_IMPORT_SHIP_MP_ENABLED'   => array('global' => true),
-            'LENGOW_IMPORT_IN_PROGRESS'       => array('global' => true),
-            'LENGOW_LAST_IMPORT_CRON'         => array('global' => true),
-            'LENGOW_LAST_IMPORT_MANUAL'       => array('global' => true),
-            'LENGOW_GLOBAL_TOKEN'             => array('global' => true),
-            'LENGOW_AUTHORIZED_IP'            => array('global' => true),
-            'LENGOW_OPTION_CMS_UPDATE'        => array('global' => true)
+            'LENGOW_LAST_EXPORT' => array('shop' => true),
+            'LENGOW_IMPORT_DAYS' => array('global' => true),
+            'LENGOW_IMPORT_PREPROD_ENABLED' => array('global' => true),
+            'LENGOW_IMPORT_SHIP_MP_ENABLED' => array('global' => true),
+            'LENGOW_IMPORT_IN_PROGRESS' => array('global' => true),
+            'LENGOW_LAST_IMPORT_CRON' => array('global' => true),
+            'LENGOW_LAST_IMPORT_MANUAL' => array('global' => true),
+            'LENGOW_GLOBAL_TOKEN' => array('global' => true),
+            'LENGOW_AUTHORIZED_IP' => array('global' => true),
+            'LENGOW_OPTION_CMS_UPDATE' => array('global' => true)
         );
         return $keys;
     }
@@ -315,15 +315,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     /**
      * Transform from Snake_Case to camelCase
      *
-     * @param string $str     string to convert
-     * @param array  $noStrip element to remove
+     * @param string $str string to convert
+     * @param array $noStrip element to remove
      *
      * @return string
      */
     public static function camelCase($str, array $noStrip = array())
     {
         // non-alpha and non-numeric characters become spaces
-        $str = preg_replace('/[^a-z0-9'.implode("", $noStrip).']+/i', ' ', $str);
+        $str = preg_replace('/[^a-z0-9' . implode("", $noStrip) . ']+/i', ' ', $str);
         $str = trim($str);
         // uppercase the first character of each word
         $str = ucwords($str);

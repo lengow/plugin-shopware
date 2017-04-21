@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * It is available through the world-wide-web at this URL:
  * https://www.gnu.org/licenses/agpl-3.0
  *
@@ -49,14 +49,14 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
          * boolean out_of_stock       Export out of stock product (1) Export only product in stock (0)
          * string  product_ids        List of product id separate with comma (1,2,3)
          * boolean variation          Export product Variation (1) Export parent product only (0)
-         * boolean inactive           Export inactive product (1) or not (0) 
+         * boolean inactive           Export inactive product (1) or not (0)
          * integer shop               Export a specific shop
          * string  currency           Convert prices with a specific currency
          * boolean log_output         See logs (1) or not (0)
          * boolean update_export_date Change last export date in data base (1) or not (0)
          * boolean get_params         See export parameters and authorized values in json format (1) or not (0)
          */
-        
+
         // Disable template for export
         $this->view->setTemplate(null);
         $em = Shopware()->Models();
@@ -77,20 +77,20 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 echo Shopware_Plugins_Backend_Lengow_Components_LengowExport::getExportParams();
             } else {
                 // get all GET params for export
-                $mode             = $this->Request()->getParam('mode');
-                $format           = $this->Request()->getParam('format');
-                $stream           = $this->Request()->getParam('stream');
-                $offset           = $this->Request()->getParam('offset');
-                $limit            = $this->Request()->getParam('limit');
-                $selection        = $this->Request()->getParam('selection');
-                $outOfStock       = $this->Request()->getParam('out_of_stock');
-                $productsIds      = $this->Request()->getParam('product_ids');
-                $logOutput        = $this->Request()->getParam('log_output');
-                $variation        = $this->Request()->getParam('variation');
-                $inactive         = $this->Request()->getParam('inactive');
-                $shopId           = $this->Request()->getParam('shop');
+                $mode = $this->Request()->getParam('mode');
+                $format = $this->Request()->getParam('format');
+                $stream = $this->Request()->getParam('stream');
+                $offset = $this->Request()->getParam('offset');
+                $limit = $this->Request()->getParam('limit');
+                $selection = $this->Request()->getParam('selection');
+                $outOfStock = $this->Request()->getParam('out_of_stock');
+                $productsIds = $this->Request()->getParam('product_ids');
+                $logOutput = $this->Request()->getParam('log_output');
+                $variation = $this->Request()->getParam('variation');
+                $inactive = $this->Request()->getParam('inactive');
+                $shopId = $this->Request()->getParam('shop');
                 $updateExportDate = $this->Request()->getParam('update_export_date');
-                $currency         = $this->Request()->getParam('currency');
+                $currency = $this->Request()->getParam('currency');
                 // get Entity manager
                 $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
                 // if shop name has been filled
@@ -102,19 +102,19 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                             $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport(
                                 $shop,
                                 array(
-                                    'format'             => $format,
-                                    'mode'               => $mode,
-                                    'stream'             => $stream,
-                                    'product_ids'        => $productsIds,
-                                    'limit'              => $limit,
-                                    'offset'             => $offset,
-                                    'out_of_stock'       => $outOfStock,
-                                    'variation'          => $variation,
-                                    'inactive'           => $inactive,
-                                    'selection'          => $selection,
-                                    'log_output'         => $logOutput,
+                                    'format' => $format,
+                                    'mode' => $mode,
+                                    'stream' => $stream,
+                                    'product_ids' => $productsIds,
+                                    'limit' => $limit,
+                                    'offset' => $offset,
+                                    'out_of_stock' => $outOfStock,
+                                    'variation' => $variation,
+                                    'inactive' => $inactive,
+                                    'selection' => $selection,
+                                    'log_output' => $logOutput,
                                     'update_export_date' => $updateExportDate,
-                                    'currency'           => $currency
+                                    'currency' => $currency
                                 )
                             );
                             $export->exec();
@@ -144,33 +144,33 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                         $shopsIds .= ']';
                         header('HTTP/1.1 400 Bad Request');
                         die(
-                            Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                                'log/export/shop_dont_exist',
-                                null,
-                                array(
-                                    'shop_id'  => $shopId,
-                                    'shop_ids' => $shopsIds
-                                )
+                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                            'log/export/shop_dont_exist',
+                            null,
+                            array(
+                                'shop_id' => $shopId,
+                                'shop_ids' => $shopsIds
                             )
+                        )
                         );
                     }
                 } else {
                     header('HTTP/1.1 400 Bad Request');
                     die(
-                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                            'log/export/specify_shop'
-                        )
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                        'log/export/specify_shop'
+                    )
                     );
                 }
             }
         } else {
             header('HTTP/1.1 403 Forbidden');
             die(
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                    'log/export/unauthorised_ip',
-                    null,
-                    array('ip' => $_SERVER['REMOTE_ADDR'])
-                )
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                'log/export/unauthorised_ip',
+                null,
+                array('ip' => $_SERVER['REMOTE_ADDR'])
+            )
             );
         }
     }
@@ -193,7 +193,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
          * boolean log_output          See logs (1) or not (0)
          * boolean get_sync            See synchronisation parameters in json format (1) or not (0)
          */
-        
+
         // Disable template for cron
         $this->view->setTemplate(null);
         $em = Shopware()->Models();
@@ -254,17 +254,17 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 // sync option is not valid
                 if ($sync && ($sync !== 'order' && $sync !== 'action' && $sync !== 'option')) {
                     header('HTTP/1.1 400 Bad Request');
-                    die('Action: '.$sync.' is not a valid action');
+                    die('Action: ' . $sync . ' is not a valid action');
                 }
-            }            
+            }
         } else {
             header('HTTP/1.1 403 Forbidden');
             die(
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                    'log/export/unauthorised_ip',
-                    null,
-                    array('ip' => $_SERVER['REMOTE_ADDR'])
-                )
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                'log/export/unauthorised_ip',
+                null,
+                array('ip' => $_SERVER['REMOTE_ADDR'])
+            )
             );
         }
     }

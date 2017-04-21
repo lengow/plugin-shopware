@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * It is available through the world-wide-web at this URL:
  * https://www.gnu.org/licenses/agpl-3.0
  *
@@ -42,7 +42,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
         $schemaTool = new Doctrine\ORM\Tools\SchemaTool($em);
         // List of models to add to the db
         $models = array(
-            's_lengow_order'    => $em->getClassMetadata('Shopware\CustomModels\Lengow\Order'),
+            's_lengow_order' => $em->getClassMetadata('Shopware\CustomModels\Lengow\Order'),
             's_lengow_settings' => $em->getClassMetadata('Shopware\CustomModels\Lengow\Settings')
         );
         foreach ($models as $tableName => $model) {
@@ -124,12 +124,12 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
         $tableName = 's_articles_attributes';
         // For each article attributes, remove lengow columns
         foreach ($shopIds as $shopId) {
-            $attributeName = 'shop'.$shopId.'_active';
-            if ($this->columnExists($tableName, 'lengow_'.$attributeName)) {
+            $attributeName = 'shop' . $shopId . '_active';
+            if ($this->columnExists($tableName, 'lengow_' . $attributeName)) {
                 // Check Shopware\Bundle\AttributeBundle\Service\CrudService::delete compatibility
                 if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.2')) {
                     $crudService = $lengowBootstrap->get('shopware_attribute.crud_service');
-                    $crudService->delete($tableName, 'lengow_'.$attributeName);
+                    $crudService->delete($tableName, 'lengow_' . $attributeName);
                 } else {
                     // @legacy Shopware < 5.2
                     $lengowBootstrap->Application()->Models()->removeAttribute(
@@ -142,7 +142,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                     'log/uninstall/remove_column',
                     array(
                         'column' => $attributeName,
-                        'table'  => $tableName
+                        'table' => $tableName
                     )
                 );
             } else {
@@ -150,7 +150,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                     'log/uninstall/column_not_exists',
                     array(
                         'column_name' => $attributeName,
-                        'table_name'  => $tableName
+                        'table_name' => $tableName
                     )
                 );
             }
@@ -171,11 +171,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
         $crudCompatibility = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.2');
         $tableName = 's_articles_attributes';
         foreach ($shopIds as $shopId) {
-            $attributeName = 'shop'.$shopId.'_active';
-            if (!$this->columnExists($tableName, 'lengow_'.$attributeName)) {
+            $attributeName = 'shop' . $shopId . '_active';
+            if (!$this->columnExists($tableName, 'lengow_' . $attributeName)) {
                 if ($crudCompatibility) {
                     $crudService = $lengowBootstrap->get('shopware_attribute.crud_service');
-                    $crudService->update($tableName, 'lengow_'.$attributeName, 'boolean');
+                    $crudService->update($tableName, 'lengow_' . $attributeName, 'boolean');
                 } else {
                     // @legacy Shopware < 5.2
                     $lengowBootstrap->Application()->Models()->addAttribute(
@@ -189,7 +189,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                     'log/install/add_column',
                     array(
                         'column' => $attributeName,
-                        'table'  => $tableName
+                        'table' => $tableName
                     )
                 );
             }
@@ -231,22 +231,22 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
      */
     protected function tableExist($tableName)
     {
-        $sql = "SHOW TABLES LIKE '".$tableName."'";
+        $sql = "SHOW TABLES LIKE '" . $tableName . "'";
         $result = Shopware()->Db()->fetchRow($sql);
         return !empty($result);
     }
 
     /**
      * Check if a column exists
-     * 
+     *
      * @param string $tableName Lengow table name
      * @param string $columnName Lengow column name
-     * 
+     *
      * @return boolean
      */
     protected function columnExists($tableName, $columnName)
     {
-        $sql= "DESCRIBE ".$tableName;
+        $sql = "DESCRIBE " . $tableName;
         $result = Shopware()->Db()->fetchAll($sql);
         foreach ($result as $data) {
             if ($data['Field'] == $columnName) {

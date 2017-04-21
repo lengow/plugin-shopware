@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * It is available through the world-wide-web at this URL:
  * https://www.gnu.org/licenses/agpl-3.0
  *
@@ -42,7 +42,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data'    => $status
+                'data' => $status
             )
         );
     }
@@ -70,7 +70,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data'    => $data
+                'data' => $data
             )
         );
     }
@@ -89,7 +89,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $totalOrder = $result['order_error'] + $result['order_new'];
         // Retrieve log of the day
         $logUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getPathPlugin() .
-            'Logs/logs-'.date('Y-m-d').'.txt';
+            'Logs/logs-' . date('Y-m-d') . '.txt';
         // If error during import process
         if (!$success) {
             $data['error'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
@@ -136,7 +136,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data'    => $data
+                'data' => $data
             )
         );
     }

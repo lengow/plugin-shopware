@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * It is available through the world-wide-web at this URL:
  * https://www.gnu.org/licenses/agpl-3.0
  *
@@ -49,11 +49,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * @var array default options for Curl
      */
-    public static $curlOpts = array (
+    public static $curlOpts = array(
         CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 10,
-        CURLOPT_USERAGENT      => 'lengow-php-sdk',
+        CURLOPT_TIMEOUT => 10,
+        CURLOPT_USERAGENT => 'lengow-php-sdk',
     );
 
     /**
@@ -84,19 +84,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * @var array lengow url for Curl timeout
      */
-    protected $lengowUrls = array (
-        '/v3.0/orders'        => 15,
-        '/v3.0/marketplaces'  => 10, 
+    protected $lengowUrls = array(
+        '/v3.0/orders' => 15,
+        '/v3.0/marketplaces' => 10,
         '/v3.0/subscriptions' => 3,
-        '/v3.0/stats'         => 3,
-        '/v3.0/cms'           => 3,
+        '/v3.0/stats' => 3,
+        '/v3.0/cms' => 3,
     );
 
     /**
      * Make a new Lengow API Connector
      *
      * @param string $accessToken your access token
-     * @param string $secret      your secret
+     * @param string $secret your secret
      */
     public function __construct($accessToken, $secret)
     {
@@ -117,8 +117,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
             '/access/get_token',
             array(
                 'access_token' => $this->accessToken,
-                'secret'       => $this->secret,
-                'user_token'   => $userToken
+                'secret' => $this->secret,
+                'user_token' => $userToken
             ),
             'POST'
         );
@@ -136,11 +136,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * The API method
      *
      * @param string $method Lengow method API call
-     * @param array  $array  Lengow method API parameters
-     * @param string $type   type of request GET|POST|PUT|HEAD|DELETE|PATCH
+     * @param array $array Lengow method API parameters
+     * @param string $type type of request GET|POST|PUT|HEAD|DELETE|PATCH
      * @param string $format return format of API
-     * @param string $body   body datas for request
-     * 
+     * @param string $body body datas for request
+     *
      * @return array
      */
     public function call($method, $array = array(), $type = 'GET', $format = 'json', $body = '')
@@ -161,9 +161,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * Get API call
      *
      * @param string $method Lengow method API call
-     * @param array  $array  Lengow method API parameters
+     * @param array $array Lengow method API parameters
      * @param string $format return format of API
-     * @param string $body   body datas for request
+     * @param string $body body datas for request
      *
      * @return array The format data response
      */
@@ -176,9 +176,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * Post API call
      *
      * @param string $method Lengow method API call
-     * @param array  $array  Lengow method API parameters
+     * @param array $array Lengow method API parameters
      * @param string $format return format of API
-     * @param string $body   body datas for request
+     * @param string $body body datas for request
      *
      * @return array
      */
@@ -191,9 +191,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * Head API call
      *
      * @param string $method Lengow method API call
-     * @param array  $array  Lengow method API parameters
+     * @param array $array Lengow method API parameters
      * @param string $format return format of API
-     * @param string $body   body datas for request
+     * @param string $body body datas for request
      *
      * @return array
      */
@@ -206,9 +206,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * Put API call
      *
      * @param string $method Lengow method API call
-     * @param array  $array  Lengow method API parameters
+     * @param array $array Lengow method API parameters
      * @param string $format return format of API
-     * @param string $body   body datas for request
+     * @param string $body body datas for request
      *
      * @return array The format data response
      */
@@ -221,9 +221,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * Delete API call
      *
      * @param string $method Lengow method API call
-     * @param array  $array  Lengow method API parameters
+     * @param array $array Lengow method API parameters
      * @param string $format return format of API
-     * @param string $body   body datas for request
+     * @param string $body body datas for request
      *
      * @return array
      */
@@ -236,9 +236,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * Patch API call
      *
      * @param string $method Lengow method API call
-     * @param array  $array  Lengow method API parameters
+     * @param array $array Lengow method API parameters
      * @param string $format return format of API
-     * @param string $body   body datas for request
+     * @param string $body body datas for request
      *
      * @return array
      */
@@ -250,11 +250,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * Call API action
      *
-     * @param string $api    Lengow method API call
-     * @param array  $args   Lengow method API parameters
-     * @param string $type   type of request GET|POST|PUT|HEAD|DELETE|PATCH
+     * @param string $api Lengow method API call
+     * @param array $args Lengow method API parameters
+     * @param string $type type of request GET|POST|PUT|HEAD|DELETE|PATCH
      * @param string $format return format of API
-     * @param string $body   body datas for request
+     * @param string $body body datas for request
      *
      * @return array The format data response
      */
@@ -267,10 +267,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * Get data in specific format
      *
-     * @param mixed  $data   Curl response data
+     * @param mixed $data Curl response data
      * @param string $format return format of API
      *
-     * @return array
+     * @return mixed
      */
     private function format($data, $format)
     {
@@ -291,14 +291,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * Make Curl request
      *
-     * @param string $type  Lengow method API call
-     * @param string $url   Lengow API url
-     * @param array  $args  Lengow method API parameters
+     * @param string $type Lengow method API call
+     * @param string $url Lengow API url
+     * @param array $args Lengow method API parameters
      * @param string $token temporary access token
-     * @param string $body  body datas for request
+     * @param string $body body datas for request
      *
      * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException get Curl error
-     * 
+     *
      * @return array
      */
     protected function makeRequest($type, $url, $args, $token, $body = '')
@@ -313,7 +313,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
             $opts[CURLOPT_TIMEOUT] = $this->lengowUrls[$url];
         }
         // get url for a specific environment
-        $url = self::LENGOW_API_URL.$url;
+        $url = self::LENGOW_API_URL . $url;
         $opts[CURLOPT_CUSTOMREQUEST] = strtoupper($type);
         $url = parse_url($url);
         $opts[CURLOPT_PORT] = $url['port'];
@@ -322,13 +322,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         $opts[CURLOPT_VERBOSE] = false;
         if (isset($token)) {
             $opts[CURLOPT_HTTPHEADER] = array(
-                'Authorization: '.$token,
+                'Authorization: ' . $token,
             );
         }
-        $url = $url['scheme'].'://'.$url['host'].$url['path'];
+        $url = $url['scheme'] . '://' . $url['host'] . $url['path'];
         switch ($type) {
             case 'GET':
-                $opts[CURLOPT_URL] = $url.'?'.http_build_query($args);
+                $opts[CURLOPT_URL] = $url . '?' . http_build_query($args);
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Connector',
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
@@ -343,11 +343,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                         $opts[CURLOPT_HTTPHEADER],
                         array(
                             'Content-Type: application/json',
-                            'Content-Length: '.strlen($body)
+                            'Content-Length: ' . strlen($body)
                         )
                     );
                 }
-                $opts[CURLOPT_URL] = $url.'?'.http_build_query($args);
+                $opts[CURLOPT_URL] = $url . '?' . http_build_query($args);
                 $opts[CURLOPT_POSTFIELDS] = $body;
                 break;
             case 'PATCH':
@@ -390,7 +390,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
             $errorCurl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                 'lengow_log/exception/error_curl',
                 array(
-                    'error_code'    => $errorNumber,
+                    'error_code' => $errorNumber,
                     'error_message' => $errorText
                 )
             );
@@ -446,11 +446,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * Get result for a query Api
      *
-     * @param string                    $type   request type (GET / POST / PUT / PATCH)
-     * @param string                    $url    request url
-     * @param Shopware\Models\Shop\Shop $shop   Shopware shop instance
-     * @param array                     $params request params
-     * @param string                    $body   body datas for request
+     * @param string $type request type (GET / POST / PUT / PATCH)
+     * @param string $url request url
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     * @param array $params request params
+     * @param string $body body datas for request
      *
      * @return mixed
      */

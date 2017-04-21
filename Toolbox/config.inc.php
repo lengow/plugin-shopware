@@ -16,7 +16,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * It is available through the world-wide-web at this URL:
  * https://www.gnu.org/licenses/agpl-3.0
  *
@@ -32,9 +32,9 @@ use Shopware\Kernel;
 use Shopware\Components\HttpCache\AppCache;
 
 $toolboxPath = 'engine/Shopware/Plugins/Community/Backend/Lengow/Toolbox/';
-$currentDirectory = str_replace($toolboxPath, '', dirname($_SERVER['SCRIPT_FILENAME'])."/");
+$currentDirectory = str_replace($toolboxPath, '', dirname($_SERVER['SCRIPT_FILENAME']) . "/");
 
-require_once $currentDirectory.'autoload.php';
+require_once $currentDirectory . 'autoload.php';
 
 require_once('../Bootstrap.php');
 require_once('../Components/LengowTranslation.php');

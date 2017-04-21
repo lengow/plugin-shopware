@@ -19,7 +19,7 @@ use Doctrine\ORM\Query\Expr;
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * It is available through the world-wide-web at this URL:
  * https://www.gnu.org/licenses/agpl-3.0
  *
@@ -41,12 +41,12 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
      */
     public function getListAction()
     {
-        $treeId         = $this->Request()->getParam('categoryId');
-        $filterParams   = $this->Request()->getParam('filter', array());
-        $filterBy       = $this->Request()->getParam('filterBy');
-        $order          = $this->Request()->getParam('sort', null);
-        $start          = $this->Request()->getParam('start', 0);
-        $limit          = $this->Request()->getParam('limit', 20);
+        $treeId = $this->Request()->getParam('categoryId');
+        $filterParams = $this->Request()->getParam('filter', array());
+        $filterBy = $this->Request()->getParam('filterBy');
+        $order = $this->Request()->getParam('sort', null);
+        $start = $this->Request()->getParam('start', 0);
+        $limit = $this->Request()->getParam('limit', 20);
         $categoryId = $treeId;
         $shopId = $treeId;
         $ids = explode('_', $treeId);
@@ -91,7 +91,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         if ($filterBy == 'inStock') {
             $builder->andWhere('details.inStock > 0');
         } elseif ($filterBy == 'lengowProduct') {
-            $builder->andWhere('attributes.lengowShop'.$shopId.'Active = 1');
+            $builder->andWhere('attributes.lengowShop' . $shopId . 'Active = 1');
         } elseif ($filterBy == 'noCategory') {
             $builder->leftJoin('articles.allCategories', 'allCategories')
                 ->andWhere('allCategories.id IS NULL');
@@ -160,11 +160,11 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $result = $builder->getQuery()->getArrayResult();
         $this->View()->assign(
             array(
-                'success'             => true,
-                'data'                => $result,
-                'total'               => $totalProducts,
+                'success' => true,
+                'data' => $result,
+                'total' => $totalProducts,
                 'nbProductsAvailable' => $export->getTotalProducts(),
-                'nbExportedProducts'  => $export->getExportedProducts()
+                'nbExportedProducts' => $export->getExportedProducts()
             )
         );
     }
@@ -179,12 +179,12 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     private function getAllCategoriesClause($selectedCategory)
     {
         $children = $selectedCategory->getChildren();
-        $where = 'categories.id = '.$selectedCategory->getId();
+        $where = 'categories.id = ' . $selectedCategory->getId();
         foreach ($children as $child) {
             if ($child->isLeaf()) {
-                $where.= ' OR categories.id = '.$child->getId();
+                $where .= ' OR categories.id = ' . $child->getId();
             } else {
-                $where.= ' OR '.$this->getAllCategoriesClause($child);
+                $where .= ' OR ' . $this->getAllCategoriesClause($child);
             }
         }
         return $where;
@@ -196,11 +196,11 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     public function exportAction()
     {
         $host = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getBaseUrl();
-        $exportUrl = $host .'/LengowController/export';
+        $exportUrl = $host . '/LengowController/export';
         $this->View()->assign(
             array(
                 'success' => true,
-                'url'     => $exportUrl
+                'url' => $exportUrl
             )
         );
     }
@@ -231,7 +231,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             foreach ($attributeIds as $id) {
                 $attribute = $em->getReference('Shopware\Models\Attribute\Article', $id);
                 if ($attribute) {
-                    $column = 'setLengowShop'.$shopId.'Active';
+                    $column = 'setLengowShop' . $shopId . 'Active';
                     $attribute->$column($active);
                     $em->persist($attribute);
                     $em->flush($attribute);
@@ -244,8 +244,8 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
      * Edit Lengow status for articles from a specific category
      *
      * @param Shopware\Models\Category\Category $category Shopware category instance
-     * @param integer                           $shopId   Shopware shop id
-     * @param boolean                           $status   Lengow status to set for articles which belong to the category
+     * @param integer $shopId Shopware shop id
+     * @param boolean $status Lengow status to set for articles which belong to the category
      */
     private function setLengowStatusFromCategory($category, $shopId, $status)
     {
@@ -261,7 +261,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                     $attribute = $article->getAttribute();
                 }
                 if ($attribute != null) {
-                    $column = 'setLengowShop'.$shopId.'Active';
+                    $column = 'setLengowShop' . $shopId . 'Active';
                     $attribute->$column($status);
                     $em->persist($attribute);
                     $em->flush($attribute);
@@ -290,12 +290,10 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             foreach ($shops as $shop) {
                 $mainCategory = $shop->getCategory();
                 $result[] = array(
-                    'leaf'         => $mainCategory->isLeaf(),
-                    'text'         => $shop->getName(),
-                    'id'           => $shop->getId(),
-                    'lengowStatus' => Shopware_Plugins_Backend_Lengow_Components_LengowSync::checkSyncShop(
-                        $shop
-                    )
+                    'leaf' => $mainCategory->isLeaf(),
+                    'text' => $shop->getName(),
+                    'id' => $shop->getId(),
+                    'lengowStatus' => Shopware_Plugins_Backend_Lengow_Components_LengowSync::checkSyncShop($shop)
                 );
             }
         } else {
@@ -316,7 +314,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                 $result[] = array(
                     'leaf' => $category->isLeaf(),
                     'text' => $category->getName(),
-                    'id'   => $shopId.'_'.$category->getId() // Required to have a unique id in the tree
+                    'id' => $shopId . '_' . $category->getId() // Required to have a unique id in the tree
                 );
             }
         }
@@ -324,7 +322,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data'    => $result
+                'data' => $result
             )
         );
     }
@@ -364,7 +362,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data'    => $result
+                'data' => $result
             )
         );
     }
@@ -379,7 +377,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data'    => $defaultShop->getId()
+                'data' => $defaultShop->getId()
             )
         );
     }
