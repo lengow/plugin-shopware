@@ -20,21 +20,21 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
 
         // Loading message
         Ext.getCmp('syncPanel').getEl().mask();
-        var sync_iframe = document.getElementById("lengow_iframe");
-        if (sync_iframe) {
+        var syncIframe = document.getElementById("lengow_iframe");
+        if (syncIframe) {
             if (me.syncLink) {
-                // me.url = 'http://cms.lengow.io/sync/';
-                // me.url = 'http://cms.lengow.net/sync/';
-                me.url = 'http://cms.lengow.rec/sync/';
-                // me.url = 'http://cms.lengow.dev/sync/';
+                // me.url = '//cms.lengow.io/sync/';
+                // me.url = '//cms.lengow.net/sync/';
+                me.url = '//cms.lengow.rec/sync/';
+                // me.url = '//cms.lengow.dev/sync/';
             } else {
-                // me.url = 'http://cms.lengow.io/';
-                // me.url = 'http://cms.lengow.net/';
-                me.url = 'http://cms.lengow.rec/';
-                // me.url = 'http://cms.lengow.dev/';
+                // me.url = '//cms.lengow.io/';
+                // me.url = '//cms.lengow.net/';
+                me.url = '//cms.lengow.rec/';
+                // me.url = '//cms.lengow.dev/';
             }
-            sync_iframe.src = me.url;
-            sync_iframe.onload = function() {
+            syncIframe.src = me.url+'?lang='+me.langIsoCode;
+            syncIframe.onload = function() {
                 Ext.Ajax.request({
                     url: '{url controller="LengowSync" action="getIsSync"}',
                     method: 'POST',
@@ -51,7 +51,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
                 });
             };
             // Show iframe content
-            sync_iframe.style.display = "block";
+            syncIframe.style.display = "block";
         }
 
         window.addEventListener('message', receiveMessage, false);
@@ -59,6 +59,10 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
         function receiveMessage(event) {
             switch (event.data.function) {
                 case 'sync':
+                    // Store lengow information into Shopware :
+                    // account_id
+                    // access_token
+                    // secret_token
                     Ext.Ajax.request({
                         url: '{url controller="LengowSync" action="getIsSync"}',
                         method: 'POST',
@@ -70,6 +74,10 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
                     });
                     break;
                 case 'sync_and_reload':
+                    // Store lengow information into Shopware and reload it
+                    // account_id
+                    // access_token
+                    // secret_token
                     Ext.Ajax.request({
                         url: '{url controller="LengowSync" action="getIsSync"}',
                         method: 'POST',
@@ -86,6 +94,8 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
                     });
                     break;
                 case 'reload':
+                case 'cancel':
+                    // Reload the parent page (after sync is ok)
                     Shopware.app.Application.addSubApplication({
                         name: 'Shopware.apps.Lengow'
                     });

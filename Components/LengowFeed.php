@@ -1,48 +1,55 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Components
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
 
 /**
- * Copyright 2016 Lengow SAS.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * Lengow Feed Class
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
 {
     /**
-     * Protection.
+     * @var string CSV Protection
      */
     const PROTECTION = '"';
 
     /**
-     * CSV separator
+     * @var string CSV separator
      */
     const CSV_SEPARATOR = '|';
 
     /**
-     * End of line.
+     * @var string end of line
      */
     const EOL = "\r\n";
 
     /**
-     * @var string name of file containing part of export (in cas of timeout)
-     */
-    public $part_file_name;
-
-    /**
-     * @var Shopware_Plugins_Backend_Lengow_Components_LengowFile temporary export file
+     * @var Shopware_Plugins_Backend_Lengow_Components_LengowFile Lengow File instance
      */
     protected $file;
 
@@ -59,17 +66,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     /**
      * @var string export shop folder
      */
-    protected $shop_folder = null;
+    protected $shopFolder = null;
 
     /**
      * @var string full export folder
      */
-    protected $export_folder;
+    protected $exportFolder;
 
     /**
      * @var array formats available for export
      */
-    public static $AVAILABLE_FORMATS = array(
+    public static $availableFormats = array(
         'csv',
         'yaml',
         'xml',
@@ -77,17 +84,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     );
 
     /**
-     * @var string lengow export folder
+     * @var string Lengow export folder
      */
-    public static $LENGOW_EXPORT_FOLDER = 'Export';
+    public static $lengowExportFolder = 'Export';
 
-    public function __construct($stream, $format, $shop_name = null, $part_file_name = null)
+    /**
+     * Construct
+     *
+     * @var boolean $stream export streaming or in a file
+     * @var string $format export format
+     * @var string $shopName Shopware shop name
+     */
+    public function __construct($stream, $format, $shopName)
     {
         $this->stream = $stream;
         $this->format = $format;
-        $this->part_file_name = $part_file_name;
-        $this->shop_name = $shop_name;
-        $this->shop_folder = self::formatFields($shop_name, 'shop');
+        $this->shopFolder = $this->formatFields($shopName);
         if (!$this->stream) {
             $this->initExportFile();
         }
@@ -95,56 +107,55 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
 
     /**
      * Create export file
+     *
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException unable to create folder
      */
     public function initExportFile()
     {
         $sep = DIRECTORY_SEPARATOR;
-        $this->export_folder = self::$LENGOW_EXPORT_FOLDER . $sep . $this->shop_folder;
-        $folder_path = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder()
-            .$sep.$this->export_folder;
-        if (!file_exists($folder_path)) {
-            if (!mkdir($folder_path)) {
+        $this->exportFolder = self::$lengowExportFolder . $sep . $this->shopFolder;
+        $folderPath = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder()
+            . $sep . $this->exportFolder;
+        if (!file_exists($folderPath)) {
+            if (!mkdir($folderPath)) {
                 throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log/export/error_unable_to_create_folder',
-                        array('folder_path' => $folder_path)
+                        array('folder_path' => $folderPath)
                     )
                 );
             }
         }
-        if ($this->part_file_name) {
-            $file_name = $this->part_file_name;
-        } else {
-            $file_name = 'flux-'.time().'.'.$this->format;
-        }
-        $this->file = new Shopware_Plugins_Backend_Lengow_Components_LengowFile($this->export_folder, $file_name);
+        $fileName = 'flux-' . time() . '.' . $this->format;
+        $this->file = new Shopware_Plugins_Backend_Lengow_Components_LengowFile($this->exportFolder, $fileName);
     }
 
     /**
      * Write data in file
-     * @param string  $type     Type of data (header|body|footer)
-     * @param array   $data     Data to write
-     * @param boolean $is_first True if first call (used for json format)
+     *
+     * @param string $type data type (header, body or footer)
+     * @param array $data export data
+     * @param boolean $isFirst is first product
      */
-    public function write($type, $data = array(), $is_first = null)
+    public function write($type, $data = array(), $isFirst = null)
     {
         switch ($type) {
             case 'header':
                 if ($this->stream) {
-                    header(self::getHtmlHeader($this->format));
+                    header($this->getHtmlHeader());
                     if ($this->format == 'csv') {
                         header('Content-Disposition: attachment; filename=feed.csv');
                     }
                 }
-                $header = self::getHeader($data, $this->format);
+                $header = $this->getHeader($data);
                 $this->flush($header);
                 break;
             case 'body':
-                $body = self::getBody($data, $is_first, $this->format);
+                $body = $this->getBody($data, $isFirst);
                 $this->flush($body);
                 break;
             case 'footer':
-                $footer = self::getFooter($this->format);
+                $footer = $this->getFooter();
                 $this->flush($footer);
                 break;
         }
@@ -153,72 +164,70 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     /**
      * Return feed header
      *
-     * @param array  $data   Data to display
-     * @param string $format Feed format
+     * @param array $data export data
      *
      * @return string
      */
-    public static function getHeader($data, $format = 'csv')
+    protected function getHeader($data)
     {
-        switch ($format) {
+        switch ($this->format) {
             case 'csv':
                 $header = '';
                 foreach ($data as $field) {
-                    $header.= self::PROTECTION.self::formatFields($field).self::PROTECTION.self::CSV_SEPARATOR;
+                    $header .= self::PROTECTION . $this->formatFields($field) . self::PROTECTION . self::CSV_SEPARATOR;
                 }
-                return rtrim($header, self::CSV_SEPARATOR).self::EOL;
+                return rtrim($header, self::CSV_SEPARATOR) . self::EOL;
             case 'xml':
-                return '<?xml version="1.0" encoding="UTF-8"?>'.self::EOL
-                .'<catalog>'.self::EOL;
+                return '<?xml version="1.0" encoding="UTF-8"?>' . self::EOL
+                . '<catalog>' . self::EOL;
             case 'json':
                 return '{"catalog":[';
             case 'yaml':
-                return '"catalog":'.self::EOL;
+                return '"catalog":' . self::EOL;
         }
     }
 
     /**
      * Get feed body
      *
-     * @param string  $format   feed format
-     * @param array   $data     feed data
-     * @param boolean $is_first is first product
+     * @param array $data feed data
+     * @param boolean $isFirst is first product
      *
      * @return string
      */
-    public static function getBody($data, $is_first, $format = 'csv')
+    protected function getBody($data, $isFirst)
     {
-        switch ($format) {
+        switch ($this->format) {
             case 'csv':
                 $content = '';
                 foreach ($data as $value) {
-                    $content.= self::PROTECTION.$value.self::PROTECTION.self::CSV_SEPARATOR;
+                    $content .= self::PROTECTION . $value . self::PROTECTION . self::CSV_SEPARATOR;
                 }
-                return rtrim($content, self::CSV_SEPARATOR).self::EOL;
+                return rtrim($content, self::CSV_SEPARATOR) . self::EOL;
             case 'xml':
                 $content = '<product>';
                 foreach ($data as $field => $value) {
-                    $field = self::formatFields($field, $format);
-                    $content.= '<'.$field.'><![CDATA['.$value.']]></'.$field.'>'.self::EOL;
+                    $field = $this->formatFields($field);
+                    $content .= '<' . $field . '><![CDATA[' . $value . ']]></' . $field . '>' . self::EOL;
                 }
-                $content.= '</product>'.self::EOL;
+                $content .= '</product>' . self::EOL;
                 return $content;
             case 'json':
-                $content = $is_first ? '' : ',';
-                $json_array = array();
+                $content = $isFirst ? '' : ',';
+                $jsonArray = array();
                 foreach ($data as $field => $value) {
-                    $field = self::formatFields($field, $format);
-                    $json_array[$field] = $value;
+                    $field = $this->formatFields($field);
+                    $jsonArray[$field] = $value;
                 }
-                $content .= json_encode($json_array);
+                $content .= json_encode($jsonArray);
                 return $content;
             case 'yaml':
-                $content = '  '.self::PROTECTION.'product'.self::PROTECTION.':'.self::EOL;
-                $fieldMaxSize = self::getFieldMaxSize($data);
+                $content = '  ' . self::PROTECTION . 'product' . self::PROTECTION . ':' . self::EOL;
+                $fieldMaxSize = $this->getFieldMaxSize($data);
                 foreach ($data as $field => $value) {
-                    $field = self::formatFields($field, $format);
-                    $content.= '    '.self::PROTECTION.$field.self::PROTECTION.':';
-                    $content.= self::indentYaml($field, $fieldMaxSize).(string)$value.self::EOL;
+                    $field = $this->formatFields($field);
+                    $content .= '    ' . self::PROTECTION . $field . self::PROTECTION . ':';
+                    $content .= $this->indentYaml($field, $fieldMaxSize) . (string)$value . self::EOL;
                 }
                 return $content;
         }
@@ -227,13 +236,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     /**
      * Return feed footer
      *
-     * @param string $format feed format
-     *
      * @return string
      */
-    public static function getFooter($format = 'csv')
+    protected function getFooter()
     {
-        switch ($format) {
+        switch ($this->format) {
             case 'xml':
                 return '</catalog>';
             case 'json':
@@ -262,25 +269,25 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     /**
      * Finalize export generation
      *
-     * @return bool
+     * @return boolean
      */
     public function end()
     {
         $this->write('footer');
         if (!$this->stream) {
-            $old_file_name = 'flux.'.$this->format;
-            $old_file = new Shopware_Plugins_Backend_Lengow_Components_LengowFile($this->export_folder, $old_file_name);
-            if ($old_file->exists()) {
-                $old_file_path = $old_file->getPath();
-                $old_file->delete();
+            $oldFileName = 'flux.' . $this->format;
+            $oldFile = new Shopware_Plugins_Backend_Lengow_Components_LengowFile($this->exportFolder, $oldFileName);
+            if ($oldFile->exists()) {
+                $oldFilePath = $oldFile->getPath();
+                $oldFile->delete();
             }
-            if (isset($old_file_path)) {
-                $rename = $this->file->rename($old_file_path);
-                $this->file->file_name = $old_file_name;
+            if (isset($oldFilePath)) {
+                $rename = $this->file->rename($oldFilePath);
+                $this->file->fileName = $oldFileName;
             } else {
                 $sep = DIRECTORY_SEPARATOR;
-                $rename = $this->file->rename($this->file->getFolderPath().$sep.$old_file_name);
-                $this->file->file_name = $old_file_name;
+                $rename = $this->file->rename($this->file->getFolderPath() . $sep . $oldFileName);
+                $this->file->fileName = $oldFileName;
             }
             return $rename;
         }
@@ -310,13 +317,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     /**
      * Return HTML header according to the given format
      *
-     * @param string $format feed format
-     *
      * @return string
      */
-    public static function getHtmlHeader($format)
+    protected function getHtmlHeader()
     {
-        switch ($format) {
+        switch ($this->format) {
             case 'csv':
                 return 'Content-Type: text/csv; charset=UTF-8';
             case 'xml':
@@ -331,14 +336,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     /**
      * Format field names according to the given format
      *
-     * @param string $str    field name
-     * @param string $format feed format
+     * @param string $str field name
      *
      * @return string
      */
-    public static function formatFields($str, $format = 'csv')
+    protected function formatFields($str)
     {
-        switch ($format) {
+        switch ($this->format) {
             case 'csv':
                 return substr(
                     preg_replace(
@@ -359,7 +363,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
                         '/[^a-zA-Z0-9_]+/',
                         '',
                         str_replace(
-                            array(' ','\''),
+                            array(' ', '\''),
                             '_',
                             Shopware_Plugins_Backend_Lengow_Components_LengowMain::replaceAccentedChars($str)
                         )
@@ -369,19 +373,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     }
 
     /**
-     * For YAML, add spaces to have good indentation.
+     * For YAML, add spaces to have good indentation
      *
-     * @param string $name    the field name
-     * @param string $maxsize space limit
+     * @param string $name the field name
+     * @param string $maxSize space limit
      *
      * @return string
      */
-    protected static function indentYaml($name, $maxsize)
+    protected function indentYaml($name, $maxSize)
     {
         $strlen = strlen($name);
         $spaces = '';
-        for ($i = $strlen; $i <= $maxsize; $i++) {
-            $spaces.= ' ';
+        for ($i = $strlen; $i <= $maxSize; $i++) {
+            $spaces .= ' ';
         }
         return $spaces;
     }
@@ -390,42 +394,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
      * Get the maximum length of the fields
      * Used for indentYaml function
      *
-     * @param array $fields List of fields to export
+     * @param array $fields list of fields to export
      *
-     * @return integer Length of the longer field
+     * @return integer
      */
-    protected static function getFieldMaxSize($fields)
+    protected function getFieldMaxSize($fields)
     {
         $maxSize = 0;
         foreach ($fields as $key => $field) {
-            $field = self::formatFields($key);
+            $field = $this->formatFields($key);
             if (strlen($field) > $maxSize) {
                 $maxSize = strlen($field);
             }
         }
         return $maxSize;
-    }
-
-    /**
-     * Get file links for a shop
-     *
-     * @param string $shopName Shop name
-     *
-     * @return array()
-     */
-    public static function getLinks($shopName = null)
-    {
-        $sep = DIRECTORY_SEPARATOR;
-        $folder = self::$LENGOW_EXPORT_FOLDER.$sep.self::formatFields($shopName, 'shop');
-        /** @var Shopware_Plugins_Backend_Lengow_Components_LengowFile[] $files */
-        $files = Shopware_Plugins_Backend_Lengow_Components_LengowFile::getFilesFromFolder($folder);
-        if (empty($files)) {
-            return false;
-        }
-        $feeds = array();
-        foreach ($files as $file) {
-            $feeds[] = $file->getLink();
-        }
-        return $feeds;
     }
 }

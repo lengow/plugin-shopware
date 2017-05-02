@@ -6,8 +6,12 @@
     "support_mail": "support.lengow.zendesk@lengow.com",
     "license": "proprietary",
     "link": "http://lengow.com",
-    "currentVersion": "1.0.4",
+    "currentVersion": "1.1.0",
     "changes": {
+        "1.1.0": {
+            "releasedate": "2016-05-02",
+            "line": ""
+        },
         "1.0.4": {
             "releasedate": "2016-11-07",
             "line": ""
@@ -31,6 +35,7 @@
     },
     "changelog": {
         "en": {
+            "1.1.0": "Feature: Add get_sync parameter for cron; Feature: Add PSR-2 coding standards; Feature: Delete out of stock and variation options for export; Feature: Add locale variable for Lengow Iframe; Feature: Add supplier field for export; Bugfix: Get images for article variations; Bugfix: Optimize Lengow Statistics; Bugfix: Add https protocol for Lengow iframe",
             "1.0.4": "Bugfix: change translations; Bugfix: replace html br by space in cleanHtml function; Bugfix: change cron url with no shop parameter; Bugfix: Optimize curl request; Bugfix: Optimize export process",
             "1.0.3": "Bugfix: refresh status for free trial; Bugfix: Fix bug with currency GET parameter; Feature: add new get_params parameter for export; Feature: add 403 and 400 headers for export process",
             "1.0.2": "Feature: add french translation; Feature: add new Lengow Logos; Bugfix: optimize getStatistic() for no API results; Bugfix: optimize getStatusAccount()",

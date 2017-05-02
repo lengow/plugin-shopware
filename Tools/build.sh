@@ -12,7 +12,7 @@
 
 remove_if_exist(){
     if [ -f $1 ]; then
-      rm $1
+        rm $1
     fi
 }
 
@@ -85,6 +85,8 @@ remove_directory $FOLDER_TMP
 cp -rRp $FOLDER $FOLDER_TMP
 # Remove .gitkeep
 remove_files $FOLDER_TMP ".gitkeep"
+# Remove dod
+remove_files $FOLDER_TMP "dod.md"
 # Remove Readme
 remove_files $FOLDER_TMP "README.md"
 # Remove .git

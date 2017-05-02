@@ -51,7 +51,7 @@ fr:
   help:
     screen:
       title: "Demandez de l'aide à notre équipe Support !"
-      contain_text_support: "Des questions, un feedback sur Lengow... transmettez vos demandes au "
+      contain_text_support: "Des questions, un feedback sur Lengow... transmettez vos demandes au"
       title_lengow_support: "support Lengow"
       link_lengow_support: "https://supportlengow.zendesk.com/hc/fr/requests/new"
       need_some_help: "Besoin d'aide ?"
@@ -90,12 +90,6 @@ fr:
     lengow_export_settings:
       label: "Paramètres d'export"
       description: "Définissez les paramètres pour créer votre flux."
-      variation:
-        label: "Exporter les déclinaisons produit"
-        description: "Activez cette option si vous souhaitez exporter tout votre catalogue avec les déclinaisons produit"
-      out_stock:
-        label: "Exporter les produits hors stock"
-        description: "Activez cette option si vous souhaitez exporter vos produits hors stock"
       disabled_products:
         label: "Exporter les produits inactifs"
         description: "Activez cette option si vous souhaitez exporter les produits inactifs"
@@ -143,8 +137,6 @@ fr:
         remove: "Retirer de l'export"
       checkbox:
         edit_all: "Sélectionner tous vos produits"
-        variations: "Inclure les produits déclinés"
-        out_stock: "Inclure les produits hors stock"
         selection: "Inclure les produits spécifiques"
       label:
         counter:

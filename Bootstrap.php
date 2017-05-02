@@ -1,31 +1,47 @@
 <?php
 /**
- * Copyright 2016 Lengow SAS.
+ * Copyright 2017 Lengow SAS
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
+ * NOTICE OF LICENSE
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
  *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category   Lengow
+ * @package    Lengow
+ * @author     Team module <team-module@lengow.com>
+ * @copyright  2017 Lengow SAS
+ * @license    https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
+
+/**
+ * Bootstrap Class
  */
 class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plugin_Bootstrap
 {
     /**
-     * @inheritdoc
+     * Returns plugin version
+     *
+     * @throws Exception
+     *
+     * @return string
      */
     public function getVersion()
     {
-        $info = json_decode(file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'plugin.json'), true);
+        $info = json_decode(file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'plugin.json'), true);
         if ($info) {
             return $info['currentVersion'];
         } else {
@@ -34,26 +50,30 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * @inheritdoc
+     * Returns plugin info
+     *
+     * @return array
      */
     public function getInfo()
     {
-        $info = json_decode(file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'plugin.json'), true);
+        $info = json_decode(file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'plugin.json'), true);
         return array(
-            'version'     => $this->getVersion(),
-            'label'       => $info['label'],
-            'source'      => $this->getSource(),
-            'author'      => $info['author'],
-            'copyright'   => $info['copyright'],
+            'version' => $this->getVersion(),
+            'label' => $info['label'],
+            'source' => $this->getSource(),
+            'author' => $info['author'],
+            'copyright' => $info['copyright'],
             'description' => $info['description'],
-            'support'     => $info['support_mail'],
-            'link'        => $info['link'],
-            'changes'     => $info['changes']
+            'support' => $info['support_mail'],
+            'link' => $info['link'],
+            'changes' => $info['changes']
         );
     }
 
     /**
-     * @inheritdoc
+     * Install plugin method
+     *
+     * @return array
      */
     public function install()
     {
@@ -63,14 +83,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         }
         $this->registerController('Backend', 'Lengow');
         $this->registerController('Frontend', 'LengowController');
-        $this->createMenuItem(array(
-            'label'      => 'Lengow',
-            'controller' => 'Lengow',
-            'action'     => 'Index',
-            'active'     => 1,
-            'parent'     => $this->Menu()->findOneBy(array('label' => 'Einstellungen')),
-            'class'      => 'lengow--icon'
-        ));
+        $this->createMenuItem(
+            array(
+                'label' => 'Lengow',
+                'controller' => 'Lengow',
+                'action' => 'Index',
+                'active' => 1,
+                'parent' => $this->Menu()->findOneBy(array('label' => 'Einstellungen')),
+                'class' => 'lengow--icon'
+            )
+        );
         self::log('log/install/add_menu');
         $lengowForm = new Shopware_Plugins_Backend_Lengow_Bootstrap_Form();
         $lengowForm->createConfig();
@@ -86,7 +108,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * @inheritdoc
+     * Register custom models after init
      */
     public function afterInit()
     {
@@ -94,7 +116,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * @inheritdoc
+     * Update plugin method
+     *
+     * @param string $oldVersion old version number
+     *
+     * @return boolean
      */
     public function update($oldVersion)
     {
@@ -112,7 +138,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * @inheritdoc
+     * Uninstall plugin method
+     *
+     * @return boolean
      */
     public function uninstall()
     {
@@ -130,7 +158,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     private function registerMyTemplateDir()
     {
-        Shopware()->Template()->addTemplateDir($this->Path().'Views');
+        Shopware()->Template()->addTemplateDir($this->Path() . 'Views');
     }
 
     /**
@@ -187,7 +215,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
     /**
      * Listen to basic settings changes. Add/remove lengow column from s_articles_attributes
-     * @param $args Enlight_Event_EventArgs $arguments
+     *
+     * @param Enlight_Event_EventArgs $args Shopware Enlight Controller Action instance
      */
     public function onPostDispatchBackendConfig($args)
     {
@@ -226,7 +255,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function onGetHomeControllerPath()
     {
-        return $this->Path().'Controllers/Backend/LengowHome.php';
+        return $this->Path() . 'Controllers/Backend/LengowHome.php';
     }
 
     /**
@@ -236,7 +265,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function onGetExportControllerPath()
     {
-        return $this->Path().'Controllers/Backend/LengowExport.php';
+        return $this->Path() . 'Controllers/Backend/LengowExport.php';
     }
 
     /**
@@ -246,7 +275,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function onGetImportControllerPath()
     {
-        return $this->Path().'Controllers/Backend/LengowImport.php';
+        return $this->Path() . 'Controllers/Backend/LengowImport.php';
     }
 
     /**
@@ -256,7 +285,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function onGetSyncControllerPath()
     {
-        return $this->Path().'Controllers/Backend/LengowSync.php';
+        return $this->Path() . 'Controllers/Backend/LengowSync.php';
     }
 
     /**
@@ -266,7 +295,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function onGetLogControllerPath()
     {
-        return $this->Path().'Controllers/Backend/LengowLogs.php';
+        return $this->Path() . 'Controllers/Backend/LengowLogs.php';
     }
 
     /**
@@ -276,12 +305,13 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function onGetHelpControllerPath()
     {
-        return $this->Path().'Controllers/Backend/LengowHelp.php';
+        return $this->Path() . 'Controllers/Backend/LengowHelp.php';
     }
 
     /**
      * Load Lengow icon. Triggered when Shopware backend is loaded
-     * @param Enlight_Controller_ActionEventArgs $args
+     *
+     * @param Enlight_Controller_ActionEventArgs $args Shopware Enlight Controller Action instance
      */
     public function onPostDispatchBackendIndex(Enlight_Controller_ActionEventArgs $args)
     {
@@ -292,10 +322,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * Log when installing/uninstalling the plugin
+     * Log when installing / uninstalling the plugin
      *
-     * @param $key string Translation key
-     * @param $params array Parameters to put in the translations
+     * @param string $key translation key
+     * @param array $params parameters to put in the translations
      */
     public static function log($key, $params = array())
     {

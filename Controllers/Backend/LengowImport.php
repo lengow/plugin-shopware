@@ -1,23 +1,35 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Controllers
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
 
 /**
- * Copyright 2016 Lengow SAS.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * Backend Lengow Import Controller
  */
 class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Backend_ExtJs
 {
@@ -27,10 +39,12 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     public function getImportSettingStatusAction()
     {
         $status = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowEnableImport');
-        $this->View()->assign(array(
-            'success' => true,
-            'data'    => $status
-        ));
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $status
+            )
+        );
     }
 
     /**
@@ -53,10 +67,12 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             $locale,
             array('import_date' => $lastImport)
         );
-        $this->View()->assign(array(
-            'success' => true,
-            'data'    => $data
-        ));
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $data
+            )
+        );
     }
 
     /**
@@ -73,7 +89,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $totalOrder = $result['order_error'] + $result['order_new'];
         // Retrieve log of the day
         $logUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getPathPlugin() .
-            'Logs/logs-'.date('Y-m-d').'.txt';
+            'Logs/logs-' . date('Y-m-d') . '.txt';
         // If error during import process
         if (!$success) {
             $data['error'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
@@ -117,9 +133,11 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 $locale
             );
         }
-        $this->View()->assign(array(
-            'success' => true,
-            'data'    => $data
-        ));
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $data
+            )
+        );
     }
 }

@@ -77,6 +77,8 @@ Le module est alors directement compilé et copier sur le bureau avec le bon nom
 
 9 - Bien nommer la pull request et mettre toutes les informations nécessaires à la vérification
 
-10 - Mettre tous les Reviewers nécessaires à la vérification et créer la pull request
+10 - Reprendre la liste du Definition of done (dod.md) et vérifier chaques critère et l'insérer dans la description
 
-11 - Lorsque la pull request est validée, elle sera mergée sur la branche de dev
+11 - Mettre tous les Reviewers nécessaires à la vérification et créer la pull request
+
+12 - Lorsque la pull request est validée, elle sera mergée sur la branche de dev

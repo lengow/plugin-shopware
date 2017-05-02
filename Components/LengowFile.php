@@ -1,58 +1,91 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Components
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
 
 /**
- * Copyright 2016 Lengow SAS.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * Lengow File Class
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowFile
 {
     /**
      * @var string file name
      */
-    public $file_name;
+    public $fileName;
 
     /**
      * @var string folder name that contains the file
      */
-    public $folder_name;
+    public $folderName;
 
     /**
-     * @var ressource file hande
+     * @var string file link
+     */
+    public $link;
+
+    /**
+     * @var resource a file pointer resource
      */
     public $instance;
 
-
-    public function __construct($folder_name, $file_name = null, $mode = 'a+')
+    /**
+     * Construct
+     *
+     * @param string $folderName Lengow folder name
+     * @param string $fileName Lengow file name
+     * @param string $mode type of access
+     *
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException unable to create file
+     */
+    public function __construct($folderName, $fileName = null, $mode = 'a+')
     {
-        $this->file_name = $file_name;
-        $this->folder_name = $folder_name;
-        $this->instance = self::getRessource($this->getPath(), $mode);
+        $this->fileName = $fileName;
+        $this->folderName = $folderName;
+        $this->instance = self::getResource($this->getPath(), $mode);
         if (!is_resource($this->instance)) {
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/export/error_unable_to_create_file',
                     array(
-                        'file_name'   => $file_name,
-                        'folder_name' => $folder_name
+                        'file_name' => $fileName,
+                        'folder_name' => $folderName
                     )
                 )
             );
         }
+    }
+
+    /**
+     * Destruct
+     */
+    public function __destruct()
+    {
+        $this->close();
     }
 
     /**
@@ -89,7 +122,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
      *
      * @return resource
      */
-    public static function getRessource($path, $mode = 'a+')
+    public static function getResource($path, $mode = 'a+')
     {
         return fopen($path, $mode);
     }
@@ -108,7 +141,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
             $sep = DIRECTORY_SEPARATOR;
             $base = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getBaseUrl();
             $lengowDir = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getPathPlugin();
-            $this->link = $base . $lengowDir . $this->folder_name . $sep . $this->file_name;
+            $this->link = $base . $lengowDir . $this->folderName . $sep . $this->fileName;
         }
         return $this->link;
 
@@ -122,7 +155,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
     public function getPath()
     {
         $sep = DIRECTORY_SEPARATOR;
-        return Shopware()->Plugins()->Backend()->Lengow()->Path() . $this->folder_name . $sep . $this->file_name;
+        return Shopware()->Plugins()->Backend()->Lengow()->Path() . $this->folderName . $sep . $this->fileName;
     }
 
     /**
@@ -132,23 +165,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
      */
     public function getFolderPath()
     {
-        $sep = DIRECTORY_SEPARATOR;
-        return Shopware()->Plugins()->Backend()->Lengow()->Path() . $this->folder_name;
-    }
-
-    public function __destruct()
-    {
-        $this->close();
+        return Shopware()->Plugins()->Backend()->Lengow()->Path() . $this->folderName;
     }
 
     /**
      * Rename file
      *
+     * @param string $newName new file name
+     *
      * @return boolean
      */
-    public function rename($new_name)
+    public function rename($newName)
     {
-        return rename($this->getPath(), $new_name);
+        return rename($this->getPath(), $newName);
     }
 
     /**
@@ -164,7 +193,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
     /**
      * Check if current file exists
      *
-     * @return bool
+     * @return boolean
      */
     public function exists()
     {
@@ -176,17 +205,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
      *
      * @param string $folder folder name
      *
-     * @return Shopware_Plugins_Backend_Lengow_Components_LengowFile[] List of files
+     * @return array|false
      */
     public static function getFilesFromFolder($folder)
     {
-        $folder_path = Shopware()->Plugins()->Backend()->Lengow()->Path() . $folder;
-        if (!file_exists($folder_path)) {
+        $folderPath = Shopware()->Plugins()->Backend()->Lengow()->Path() . $folder;
+        if (!file_exists($folderPath)) {
             return false;
         }
-        $folder_content = scandir($folder_path);
+        $folderContent = scandir($folderPath);
         $files = array();
-        foreach ($folder_content as $file) {
+        foreach ($folderContent as $file) {
             if (!preg_match('/^\.[a-zA-Z\.]+$|^\.$|index\.php/', $file)) {
                 $files[] = new Shopware_Plugins_Backend_Lengow_Components_LengowFile($folder, $file);
             }

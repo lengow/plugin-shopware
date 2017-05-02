@@ -1,44 +1,56 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Components
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
 
 /**
- * Copyright 2016 Lengow SAS.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * Lengow Translation Class
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
 {
     /**
-     * @var array $translation
+     * @var array all translations
      */
     protected static $translation = null;
 
     /**
-     * @var string Fallback iso code
+     * @var string fallback iso code
      */
     public $fallbackIsoCode = 'default';
 
     /**
      * Translate message
      *
-     * @param string $message
-     * @param array  $args
-     * @param string $isoCode
+     * @param string $message localization key
+     * @param array $args arguments to replace word in string
+     * @param string $isoCode translation iso code
      *
-     * @return string Final Translate string
+     * @return string
      */
     public function t($message, $args = array(), $isoCode = null)
     {
@@ -54,7 +66,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
             if (isset(self::$translation[$this->fallbackIsoCode][$message])) {
                 return $this->translateFinal(self::$translation[$this->fallbackIsoCode][$message], $args);
             } else {
-                return 'Missing Translation ['.$message.']';
+                return 'Missing Translation [' . $message . ']';
             }
         }
     }
@@ -62,10 +74,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
     /**
      * Translate string
      *
-     * @param string $text
-     * @param array  $args
+     * @param string $text localization key
+     * @param array $args arguments to replace word in string
      *
-     * @return string Final Translate string
+     * @return string
      */
     protected function translateFinal($text, $args)
     {
@@ -73,7 +85,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
             $params = array();
             $values = array();
             foreach ($args as $key => $value) {
-                $params[] = '%{'.$key.'}';
+                $params[] = '%{' . $key . '}';
                 $values[] = $value;
             }
             return stripslashes(str_replace($params, $values, $text));
@@ -85,16 +97,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
     /**
      * Load ini file
      *
+     * @param string $isoCode translation iso code
      * @param string $fileName file location
-     * @param string $isoCode
+     *
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
      *
      * @return boolean
      */
-    public static function loadFile($fileName = null, $isoCode = null)
+    public static function loadFile($isoCode = null, $fileName = null)
     {
         if (!$fileName) {
             $pluginPath = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder();
-            $fileName = $pluginPath.'Snippets/backend/Lengow/translation.ini';
+            $fileName = $pluginPath . 'Snippets/backend/Lengow/translation.ini';
         }
         $translation = array();
         if (file_exists($fileName)) {
@@ -103,7 +117,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
             } catch (Exception $e) {
                 throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                        'Translation file could not be load : '.$e
+                        'Translation file could not be load : ' . $e
                     )
                 );
             }
@@ -113,9 +127,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
     }
 
     /**
-     * File contains Iso code
+     * File contains iso code
      *
-     * @param string $isoCode
+     * @param string $isoCode translation iso code
      *
      * @return boolean
      */
@@ -129,7 +143,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
 
     /**
      * Get translations from an array
-     * @param $keys
+     *
+     * @param array $keys list of translation keys
+     *
      * @return array
      */
     public static function getTranslationsFromArray($keys)
@@ -141,14 +157,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
         foreach ($keys as $path => $key) {
             foreach ($key as $value) {
                 $translationParam = array();
-                if (preg_match('/^(([a-z\_]*\/){1,3}[a-z\_]*)(\[(.*)\]|)$/', $path.$value, $result)) {
+                if (preg_match('/^(([a-z\_]*\/){1,3}[a-z\_]*)(\[(.*)\]|)$/', $path . $value, $result)) {
                     if (isset($result[1])) {
                         $tKey = $result[1];
+                        if (isset($params[$key])) {
+                            $translationParam = $params[$key];
+                        }
+                        $translations[$value] = $lengowTranslation->t($tKey, $translationParam, $locale);
                     }
-                    if (isset($params[$key])) {
-                        $translationParam = $params[$key];
-                    }
-                    $translations[$value] = $lengowTranslation->t($tKey, $translationParam, $locale);
                 }
             }
         }

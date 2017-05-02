@@ -1,46 +1,62 @@
 <?php
+/**
+ * Copyright 2017 Lengow SAS
+ *
+ * NOTICE OF LICENSE
+ *
+ * According to our dual licensing model, this program can be used either
+ * under the terms of the GNU Affero General Public License, version 3,
+ * or under a proprietary license.
+ *
+ * The texts of the GNU Affero General Public License with an additional
+ * permission and of our proprietary license can be found at and
+ * in the LICENSE file you have received along with this program.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * It is available through the world-wide-web at this URL:
+ * https://www.gnu.org/licenses/agpl-3.0
+ *
+ * @category    Lengow
+ * @package     Lengow
+ * @subpackage  Components
+ * @author      Team module <team-module@lengow.com>
+ * @copyright   2017 Lengow SAS
+ * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
+ */
 
 /**
- * Copyright 2016 Lengow SAS.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
- * a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- *
- * @author    Team Connector <team-connector@lengow.com>
- * @copyright 2016 Lengow SAS
- * @license   http://www.apache.org/licenses/LICENSE-2.0
+ * Lengow Marketplace Class
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
 {
-
     /**
-     * @var mixed all marketplaces allowed for an account ID
+     * @var array all marketplaces allowed for an account ID
      */
-    public static $MARKETPLACES = array();
+    public static $marketplaces = array();
 
     /**
-     * @var string the name of the marketplace
+     * @var mixed the current marketplace
+     */
+    public $marketplace;
+
+    /**
+     * @var string the code of the marketplace
      */
     public $name;
 
     /**
      * @var boolean if the marketplace is loaded
      */
-    public $is_loaded = false;
+    public $isLoaded = false;
 
     /**
      * @var array Lengow states => marketplace states
      */
-    public $states_lengow = array();
+    public $statesLengow = array();
 
     /**
      * @var array marketplace states => Lengow states
@@ -58,20 +74,35 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     public $carriers = array();
 
     /**
-     * Construct a new Marketplace instance with xml configuration.
+     * @var array all possible values for actions of the marketplace
+     */
+    public $argValues = array();
+
+    /**
+     * @var \Shopware\Models\Shop\Shop Shopware shop instance
+     */
+    public $shop;
+
+    /**
+     * @var integer Shopware shop id
+     */
+    public $idShop;
+
+    /**
+     * Construct a new Marketplace instance with xml configuration
      *
-     * @param string  $name                   The name of the marketplace
-     * @param Shopware\Models\Shop\Shop $shop Shop object used for Connector
+     * @param string $name name of the marketplace
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException marketplace not present
      */
     public function __construct($name, $shop = null)
     {
         $this->shop = $shop;
-        $this->id_shop = $shop->getId();
+        $this->idShop = $shop->getId();
         $this->loadApiMarketplace();
         $this->name = strtolower($name);
-        if (!isset(self::$MARKETPLACES[$this->id_shop]->{$this->name})) {
+        if (!isset(self::$marketplaces[$this->idShop]->{$this->name})) {
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'lengow_log/exception/marketplace_not_present',
@@ -79,11 +110,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                 )
             );
         }
-        $this->marketplace = self::$MARKETPLACES[$this->id_shop]->{$this->name};
+        $this->marketplace = self::$marketplaces[$this->idShop]->{$this->name};
         if (!empty($this->marketplace)) {
             foreach ($this->marketplace->orders->status as $key => $state) {
                 foreach ($state as $value) {
-                    $this->states_lengow[(string)$value] = (string)$key;
+                    $this->statesLengow[(string)$value] = (string)$key;
                     $this->states[(string)$key][(string)$value] = (string)$value;
                 }
             }
@@ -94,8 +125,29 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                 foreach ($action->args as $arg) {
                     $this->actions[(string)$key]['args'][(string)$arg] = (string)$arg;
                 }
-                foreach ($action->optional_args as $optional_arg) {
-                    $this->actions[(string)$key]['optional_args'][(string)$optional_arg] = $optional_arg;
+                foreach ($action->optional_args as $optionalArg) {
+                    $this->actions[(string)$key]['optional_args'][(string)$optionalArg] = $optionalArg;
+                }
+                foreach ($action->args_description as $argKey => $argDescription) {
+                    $validValues = array();
+                    if (isset($argDescription->valid_values)) {
+                        foreach ($argDescription->valid_values as $code => $validValue) {
+                            $validValues[(string)$code] = isset($validValue->label)
+                                ? (string)$validValue->label
+                                : (string)$validValue;
+                        }
+                    }
+                    $defaultValue = isset($argDescription->default_value)
+                        ? (string)$argDescription->default_value
+                        : '';
+                    $acceptFreeValue = isset($argDescription->accept_free_values)
+                        ? (bool)$argDescription->accept_free_values
+                        : true;
+                    $this->argValues[(string)$argKey] = array(
+                        'default_value' => $defaultValue,
+                        'accept_free_values' => $acceptFreeValue,
+                        'valid_values' => $validValues
+                    );
                 }
             }
             if (isset($this->marketplace->orders->carriers)) {
@@ -103,7 +155,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                     $this->carriers[(string)$key] = (string)$carrier->label;
                 }
             }
-            $this->is_loaded = true;
+            $this->isLoaded = true;
         }
     }
 
@@ -112,27 +164,27 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      */
     public function loadApiMarketplace()
     {
-        if (!array_key_exists($this->id_shop, self::$MARKETPLACES)) {
+        if (!array_key_exists($this->idShop, self::$marketplaces)) {
             $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
                 'get',
                 '/v3.0/marketplaces',
                 $this->shop
             );
-            self::$MARKETPLACES[$this->id_shop] = $result;
+            self::$marketplaces[$this->idShop] = $result;
         }
     }
 
     /**
-     * Get the real lengow's state
+     * Get the real lengow's order state
      *
-     * @param string $name The marketplace state
+     * @param string $name marketplace order state
      *
-     * @return string The lengow state
+     * @return string
      */
     public function getStateLengow($name)
     {
-        if (array_key_exists($name, $this->states_lengow)) {
-            return $this->states_lengow[$name];
+        if (array_key_exists($name, $this->statesLengow)) {
+            return $this->statesLengow[$name];
         }
         return null;
     }
