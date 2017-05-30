@@ -14,7 +14,6 @@ $listFolders = array(
     '/Components',
     '/Controllers',
     '/Models',
-    '/Snippets',
     '/Toolbox',
     '/Views',
     '/Webservice',
@@ -25,6 +24,7 @@ $filePaths = array(
     $base.'/description.html',
     $base.'/plugin.json',
     $base.'/plugin.php',
+    $base.'/Snippets/backend/Lengow/translation.ini',
 );
 
 foreach ($listFolders as $folder) {
