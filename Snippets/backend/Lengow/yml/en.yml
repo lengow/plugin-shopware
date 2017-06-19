@@ -84,6 +84,9 @@ en:
       secret:
         label: "Secret Token"
         description: "Your secret token. Please do not change it."
+      ip_enable:
+        label: "Enable authorisation by IP"
+        description: "Enable this option if you want your export to be secured by IP. By default, your export is secured by a unique key."
       ip:
         label: "Authorised IPs"
         description: "Authorise IP to get access to your export feed.\nSeparate them ' ; '"

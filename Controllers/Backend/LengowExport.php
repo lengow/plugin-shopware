@@ -381,4 +381,21 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             )
         );
     }
+
+    /**
+     * Get shop token for a specific shop
+     */
+    public function getShopTokenAction()
+    {
+        $shopId = $this->Request()->getParam('shopId');
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $shop = $em->getRepository('Shopware\Models\Shop\Shop')->find($shopId);
+        $shopToken = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop);
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $shopToken
+            )
+        );
+    }
 }
