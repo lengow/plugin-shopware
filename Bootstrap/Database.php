@@ -101,8 +101,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
      */
     public function createCustomModels()
     {
-        $AllModels = $this->getCustomModels();
-        foreach ($AllModels as $tableName => $model) {
+        $allModels = $this->getCustomModels();
+        foreach ($allModels as $tableName => $model) {
             // Check that the table does not exist
             if (!self::tableExist($tableName)) {
                 $this->schemaTool->createSchema(array($model));

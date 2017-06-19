@@ -132,6 +132,7 @@ default:
       shopware_version: "Shopware version"
       plugin_version: "Plugin version"
       ip_server: "Server IP"
+      ip_enabled: "Authorisation by IP enabled"
       ip_authorized: "IP authorised"
       preprod_disabled: "Pre-production mode disabled"
       cron_enable: "Cron job set in the Crontab module"

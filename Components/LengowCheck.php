@@ -175,6 +175,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
             'message' => $_SERVER['SERVER_ADDR']
         );
         $checklist[] = array(
+            'title' => $this->locale->t('toolbox/index/ip_enabled'),
+            'state' => (int)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowIpEnabled')
+        );
+        $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/ip_authorized'),
             'message' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAuthorizedIp')
         );
