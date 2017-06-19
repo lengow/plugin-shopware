@@ -33,6 +33,7 @@ default:
       add_form: "Creating %{formName} form"
       add_menu: "Installing menu item"
       add_model: "Adding custom model %{name}"
+      add_upgrade_version: "Adding data for the plugin version %{version}"
     uninstall:
       start: "## start uninstall ##"
       end: "## end uninstall ##"
@@ -43,6 +44,7 @@ default:
       call_api: "call %{curl_url}"
       error_api: "API call failed - %{error_code}"
     import:
+      not_valid_action: "Action: %{action} is not a valid action"
       start: "## start %{type} import ##"
       end: "## end %{type} import ##"
       preprod_mode_active: "warning ! Pre-prod mode is activated"
@@ -81,6 +83,8 @@ default:
       export_failed: "export failed - %{decoded_message}"
       your_feed_available_here: "Your feed is available here: %{feed_url}"
       unauthorised_ip: "Unauthorized access for IP: %{ip}"
+      unauthorised_token: "Unauthorised access for this token: %{token}"
+      empty_token: "Unauthorised access: token parameter is empty"
       specify_shop: "Please specify a shop to export (ie. : ?shop=1)"
       shop_dont_exist: "The following shop %{shop_id} does not exist. Please specify a valid shop name in : %{shop_ids}"
       error_unable_to_create_folder: "unable to create folder %{folder_path}. Make sure it is writable"
@@ -128,6 +132,7 @@ default:
       shopware_version: "Shopware version"
       plugin_version: "Plugin version"
       ip_server: "Server IP"
+      ip_enabled: "Authorisation by IP enabled"
       ip_authorized: "IP authorised"
       preprod_disabled: "Pre-production mode disabled"
       cron_enable: "Cron job set in the Crontab module"

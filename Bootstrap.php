@@ -94,14 +94,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             )
         );
         self::log('log/install/add_menu');
+        $em = self::getEntityManager();
         $lengowForm = new Shopware_Plugins_Backend_Lengow_Bootstrap_Form();
         $lengowForm->createConfig();
-        $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
+        $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database($em);
         $lengowDatabase->updateSchema();
-        $this->registerMyEvents();
-        $this->registerCustomModels();
         $lengowDatabase->createCustomModels();
         $lengowDatabase->setLengowSettings();
+        $this->registerMyEvents();
+        $this->registerCustomModels();
         $this->Plugin()->setActive(true);
         self::log('log/install/end');
         return array('success' => true, 'invalidateCache' => array('backend'));
@@ -118,13 +119,23 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     /**
      * Update plugin method
      *
-     * @param string $oldVersion old version number
+     * @param string $version version number
      *
-     * @return boolean
+     * @return array
      */
-    public function update($oldVersion)
+    public function update($version)
     {
-        return true;
+        $em = self::getEntityManager();
+        $lengowForm = new Shopware_Plugins_Backend_Lengow_Bootstrap_Form();
+        $lengowForm->createConfig();
+        $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database($em);
+        $lengowDatabase->updateSchema();
+        $lengowDatabase->createCustomModels();
+        $lengowDatabase->updateCustomModels($version);
+        $lengowDatabase->setLengowSettings();
+        $this->registerMyEvents();
+        $this->registerCustomModels();
+        return array('success' => true, 'invalidateCache' => array('backend'));
     }
 
     /**
@@ -145,8 +156,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public function uninstall()
     {
         self::log('log/uninstall/start');
+        $em = self::getEntityManager();
         // Remove custom attributes
-        $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
+        $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database($em);
         $lengowDatabase->removeAllLengowColumns();
         $lengowDatabase->removeCustomModels();
         self::log('log/uninstall/end');
@@ -231,7 +243,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         // If action is from Shopware basics settings plugin and editing shop form
         if ($controllerName == 'Config' && $repositoryName == 'shop') {
             $action = $request->getActionName();
-            $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
+            $em = self::getEntityManager();
+            $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database($em);
             $data = $request->getPost();
             // If new shop, get last entity put in db
             if ($action == 'saveValues') {

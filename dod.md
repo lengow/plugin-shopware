@@ -2,7 +2,7 @@
 
 ## Liste des critères  ##
 	
-* Recetter sa feature sur les versions 4.3 et 5.2 :
+* Recetter sa feature sur les versions 4.3, 5.2 et 5.3 :
 * Pas de modification de comportement de fonction :
 * Principe SOLID (au moins le S) :
 * Coding Style (PSR2) :

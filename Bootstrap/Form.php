@@ -78,6 +78,13 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'description' => 'settings/lengow_main_settings/secret/description',
                 'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
+            'lengowIpEnabled' => array(
+                'type' => 'boolean',
+                'label' => 'settings/lengow_main_settings/ip_enable/label',
+                'required' => true,
+                'value' => false,
+                'description' => 'settings/lengow_main_settings/ip_enable/description'
+            ),
             'lengowAuthorizedIp' => array(
                 'type' => 'text',
                 'label' => 'settings/lengow_main_settings/ip/label',
@@ -206,14 +213,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
      */
     protected function createSettingForm($name, $elements)
     {
-        $form = new \Shopware\Models\Config\Form;
-        $form->setName($name);
-        $form->setLabel($this->getTranslation('settings/' . $name . '/label'));
-        $form->setDescription($this->getTranslation('settings/' . $name . '/description'));
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $form = $em->getRepository('\Shopware\Models\Config\Form')->findOneBy(array('name' => $name));
+        if (is_null($form)) {
+            $form = new \Shopware\Models\Config\Form;
+            $form->setName($name);
+            $form->setLabel($this->getTranslation('settings/' . $name . '/label'));
+            $form->setDescription($this->getTranslation('settings/' . $name . '/description'));
+        }
         // @var Shopware\Models\Shop\Locale[] $locales
-        $locales = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager()
-            ->getRepository('\Shopware\Models\Shop\Locale')
-            ->findAll();
+        $locales = $em->getRepository('\Shopware\Models\Shop\Locale')->findAll();
         foreach ($elements as $key => $options) {
             $type = $options['type'];
             array_shift($options);
@@ -227,11 +236,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 if (Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::containsIso($isoCode)) {
                     $label = $this->getTranslation($options['label'], $isoCode);
                     $description = $this->getTranslation($options['description'], $isoCode);
-                    $translationModel = new \Shopware\Models\Config\ElementTranslation();
-                    $translationModel->setLabel($label);
-                    $translationModel->setDescription($description);
-                    $translationModel->setLocale($locale);
-                    $elementModel->addTranslation($translationModel);
+                    $translation = $em->getRepository('\Shopware\Models\Config\ElementTranslation')
+                        ->findOneBy(array('element' => $elementModel, 'locale' => $locale));
+                    if (is_null($translation)) {
+                        $translationModel = new \Shopware\Models\Config\ElementTranslation();
+                        $translationModel->setLabel($label);
+                        $translationModel->setDescription($description);
+                        $translationModel->setLocale($locale);
+                        $elementModel->addTranslation($translationModel);
+                    }
                 }
             }
         }
