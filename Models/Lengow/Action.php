@@ -127,6 +127,29 @@ class Action extends ModelEntity
     }
 
     /**
+     * Gets the value of order
+     *
+     * @return \Shopware\Models\Order\Order
+     */
+    public function getOrder()
+    {
+        return $this->order;
+    }
+
+    /**
+     * Sets the value of order
+     *
+     * @param \Shopware\Models\Order\Order $order Shopware order instance
+     *
+     * @return self
+     */
+    public function setOrder($order)
+    {
+        $this->order = $order;
+        return $this;
+    }
+
+    /**
      * Gets the value of action id side Lengow
      *
      * @return integer
