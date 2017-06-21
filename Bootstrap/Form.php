@@ -39,10 +39,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
      */
     public function createConfig()
     {
-        // @var Shopware_Plugins_Backend_Lengow_Bootstrap $lengowBootstrap
-        $lengowBootstrap = Shopware()->Plugins()->Backend()->Lengow();
         // @var Shopware\Models\Config\Form $mainForm
-        $mainForm = $lengowBootstrap->Form();
+        $mainForm = Shopware()->Plugins()->Backend()->Lengow()->Form();
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         // Main settings
         $mainSettingsElements = array(
@@ -200,7 +198,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 }
             }
         }
-        $lengowBootstrap::log('log/install/add_form', array('formName' => $lengowBootstrap->getName()));
+        Shopware_Plugins_Backend_Lengow_Bootstrap::log('log/install/add_form', array('formName' => 'Lengow'));
     }
 
     /**

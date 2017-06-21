@@ -24,7 +24,7 @@ use Shopware\Components\Model\ModelEntity,
 class Settings extends ModelEntity
 {
     /**
-     * @var integer $id
+     * @var integer
      *
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
@@ -33,51 +33,52 @@ class Settings extends ModelEntity
     private $id;
 
     /**
-     * @var integer $shopId
+     * @var integer
      *
      * @ORM\Column(name="shop_id", type="integer", nullable=true)
      */
     private $shopId;
 
     /**
-     * @var string $shop
+     * @var string
+     *
      * @ORM\ManyToOne(targetEntity="Shopware\Models\Shop\Shop")
      * @ORM\JoinColumn(name="shop_id", referencedColumnName="id")
      */
     private $shop;
 
     /**
-     * @var string $name
+     * @var string
      *
      * @ORM\Column(name="name", type="string", length=100, nullable=false)
      */
     private $name;
 
     /**
-     * @var string $value
+     * @var string
      *
      * @ORM\Column(name="value", type="string", length=100, nullable=true)
      */
     private $value;
 
     /**
-     * @var \DateTime $dateAdd
+     * @var \DateTime
      *
      * @ORM\Column(name="date_add", type="datetime", nullable=false)
      */
     private $dateAdd;
 
     /**
-     * @var \DateTime $dateUpd
+     * @var \DateTime
      *
      * @ORM\Column(name="date_upd", type="datetime", nullable=false)
      */
     private $dateUpd;
 
     /**
-     * Gets the value of id.
+     * Gets the value of id
      *
-     * @return integer $id
+     * @return integer
      */
     public function getId()
     {
@@ -85,23 +86,22 @@ class Settings extends ModelEntity
     }
 
     /**
-     * Sets the value of id.
+     * Sets the value of id
      *
-     * @param integer $id $id the id
+     * @param integer $id the id
      *
      * @return self
      */
     public function setId($id)
     {
         $this->id = $id;
-
         return $this;
     }
 
     /**
-     * Gets the value of shop.
+     * Gets the value of shop
      *
-     * @return string $shop
+     * @return string
      */
     public function getShop()
     {
@@ -109,23 +109,22 @@ class Settings extends ModelEntity
     }
 
     /**
-     * Sets the value of shop.
+     * Sets the value of shop
      *
-     * @param string $shop $shop the shop
+     * @param string $shop the shop
      *
      * @return self
      */
     public function setShop($shop)
     {
         $this->shop = $shop;
-
         return $this;
     }
 
     /**
-     * Gets the value of name.
+     * Gets the value of name
      *
-     * @return string $name
+     * @return string
      */
     public function getName()
     {
@@ -133,23 +132,22 @@ class Settings extends ModelEntity
     }
 
     /**
-     * Sets the value of name.
+     * Sets the value of name
      *
-     * @param string $name $name the name
+     * @param string $name the name
      *
      * @return self
      */
     public function setName($name)
     {
         $this->name = $name;
-
         return $this;
     }
 
     /**
-     * Gets the value of value.
+     * Gets the value of value
      *
-     * @return string $value
+     * @return string
      */
     public function getValue()
     {
@@ -157,23 +155,22 @@ class Settings extends ModelEntity
     }
 
     /**
-     * Sets the value of value.
+     * Sets the value of value
      *
-     * @param string $value $value the value
+     * @param string $value the value
      *
      * @return self
      */
     public function setValue($value)
     {
         $this->value = $value;
-
         return $this;
     }
 
     /**
-     * Gets the value of dateAdd.
+     * Gets the value of dateAdd
      *
-     * @return \DateTime $dateAdd
+     * @return \DateTime
      */
     public function getDateAdd()
     {
@@ -181,23 +178,22 @@ class Settings extends ModelEntity
     }
 
     /**
-     * Sets the value of dateAdd.
+     * Sets the value of dateAdd
      *
-     * @param \DateTime $dateAdd $dateAdd the date add
+     * @param \DateTime $dateAdd the date add
      *
      * @return self
      */
     public function setDateAdd($dateAdd)
     {
         $this->dateAdd = $dateAdd;
-
         return $this;
     }
 
     /**
-     * Gets the value of dateUpd.
+     * Gets the value of dateUpd
      *
-     * @return \DateTime $dateUpd
+     * @return \DateTime
      */
     public function getDateUpd()
     {
@@ -205,16 +201,15 @@ class Settings extends ModelEntity
     }
 
     /**
-     * Sets the value of dateUpd.
+     * Sets the value of dateUpd
      *
-     * @param \DateTime $dateUpd $dateUpd the date upd
+     * @param \DateTime $dateUpd the date upd
      *
      * @return self
      */
     public function setDateUpd($dateUpd)
     {
         $this->dateUpd = $dateUpd;
-
         return $this;
     }
 }
