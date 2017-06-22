@@ -100,6 +100,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $lengowDatabase->updateSchema();
         $lengowDatabase->createCustomModels();
         $lengowDatabase->setLengowSettings();
+        $this->createLengowPayment();
         $this->registerMyEvents();
         $this->registerCustomModels();
         $this->Plugin()->setActive(true);
@@ -134,6 +135,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $lengowDatabase->createCustomModels();
         $lengowDatabase->updateCustomModels($version);
         $lengowDatabase->setLengowSettings();
+        $this->createLengowPayment();
         $this->registerMyEvents();
         $this->registerCustomModels();
         return array(
@@ -226,6 +228,37 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Enlight_Controller_Action_PostDispatch_Backend_Config',
             'onPostDispatchBackendConfig'
         );
+    }
+
+    /**
+     * Fetches and returns lengow payment row instance
+     *
+     * @return object|null
+     */
+    public function getLengowPayment()
+    {
+        return $this->Payments()->findOneBy(
+            array('name' => 'lengow')
+        );
+    }
+
+    /**
+     * Creates and save the payment row
+     */
+    private function createLengowPayment()
+    {
+        $payment = $this->getLengowPayment();
+        if (is_null($payment)) {
+            $this->createPayment(
+                array(
+                    'active' => 0,
+                    'name' => 'lengow',
+                    'description' => 'Lengow',
+                    'additionalDescription' => 'Default payment for Lengow orders'
+                )
+            );
+            self::log('log/install/add_payment');
+        }
     }
 
     /**
