@@ -34,6 +34,7 @@ default:
       add_menu: "Installing menu item"
       add_model: "Adding custom model %{name}"
       add_upgrade_version: "Adding data for the plugin version %{version}"
+      add_payment: "Adding Lengow payment method"
     uninstall:
       start: "## start uninstall ##"
       end: "## end uninstall ##"
