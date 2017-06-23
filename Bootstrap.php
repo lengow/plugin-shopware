@@ -95,7 +95,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         );
         self::log('log/install/add_menu');
         $lengowForm = new Shopware_Plugins_Backend_Lengow_Bootstrap_Form();
-        $lengowForm->createConfig();
+        $lengowForm->createConfig($this->Form());
         $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
         $lengowDatabase->updateSchema();
         $lengowDatabase->createCustomModels();
@@ -129,7 +129,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public function update($version)
     {
         $lengowForm = new Shopware_Plugins_Backend_Lengow_Bootstrap_Form();
-        $lengowForm->createConfig();
+        $lengowForm->createConfig($this->Form());
         $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
         $lengowDatabase->updateSchema();
         $lengowDatabase->createCustomModels();

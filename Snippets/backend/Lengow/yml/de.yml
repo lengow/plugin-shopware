@@ -98,13 +98,9 @@ de:
         description: "Aktivieren Sie diese Option, wenn Sie nicht alle verfügbare Produkte exportieren möchten. Danach Ihre Produkte einzeln auswählen."
       dispatcher:
         label: "Default-Carrier"
-        description: "Default-Carrier für Ihre Orders auswählen"
     lengow_import_settings:
       label: "Importeinstellungen"
       description: "Bestellungen werden in Lengow zentralisiert. Hier können Sie die Bestellungen synchronisieren um den Lagerbestand in Ihrem Shopware-Backoffice zu verringern"
-      enable_import:
-        label: "Lagerbestand Synchronisierung aktivieren"
-        description: "Verwenden Sie diese Option, um den Lagerbestand in Ihrem Shopware-Backoffice zu verringern"
       decrease_stock:
         label: "Lagerbestand verringern für Bestellungen, die durch einen Marktplatz versandt werden"
         description: "Verwenden Sie diese Option, damit Bestellungen auf Marktplätzen in Ihrem Shopware-Backoffice einbezogen werden"

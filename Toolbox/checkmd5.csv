@@ -1,9 +1,9 @@
-/Bootstrap.php|f8db072e7b19e6972b4e614949ab4cde
+/Bootstrap.php|e6cd0178c086e70f4fe08746830d6db5
 /plugin.json|4ee97bd88932f0be7e9d92c0f8207889
-/Snippets/backend/Lengow/translation.ini|7d12cd7c4517a3b8703556bdcd8c4b81
-/Bootstrap/Database.php|cf3e34067cd9c1cb8086517e427f138d
-/Bootstrap/Form.php|35bb50ffbb9d0414f20851e9da63c38f
-/Components/LengowImportOrder.php|a440c6702207b57f89a34b4c3df90cc4
+/Snippets/backend/Lengow/translation.ini|6d078b24833c08fa3a3ff1b0f3574365
+/Bootstrap/Database.php|ed228319884a467aad997ef79fe3fe91
+/Bootstrap/Form.php|e86ea6e815fad0c38181b336a3fbe212
+/Components/LengowImportOrder.php|43e8aafbc17ed8c882f644c5fbe46e2d
 /Components/LengowSync.php|5dbd88f85ac60adb12112137b323d355
 /Components/LengowElements.php|eff41ec578d720d1986b0ec457d53b88
 /Components/LengowImport.php|71323a40ee64f81984d80c726d03f4fa
@@ -76,3 +76,4 @@
 /Views/backend/lengow/view/dashboard/panel.js|cdc902c99214d512147d2ed814f1c632
 /Views/backend/lengow/view/help/panel.js|8e12d782d8e404ff7f6d2fa0964572aa
 /Views/backend/lengow/view/logs/panel.js|fd9c5aaaed545bcf7b50bc31fce22c90
+/Upgrade/update_1.2.0.php|f71cd8e1bae2d6e1685983ed060bbdc4
