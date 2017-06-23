@@ -98,13 +98,9 @@ fr:
         description: "Activez cette option si vous ne voulez pas exporter tous vos produits disponibles. Sélectionnez ensuite les produits un par un."
       dispatcher:
         label: "Transporteur par défaut"
-        description: "Sélectionnez le transporteur par défaut à appliquer à vos commandes"
     lengow_import_settings:
       label: "Paramètres d'import"
       description: "Toutes vos commandes sont centralisées sur votre plateforme Lengow : choisissez ici si vous voulez synchroniser vos commandes afin de diminuer les stocks dans votre backoffice Shopware."
-      enable_import:
-        label: "Activer la synchronisation des stocks"
-        description: "Activez cette option pour diminuer les stocks dans votre backoffice Shopware"
       decrease_stock:
         label: "Diminuer mon stock avec les commandes envoyées par les places de marché."
         description: "Activez cette option pour prendre en compte les commandes des places de marché sur les stocks de votre backoffice Shopware."
