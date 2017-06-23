@@ -228,6 +228,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Enlight_Controller_Action_PostDispatch_Backend_Config',
             'onPostDispatchBackendConfig'
         );
+        // Order
+        $this->subscribeEvent(
+            'Enlight_Controller_Action_PostDispatch_Backend_Order',
+            'onOrderPostDispatch'
+        );
     }
 
     /**
@@ -381,5 +386,23 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Install',
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage($key, $params)
         );
+    }
+
+    public function onOrderPostDispatch(Enlight_Event_EventArgs $args)
+    {
+        /** @var \Enlight_Controller_Action $controller */
+        $controller = $args->getSubject();
+        $view = $controller->View();
+        $request = $controller->Request();
+
+        $view->addTemplateDir(__DIR__ . '/Views');
+
+        if ($request->getActionName() == 'index') {
+            $view->extendsTemplate('backend/lengow/order.js');
+        }
+
+        if ($request->getActionName() == 'load') {
+            $view->extendsTemplate('backend/lengow/view/order/window.js');
+        }
     }
 }
