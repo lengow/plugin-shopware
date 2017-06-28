@@ -189,7 +189,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'type' => 'boolean',
                 'label' => 'settings/lengow_import_settings/ship_mp_enabled/label',
                 'editable' => false,
-                'value' => true,
+                'value' => false,
                 'required' => false,
             ),
             'lengowImportStockMpEnabled' => array(
