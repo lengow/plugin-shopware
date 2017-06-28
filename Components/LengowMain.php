@@ -496,6 +496,43 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
+     * Load Lengow Payment Shopware
+     *
+     * @return Shopware\Models\Payment\Payment|null
+     */
+    public static function getLengowPayment()
+    {
+        $payment = Shopware()->Models()
+            ->getRepository('Shopware\Models\Payment\Payment')
+            ->findOneBy(array('name' => 'lengow'));
+        if (is_null($payment)) {
+            $plugin = Shopware()->Models()
+                ->getRepository('Shopware\Models\Plugin\Plugin')
+                ->findOneBy(array('name' => 'Lengow'));
+            if (!is_null($plugin) && !$plugin->getPayments()->isEmpty()) {
+                $payment = $plugin->getPayments()->first();
+            }
+        }
+        return $payment;
+    }
+
+    /**
+     * Clean phone number
+     *
+     * @param string $phone phone number to clean
+     *
+     * @return string
+     */
+    public static function cleanPhone($phone)
+    {
+        $replace = array('.', ' ', '-', '/');
+        if (!$phone) {
+            return '';
+        }
+        return str_replace($replace, '', preg_replace('/[^0-9]*/', '', $phone));
+    }
+
+    /**
      * Clean html
      *
      * @param string $html The html content
