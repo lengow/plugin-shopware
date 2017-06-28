@@ -152,6 +152,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
     /**
      * Update Shopware models
      * Add lengowActive attribute for each shop in Attributes model
+     * Add isFromLengow attribute for any shop in Attributes model
      */
     public function updateSchema()
     {
@@ -161,6 +162,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
             $shopIds[] = $shop->getId();
         }
         $this->addLengowColumns($shopIds);
+        $this->addFromLengowColumns();
     }
 
     /**
@@ -271,6 +273,39 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                     )
                 );
             }
+        }
+        $this->entityManager->generateAttributeModels(array($tableName));
+    }
+
+    /**
+     * Add a new column to the s_order_attributes table (if does not exist)
+     */
+    public function addFromLengowColumns()
+    {
+        // Check Shopware\Bundle\AttributeBundle\Service\CrudService::update compatibility
+        $crudCompatibility = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.2');
+        $tableName = 's_order_attributes';
+        $attributeName = 'is_from_lengow';
+        if (!self::columnExists($tableName, $attributeName)) {
+            if ($crudCompatibility) {
+                $crudService = Shopware()->Container()->get('shopware_attribute.crud_service');
+                $crudService->update($tableName, 'lengow_'.$attributeName, 'boolean');
+            } else {
+                // @legacy Shopware < 5.2
+                $this->entityManager->addAttribute(
+                    $tableName,
+                    'lengow',
+                    $attributeName,
+                    'boolean'
+                );
+            }
+            Shopware_Plugins_Backend_Lengow_Bootstrap::log(
+                'log/install/add_column',
+                array(
+                    'column' => $attributeName,
+                    'table' => $tableName,
+                )
+            );
         }
         $this->entityManager->generateAttributeModels(array($tableName));
     }

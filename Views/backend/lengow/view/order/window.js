@@ -3,13 +3,11 @@
 Ext.define('Shopware.apps.Lengow.view.order.Window', {
     override: 'Shopware.apps.Order.view.detail.Window',
 
-    getTabs: function() {
-        var me = this,
-            result = me.callParent();
-
-        result.push(Ext.create('Shopware.apps.Lengow.view.order.MyOwnTab'));
-
-        return result;
+    createTabPanel: function() {
+        var me = this;
+        var tabPanel = me.callParent(arguments);
+        tabPanel.insert(Ext.create('Shopware.apps.Lengow.view.order.LengowOrderTab'));
+        return tabPanel;
     }
 });
 //{/block}

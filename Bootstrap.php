@@ -397,11 +397,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
         $view->addTemplateDir(__DIR__ . '/Views');
 
-        if ($request->getActionName() == 'index') {
+        if ($request->getActionName() === 'index') {
             $view->extendsTemplate('backend/lengow/order.js');
         }
 
-        if ($request->getActionName() == 'load') {
+        if ($request->getActionName() === 'load') {
             $view->extendsTemplate('backend/lengow/view/order/window.js');
         }
     }

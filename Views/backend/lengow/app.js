@@ -12,7 +12,7 @@ Ext.define('Shopware.apps.Lengow', {
         'Dashboard',
         'Export',
         'Import',
-        'Help'
+        'Help',
     ],
     views: [
         'main.Home',
@@ -24,7 +24,7 @@ Ext.define('Shopware.apps.Lengow', {
         'export.Tree',
         'import.Panel',
         'logs.Panel',
-        'help.Panel'
+        'help.Panel',
     ],
     models: [
         'Article',
