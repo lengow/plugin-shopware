@@ -204,6 +204,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             'street' => strtolower($addressFields['street']),
             'additional_address_line_1' => strtolower($addressFields['additional_address_line_1']),
             'additional_address_line_2' => strtolower($addressFields['additional_address_line_2']),
+            'full_street' => strtolower($addressFields['full_address']),
             'zipcode' => (string)$addressDatas['zipcode'],
             'city' => ucfirst(strtolower(preg_replace('/[!<>?=+@{}_$%]/sim', '', $addressDatas['city']))),
             'country' => $country,
@@ -242,10 +243,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             $address->setSalutation($addressFields['salutation']);
             $address->setFirstName($addressFields['firstname']);
             $address->setLastName($addressFields['lastname']);
-            $address->setStreet($addressFields['street']);
             if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.0.0')) {
+                $address->setStreet($addressFields['street']);
                 $address->setAdditionalAddressLine1($addressFields['additional_address_line_1']);
                 $address->setAdditionalAddressLine2($addressFields['additional_address_line_2']);
+            } else {
+                $address->setStreet($addressFields['full_street']);
             }
             $address->setZipCode($addressFields['zipcode']);
             $address->setCity($addressFields['city']);
@@ -426,10 +429,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
                 $additionalAddressLine2 = '';
             }
         }
+        // get full address for Shopware version < 5.0.0
+        $fullAddress = $street;
+        if (!empty($additionalAddressLine1)) {
+            $fullAddress .= ' ' . $additionalAddressLine1;
+        }
+        if (!empty($additionalAddressLine2)) {
+            $fullAddress .= ' ' . $additionalAddressLine2;
+        }
         return array(
             'street' => $street,
             'additional_address_line_1' => $additionalAddressLine1,
             'additional_address_line_2' => $additionalAddressLine2,
+            'full_address' => $fullAddress
         );
     }
 

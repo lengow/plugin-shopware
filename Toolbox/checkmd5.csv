@@ -18,7 +18,7 @@
 /Components/LengowConnector.php|239890c3db877804cf880458d50506e2
 /Components/LengowException.php|f8c45db62dadad5d73cddf3d628d2cf3
 /Components/LengowMarketplace.php|81e302253acfeb801011c93f75fcaa50
-/Components/LengowAddress.php|a9902e6d23d3543352e8de1655727bd7
+/Components/LengowAddress.php|b78ecaf8ced3a73f1d4e9f4ab1c9ee38
 /Components/LengowProduct.php|6d63a484daa6335a65973244dae357f1
 /Components/LengowConfiguration.php|26f444b9fe28b59de090237f2b21453e
 /Controllers/Frontend/LengowController.php|3a3a6ada5468da0aade58581aea7ae93
