@@ -406,7 +406,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
     }
 
     /**
-     * Get clean phone number
+     * Get clean address fields
      *
      * @param array $addressDatas API address data
      *
