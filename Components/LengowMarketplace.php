@@ -49,6 +49,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     public $name;
 
     /**
+     * @var string the name of the marketplace
+     */
+    public $labelName;
+
+    /**
      * @var boolean if the marketplace is loaded
      */
     public $isLoaded = false;
@@ -112,6 +117,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
         }
         $this->marketplace = self::$marketplaces[$this->idShop]->{$this->name};
         if (!empty($this->marketplace)) {
+            $this->labelName = $this->marketplace->name;
             foreach ($this->marketplace->orders->status as $key => $state) {
                 foreach ($state as $value) {
                     $this->statesLengow[(string)$value] = (string)$key;

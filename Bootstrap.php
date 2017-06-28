@@ -231,23 +231,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * Fetches and returns lengow payment row instance
-     *
-     * @return object|null
-     */
-    public function getLengowPayment()
-    {
-        return $this->Payments()->findOneBy(
-            array('name' => 'lengow')
-        );
-    }
-
-    /**
      * Creates and save the payment row
      */
     private function createLengowPayment()
     {
-        $payment = $this->getLengowPayment();
+        $payment = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowPayment();
         if (is_null($payment)) {
             $this->createPayment(
                 array(

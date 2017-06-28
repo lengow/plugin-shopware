@@ -34,29 +34,36 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
 {
     /**
-     * Get ID record from lengow orders table
+     * Get Shopware order id from lengow order table
      *
      * @param string $marketplaceSku Lengow order id
-     * @param string $marketplace marketplace name
+     * @param string $marketplaceName marketplace name
      * @param integer $deliveryAddressId Lengow delivery address id
      *
      * @return integer|false
      */
-    public static function getIdFromLengowOrders($marketplaceSku, $marketplace, $deliveryAddressId)
+    public static function getOrderIdFromLengowOrder($marketplaceSku, $marketplaceName, $deliveryAddressId)
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $repository = $em->getRepository('Shopware\CustomModels\Lengow\Order');
-        $criteria = array(
-            'marketplaceSku' => $marketplaceSku,
-            'marketplaceName' => $marketplace,
-            'deliveryAddressId' => $deliveryAddressId
-        );
-        // @var Shopware\CustomModels\Lengow\Order $lengowOrder
-        $lengowOrder = $repository->findOneBy($criteria);
-        if ($lengowOrder != null) {
-            return $lengowOrder->getId();
-        } else {
-            return false;
+        $builder = $em->createQueryBuilder();
+        $builder->select('lo.orderId')
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
+            ->where('lo.marketplaceSku = :marketplaceSku')
+            ->andWhere('lo.marketplaceName = :marketplaceName')
+            ->andWhere('lo.deliveryAddressId = :deliveryAddressId')
+            ->andWhere('lo.orderProcessState != :orderProcessState')
+            ->setParameters(
+                array(
+                    'marketplaceSku' => $marketplaceSku,
+                    'marketplaceName' => $marketplaceName,
+                    'deliveryAddressId' => $deliveryAddressId,
+                    'orderProcessState' => 0
+                )
+            );
+        $orderId = $builder->getQuery()->getOneOrNullResult();
+        if (!is_null($orderId['orderId'])) {
+            return (int)$orderId['orderId'];
         }
+        return false;
     }
 }

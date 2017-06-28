@@ -108,7 +108,7 @@ class Order extends ModelEntity
      *
      * @ORM\Column(name="order_process_state", type="integer", nullable=false)
      */
-    private $orderProcessState;
+    private $orderProcessState = 0;
 
     /**
      * @var \DateTime
