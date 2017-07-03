@@ -104,7 +104,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $this->isVariation = $type == 'child' ? true : false;
         $this->currency = $currency;
         $this->factor = $this->currency->getFactor();
-        $this->getOptions();
+        $this->attributes = self::getArticleAttributes($this->details->getId());
         $this->getPrice();
     }
 
@@ -320,10 +320,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     }
 
     /**
-     * Get product options
+     * Get article attributes
+     *
+     * @param integer $detailId Shopware article detail id
+     *
+     * @return array
      */
-    private function getOptions()
+    public static function getArticleAttributes($detailId)
     {
+        $attributes = array();
         $select = array(
             'options.name AS value',
             'groups.name AS name'
@@ -333,12 +338,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             ->from('Shopware\Models\Article\Configurator\Group', 'groups')
             ->leftJoin('groups.options', 'options')
             ->leftJoin('options.articles', 'articles')
-            ->where('articles.id = :productId')
-            ->setParameter('productId', $this->details->getId());
+            ->where('articles.id = :detailId')
+            ->setParameter('detailId', $detailId);
         $result = $builder->getQuery()->getArrayResult();
         foreach ($result as $options) {
-            $this->attributes[strtolower($options['name'])] = $options['value'];
+            $attributes[strtolower($options['name'])] = $options['value'];
         }
+        return $attributes;
     }
 
     /**

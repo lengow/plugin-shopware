@@ -213,7 +213,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 'lengowExportDisabledProduct',
                 $this->shop
             );
-        $this->currency = isset($params['currency']) ? $params['currency'] : true;
         $this->mode = isset($params['mode']) ? $params['mode'] : false;
         $this->updateExportDate = isset($params['update_export_date']) ? (bool)$params['update_export_date'] : true;
         $this->setFormat(isset($params['format']) ? $params['format'] : 'csv');

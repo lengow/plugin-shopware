@@ -517,6 +517,89 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
+     * Get Shopware order status corresponding to the current order state
+     *
+     * @param string $orderStateMarketplace order state marketplace
+     * @param Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace $marketplace Lengow marketplace instance
+     * @param boolean $shipmentByMp order shipped by marketplace
+     *
+     * @return \Shopware\Models\Order\Status|false
+     */
+    public static function getShopwareOrderStatus($orderStateMarketplace, $marketplace, $shipmentByMp)
+    {
+        if ($marketplace->getStateLengow($orderStateMarketplace) === 'shipped'
+            || $marketplace->getStateLengow($orderStateMarketplace) === 'closed'
+        ) {
+            if ($shipmentByMp) {
+                return self::getOrderState('shipped_by_marketplace');
+            } else {
+                return self::getOrderState('shipped');
+            }
+        } else {
+            return self::getOrderState('accepted');
+        }
+    }
+
+    /**
+     * Get the matching Shopware order status to the one given
+     *
+     * @param string $orderState state to be matched
+     *
+     * @return \Shopware\Models\Order\Status|false
+     */
+    public static function getOrderState($orderState)
+    {
+        switch ($orderState) {
+            case 'accepted':
+            case 'waiting_shipment':
+                $settingName = 'lengowIdWaitingShipment';
+                break;
+            case 'shipped':
+            case 'closed':
+                $settingName = 'lengowIdShipped';
+                break;
+            case 'refused':
+            case 'canceled':
+                $settingName = 'lengowIdCanceled';
+                break;
+            case 'shipped_by_marketplace':
+                $settingName = 'lengowIdShippedByMp';
+                break;
+            default:
+                $settingName = false;
+                break;
+        }
+        if ($settingName) {
+            $orderStatusId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig($settingName);
+            $orderStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', (int)$orderStatusId);
+            if (!is_null($orderStatus)) {
+                return $orderStatus;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get tax associated with a dispatch
+     *
+     * @param Shopware\Models\Dispatch\Dispatch $dispatch Shopware dispatch instance
+     *
+     * @return Shopware\Models\Tax\Tax
+     */
+    public static function getDispatchTax($dispatch)
+    {
+        if ($dispatch->getTaxCalculation() !== 0 ) {
+            $taxId = (int)$dispatch->getTaxCalculation();
+        } else {
+            $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS sct.id 
+	     		FROM s_core_tax as sct
+	            WHERE sct.tax = (SELECT MAX(tax) from s_core_tax)";
+            $taxId = (int)Shopware()->Db()->fetchOne($sql);
+        }
+        return Shopware()->Models()->getReference('Shopware\Models\Tax\Tax', $taxId);
+    }
+
+    /**
      * Clean phone number
      *
      * @param string $phone phone number to clean

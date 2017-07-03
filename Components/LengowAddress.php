@@ -143,7 +143,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
     public function getCustomerAddress($newSchema = true, $typeAddress = 'billing')
     {
         $addressFields = ($newSchema || $typeAddress === 'billing') ? $this->billingDatas : $this->shippingDatas;
-        $params = array('street' => $addressFields['street']);
+        $params = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.0.0')
+            ? array('street' => $addressFields['street'])
+            : array('street' => $addressFields['full_street']);
         // get address repository for specific Shopware version
         if ($newSchema) {
             $model = 'Shopware\Models\Customer\Address';
@@ -151,11 +153,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             $params['lastname'] = $addressFields['firstname'];
             $params['zipcode'] = $addressFields['zipcode'];
         } else {
-            if ($typeAddress === 'billing') {
-                $model = 'Shopware\Models\Customer\Billing';
-            } else {
-                $model = 'Shopware\Models\Customer\Shipping';
-            }
+            $model = $typeAddress === 'billing'
+                ? 'Shopware\Models\Customer\Billing'
+                : 'Shopware\Models\Customer\Shipping';
             $params['firstName'] = $addressFields['firstname'];
             $params['lastName'] = $addressFields['firstname'];
             $params['zipCode'] = $addressFields['zipcode'];
@@ -164,6 +164,32 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
         $address = Shopware()->Models()->getRepository($model)->findOneBy($params);
         if (is_null($address)) {
             $address = $this->createCustomerAddress($addressFields, $newSchema, $typeAddress);
+        }
+        return $address;
+    }
+
+    /**
+     * Get Order address
+     *
+     * @param string $typeAddress Address type (billing or shipping)
+     *
+     * @return Shopware\Models\Order\Billing|Shopware\Models\Order\Shipping|false
+     */
+    public function getOrderAddress($typeAddress = 'billing')
+    {
+        $addressFields = $typeAddress === 'billing' ? $this->billingDatas : $this->shippingDatas;
+        $params = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.0.0')
+            ? array('street' => $addressFields['street'])
+            : array('street' => $addressFields['full_street']);
+        // get address repository for specific Shopware version
+        $model = $typeAddress === 'billing' ? 'Shopware\Models\Order\Billing' : 'Shopware\Models\Order\Shipping';
+        $params['firstName'] = $addressFields['firstname'];
+        $params['lastName'] = $addressFields['firstname'];
+        $params['zipCode'] = $addressFields['zipcode'];
+        // get address if exist
+        $address = Shopware()->Models()->getRepository($model)->findOneBy($params);
+        if (is_null($address)) {
+            $address = $this->createOrderAddress($addressFields, $typeAddress);
         }
         return $address;
     }
@@ -259,6 +285,60 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             }
             $address->setAttribute($addressAttribute);
             if ($typeAddress === 'billing' || $newSchema) {
+                $phone = !empty($addressFields['phone']) ? $addressFields['phone'] : $this->shippingDatas['phone'];
+                $address->setPhone($phone);
+            }
+            return $address;
+        } catch (Exception $e) {
+            $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($errorMessage);
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                'Import',
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/exception/order_insert_failed',
+                    array('decoded_message' => $decodedMessage)
+                )
+            );
+            return false;
+        }
+    }
+
+    /**
+     * Create order address
+     *
+     * @param array $addressFields field for Shopware order
+     * @param string $typeAddress Address type (billing or shipping)
+     *
+     * @return Shopware\Models\Order\Billing|Shopware\Models\Order\Shipping|false
+     */
+    protected function createOrderAddress($addressFields, $typeAddress)
+    {
+        try {
+            // get address object for specific Shopware version
+            if ($typeAddress === 'billing') {
+                $address = new Shopware\Models\Order\Billing();
+                $addressAttribute = new Shopware\Models\Attribute\OrderBilling();
+            } else {
+                $address = new Shopware\Models\Order\Shipping();
+                $addressAttribute = new Shopware\Models\Attribute\OrderShipping();
+            }
+            // set all data for all type of address Shopware
+            $address->setCompany($addressFields['company']);
+            $address->setSalutation($addressFields['salutation']);
+            $address->setFirstName($addressFields['firstname']);
+            $address->setLastName($addressFields['lastname']);
+            if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.0.0')) {
+                $address->setStreet($addressFields['street']);
+                $address->setAdditionalAddressLine1($addressFields['additional_address_line_1']);
+                $address->setAdditionalAddressLine2($addressFields['additional_address_line_2']);
+            } else {
+                $address->setStreet($addressFields['full_street']);
+            }
+            $address->setZipCode($addressFields['zipcode']);
+            $address->setCity($addressFields['city']);
+            $address->setCountry($addressFields['country']);
+            $address->setAttribute($addressAttribute);
+            if ($typeAddress === 'billing') {
                 $phone = !empty($addressFields['phone']) ? $addressFields['phone'] : $this->shippingDatas['phone'];
                 $address->setPhone($phone);
             }

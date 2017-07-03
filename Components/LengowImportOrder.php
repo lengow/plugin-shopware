@@ -149,6 +149,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     protected $entityManager;
 
     /**
+     * @var Shopware_Plugins_Backend_Lengow_Components_LengowAddress Lengow address instance
+     */
+    protected $lengowAddress;
+
+    /**
      * Construct the import manager
      *
      * @param $params array optional options
@@ -184,6 +189,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
 
     /**
      * Create or update order
+     *
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException no product to cart / customer not saved
+     *         order not saved
      *
      * @return array|false
      */
@@ -315,18 +323,36 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                     return false;
                 }
             }
-            // get products
-            /*$products = $this->getProducts();*/
-            // get lengow address to create all specific Shopware addresses
-            $lengowAddress = new Shopware_Plugins_Backend_Lengow_Components_LengowAddress(
+            // get all Shopware articles
+            $articles = $this->getArticles();
+            if (count($articles) === 0) {
+                throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                        'lengow_log/exception/no_product_to_cart'
+                    )
+                );
+            }
+            // get lengow address to create all specific Shopware addresses for customer and order
+            $this->lengowAddress = new Shopware_Plugins_Backend_Lengow_Components_LengowAddress(
                 array(
                     'billing_datas' => $this->orderData->billing_address,
                     'shipping_datas' => $this->packageData->delivery,
                     'relay_id' => $this->relayId,
                 )
             );
-            // get or create a customer
-            $customer = $this->getCustomer($lengowAddress);
+            // get or create Shopware customer
+            $customerEmail = $this->getCustomerEmail();
+            $customer = $this->entityManager
+                ->getRepository('\Shopware\Models\Customer\Customer')
+                ->findOneBy(
+                    array(
+                        'email' => $customerEmail,
+                        'shop' => $this->shop
+                    )
+                );
+            if (is_null($customer)) {
+                $customer = $this->createCustomer($customerEmail);
+            }
             if (!$customer) {
                 throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
@@ -334,7 +360,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                     )
                 );
             }
-           /* $this->decreaseStocks($products);*/
+            // create a Shopware order
+            $order = $this->createOrder($customer, $articles);
+            if (!$order) {
+                throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                        'lengow_log/exception/shopware_order_not_saved'
+                    )
+                );
+            }
         } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (Exception $e) {
@@ -396,6 +430,25 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         if (count($this->packageData->cart) == 0) {
             $errorMessages[] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                 'lengow_log/error/no_product'
+            );
+        }
+        if (!isset($this->orderData->currency->iso_a3)) {
+            $errorMessages[] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                'lengow_log/error/no_currency'
+            );
+        } else {
+            $currency = $this->entityManager->getRepository('Shopware\Models\Shop\Currency')
+                ->findOneBy(array('currency' => $this->orderData->currency->iso_a3));
+            if (is_null($currency)) {
+                $errorMessages[] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'lengow_log/error/currency_not_available',
+                    array('currency_iso' => $this->orderData->currency->iso_a3)
+                );
+            }
+        }
+        if ($this->orderData->total_order == -1) {
+            $errorMessages[] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                'lengow_log/error/no_change_rate'
             );
         }
         if (is_null($this->orderData->billing_address)) {
@@ -536,15 +589,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     }
 
     /**
-     * Get products from the API
+     * Get articles from the API
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException product is a parent / product no be found
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException article is a parent / article no be found
      *
      * @return array
      */
-    protected function getProducts()
+    protected function getArticles()
     {
-        $products = array();
+        $articles = array();
         $advancedSearchFields = array('number', 'ean');
         foreach ($this->packageData->cart as $article) {
             $articleData = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::extractProductDataFromAPI(
@@ -553,10 +606,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             if (!is_null($articleData['marketplace_status'])) {
                 $stateProduct = $this->marketplace->getStateLengow((string)$articleData['marketplace_status']);
                 if ($stateProduct == 'canceled' || $stateProduct == 'refused') {
-                    $articleId = (!is_null($articleData['merchant_product_id']->id)
+                    $articleId = !is_null($articleData['merchant_product_id']->id)
                         ? (string)$articleData['merchant_product_id']->id
-                        : (string)$articleData['marketplace_product_id']
-                    );
+                        : (string)$articleData['marketplace_product_id'];
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                         'Import',
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
@@ -588,11 +640,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 );
                 // If found, id does not concerns a variation but a parent
                 if ($isParentProduct) {
-                    $errorMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                        'lengow_log/exception/product_is_a_parent',
-                        array('product_id' => $attributeValue)
+                    throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
+                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                            'lengow_log/exception/product_is_a_parent',
+                            array('product_id' => $attributeValue)
+                        )
                     );
-                    throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($errorMessage);
                 }
                 $shopwareDetailId = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::findArticle(
                     $attributeValue
@@ -624,11 +677,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 if ($shopwareDetailId != null) {
                     $articleDetailId = $shopwareDetailId['id'];
                     $articleDetailNumber = $shopwareDetailId['number'];
-                    if (array_key_exists($articleDetailId, $products)) {
-                        $products[$articleDetailId]['quantity'] += (integer)$articleData['quantity'];
-                        $products[$articleDetailId]['amount'] += (float)$articleData['amount'];
+                    if (array_key_exists($articleDetailId, $articles)) {
+                        $articles[$articleDetailId]['quantity'] += (int)$articleData['quantity'];
+                        $articles[$articleDetailId]['amount'] += (float)$articleData['amount'];
                     } else {
-                        $products[$articleDetailId] = $articleData;
+                        $articles[$articleDetailId] = $articleData;
                     }
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                         'Import',
@@ -649,152 +702,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 }
             }
             if (!$found) {
-                $articleId = !is_null($articleData['merchant_product_id']->id
+                $articleId = !is_null($articleData['merchant_product_id']->id)
                     ? (string)$articleData['merchant_product_id']->id
-                    : (string)$articleData['marketplace_product_id']
-                );
-                $errorMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'log/exception/product_not_be_found',
-                    array('product_id' => $articleId)
-                );
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Import',
-                    $errorMessage,
-                    $this->logOutput,
-                    $this->marketplaceSku
-                );
-                throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($errorMessage);
-            }
-        }
-        return $products;
-    }
-
-    /**
-     * Create or load customer based on API data
-     *
-     * @param Shopware_Plugins_Backend_Lengow_Components_LengowAddress $lengowAddress Lengow Address instance
-     *
-     * @return Shopware\Models\Customer\Customer|false
-     */
-    protected function getCustomer($lengowAddress)
-    {
-        $customerEmail = $this->getCustomerEmail();
-        // get customer if exist
-        $customer = $this->entityManager
-            ->getRepository('\Shopware\Models\Customer\Customer')
-            ->findOneBy(
-                array(
-                    'email' => $customerEmail,
-                    'shop' => $this->shop
-                )
-            );
-        if (is_null($customer)) {
-            $newSchema = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.0');
-            try {
-                // get Lengow payment method
-                $lengowPayment = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowPayment();
-                if (is_null($lengowPayment)) {
-                    return false;
-                }
-                // get new customer number
-                $number = Shopware()->Models()
-                    ->getRepository('Shopware\Models\Order\Number')
-                    ->findOneBy(array('name' => 'user'));
-                $customerNumber = $number->getNumber() + 1;
-                // create a Shopware customer
-                $customer = new Shopware\Models\Customer\Customer();
-                $customerAttribute = new Shopware\Models\Attribute\Customer();
-                // get new address object for Shopware version > 5.2.0
-                if ($newSchema) {
-                    $address = $lengowAddress->getCustomerAddress();
-                    if ($address) {
-                        $address->setCustomer($customer);
-                        $customer->setNumber($customerNumber);
-                        $customer->setSalutation($address->getSalutation());
-                        $customer->setFirstname($address->getFirstname());
-                        $customer->setLastname($address->getLastname());
-                        $customer->setDefaultBillingAddress($address);
-                        $customer->setDefaultShippingAddress($address);
-                        $this->entityManager->persist($address);
-                    } else {
-                        return false;
-                    }
-                }
-                // get old billing and shipping addresses objects for all versions of Shopware
-                $billingAddress = $lengowAddress->getCustomerAddress(false);
-                $shippingAddress = $lengowAddress->getCustomerAddress(false, 'shipping');
-                if ($billingAddress && $shippingAddress) {
-                    $billingAddress->setCustomer($customer);
-                    if (!$newSchema) {
-                        $billingAddress->setNumber($customerNumber);
-                    }
-                    $shippingAddress->setCustomer($customer);
-                    $customer->setBilling($billingAddress);
-                    $customer->setShipping($shippingAddress);
-                } else {
-                    return false;
-                }
-                // set generic data for all versions of Shopware
-                $customer->setEmail($customerEmail);
-                $customer->setShop($this->shop);
-                $customer->setGroup($this->shop->getCustomerGroup());
-                $customer->setPaymentId($lengowPayment->getId());
-                $customer->setAttribute($customerAttribute);
-                // saves the customer data
-                $this->entityManager->persist($customer);
-                // update value for global customer number
-                if (is_integer($customerNumber) && $customerNumber > $number->getNumber()) {
-                    $number->setNumber($customerNumber);
-                }
-                $this->entityManager->flush();
-            } catch (Exception $e) {
-                $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
-                $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                    $errorMessage
-                );
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Import',
+                    : (string)$articleData['marketplace_product_id'];
+                throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                        'log/exception/order_insert_failed',
-                        array('decoded_message' => $decodedMessage)
+                        'log/exception/product_not_be_found',
+                        array('product_id' => $articleId)
                     )
                 );
-                return false;
             }
         }
-        return $customer;
+        return $articles;
     }
 
-    /**
-     * Decrease stocks for a giving product
-     *
-     * @param array $products product which needs stocks to be decreased
-     */
-    protected function decreaseStocks($products)
-    {
-        foreach ($products as $key => $product) {
-            // @var Shopware\Models\Article\Detail $shopwareArticle
-            $shopwareArticle = $this->entityManager->getReference('Shopware\Models\Article\Detail', $key);
-            $quantity = $shopwareArticle->getInStock();
-            $newStock = $quantity - $product['quantity'];
-            $shopwareArticle->setInStock($newStock);
-            $this->entityManager->persist($shopwareArticle);
-            $this->entityManager->flush($shopwareArticle);
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Import',
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'log/import/stock_decreased',
-                    array(
-                        'article_number' => $shopwareArticle->getNumber(),
-                        'initial_stock' => $quantity,
-                        'new_stock' => $newStock
-                    )
-                ),
-                $this->logOutput,
-                $this->marketplaceSku
-            );
-        }
-    }
 
     /**
      * Create a order in lengow orders table
@@ -830,6 +751,335 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
                 $errorMessage
             );
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                'Import',
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/exception/order_insert_failed',
+                    array('decoded_message' => $decodedMessage)
+                ),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+            return false;
+        }
+    }
+
+    /**
+     * Create customer based on API data
+     *
+     * @param string $customerEmail fictitious customer email
+     *
+     * @return Shopware\Models\Customer\Customer|false
+     */
+    protected function createCustomer($customerEmail)
+    {
+        $newSchema = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.0');
+        try {
+            // get Lengow payment method
+            $lengowPayment = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowPayment();
+            if (is_null($lengowPayment)) {
+                return false;
+            }
+            // get new customer number
+            $number = Shopware()->Models()
+                ->getRepository('Shopware\Models\Order\Number')
+                ->findOneBy(array('name' => 'user'));
+            $customerNumber = $number->getNumber() + 1;
+            // create a Shopware customer
+            $customer = new Shopware\Models\Customer\Customer();
+            $customerAttribute = new Shopware\Models\Attribute\Customer();
+            // get new address object for Shopware version > 5.2.0
+            if ($newSchema) {
+                $address = $this->lengowAddress->getCustomerAddress();
+                if ($address) {
+                    $address->setCustomer($customer);
+                    $customer->setNumber($customerNumber);
+                    $customer->setSalutation($address->getSalutation());
+                    $customer->setFirstname($address->getFirstname());
+                    $customer->setLastname($address->getLastname());
+                    $customer->setDefaultBillingAddress($address);
+                    $customer->setDefaultShippingAddress($address);
+                    $this->entityManager->persist($address);
+                } else {
+                    return false;
+                }
+            }
+            // get old billing and shipping addresses objects for all versions of Shopware
+            $billingAddress = $this->lengowAddress->getCustomerAddress(false);
+            $shippingAddress = $this->lengowAddress->getCustomerAddress(false, 'shipping');
+            if ($billingAddress && $shippingAddress) {
+                $billingAddress->setCustomer($customer);
+                if (!$newSchema) {
+                    $billingAddress->setNumber($customerNumber);
+                }
+                $shippingAddress->setCustomer($customer);
+                $customer->setBilling($billingAddress);
+                $customer->setShipping($shippingAddress);
+            } else {
+                return false;
+            }
+            // set generic data for all versions of Shopware
+            $customer->setEmail($customerEmail);
+            $customer->setShop($this->shop);
+            $customer->setGroup($this->shop->getCustomerGroup());
+            $customer->setPaymentId($lengowPayment->getId());
+            $customer->setAttribute($customerAttribute);
+            // saves the customer data
+            $this->entityManager->persist($customer);
+            // update value for global customer number
+            if (is_integer($customerNumber) && $customerNumber > $number->getNumber()) {
+                $number->setNumber($customerNumber);
+            }
+            $this->entityManager->flush();
+            return $customer;
+        } catch (Exception $e) {
+            $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                $errorMessage
+            );
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                'Import',
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/exception/order_insert_failed',
+                    array('decoded_message' => $decodedMessage)
+                ),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+            return false;
+        }
+    }
+
+    /**
+     * Create order based on API data
+     *
+     * @param Shopware\Models\Customer\Customer $customer Shopware customer instance
+     * @param array $articles Shopware articles
+     *
+     * @return Shopware\Models\Order\Order|false
+     */
+    protected function createOrder($customer, $articles)
+    {
+        try {
+            // get Lengow payment method
+            $payment = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowPayment();
+            if (is_null($payment)) {
+                return false;
+            }
+            // get default dispatch for import
+            $dispatchId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowImportDefaultDispatcher',
+                $this->shop
+            );
+            $dispatch = $this->entityManager->getReference('Shopware\Models\Dispatch\Dispatch', $dispatchId);
+            $dispatchTax = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getDispatchTax($dispatch);
+            $taxPercent = (float)$dispatchTax->getTax();
+            // get currency for order amount
+            $currency = $this->entityManager->getRepository('Shopware\Models\Shop\Currency')
+                ->findOneBy(array('currency' => $this->orderData->currency->iso_a3));
+            // get current order status
+            $orderStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopwareOrderStatus(
+                $this->orderStateMarketplace,
+                $this->marketplace,
+                $this->shippedByMp
+            );
+            // get order date
+            $orderDate = !is_null($this->orderData->marketplace_order_date)
+                ? date('Y-m-d H:i:s', strtotime((string)$this->orderData->marketplace_order_date))
+                : date('Y-m-d H:i:s', strtotime((string)$this->orderData->imported_at));
+            // get shipping cost
+            $shippingCost = $this->shippingCost + $this->processingFee;
+            // get new order number
+            $number = Shopware()->Models()
+                ->getRepository('Shopware\Models\Order\Number')
+                ->findOneBy(array('name' => 'invoice'));
+            $orderNumber = $number->getNumber() + 1;
+            // create a temporary order
+            $orderParams = array(
+                'ordernumber' => $orderNumber,
+                'userID' => $customer->getId(),
+                'invoice_amount' => '',
+                'invoice_amount_net' => '',
+                'invoice_shipping' => $shippingCost,
+                'invoice_shipping_net' => $shippingCost * ((100 - $taxPercent) / 100),
+                'ordertime' => $orderDate,
+                'status' => $orderStatus->getId(),
+                'cleared' => 12,
+                'paymentID' => $payment->getId(),
+                'transactionID' => '',
+                'customercomment' => '',
+                'net' => '',
+                'taxfree' => '',
+                'partnerID' => '',
+                'temporaryID' => '',
+                'referer' => '',
+                'cleareddate' => $orderDate,
+                'trackingcode' => (string)$this->trackingNumber,
+                'language' => $this->shop->getId(),
+                'dispatchID' => $dispatch->getId(),
+                'currency' => $currency->getCurrency(),
+                'currencyFactor' => $currency->getFactor(),
+                'subshopID' => $this->shop->getId(),
+                'remote_addr' => (string)$_SERVER['REMOTE_ADDR']
+            );
+            Shopware()->Db()->insert('s_order', $orderParams);
+            // get temporary order
+            $order = Shopware()->Models()
+                ->getRepository('Shopware\Models\Order\Order')
+                ->findOneBy(array('number' => $orderNumber));
+            // get and set order attributes
+            $orderAttribute = new Shopware\Models\Attribute\Order();
+            $order->setAttribute($orderAttribute);
+            // get and set billing and shipping addresses
+            $billingAddress = $this->lengowAddress->getOrderAddress();
+            $billingAddress->setCustomer($customer);
+            $billingAddress->setOrder($order);
+            $order->setBilling($billingAddress);
+            $shippingAddress = $this->lengowAddress->getOrderAddress('shipping');
+            $shippingAddress->setCustomer($customer);
+            $shippingAddress->setOrder($order);
+            $order->setShipping($shippingAddress);
+            // saves the order data
+            $this->entityManager->persist($order);
+            // update value for global order number
+            if (is_integer($orderNumber) && $orderNumber > $number->getNumber()) {
+                $number->setNumber($orderNumber);
+            }
+            $this->entityManager->flush();
+            // create order detail foreach article
+            foreach ($articles as $articleDetailId => $articleDetailData) {
+                $articleDetail = $this->entityManager->getReference('Shopware\Models\Article\Detail', $articleDetailId);
+                $this->createOrderDetails($order, $articleDetail, $articleDetailData);
+            }
+            // create payment instance
+            $this->createPaymentInstance($order, $billingAddress, $customer, $payment);
+        } catch (Exception $e) {
+            $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                $errorMessage
+            );
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                'Import',
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/exception/order_insert_failed',
+                    array('decoded_message' => $decodedMessage)
+                ),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+            return false;
+        }
+        return $order;
+    }
+
+    /**
+     * Create order details based on API data
+     *
+     * @param Shopware\Models\Order\Order $order Shopware order instance
+     * @param Shopware\Models\Article\Detail $articleDetail Shopware article detail instance
+     * @param array $articleDetailData article detail data based on API data
+     *
+     * @return boolean
+     */
+    protected function createOrderDetails($order, $articleDetail, $articleDetailData)
+    {
+        try {
+            // create name for a variation
+            $detailName = '';
+            $attributes = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getArticleAttributes(
+                $articleDetail->getId()
+            );
+            foreach ($attributes as $attribute) {
+                $detailName .= ' ' . $attribute;
+            }
+            // create order detail
+            $orderDetail = new Shopware\Models\Order\Detail();
+            $orderDetail->setOrder($order);
+            $orderDetail->setNumber($order->getNumber());
+            $orderDetail->setArticleId($articleDetail->getArticle()->getId());
+            $orderDetail->setArticleNumber($articleDetail->getNumber());
+            $orderDetail->setPrice($articleDetailData['price_unit']);
+            $orderDetail->setQuantity($articleDetailData['quantity']);
+            $orderDetail->setArticleName($articleDetail->getArticle()->getName() . $detailName);
+            $orderDetail->setTaxRate($articleDetail->getArticle()->getTax()->getTax());
+            $orderDetail->setEan($articleDetail->getEan());
+            $orderDetail->setUnit($articleDetail->getUnit() ? $articleDetail->getUnit()->getName() : '');
+            $orderDetail->setPackUnit($articleDetail->getPackUnit());
+            $orderDetail->setTax($articleDetail->getArticle()->getTax());
+            $orderDetail->setStatus($this->entityManager->getReference('Shopware\Models\Order\DetailStatus', 0));
+            // decreases article detail stock
+            $quantity = $articleDetail->getInStock();
+            $newStock = $quantity - $articleDetailData['quantity'];
+            $articleDetail->setInStock($newStock);
+            $this->entityManager->persist($orderDetail);
+            $this->entityManager->flush();
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                'Import',
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/import/stock_decreased',
+                    array(
+                        'article_number' => $articleDetail->getNumber(),
+                        'initial_stock' => $quantity,
+                        'new_stock' => $newStock
+                    )
+                ),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+            return true;
+        } catch (Exception $e) {
+            $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($errorMessage);
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                'Import',
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/exception/order_insert_failed',
+                    array('decoded_message' => $decodedMessage)
+                ),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+            return false;
+        }
+    }
+
+    /**
+     * Create payment instance based on API data
+     *
+     * @param Shopware\Models\Order\Order $order Shopware customer instance
+     * @param Shopware\Models\Order\Billing $billingAddress Shopware billing address instance
+     * @param Shopware\Models\Customer\Customer $customer Shopware customer instance
+     * @param Shopware\Models\Payment\Payment $payment Shopware payment instance
+     *
+     * @return boolean
+     */
+    protected function createPaymentInstance($order, $billingAddress, $customer, $payment)
+    {
+        try {
+            $paymentInstance = new Shopware\Models\Payment\PaymentInstance();
+            $paymentInstance->setOrder($order);
+            $paymentInstance->setCustomer($customer);
+            $paymentInstance->setPaymentMean($payment);
+            $paymentInstance->setFirstName($billingAddress->getFirstName());
+            $paymentInstance->setLastName($billingAddress->getLastName());
+            $paymentInstance->setAddress($billingAddress->getStreet());
+            $paymentInstance->setZipCode($billingAddress->getZipCode());
+            $paymentInstance->setCity($billingAddress->getCity());
+            $paymentInstance->setAmount($this->orderAmount);
+            $this->entityManager->persist($paymentInstance);
+            $this->entityManager->flush();
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                'Import',
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/import/create_payment_instance'
+                ),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+            return true;
+        } catch (Exception $e) {
+            $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($errorMessage);
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                 'Import',
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
