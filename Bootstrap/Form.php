@@ -153,38 +153,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'required' => false,
                 'description' => 'settings/lengow_import_settings/enable_import/description'
             ),
-            'lengowIdWaitingShipment' => array(
-                'type' => 'select',
-                'label' => 'settings/lengow_import_settings/id_waiting_shipment/label',
-                'required' => true,
-                'editable' => false,
-                'value' => $orderStates['waiting_shipment'],
-                'store' => $orderStates['selection'],
-            ),
-            'lengowIdShipped' => array(
-                'type' => 'select',
-                'label' => 'settings/lengow_import_settings/id_shipped/label',
-                'required' => true,
-                'editable' => false,
-                'value' => $orderStates['shipped'],
-                'store' => $orderStates['selection'],
-            ),
-            'lengowIdCanceled' => array(
-                'type' => 'select',
-                'label' => 'settings/lengow_import_settings/id_canceled/label',
-                'required' => true,
-                'editable' => false,
-                'value' => $orderStates['canceled'],
-                'store' => $orderStates['selection'],
-            ),
-            'lengowIdShippedByMp' => array(
-                'type' => 'select',
-                'label' => 'settings/lengow_import_settings/id_shipped_by_mp/label',
-                'required' => true,
-                'editable' => false,
-                'value' => $orderStates['shipped'],
-                'store' => $orderStates['selection'],
-            ),
             'lengowImportShipMpEnabled' => array(
                 'type' => 'boolean',
                 'label' => 'settings/lengow_import_settings/ship_mp_enabled/label',
@@ -229,7 +197,48 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         // Auto-generate form
         $importSettingForm = $this->createSettingForm('lengow_import_settings', $importFormElements);
         $importSettingForm->setParent($mainForm);
-        $forms = array($mainSettingForm, $exportSettingForm, $importSettingForm);
+        // Matching import settings
+        $orderStatusFormElements = array(
+            'lengowIdWaitingShipment' => array(
+                'type' => 'select',
+                'label' => 'settings/lengow_order_status_settings/id_waiting_shipment/label',
+                'required' => true,
+                'editable' => false,
+                'value' => $orderStates['waiting_shipment'],
+                'store' => $orderStates['selection'],
+            ),
+            'lengowIdShipped' => array(
+                'type' => 'select',
+                'label' => 'settings/lengow_order_status_settings/id_shipped/label',
+                'required' => true,
+                'editable' => false,
+                'value' => $orderStates['shipped'],
+                'store' => $orderStates['selection'],
+            ),
+            'lengowIdCanceled' => array(
+                'type' => 'select',
+                'label' => 'settings/lengow_order_status_settings/id_canceled/label',
+                'required' => true,
+                'editable' => false,
+                'value' => $orderStates['canceled'],
+                'store' => $orderStates['selection'],
+            ),
+            'lengowIdShippedByMp' => array(
+                'type' => 'select',
+                'label' => 'settings/lengow_order_status_settings/id_shipped_by_mp/label',
+                'required' => true,
+                'editable' => false,
+                'value' => $orderStates['shipped'],
+                'store' => $orderStates['selection'],
+            )
+        );
+        // Auto-generate form
+        $orderStatusSettingForm = $this->createSettingForm(
+            'lengow_order_status_settings',
+            $orderStatusFormElements
+        );
+        $orderStatusSettingForm->setParent($mainForm);
+        $forms = array($mainSettingForm, $exportSettingForm, $importSettingForm, $orderStatusSettingForm);
         $mainForm->setChildren($forms);
         // Translate sub categories (sub-forms settings names)
         // @var \Shopware\Models\Shop\Locale[] $locales
