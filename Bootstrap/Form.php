@@ -345,12 +345,14 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             $name = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0')
                 ? $orderState->getName()
                 : $orderState->getDescription();
-            $selection[] = array($orderState->getId(), $name);
+            if ($orderState->getId() != -1) {
+                $selection[] = array($orderState->getId(), $name);
+            }
         }
         return array(
             'waiting_shipment' => 1,
             'shipped' => 2,
-            'canceled' => -1,
+            'canceled' => 4,
             'selection' => $selection
         );
     }

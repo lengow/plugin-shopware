@@ -107,7 +107,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
     /**
      * @var string carrier relay id
      */
-    protected $relayId = null;
+    protected $relayId;
+
+    /**
+     * @var string id lengow of current order
+     */
+    protected $marketplaceSku;
+
+    /**
+     * @var boolean display log messages
+     */
+    protected $logOutput;
 
     /**
      * Construct the address
@@ -119,16 +129,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      */
     public function __construct($params = array())
     {
+        $this->relayId = isset($params['relay_id']) ? $params['relay_id'] : null;
+        $this->marketplaceSku = isset($params['marketplace_sku']) ? $params['marketplace_sku'] : null;
+        $this->logOutput = isset($params['log_output']) ? $params['log_output'] : false;
         if (isset($params['billing_datas'])) {
             $billingAddressDatas = $this->extractAddressDataFromAPI($params['billing_datas']);
             $this->billingDatas = $this->setShopwareAddressFields($billingAddressDatas);
         }
         if (isset($params['shipping_datas'])) {
             $shippingAddressDatas = $this->extractAddressDataFromAPI($params['shipping_datas']);
-            $this->shippingDatas = $this->setShopwareAddressFields($shippingAddressDatas);
-        }
-        if (isset($params['relay_id'])) {
-            $this->relayId = $params['relay_id'];
+            $this->shippingDatas = $this->setShopwareAddressFields($shippingAddressDatas, 'shipping');
         }
     }
 
@@ -214,14 +224,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      * Prepare API address data for Shopware address object
      *
      * @param array $addressDatas API address data
-     *
+     * @param string $typeAddress address type (billing or shipping)
+     * 
      * @return array
      */
-    protected function setShopwareAddressFields($addressDatas)
+    protected function setShopwareAddressFields($addressDatas, $typeAddress = 'billing')
     {
         $country = $this->getCountryByIso($addressDatas['common_country_iso_a2']);
         $names = $this->getNames($addressDatas);
-        $addressFields = $this->getAddressFields($addressDatas);
+        $addressFields = $this->getAddressFields($addressDatas, $typeAddress);
         return array(
             'company' => (string)$addressDatas['society'],
             'salutation' => $this->getSalutation($addressDatas),
@@ -243,8 +254,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      * Create customer address
      *
      * @param array $addressFields field for Shopware order
-     * @param boolean $newSchema Address type (billing or shipping)
-     * @param string $typeAddress Address type (billing or shipping)
+     * @param boolean $newSchema use new address schema or not
+     * @param string $typeAddress address type (billing or shipping)
      *
      * @return Shopware\Models\Customer\Address|Shopware\Models\Customer\Billing|Shopware\Models\Customer\Shipping|false
      */
@@ -290,14 +301,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             }
             return $address;
         } catch (Exception $e) {
-            $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
-            $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($errorMessage);
+            $errorMessage = '[Doctrine error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Import',
+                'Orm',
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/exception/order_insert_failed',
-                    array('decoded_message' => $decodedMessage)
-                )
+                    array('decoded_message' => $errorMessage)
+                ),
+                $this->logOutput,
+                $this->marketplaceSku
             );
             return false;
         }
@@ -344,14 +356,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             }
             return $address;
         } catch (Exception $e) {
-            $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
-            $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($errorMessage);
+            $errorMessage = '[Doctrine error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Import',
+                'Orm',
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/exception/order_insert_failed',
-                    array('decoded_message' => $decodedMessage)
-                )
+                    array('decoded_message' => $errorMessage)
+                ),
+                $this->logOutput,
+                $this->marketplaceSku
             );
             return false;
         }
@@ -492,10 +505,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      * Get clean address fields
      *
      * @param array $addressDatas API address data
+     * @param string $typeAddress address type (billing or shipping)
      *
      * @return array
      */
-    protected function getAddressFields($addressDatas)
+    protected function getAddressFields($addressDatas, $typeAddress)
     {
         $street = trim($addressDatas['first_line']);
         $additionalAddressLine1 = trim($addressDatas['second_line']);
@@ -509,6 +523,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
                 $additionalAddressLine2 = '';
             }
         }
+        // get relay id for shipping addresses
+        $relayId = !is_null($this->relayId) ? 'Relay id: ' . $this->relayId : '';
+        if ($typeAddress === 'shipping') {
+            $additionalAddressLine2 .= !empty($additionalAddressLine2) ? ' - ' . $relayId : $relayId;
+        }
         // get full address for Shopware version < 5.0.0
         $fullAddress = $street;
         if (!empty($additionalAddressLine1)) {
@@ -521,7 +540,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             'street' => $street,
             'additional_address_line_1' => $additionalAddressLine1,
             'additional_address_line_2' => $additionalAddressLine2,
-            'full_address' => $fullAddress
+            'full_address' => $fullAddress,
         );
     }
 
