@@ -385,7 +385,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      * @param string $category log category
      * @param string $txt log message
      * @param boolean $logOutput output on screen
-     * @param string $marketplaceSku lengow marketplace sku
+     * @param string $marketplaceSku Lengow marketplace sku
      */
     public static function log($category, $txt, $logOutput = false, $marketplaceSku = null)
     {
@@ -431,9 +431,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Decode message with params for translation
      *
-     * @param string $message Key to translate
-     * @param string $isoCode Language translation iso code
-     * @param mixed $params array Parameters to display in the translation message
+     * @param string $message key to translate
+     * @param string $isoCode language translation iso code
+     * @param mixed $params array parameters to display in the translation message
      *
      * @return string
      */
@@ -525,19 +525,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      *
      * @return \Shopware\Models\Order\Status|false
      */
-    public static function getShopwareOrderStatus($orderStateMarketplace, $marketplace, $shipmentByMp)
+    public static function getShopwareOrderStatus($orderStateMarketplace, $marketplace, $shipmentByMp = false)
     {
-        if ($marketplace->getStateLengow($orderStateMarketplace) === 'shipped'
+        if ($shipmentByMp) {
+            $orderState = 'shipped_by_marketplace';
+        } elseif ($marketplace->getStateLengow($orderStateMarketplace) === 'shipped'
             || $marketplace->getStateLengow($orderStateMarketplace) === 'closed'
         ) {
-            if ($shipmentByMp) {
-                return self::getOrderState('shipped_by_marketplace');
-            } else {
-                return self::getOrderState('shipped');
-            }
+            $orderState = 'shipped';
         } else {
-            return self::getOrderState('accepted');
+            $orderState = 'accepted';
         }
+        return self::getOrderStatus($orderState);
     }
 
     /**
@@ -547,7 +546,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      *
      * @return \Shopware\Models\Order\Status|false
      */
-    public static function getOrderState($orderState)
+    public static function getOrderStatus($orderState)
     {
         switch ($orderState) {
             case 'accepted':
@@ -597,6 +596,28 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             $taxId = (int)Shopware()->Db()->fetchOne($sql);
         }
         return Shopware()->Models()->getReference('Shopware\Models\Tax\Tax', $taxId);
+    }
+
+    /**
+     * Get all admin users
+     *
+     * @return array
+     */
+    public static function getAllAdminUsers()
+    {
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select('user')
+            ->from('Shopware\Models\User\User', 'user')
+            ->leftJoin('Shopware\Models\User\Role', 'role')
+            ->where('user.active = :active')
+            ->andWhere('role.name = :name')
+            ->setParameters(
+                array(
+                    'active' => 1,
+                    'name' => 'local_admins'
+                )
+            );
+        return $builder->getQuery()->getResult();
     }
 
     /**
