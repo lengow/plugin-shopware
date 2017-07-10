@@ -86,6 +86,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      */
     protected $lengowUrls = array(
         '/v3.0/orders' => 15,
+        '/v3.0/orders/moi/' => 5,
+        '/v3.0/orders/actions/' => 10,
         '/v3.0/marketplaces' => 10,
         '/v3.0/subscriptions' => 3,
         '/v3.0/stats' => 3,

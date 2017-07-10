@@ -253,7 +253,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             return false;
         }
         // get a record in the lengow order table
-        $lengowOrder = $this->entityManager->getRepository('\Shopware\CustomModels\Lengow\Order')
+        $lengowOrder = $this->entityManager->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(
                 array(
                     'marketplaceSku' => $this->marketplaceSku,
@@ -357,7 +357,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             // get or create Shopware customer
             $customerEmail = $this->getCustomerEmail();
             $customer = $this->entityManager
-                ->getRepository('\Shopware\Models\Customer\Customer')
+                ->getRepository('Shopware\Models\Customer\Customer')
                 ->findOneBy(
                     array(
                         'email' => $customerEmail,
@@ -413,6 +413,28 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                     $this->logOutput,
                     $this->marketplaceSku
                 );
+                // add quantity back for re-import order and order shipped by marketplace
+                $importStockMpEnabled = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                    'lengowImportStockMpEnabled'
+                );
+                if ($this->isReimported || ($this->shippedByMp && !$importStockMpEnabled)) {
+                    if ($this->isReimported) {
+                        $logMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                            'log/import/quantity_back_reimported_order'
+                        );
+                    } else {
+                        $logMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                            'log/import/quantity_back_shipped_by_marketplace'
+                        );
+                    }
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                        'Import',
+                        $logMessage,
+                        $this->logOutput,
+                        $this->marketplaceSku
+                    );
+                    $this->addQuantityBack($articles);
+                }
             }
         } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
             $errorMessage = $e->getMessage();
@@ -454,7 +476,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     {
         $result = array(
             'order_id' => $orderId,
-            'id_order_lengow' => $lengowOrderId,
+            'lengow_order_id' => $lengowOrderId,
             'marketplace_sku' => $this->marketplaceSku,
             'marketplace_name' => (string)$this->marketplace->name,
             'lengow_state' => $this->orderStateLengow,
@@ -483,7 +505,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $this->marketplaceSku
         );
         // get a record in the lengow order table
-        $lengowOrder = $this->entityManager->getRepository('\Shopware\CustomModels\Lengow\Order')
+        $lengowOrder = $this->entityManager->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(array('order' => $order));
         $result = array('order_lengow_id' => $lengowOrder->getId());
         // Lengow -> Cancel and reimport order
@@ -853,7 +875,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         }
         return $articles;
     }
-
 
     /**
      * Create a order in lengow orders table
@@ -1254,6 +1275,39 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 $this->logOutput,
                 $this->marketplaceSku
             );
+            return true;
+        } catch (Exception $e) {
+            $errorMessage = '[Doctrine error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                'Orm',
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/exception/order_insert_failed',
+                    array('decoded_message' => $errorMessage)
+                ),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+            return false;
+        }
+    }
+
+    /**
+     * Add quantity back to stock
+     *
+     * @param array $articles list of article
+     *
+     * @return boolean
+     */
+    protected function addQuantityBack($articles)
+    {
+        try {
+            foreach ($articles as $articleDetailId => $articleDetailData) {
+                $articleDetail = $this->entityManager->getReference('Shopware\Models\Article\Detail', $articleDetailId);
+                $quantity = $articleDetail->getInStock();
+                $newStock = $quantity + $articleDetailData['quantity'];
+                $articleDetail->setInStock($newStock);
+            }
+            $this->entityManager->flush();
             return true;
         } catch (Exception $e) {
             $errorMessage = '[Doctrine error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();

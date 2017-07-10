@@ -71,7 +71,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             );
         $result['orderId'] = $builder->getQuery()->getOneOrNullResult();
         if (!is_null($result['orderId'])) {
-            $order = Shopware()->Models()->getRepository('\Shopware\Models\Order\Order')
+            $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')
                 ->findOneBy(array('id' => $result['orderId']));
             if (!is_null($order)) {
                 return $order;
@@ -104,6 +104,34 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         $result = $builder->getQuery()->getOneOrNullResult();
         if (!is_null($result['id'])) {
             return (int)$result['id'];
+        }
+        return false;
+    }
+
+    /**
+     * Get all Shopware order ids from marketplace order
+     *
+     * @param string $marketplaceSku Lengow order id
+     * @param string $marketplaceName marketplace name
+     *
+     * @return array|false
+     */
+    public static function getAllOrderIds($marketplaceSku, $marketplaceName)
+    {
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select('lo.orderId')
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
+            ->where('lo.marketplaceSku = :marketplaceSku')
+            ->andWhere('lo.marketplaceName = :marketplaceName')
+            ->setParameters(
+                array(
+                    'marketplaceSku' => $marketplaceSku,
+                    'marketplaceName' => $marketplaceName
+                )
+            );
+        $results = $builder->getQuery()->getResult();
+        if (count($results) > 0){
+            return $results;
         }
         return false;
     }
@@ -173,6 +201,59 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                 self::createOrderHistory($order, $canceledOrderStatus, $logOutput, $lengowOrder->getMarketplaceSku());
                 self::updateOrderStatus($order->getId(), $canceledOrderStatus->getId());
                 return 'Canceled';
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Synchronize order with Lengow API
+     *
+     * @param \Shopware\Models\Order\Order $order Shopware order instance
+     * @param Shopware_Plugins_Backend_Lengow_Components_LengowConnector $connector Lengow connector instance
+     *
+     * @return boolean
+     */
+    public static function synchronizeOrder($order, $connector = null)
+    {
+        $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
+            ->findOneBy(array('order' => $order));
+        if (is_null($lengowOrder)) {
+            return false;
+        }
+        $shop = $order->getShop();
+        $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::getAccessId($shop);
+        list($accountId, $accessToken, $secretToken) = $accessIds;
+        if (is_null($connector)) {
+            $isValid = Shopware_Plugins_Backend_Lengow_Components_LengowCheck::isValidAuth($shop);
+            if ($isValid) {
+                $connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector($accessToken, $secretToken);
+            } else {
+                return false;
+            }
+        }
+        $orderIds = self::getAllOrderIds($lengowOrder->getMarketplaceSku(), $lengowOrder->getMarketplaceName());
+        if ($orderIds) {
+            $shopwareIds = array();
+            foreach ($orderIds as $orderId) {
+                $shopwareIds[] = $orderId['orderId'];
+            }
+            $result = $connector->patch(
+                '/v3.0/orders/moi/',
+                array(
+                    'account_id' => $accountId,
+                    'marketplace_order_id' => $lengowOrder->getMarketplaceSku(),
+                    'marketplace' => $lengowOrder->getMarketplaceName(),
+                    'merchant_order_id' => $shopwareIds
+                )
+            );
+            if (is_null($result)
+                || (isset($result['detail']) && $result['detail'] == 'Pas trouvé.')
+                || isset($result['error'])
+            ) {
+                return false;
+            } else {
+                return true;
             }
         }
         return false;
