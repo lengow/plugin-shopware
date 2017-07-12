@@ -310,7 +310,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                     case 'carrier':
                     case 'carrier_name':
                     case 'shipping_method':
-                        $params[$arg] = $this->matchDispatch($order->getDispatch()->getName());
+                        $carrierName = $lengowOrder->getCarrier() != ''
+                            ? $lengowOrder->getCarrier()
+                            : $this->matchDispatch($order->getDispatch()->getName());
+                        $params[$arg] = $carrierName;
                         break;
                     case 'tracking_url':
                         $params[$arg] = $order->getDispatch()->getStatusLink();
