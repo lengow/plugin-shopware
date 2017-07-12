@@ -310,7 +310,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             ->setCarrierIdRelay($this->relayId)
             ->setSentByMarketplace($this->shippedByMp)
             ->setDeliveryCountryIso($this->packageData->delivery->common_country_iso_a2)
-            ->setOrderLengowState($this->orderStateLengow);
+            ->setOrderLengowState($this->orderStateLengow)
+            ->setUpdatedAt(new DateTime())
+            ->setExtra(json_encode($this->orderData));
         $this->entityManager->flush($lengowOrder);
         // try to import order
         try {
@@ -403,6 +405,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                     ->setOrderProcessState($orderProcessState)
                     ->setOrderLengowState($this->orderStateLengow)
                     ->setInError(false)
+                    ->setUpdatedAt(new DateTime())
                     ->setExtra(json_encode($this->orderData));
                 $this->entityManager->flush($lengowOrder);
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
@@ -456,6 +459,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             );
             $lengowOrder->setOrderLengowState($this->orderStateLengow)
                 ->setReimported(false)
+                ->setUpdatedAt(new DateTime())
                 ->setExtra(json_encode($this->orderData));
             $this->entityManager->flush($lengowOrder);
             return $this->returnResult('error', $lengowOrder->getId());
@@ -901,6 +905,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 ->setMessage($message)
                 ->setOrderDate(new DateTime(date('Y-m-d H:i:s', strtotime($orderDate))))
                 ->setCreatedAt(new DateTime())
+                ->setUpdatedAt(new DateTime())
                 ->setExtra(json_encode($this->orderData));
             $this->entityManager->persist($lengowOrder);
             $this->entityManager->flush($lengowOrder);
