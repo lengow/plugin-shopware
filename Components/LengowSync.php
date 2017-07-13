@@ -239,12 +239,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
         }
         $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
             'get',
-            '/v3.0/subscriptions'
+            '/v3.0/plans'
         );
-        if (isset($result->subscription)) {
+        if (isset($result->isFreeTrial)) {
             $status = array();
-            $status['type'] = $result->subscription->billing_offer->type;
-            $status['day'] = -round((strtotime(date("c")) - strtotime($result->subscription->renewal)) / 86400);
+            $status['type'] = $result->isFreeTrial ? 'free_trial' : '';
+            $status['day'] = (int)$result->leftDaysBeforeExpired;
             if ($status['day'] < 0) {
                 $status['day'] = 0;
             }
