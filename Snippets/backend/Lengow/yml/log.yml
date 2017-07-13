@@ -20,6 +20,13 @@ default:
     exception:
       credentials_not_valid: "Credentials invalid for this shop"
       marketplace_not_present: "Lengow error: %{marketplace_name} does not feature in the marketplace list"
+      order_line_required: "order line is required but cannot be not found in order"
+      action_not_valid: "action %{action} is not valid"
+      marketplace_action_not_present: "marketplace actions %{action} are not present"
+      shop_id_require: "shop ID is required"
+      marketplace_name_require: "marketplace name is required"
+      arg_is_required: "can't send action: %{arg_name} is required"
+      action_not_created: "can't create action: %{error_message}"
       product_is_a_parent: "article %{product_id} is a parent ID. Article variation is needed"
       no_product_to_cart: "no product to be added to cart"
       no_connection_webservice: "connection did not work with the Lengow webservice in shop %{name_shop} (%{id_shop})"
@@ -93,6 +100,14 @@ default:
       stock_decreased: "stock updated for article %{article_number} from %{initial_stock} to %{new_stock}"
       multiple_article_found: "WARNING! %{total_product} articles found while searching '%{searched_value}' in %{searched_field} field"
       create_payment_instance: "payment instance has been created for the order"
+    order_action:
+      try_to_send_action: "try to send %{action} action (ORDER ID %{order_id})"
+      action_send: "action %{action} was successfully sent (ORDER ID %{order_id})"
+      action_not_send: "WARNING ! action %{action} could not be sent (ORDER ID %{order_id})"
+      action_saved: "call tracking saved in lengow_actions table"
+      call_tracking: "call tracking with parameters: %{parameters}"
+      action_saved: "call tracking saved in lengow_actions table"
+      call_action_failed: "order action failed - %{decoded_message}"
     export:
       start: "## start export ##"
       end: "## end export ##"

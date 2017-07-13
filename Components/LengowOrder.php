@@ -137,6 +137,71 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     }
 
     /**
+     * Get all Lengow order line ids from marketplace order
+     *
+     * @param \Shopware\Models\Order\Order $order Shopware order instance
+     *
+     * @return array|false
+     */
+    public static function getAllOrderLineIds($order)
+    {
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select('lol.orderLineId')
+            ->from('Shopware\CustomModels\Lengow\OrderLine', 'lol')
+            ->where('lol.order = :order')
+            ->setParameters(array('order' => $order));
+        $results = $builder->getQuery()->getResult();
+        if (count($results) > 0){
+            return $results;
+        }
+        return false;
+    }
+
+    /**
+     * Check if a lengow order or not
+     *
+     * @param integer $orderId Shopware order id
+     *
+     * @return boolean
+     */
+    public static function isFromLengow($orderId)
+    {
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select('lo.id')
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
+            ->where('lo.orderId = :orderId')
+            ->setParameters(array('orderId' => $orderId));
+        $result = $builder->getQuery()->getOneOrNullResult();
+        if (!is_null($result)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get order process state
+     *
+     * @param string $state state to be matched
+     *
+     * @return integer
+     */
+    public static function getOrderProcessState($state)
+    {
+        switch ($state) {
+            case 'accepted':
+            case 'waiting_shipment':
+                return self::PROCESS_STATE_IMPORT;
+            case 'shipped':
+            case 'closed':
+            case 'refused':
+            case 'canceled':
+                return self::PROCESS_STATE_FINISH;
+            default:
+                return false;
+        }
+    }
+
+    /**
      * Update order status
      *
      * @param \Shopware\Models\Order\Order $order Shopware order instance
@@ -172,6 +237,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             }
         }
         if ($flushLengowOrder) {
+            $lengowOrder->setUpdatedAt(new DateTime());
             Shopware()->Models()->flush($lengowOrder);
         }
         // get Shopware equivalent order status to Lengow API state
@@ -201,59 +267,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                 self::createOrderHistory($order, $canceledOrderStatus, $logOutput, $lengowOrder->getMarketplaceSku());
                 self::updateOrderStatus($order->getId(), $canceledOrderStatus->getId());
                 return 'Canceled';
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Synchronize order with Lengow API
-     *
-     * @param \Shopware\Models\Order\Order $order Shopware order instance
-     * @param Shopware_Plugins_Backend_Lengow_Components_LengowConnector $connector Lengow connector instance
-     *
-     * @return boolean
-     */
-    public static function synchronizeOrder($order, $connector = null)
-    {
-        $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
-            ->findOneBy(array('order' => $order));
-        if (is_null($lengowOrder)) {
-            return false;
-        }
-        $shop = $order->getShop();
-        $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::getAccessId($shop);
-        list($accountId, $accessToken, $secretToken) = $accessIds;
-        if (is_null($connector)) {
-            $isValid = Shopware_Plugins_Backend_Lengow_Components_LengowCheck::isValidAuth($shop);
-            if ($isValid) {
-                $connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector($accessToken, $secretToken);
-            } else {
-                return false;
-            }
-        }
-        $orderIds = self::getAllOrderIds($lengowOrder->getMarketplaceSku(), $lengowOrder->getMarketplaceName());
-        if ($orderIds) {
-            $shopwareIds = array();
-            foreach ($orderIds as $orderId) {
-                $shopwareIds[] = $orderId['orderId'];
-            }
-            $result = $connector->patch(
-                '/v3.0/orders/moi/',
-                array(
-                    'account_id' => $accountId,
-                    'marketplace_order_id' => $lengowOrder->getMarketplaceSku(),
-                    'marketplace' => $lengowOrder->getMarketplaceName(),
-                    'merchant_order_id' => $shopwareIds
-                )
-            );
-            if (is_null($result)
-                || (isset($result['detail']) && $result['detail'] == 'Pas trouvé.')
-                || isset($result['error'])
-            ) {
-                return false;
-            } else {
-                return true;
             }
         }
         return false;
@@ -320,25 +333,198 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     }
 
     /**
-     * Get order process state
+     * Synchronize order with Lengow API
      *
-     * @param string $state state to be matched
+     * @param \Shopware\Models\Order\Order $order Shopware order instance
+     * @param Shopware_Plugins_Backend_Lengow_Components_LengowConnector $connector Lengow connector instance
      *
-     * @return integer
+     * @return boolean
      */
-    public static function getOrderProcessState($state)
+    public static function synchronizeOrder($order, $connector = null)
     {
-        switch ($state) {
-            case 'accepted':
-            case 'waiting_shipment':
-                return self::PROCESS_STATE_IMPORT;
-            case 'shipped':
-            case 'closed':
-            case 'refused':
-            case 'canceled':
-                return self::PROCESS_STATE_FINISH;
-            default:
-                return false;
+        $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
+            ->findOneBy(array('order' => $order));
+        if (is_null($lengowOrder)) {
+            return false;
         }
+        $shop = $order->getShop();
+        $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::getAccessId($shop);
+        list($accountId, $accessToken, $secretToken) = $accessIds;
+        if (is_null($connector)) {
+            $isValid = Shopware_Plugins_Backend_Lengow_Components_LengowCheck::isValidAuth($shop);
+            if ($isValid) {
+                $connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector($accessToken, $secretToken);
+            } else {
+                return false;
+            }
+        }
+        $orderIds = self::getAllOrderIds($lengowOrder->getMarketplaceSku(), $lengowOrder->getMarketplaceName());
+        if ($orderIds) {
+            $shopwareIds = array();
+            foreach ($orderIds as $orderId) {
+                $shopwareIds[] = $orderId['orderId'];
+            }
+            $result = $connector->patch(
+                '/v3.0/orders/moi/',
+                array(
+                    'account_id' => $accountId,
+                    'marketplace_order_id' => $lengowOrder->getMarketplaceSku(),
+                    'marketplace' => $lengowOrder->getMarketplaceName(),
+                    'merchant_order_id' => $shopwareIds
+                )
+            );
+            if (is_null($result)
+                || (isset($result['detail']) && $result['detail'] == 'Pas trouvé.')
+                || isset($result['error'])
+            ) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Send Order action
+     *
+     * @param \Shopware\Models\Order\Order $order Shopware order instance
+     * @param string $action Lengow Actions type (ship or cancel)
+     *
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException order line is required
+     *
+     * @return boolean
+     */
+    public static function callAction($order, $action)
+    {
+        $success = true;
+        $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
+            ->findOneBy(array('order' => $order));
+        if (is_null($lengowOrder)) {
+            return false;
+        }
+        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+            'API-OrderAction',
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                'log/order_action/try_to_send_action',
+                array(
+                    'action' => $action,
+                    'order_id' => $order->getNumber()
+                )
+            ),
+            false,
+            $lengowOrder->getMarketplaceSku()
+        );
+
+        // TODO Finish all order error before new action
+
+        try {
+            $marketplace = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getMarketplaceSingleton(
+                $lengowOrder->getMarketplaceName(),
+                $order->getShop()
+            );
+            if ($marketplace->containOrderLine($action)) {
+                $orderLines = self::getAllOrderLineIds($order);
+                // get order lines by security
+                if (!$orderLines) {
+                    $orderLines = self::getOrderLineByApi($lengowOrder);
+                }
+                if (!$orderLines) {
+                    throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
+                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                            'lengow_log/exception/order_line_required'
+                        )
+                    );
+                }
+                $results = array();
+                foreach ($orderLines as $orderLine) {
+                    $results[] = $marketplace->callAction($action, $order, $lengowOrder, $orderLine['orderLineId']);
+                }
+                $success = !in_array(false, $results);
+            } else {
+                $success = $marketplace->callAction($action, $order, $lengowOrder);
+            }
+        } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
+            $errorMessage = $e->getMessage();
+        } catch (Exception $e) {
+            $errorMessage = '[Shopware error] "' . $e->getMessage()
+                . '" ' . $e->getFile() . ' | ' . $e->getLine();
+        }
+        if (isset($errorMessage)) {
+
+            // TODO create order error
+
+            $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($errorMessage);
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                'API-OrderAction',
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/order_action/call_action_failed',
+                    array('decoded_message' => $decodedMessage)
+                ),
+                false,
+                $lengowOrder->getMarketplaceSku()
+            );
+            $success = false;
+        }
+        if ($success) {
+            $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                'log/order_action/action_send',
+                array(
+                    'action' => $action,
+                    'order_id' => $order->getNumber()
+                )
+            );
+        } else {
+            $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                'log/order_action/action_not_send',
+                array(
+                    'action' => $action,
+                    'order_id' => $order->getNumber()
+                )
+            );
+        }
+        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+            'API-OrderAction',
+            $message,
+            false,
+            $lengowOrder->getMarketplaceSku()
+        );
+        return $success;
+    }
+
+    /**
+     * Get order line by API
+     *
+     * @param \Shopware\CustomModels\Lengow\Order $lengowOrder Lengow order instance
+     *
+     * @return array|false
+     */
+    public function getOrderLineByApi($lengowOrder)
+    {
+        $orderLines = array();
+        $shopId = $lengowOrder->getShopId();
+        $shop = Shopware()->Models()->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('id' => $shopId));
+        $results = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
+            'get',
+            '/v3.0/orders',
+            $shop,
+            array(
+                'marketplace_order_id' => $lengowOrder->getMarketplaceSku(),
+                'marketplace' => $lengowOrder->getMarketplaceName()
+            )
+        );
+        if (isset($results->count) && $results->count == 0) {
+            return false;
+        }
+        $orderData = $results->results[0];
+        foreach ($orderData->packages as $package) {
+            $productLines = array();
+            foreach ($package->cart as $product) {
+                $productLines[] = array('orderLineId' => (string)$product->marketplace_order_line_id);
+            }
+            $orderLines[(int)$package->delivery->id] = $productLines;
+        }
+        $return = $orderLines[$lengowOrder->getDeliveryAddressId()];
+        return count($return) > 0 ? $return : false;
     }
 }
