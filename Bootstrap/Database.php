@@ -34,7 +34,7 @@
 class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
 {
     /**
-     * @var \Shopware\Components\Model\ModelManager Lengow module instance
+     * @var \Shopware\Components\Model\ModelManager Shopware entity manager
      */
     protected $entityManager;
 

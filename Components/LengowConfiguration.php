@@ -37,17 +37,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * @var array $lengowSettings specific Lengow settings in s_lengow_settings table
      */
     public static $lengowSettings = array(
+        'lengowGlobalToken',
+        'lengowShopToken',
+        'lengowLastExport',
         'lengowImportInProgress',
         'lengowLastImportCron',
         'lengowLastImportManual',
-        'lengowGlobalToken',
-        'lengowShopToken',
         'lengowAccountStatusUpdate',
         'lengowAccountStatus',
         'lengowOrderStat',
         'lengowOrderStatUpdate',
-        'lengowOptionCmsUpdate',
-        'lengowLastExport'
+        'lengowOptionCmsUpdate'
     );
 
     /**
@@ -265,23 +265,31 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     {
         static $keys = null;
         $keys = array(
-            'LENGOW_ACCOUNT_ID' => array('shop' => true),
-            'LENGOW_ACCESS_TOKEN' => array('shop' => true),
-            'LENGOW_SECRET_TOKEN' => array('shop' => true),
-            'LENGOW_SHOP_ACTIVE' => array('shop' => true),
-            'LENGOW_SHOP_TOKEN' => array('shop' => true),
-            'LENGOW_EXPORT_SELECTION_ENABLED' => array('shop' => true),
-            'LENGOW_EXPORT_VARIATION_ENABLED' => array('shop' => true),
-            'LENGOW_LAST_EXPORT' => array('shop' => true),
-            'LENGOW_IMPORT_DAYS' => array('global' => true),
-            'LENGOW_IMPORT_PREPROD_ENABLED' => array('global' => true),
-            'LENGOW_IMPORT_SHIP_MP_ENABLED' => array('global' => true),
-            'LENGOW_IMPORT_IN_PROGRESS' => array('global' => true),
-            'LENGOW_LAST_IMPORT_CRON' => array('global' => true),
-            'LENGOW_LAST_IMPORT_MANUAL' => array('global' => true),
-            'LENGOW_GLOBAL_TOKEN' => array('global' => true),
-            'LENGOW_AUTHORIZED_IP' => array('global' => true),
-            'LENGOW_OPTION_CMS_UPDATE' => array('global' => true)
+            'lengowShopToken' => array('shop' => true),
+            'lengowShopActive' => array('shop' => true),
+            'lengowAccountId' => array('shop' => true),
+            'lengowAccessToken' => array('shop' => true),
+            'lengowSecretToken' => array('shop' => true),
+            'lengowIpEnabled' => array('global' => true),
+            'lengowAuthorizedIp' => array('global' => true),
+            'lengowExportDisabledProduct' => array('shop' => true),
+            'lengowExportSelectionEnabled' => array('shop' => true),
+            'lengowDefaultDispatcher' => array('shop' => true),
+            'lengowLastExport' => array('shop' => true),
+            'lengowGlobalToken' => array('global' => true),
+            'lengowEnableImport' => array('global' => true),
+            'lengowImportShipMpEnabled' => array('global' => true),
+            'lengowImportStockMpEnabled' => array('global' => true),
+            'lengowImportDefaultDispatcher' => array('shop' => true),
+            'lengowImportDays' => array('global' => true),
+            'lengowImportPreprodEnabled' => array('global' => true),
+            'lengowImportInProgress' => array('global' => true),
+            'lengowLastImportCron' => array('global' => true),
+            'lengowLastImportManual' => array('global' => true),
+            'lengowIdWaitingShipment' => array('global' => true),
+            'lengowIdShipped' => array('global' => true),
+            'lengowIdCanceled' => array('global' => true),
+            'lengowIdShippedByMp' => array('global' => true),
         );
         return $keys;
     }
@@ -298,14 +306,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         $rows = array();
         $keys = self::getKeys();
         foreach ($keys as $key => $value) {
-            $toCamelCase = self::camelCase(strtolower($key));
             if ($shop) {
                 if (isset($value['shop']) && $value['shop']) {
-                    $rows[$key] = self::getConfig($toCamelCase, $shop);
+                    $rows[$key] = self::getConfig($key, $shop);
                 }
             } else {
                 if (isset($value['global']) && $value['global']) {
-                    $rows[$key] = self::getConfig($toCamelCase);
+                    $rows[$key] = self::getConfig($key);
                 }
             }
         }

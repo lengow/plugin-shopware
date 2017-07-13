@@ -75,7 +75,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
         $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($message);
         $log = date('Y-m-d H:i:s');
         $log .= ' - ' . (empty($category) ? '' : '[' . $category . '] ');
-        $log .= '' . (empty($marketplaceSku) ? '' : 'order ' . $marketplaceSku . ' : ');
+        $log .= '' . (empty($marketplaceSku) ? '' : 'order ' . $marketplaceSku . ': ');
         $log .= $decodedMessage . "\r\n";
         if ($display) {
             echo $log . '<br />';

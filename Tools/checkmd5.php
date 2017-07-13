@@ -17,6 +17,7 @@ $listFolders = array(
     '/Toolbox',
     '/Views',
     '/Webservice',
+    '/Upgrade',
 );
 
 $filePaths = array(

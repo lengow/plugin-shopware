@@ -38,29 +38,30 @@ class Shopware_Controllers_Backend_LengowOrder extends Shopware_Controllers_Back
 
     public function getOrderDetailAction()
     {
-        try {
-            $orderId = $this->Request()->getParam('orderId');
+        $orderId = $this->Request()->getParam('orderId');
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $repository = $em->getRepository('Shopware\CustomModels\Lengow\Order');
+        $lengowOrder = $repository->findOneBy(array(
+            'orderId' => $orderId
+        ));
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowOrder::isFromLengow($orderId) == 1) {
+            if ($lengowOrder) {
+                $data = Shopware()->Models()->toArray($lengowOrder);
+            } else {
+                $lengowOrder = 'This order is no longer tracked by Lengow';
+                $data = json_encode($lengowOrder);
 
-            $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-            $repository = $em->getRepository('Shopware\CustomModels\Lengow\Order');
-            $lengowOrder = $repository->findOneBy(array(
-                'orderId' => 5
-            ));
-            if ($lengowOrder)
-            var_dump($lengowOrder);die;
-
-            $this->View()->assign(
-                array(
-                    'success' => true,
-                    'data' => json_encode(Shopware()->Models()->toArray($lengowOrder))
-                )
-            );
-        } catch (Exception $e) {
-            $this->View()->assign(array(
-                'success' => false,
-                'error' => $e->getMessage()
-            ));
+            }
+        } else {
+            $lengowOrder = 'This is not a Lengow order';
+            $data = json_encode($lengowOrder);
         }
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $data
+            )
+        );
     }
 
     /**

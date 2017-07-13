@@ -327,7 +327,7 @@ class Action extends ModelEntity
      *
      * @return self
      */
-    public function setOrderDate($updatedAt)
+    public function setUpdatedDate($updatedAt)
     {
         $this->updatedAt = $updatedAt;
         return $this;

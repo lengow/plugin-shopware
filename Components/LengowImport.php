@@ -89,9 +89,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     protected $accessToken;
 
     /**
-     * @var string secret
+     * @var string secret token
      */
-    protected $secret;
+    protected $secretToken;
 
     /**
      * @var Shopware_Plugins_Backend_Lengow_Components_LengowConnector Lengow connector instance
@@ -122,7 +122,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
      * @var array valid states lengow to create a Lengow order
      */
     public static $lengowStates = array(
-        'accepted',
         'waiting_shipment',
         'shipped',
         'closed'
@@ -159,23 +158,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         } else {
             $this->marketplaceSku = null;
             // recovering the time interval
-            $days = (
-            isset($params['days'])
+            $days = isset($params['days'])
                 ? (int)$params['days']
-                : (int)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowImportDays')
-            );
+                : (int)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowImportDays');
             $this->dateFrom = date('c', strtotime(date('Y-m-d') . ' -' . $days . 'days'));
             $this->dateTo = date('c');
             $this->limit = (isset($params['limit']) ? (int)$params['limit'] : 0);
         }
         // get other params
-        $this->preprodMode = (
-        isset($params['preprod_mode'])
+        $this->preprodMode = isset($params['preprod_mode'])
             ? (bool)$params['preprod_mode']
             : (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowImportPreprodEnabled'
-        )
-        );
+                'lengowImportPreprodEnabled'
+            );
         $this->typeImport = (isset($params['type']) ? $params['type'] : 'manual');
         $this->logOutput = (isset($params['log_output']) ? (bool)$params['log_output'] : false);
         $this->shopId = (isset($params['shop_id']) ? (int)$params['shop_id'] : null);
@@ -266,7 +261,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     $this->logOutput
                 );
                 try {
-                    // check account ID, Access Token and Secret
+                    // check account ID, Access Token and Secret Token
                     $errorCredential = $this->checkCredentials($shop);
                     if ($errorCredential !== true) {
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
@@ -395,19 +390,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     {
         $shopId = $shop->getId();
         $shopName = $shop->getName();
-        $this->accountId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowAccountId',
-            $shop
-        );
-        $this->accessToken = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowAccessToken',
-            $shop
-        );
-        $this->secret = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowSecretToken',
-            $shop
-        );
-        if (!$this->accountId || !$this->accessToken || !$this->secret) {
+        $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::getAccessId($shop);
+        list($this->accountId, $this->accessToken, $this->secretToken) = $accessIds;
+        if (!$this->accountId || !$this->accessToken || !$this->secretToken) {
             $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                 'lengow_log/error/account_id_empty',
                 array(
@@ -447,11 +432,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         $page = 1;
         $orders = array();
         $isValid = Shopware_Plugins_Backend_Lengow_Components_LengowCheck::isValidAuth($shop);
-
         if ($isValid) {
             $this->connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector(
                 $this->accessToken,
-                $this->secret
+                $this->secretToken
             );
             if ($this->importOneOrder) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
@@ -662,6 +646,33 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     );
                     unset($errorMessage);
                     continue;
+                }
+                // Sync to lengow if no preprod_mode
+                if (!$this->preprodMode && isset($order['order_new']) && $order['order_new'] == true) {
+                    $shopwareOrder = Shopware()->Models()->getRepository('\Shopware\Models\Order\Order')
+                        ->findOneBy(array('id' => $order['order_id']));
+                    $synchro = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::synchronizeOrder(
+                        $shopwareOrder,
+                        $this->connector
+                    );
+                    if ($synchro) {
+                        $synchroMessage =  Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                            'log/import/order_synchronized_with_lengow',
+                            array('order_id' => $shopwareOrder->getNumber())
+                        );
+                    } else {
+                        $synchroMessage =  Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                            'log/import/order_not_synchronized_with_lengow',
+                            array('order_id' => $shopwareOrder->getNumber())
+                        );
+                    }
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                        'Import',
+                        $synchroMessage,
+                        $this->logOutput,
+                        $marketplaceSku
+                    );
+                    unset($shopwareOrder);
                 }
                 // if re-import order -> return order information
                 if (isset($order) && $this->importOneOrder) {

@@ -39,15 +39,23 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
             success: function(response) {
                 var lengowPanel = Ext.widget('lengow-order-panel');
                 var data = Ext.decode(response.responseText)['data'];
-                console.log(data);
+                var html;
+                if (data.orderId) {
+                    html = '<ul>' +
+                        '<li>Order Id: ' + data.orderId +'</li>' +
+                        '<li>Order Sku: ' + data.orderSku +'</li>' +
+                        '<li>Marketplace Sku: ' + data.marketplaceSku +'</li>' +
+                        '<li>Marketplace Name: ' + data.marketplaceName +'</li>' +
+                        '</ul>';
+                } else {
+                    html = data;
+                }
                 lengowPanel.add(
                     Ext.create('Ext.Panel', {
                         title: me.snippets.details.title,
                         bodyPadding: 10,
-                        width: 300,
                         height: 200,
-                        html: 'hello',
-                        renderTo: Ext.getBody()
+                        html: html
                 }));
                 lengowPanel.doLayout();
             }

@@ -385,7 +385,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      * @param string $category log category
      * @param string $txt log message
      * @param boolean $logOutput output on screen
-     * @param string $marketplaceSku lengow marketplace sku
+     * @param string $marketplaceSku Lengow marketplace sku
      */
     public static function log($category, $txt, $logOutput = false, $marketplaceSku = null)
     {
@@ -431,9 +431,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Decode message with params for translation
      *
-     * @param string $message Key to translate
-     * @param string $isoCode Language translation iso code
-     * @param mixed $params array Parameters to display in the translation message
+     * @param string $message key to translate
+     * @param string $isoCode language translation iso code
+     * @param mixed $params array parameters to display in the translation message
      *
      * @return string
      */
@@ -493,6 +493,147 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             self::$registers[$name] = new Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace($name, $shop);
         }
         return self::$registers[$name];
+    }
+
+    /**
+     * Load Lengow Payment Shopware
+     *
+     * @return Shopware\Models\Payment\Payment|null
+     */
+    public static function getLengowPayment()
+    {
+        $payment = Shopware()->Models()
+            ->getRepository('Shopware\Models\Payment\Payment')
+            ->findOneBy(array('name' => 'lengow'));
+        if (is_null($payment)) {
+            $plugin = Shopware()->Models()
+                ->getRepository('Shopware\Models\Plugin\Plugin')
+                ->findOneBy(array('name' => 'Lengow'));
+            if (!is_null($plugin) && !$plugin->getPayments()->isEmpty()) {
+                $payment = $plugin->getPayments()->first();
+            }
+        }
+        return $payment;
+    }
+
+    /**
+     * Get Shopware order status corresponding to the current order state
+     *
+     * @param string $orderStateMarketplace order state marketplace
+     * @param Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace $marketplace Lengow marketplace instance
+     * @param boolean $shipmentByMp order shipped by marketplace
+     *
+     * @return \Shopware\Models\Order\Status|false
+     */
+    public static function getShopwareOrderStatus($orderStateMarketplace, $marketplace, $shipmentByMp = false)
+    {
+        if ($shipmentByMp) {
+            $orderState = 'shipped_by_marketplace';
+        } elseif ($marketplace->getStateLengow($orderStateMarketplace) === 'shipped'
+            || $marketplace->getStateLengow($orderStateMarketplace) === 'closed'
+        ) {
+            $orderState = 'shipped';
+        } else {
+            $orderState = 'accepted';
+        }
+        return self::getOrderStatus($orderState);
+    }
+
+    /**
+     * Get the matching Shopware order status to the one given
+     *
+     * @param string $orderState state to be matched
+     *
+     * @return \Shopware\Models\Order\Status|false
+     */
+    public static function getOrderStatus($orderState)
+    {
+        switch ($orderState) {
+            case 'accepted':
+            case 'waiting_shipment':
+                $settingName = 'lengowIdWaitingShipment';
+                break;
+            case 'shipped':
+            case 'closed':
+                $settingName = 'lengowIdShipped';
+                break;
+            case 'refused':
+            case 'canceled':
+                $settingName = 'lengowIdCanceled';
+                break;
+            case 'shipped_by_marketplace':
+                $settingName = 'lengowIdShippedByMp';
+                break;
+            default:
+                $settingName = false;
+                break;
+        }
+        if ($settingName) {
+            $orderStatusId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig($settingName);
+            $orderStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', (int)$orderStatusId);
+            if (!is_null($orderStatus)) {
+                return $orderStatus;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get tax associated with a dispatch
+     *
+     * @param Shopware\Models\Dispatch\Dispatch $dispatch Shopware dispatch instance
+     *
+     * @return Shopware\Models\Tax\Tax
+     */
+    public static function getDispatchTax($dispatch)
+    {
+        if ($dispatch->getTaxCalculation() !== 0 ) {
+            $taxId = (int)$dispatch->getTaxCalculation();
+        } else {
+            $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS sct.id 
+	     		FROM s_core_tax as sct
+	            WHERE sct.tax = (SELECT MAX(tax) from s_core_tax)";
+            $taxId = (int)Shopware()->Db()->fetchOne($sql);
+        }
+        return Shopware()->Models()->getReference('Shopware\Models\Tax\Tax', $taxId);
+    }
+
+    /**
+     * Get all admin users
+     *
+     * @return array
+     */
+    public static function getAllAdminUsers()
+    {
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select('user')
+            ->from('Shopware\Models\User\User', 'user')
+            ->leftJoin('Shopware\Models\User\Role', 'role')
+            ->where('user.active = :active')
+            ->andWhere('role.name = :name')
+            ->setParameters(
+                array(
+                    'active' => 1,
+                    'name' => 'local_admins'
+                )
+            );
+        return $builder->getQuery()->getResult();
+    }
+
+    /**
+     * Clean phone number
+     *
+     * @param string $phone phone number to clean
+     *
+     * @return string
+     */
+    public static function cleanPhone($phone)
+    {
+        $replace = array('.', ' ', '-', '/');
+        if (!$phone) {
+            return '';
+        }
+        return str_replace($replace, '', preg_replace('/[^0-9]*/', '', $phone));
     }
 
     /**
