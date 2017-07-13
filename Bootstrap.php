@@ -218,6 +218,13 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowHelp',
             'onGetHelpControllerPath'
         );
+
+        // Order controller
+        $this->subscribeEvent(
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowOrder',
+            'onGetOrderControllerPath'
+        );
+
         // Backend events
         $this->subscribeEvent(
             'Enlight_Controller_Action_PostDispatch_Backend_Index',
@@ -228,9 +235,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Enlight_Controller_Action_PostDispatch_Backend_Config',
             'onPostDispatchBackendConfig'
         );
-        // Order
+        // Order event
         $this->subscribeEvent(
-            'Enlight_Controller_Action_PostDispatch_Backend_Order',
+            'Enlight_Controller_Action_PostDispatchSecure_Backend_Order',
             'onOrderPostDispatch'
         );
     }
@@ -362,6 +369,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
+     * Returns the path to Lengow order controller
+     *
+     * @return string
+     */
+    public function onGetOrderControllerPath()
+    {
+        return $this->Path() . 'Controllers/Backend/LengowOrder.php';
+    }
+
+    /**
      * Load Lengow icon. Triggered when Shopware backend is loaded
      *
      * @param Enlight_Controller_ActionEventArgs $args Shopware Enlight Controller Action instance
@@ -402,6 +419,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         }
 
         if ($request->getActionName() === 'load') {
+            $view->extendsTemplate('backend/lengow/controller/order.js');
+            $view->extendsTemplate('backend/lengow/order.js');
             $view->extendsTemplate('backend/lengow/view/order/window.js');
         }
     }
