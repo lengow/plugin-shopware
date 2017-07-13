@@ -36,9 +36,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * @var string url of the API Lengow
      */
-    const LENGOW_API_URL = 'http://api.lengow.io:80';
+    // const LENGOW_API_URL = 'http://api.lengow.io:80';
     // const LENGOW_API_URL = 'http://api.lengow.net:80';
-    // const LENGOW_API_URL = 'http://api.lengow.rec:80';
+    const LENGOW_API_URL = 'http://api.lengow.rec:80';
     // const LENGOW_API_URL = 'http://10.100.1.82:8081';
 
     /**
@@ -89,7 +89,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         '/v3.0/orders/moi/' => 5,
         '/v3.0/orders/actions/' => 10,
         '/v3.0/marketplaces' => 10,
-        '/v3.0/subscriptions' => 3,
+        '/v3.0/plans' => 3,
         '/v3.0/stats' => 3,
         '/v3.0/cms' => 3,
     );
