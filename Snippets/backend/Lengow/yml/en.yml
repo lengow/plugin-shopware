@@ -72,9 +72,6 @@ en:
     lengow_main_settings:
       label: "Main settings"
       description: "Below you will find your Lengow login details.\nAccount ID, Access Token and Secret Token are automatically completed at your first connection : please do not change them."
-      enable:
-        label: "Enable shop"
-        description: "Enable shop to work with Lengow"
       account:
         label: "Account ID"
         description: "Your Lengow account ID. Please do not change it."
@@ -84,6 +81,12 @@ en:
       secret:
         label: "Secret Token"
         description: "Your secret token. Please do not change it."
+      enable:
+        label: "Enable shop"
+        description: "Enable shop to work with Lengow"
+      catalog:
+        label: "Catalogs ID"
+        description: "Your catalogs ID for importing orders.\nSeparate them ' ; '"
       ip_enable:
         label: "Enable authorisation by IP"
         description: "Enable this option if you want your export to be secured by IP. By default, your export is secured by a unique key."

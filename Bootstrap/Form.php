@@ -88,6 +88,14 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'description' => 'settings/lengow_main_settings/enable/description',
                 'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
+            'lengowCatalogId' => array(
+                'type' => 'text',
+                'label' => 'settings/lengow_main_settings/catalog/label',
+                'required' => true,
+                'value' => 0,
+                'description' => 'settings/lengow_main_settings/catalog/description',
+                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
+            ),
             'lengowIpEnabled' => array(
                 'type' => 'boolean',
                 'label' => 'settings/lengow_main_settings/ip_enable/label',
