@@ -59,36 +59,33 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         $orderStates = $this->getOrderStates();
         // Main settings
         $mainSettingsElements = array(
-            'lengowShopActive' => array(
-                'type' => 'boolean',
-                'label' => 'settings/lengow_main_settings/enable/label',
-                'editable' => false,
-                'value' => 0,
-                'description' => 'settings/lengow_main_settings/enable/description',
-                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
-            ),
             'lengowAccountId' => array(
                 'type' => 'text',
                 'label' => 'settings/lengow_main_settings/account/label',
                 'required' => true,
                 'value' => 0,
-                'description' => 'settings/lengow_main_settings/account/description',
-                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
+                'description' => 'settings/lengow_main_settings/account/description'
             ),
             'lengowAccessToken' => array(
                 'type' => 'text',
                 'label' => 'settings/lengow_main_settings/access/label',
                 'required' => true,
                 'value' => 0,
-                'description' => 'settings/lengow_main_settings/access/description',
-                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
+                'description' => 'settings/lengow_main_settings/access/description'
             ),
             'lengowSecretToken' => array(
                 'type' => 'text',
                 'label' => 'settings/lengow_main_settings/secret/label',
                 'required' => true,
                 'value' => 0,
-                'description' => 'settings/lengow_main_settings/secret/description',
+                'description' => 'settings/lengow_main_settings/secret/description'
+            ),
+            'lengowShopActive' => array(
+                'type' => 'boolean',
+                'label' => 'settings/lengow_main_settings/enable/label',
+                'editable' => false,
+                'value' => 0,
+                'description' => 'settings/lengow_main_settings/enable/description',
                 'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
             ),
             'lengowIpEnabled' => array(

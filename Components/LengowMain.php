@@ -84,8 +84,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function getExportUrl($shop)
     {
-        $baseUrl = self::getBaseUrl($shop);
-        return $baseUrl . '/LengowController/export?shop=' . $shop->getId() . '&token=' . self::getToken($shop);
+        $shopBaseUrl = self::getBaseUrl($shop);
+        return $shopBaseUrl . '/LengowController/export?shop=' . $shop->getId() . '&token=' . self::getToken($shop);
     }
 
     /**
@@ -95,8 +95,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function getImportUrl()
     {
-        $baseUrl = self::getBaseUrl();
-        return $baseUrl . '/LengowController/cron?token=' . self::getToken();
+        return self::getBaseUrl() . '/LengowController/cron?token=' . self::getToken();
+    }
+
+    /**
+     * Check if Shopware current version is older than the specified one
+     *
+     * @param string $versionToCompare version to compare
+     *
+     * @return boolean
+     */
+    public static function compareVersion($versionToCompare)
+    {
+        return version_compare(Shopware::VERSION, $versionToCompare, ">=");
     }
 
     /**
@@ -130,7 +141,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static function checkToken($token, $shop = null)
     {
         $storeToken = self::getToken($shop);
-        if ($token == $storeToken) {
+        if ($token === $storeToken) {
             return true;
         }
         return false;
@@ -282,7 +293,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
                 'lengowShopToken',
                 $shop
             );
-            if ($shopToken == $token) {
+            if ($shopToken === $token) {
                 return $shop;
             }
         }
@@ -480,17 +491,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
-     * The shipping names options
+     * Get a specific marketplace
      *
      * @param string $name Marketplace name
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
      *
      * @return Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      */
-    public static function getMarketplaceSingleton($name, $shop = null)
+    public static function getMarketplaceSingleton($name)
     {
         if (!isset(self::$registers[$name])) {
-            self::$registers[$name] = new Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace($name, $shop);
+            self::$registers[$name] = new Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace($name);
         }
         return self::$registers[$name];
     }
@@ -733,19 +743,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
-     * Check if Shopware current version is older than the specified one
-     *
-     * @param string $versionToCompare version to compare
-     *
-     * @return boolean
-     */
-    public static function compareVersion($versionToCompare)
-    {
-        return version_compare(Shopware::VERSION, $versionToCompare, ">=");
-    }
-
-
-    /**
      * Replace all accented chars by their equivalent non accented chars
      *
      * @param string $str string to have its characters replaced
@@ -895,29 +892,5 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             'OE'
         );
         return preg_replace($patterns, $replacements, $str);
-    }
-
-    /**
-     * Check if new merchant
-     *
-     * @return boolean
-     */
-    public static function isNewMerchant()
-    {
-        $result = true;
-        $shops = self::getShops();
-        foreach ($shops as $shop) {
-            if ($shop->getActive()) {
-                $accountId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                    'lengowAccountId',
-                    $shop
-                );
-                if ($accountId != 0) {
-                    $result = false;
-                    break;
-                }
-            }
-        }
-        return $result;
     }
 }

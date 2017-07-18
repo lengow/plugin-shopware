@@ -347,12 +347,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         if (is_null($lengowOrder)) {
             return false;
         }
-        $shop = $order->getShop();
-        $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::getAccessId($shop);
+        $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessId();
         list($accountId, $accessToken, $secretToken) = $accessIds;
         if (is_null($connector)) {
-            $isValid = Shopware_Plugins_Backend_Lengow_Components_LengowCheck::isValidAuth($shop);
-            if ($isValid) {
+            if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isValidAuth()) {
                 $connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector($accessToken, $secretToken);
             } else {
                 return false;
@@ -420,8 +418,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
 
         try {
             $marketplace = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getMarketplaceSingleton(
-                $lengowOrder->getMarketplaceName(),
-                $order->getShop()
+                $lengowOrder->getMarketplaceName()
             );
             if ($marketplace->containOrderLine($action)) {
                 $orderLines = self::getAllOrderLineIds($order);
@@ -502,12 +499,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     public function getOrderLineByApi($lengowOrder)
     {
         $orderLines = array();
-        $shopId = $lengowOrder->getShopId();
-        $shop = Shopware()->Models()->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('id' => $shopId));
         $results = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
             'get',
             '/v3.0/orders',
-            $shop,
             array(
                 'marketplace_order_id' => $lengowOrder->getMarketplaceSku(),
                 'marketplace' => $lengowOrder->getMarketplaceName()

@@ -142,6 +142,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     }
 
     /**
+     * Get Valid Account id / Access token / Secret token
+     *
+     * @return array
+     */
+    public static function getAccessId()
+    {
+        $accountId = self::getConfig('lengowAccountId');
+        $accessToken = self::getConfig('lengowAccessToken');
+        $secretToken = self::getConfig('lengowSecretToken');
+        return array($accountId, $accessToken, $secretToken);
+    }
+
+    /**
      * Get config from db
      * Shopware < 5.0.0 compatibility
      * > 5.0.0 : Use Shopware()->Plugins()->Backend()->Lengow()->get('config_writer')->get() instead
