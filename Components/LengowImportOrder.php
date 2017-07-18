@@ -183,8 +183,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         $this->firstPackage = $params['first_package'];
         // get marketplace and Lengow order state
         $this->marketplace = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getMarketplaceSingleton(
-            (string)$this->orderData->marketplace,
-            $this->shop
+            (string)$this->orderData->marketplace
         );
         $this->marketplaceLabel = $this->marketplace->labelName;
         $this->orderStateMarketplace = (string)$this->orderData->marketplace_status;
@@ -484,8 +483,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             'marketplace_sku' => $this->marketplaceSku,
             'marketplace_name' => (string)$this->marketplace->name,
             'lengow_state' => $this->orderStateLengow,
-            'order_new' => ($typeResult == 'new' ? true : false),
-            'order_error' => ($typeResult == 'error' ? true : false)
+            'order_new' => $typeResult === 'new' ? true : false,
+            'order_error' => $typeResult === 'error' ? true : false
         );
         return $result;
     }
@@ -632,7 +631,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             foreach ($externalIds as $externalId) {
                 $lineId = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getIdFromLengowDeliveryAddress(
                     (int)$externalId,
-                    (int)$this->deliveryAddressId
+                    $this->deliveryAddressId
                 );
                 if ($lineId) {
                     $orderIdShopware = $externalId;

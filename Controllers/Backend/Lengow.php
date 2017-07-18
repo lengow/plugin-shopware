@@ -55,7 +55,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
                 'success' => true,
                 'data' => array(
                     'panelHtml' => $panelHtml,
-                    'isNewMerchant' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::isNewMerchant(),
+                    'isNewMerchant' => Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant(),
                     'langIsoCode' => substr(Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale(), 0, 2)
                 )
             )
