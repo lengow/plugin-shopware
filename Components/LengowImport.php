@@ -109,9 +109,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     protected $importOneOrder = false;
 
     /**
-     * @var array account ids already imported
+     * @var array shop catalog ids for import
      */
-    protected $accountIds = array();
+    protected $shopCatalogIds = array();
+
+    /**
+     * @var array catalog ids already imported
+     */
+    protected $catalogIds = array();
 
     /**
      * @var boolean import is processing
@@ -221,7 +226,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             );
         } elseif (!self::checkCredentials()) {
             $globalError = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'lengow_log/exception/credentials_not_valid'
+                'lengow_log/error/credentials_not_valid'
             );
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log('Import', $globalError, $this->logOutput);
         } else {
@@ -266,9 +271,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     $this->logOutput
                 );
                 try {
-                    // check account ID, Access Token and Secret Token
-                    $errorCatalogIds = $this->checkCatalogIds($shop);
-                    if ($errorCatalogIds !== true) {
+                    // check shop catalog ids
+                    if (!$this->checkCatalogIds($shop)) {
+                        $errorCatalogIds = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                            'lengow_log/error/no_catalog_for_shop',
+                            array(
+                                'name_shop' => $shop->getName(),
+                                'id_shop' => $shop->getId(),
+                            )
+                        );
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                             'Import',
                             $errorCatalogIds,
@@ -301,7 +312,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                                 'log/import/find_all_orders',
                                 array(
                                     'nb_order' => $totalOrders,
-                                    'account_id' => $this->accountId
+                                    'name_shop' => $shop->getName(),
+                                    'id_shop' => $shop->getId()
                                 )
                             ),
                             $this->logOutput
@@ -412,21 +424,32 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
      */
     protected function checkCatalogIds($shop)
     {
-        // TODO check if catalog id is already used
-
-        if (array_key_exists($this->accountId, $this->accountIds)) {
-            $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'lengow_log/error/account_id_already_used',
-                array(
-                    'account_id' => $this->accountId,
-                    'name_shop' => $this->accountIds[$this->accountId]['name'],
-                    'id_shop' => $this->accountIds[$this->accountId]['shopId'],
-                )
-            );
-            return $message;
+        $shopCatalogIds = array();
+        $catalogIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getCatalogIds($shop);
+        foreach ($catalogIds as $catalogId) {
+            if (array_key_exists($catalogId, $this->catalogIds)) {
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                    'Import',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                        'log/import/catalog_id_already_used',
+                        array(
+                            'catalog_id' => $catalogId,
+                            'name_shop' => $this->catalogIds[$catalogId]['name'],
+                            'id_shop' => $this->catalogIds[$catalogId]['shopId'],
+                        )
+                    ),
+                    $this->logOutput
+                );
+            } else {
+                $this->catalogIds[$catalogId] = array('shopId' => $shop->getId(), 'name' => $shop->getName());
+                $shopCatalogIds[] = $catalogId;
+            }
         }
-        $this->accountIds[$this->accountId] = array('shopId' => $shop->getId(), 'name' => $shop->getName());
-        return true;
+        if (count($shopCatalogIds) > 0) {
+            $this->shopCatalogIds = $shopCatalogIds;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -463,7 +486,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     array(
                         'date_from' => date('Y-m-d', strtotime((string)$this->dateFrom)),
                         'date_to' => date('Y-m-d', strtotime((string)$this->dateTo)),
-                        'account_id' => $this->accountId
+                        'catalog_id' => implode(', ', $this->shopCatalogIds)
                     )
                 ),
                 $this->logOutput
@@ -487,6 +510,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     array(
                         'updated_from' => $this->dateFrom,
                         'updated_to' => $this->dateTo,
+                        'catalog_id' => implode(',', $this->shopCatalogIds),
                         'account_id' => $this->accountId,
                         'page' => $page
                     ),

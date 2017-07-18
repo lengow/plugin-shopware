@@ -155,6 +155,46 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     }
 
     /**
+     * Get catalog ids for a specific shop
+     *
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     *
+     * @return array
+     */
+    public static function getCatalogIds($shop)
+    {
+        $catalogIds = array();
+        $shopCatalogIds = self::getConfig('lengowCatalogId', $shop);
+        if (strlen($shopCatalogIds) > 0 && $shopCatalogIds != 0) {
+            $ids = trim(str_replace(array("\r\n", ',', '-', '|', ' ', '/'), ';', $shopCatalogIds), ';');
+            $ids = array_filter(explode(';', $ids));
+            foreach ($ids as $id) {
+                if (is_numeric($id) && $id > 0) {
+                    $catalogIds[] = (int)$id;
+                }
+            }
+        }
+        return $catalogIds;
+    }
+
+    /**
+     * Set catalog ids for a specific shop
+     *
+     * @param array $catalogIds Lengow catalog ids
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     */
+    public static function setCatalogIds($catalogIds, $shop)
+    {
+        $shopCatalogIds = self::getCatalogIds($shop);
+        foreach ($catalogIds as $catalogId) {
+            if (!in_array($catalogId, $shopCatalogIds) && is_numeric($catalogId) && $catalogId > 0) {
+                $shopCatalogIds[] = (int)$catalogId;
+            }
+        }
+        self::setConfig('lengowCatalogId', implode(';', $shopCatalogIds), $shop);
+    }
+
+    /**
      * Get config from db
      * Shopware < 5.0.0 compatibility
      * > 5.0.0 : Use Shopware()->Plugins()->Backend()->Lengow()->get('config_writer')->get() instead
