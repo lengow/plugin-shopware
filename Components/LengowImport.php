@@ -230,6 +230,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             );
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log('Import', $globalError, $this->logOutput);
         } else {
+            // check Lengow catalogs for order synchronisation
+            if (!$this->preprodMode && !$this->importOneOrder && $this->typeImport === 'manual') {
+                Shopware_Plugins_Backend_Lengow_Components_LengowSync::syncCatalog();
+            }
+            // start order synchronisation
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                 'Import',
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
@@ -404,7 +409,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     protected function checkCredentials()
     {
         if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isValidAuth()) {
-            $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessId();
+            $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
             list($this->accountId, $this->accessToken, $this->secretToken) = $accessIds;
             $this->connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector(
                 $this->accessToken,
@@ -424,6 +429,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
      */
     protected function checkCatalogIds($shop)
     {
+        if ($this->importOneOrder) {
+            return true;
+        }
         $shopCatalogIds = array();
         $catalogIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getCatalogIds($shop);
         foreach ($catalogIds as $catalogId) {
