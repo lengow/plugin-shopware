@@ -183,6 +183,7 @@ default:
       last_import_manual: "manual"
       export_information: "Export information (by shop)"
       shop_active: "Shop synchronized with Lengow"
+      shop_catalogs_id: "Lengow catalogs id synchronized"
       shop_export_token: "Export token"
       shop_last_export: "Last export"
       shop_product_total: "Products available in the shop"

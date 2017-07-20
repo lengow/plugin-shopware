@@ -347,7 +347,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         if (is_null($lengowOrder)) {
             return false;
         }
-        $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessId();
+        $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
         list($accountId, $accessToken, $secretToken) = $accessIds;
         if (is_null($connector)) {
             if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isValidAuth()) {

@@ -322,36 +322,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
     },
 
     /**
-     * Set shop status label
-     * If the shop is not synchronized, display a link
-     */
-    setLengowShopStatus: function() {
-        var me = this,
-        status = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].raw['lengowStatus'];
-
-        var field = Ext.getCmp('shopStatus');
-
-        if (status) {
-            field.el.update("<span class='lengow_check_shop lengow_check_shop_sync'></span>" +
-                        "<label class='lengow_shop_status_label'>" + 
-                        "<span>" + me.snippets.label.shop.synchronized + "</span></label>");
-        } else {
-            var message = "<span class='lengow_check_shop lengow_check_shop_no_sync'></span>" +
-                        "<label class='lengow_shop_status_label'>" + 
-                        "<a id='synchronizeShop' href='#'><span>" + me.snippets.label.shop.not_synchronized + "</span></a></label>";
-            field.el.update(message);
-
-            // Listen to click on the link to synchronize the shop
-            var link = Ext.get('synchronizeShop');
-            if (link) {
-                link.on('click', function() {
-                    me.fireEvent('displaySyncIframe');
-                });
-            }
-        }
-    },
-
-    /**
      * Initialize checkboxes
      * Get values in lengow settings
      */

@@ -201,8 +201,12 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 echo json_encode(Shopware_Plugins_Backend_Lengow_Components_LengowSync::getSyncData());
             } else {
                 $sync = $this->Request()->getParam('sync', false);
+                // sync catalogs id between Lengow and Shopware
+                if (!$sync || $sync === 'catalog') {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::syncCatalog();
+                }
+                // sync orders between Lengow and Shopware
                 if (!$sync || $sync === 'order') {
-                    // array of params for import order
                     $params = array();
                     if ($this->Request()->getParam('preprod_mode')) {
                         $params['preprod_mode'] = (bool)$this->Request()->getParam('preprod_mode');
@@ -237,8 +241,8 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 if (!$sync || $sync === 'option') {
                     Shopware_Plugins_Backend_Lengow_Components_LengowSync::setCmsOption();
                 }
-                // sync option is not valid
-                if ($sync && ($sync !== 'order' && $sync !== 'action' && $sync !== 'option')) {
+                // sync parameter is not valid
+                if ($sync && (!in_array($sync, Shopware_Plugins_Backend_Lengow_Components_LengowSync::$syncActions))) {
                     header('HTTP/1.1 400 Bad Request');
                     die(
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(

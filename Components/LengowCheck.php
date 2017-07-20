@@ -248,7 +248,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
             'lengowLastExport',
             $shop
         );
-        if (is_null($lastExport) || $lastExport == '') {
+        if (is_null($lastExport) || $lastExport == '' || $lastExport == 0) {
             $lastExport = $this->locale->t('toolbox/index/last_import_none');
         }
         $checklist = array();
@@ -260,6 +260,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
             'title' => $this->locale->t('toolbox/index/shop_active'),
             'state' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowShopActive',
+                $shop
+            )
+        );
+        $checklist[] = array(
+            'title' => $this->locale->t('toolbox/index/shop_catalogs_id'),
+            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowCatalogId',
                 $shop
             )
         );

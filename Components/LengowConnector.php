@@ -415,9 +415,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      */
     public static function isNewMerchant()
     {
-        $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessId();
+        $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
         list($accountId, $accessToken, $secretToken) = $accessIds;
-        if ($accountId != 0 && $accessToken !== 0 && $secretToken !== 0) {
+        if ($accountId != 0 && $accessToken != 0 && $secretToken != 0) {
            return false;
         }
         return true;
@@ -433,7 +433,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         if (!Shopware_Plugins_Backend_Lengow_Components_LengowCheck::isCurlActivated()) {
             return false;
         }
-        $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessId();
+        $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
         list($accountId, $accessToken, $secretToken) = $accessIds;
         if (is_null($accountId) || $accountId == 0 || !is_numeric($accountId)) {
             return false;
@@ -467,7 +467,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
             return false;
         }
         try {
-            $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessId();
+            $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
             list($accountId, $accessToken, $secretToken) = $accessIds;
             if ($accountId != 0 && $accessToken !== 0 && $secretToken !== 0) {
                 $connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector(

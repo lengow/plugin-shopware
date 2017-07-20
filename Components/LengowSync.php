@@ -39,36 +39,49 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     protected static $cacheTime = 18000;
 
     /**
+     * @var array valid sync actions
+     */
+    public static $syncActions = array(
+        'order',
+        'action',
+        'catalog',
+        'option'
+    );
+
+    /**
      * Get Sync Data (Inscription / Update)
      *
      * @return array
      */
     public static function getSyncData()
     {
-        $data = array();
-        $data['domain_name'] = $_SERVER["SERVER_NAME"];
-        $data['token'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken();
-        $data['type'] = 'shopware';
-        $data['version'] = Shopware::VERSION;
-        $data['plugin_version'] = Shopware()->Plugins()->Backend()->Lengow()->getVersion();
-        $data['email'] = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('mail');
-        $data['return_url'] = 'http://' . $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"];
+        $data = array(
+            'domain_name' => $_SERVER["SERVER_NAME"],
+            'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken(),
+            'type' => 'shopware',
+            'version' => Shopware::VERSION,
+            'plugin_version' => Shopware()->Plugins()->Backend()->Lengow()->getVersion(),
+            'email' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('mail'),
+            'cron_url' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getImportUrl(),
+            'return_url' => 'http://' . $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"],
+            'shops' => array()
+        );
         $activeShops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops();
         foreach ($activeShops as $shop) {
-            $shopId = $shop->getId();
-            $exportUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getExportUrl($shop);
-            $importUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getImportUrl();
-            $token = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop);
-            $domain = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopUrl($shop);
             $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, array());
-            $data['shops'][$shopId]['token'] = $token;
-            $data['shops'][$shopId]['name'] = $shop->getName();
-            $data['shops'][$shopId]['domain'] = $domain;
-            $data['shops'][$shopId]['feed_url'] = $exportUrl;
-            $data['shops'][$shopId]['cron_url'] = $importUrl;
-            $data['shops'][$shopId]['total_product_number'] = $export->getTotalProducts();
-            $data['shops'][$shopId]['exported_product_number'] = $export->getExportedProducts();
-            $data['shops'][$shopId]['configured'] = self::checkSyncShop($shop);
+            $enabled = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowShopActive',
+                $shop
+            );
+            $data['shops'][$shop->getId()] = array(
+                'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop),
+                'shop_name' =>  $shop->getName(),
+                'domain_url' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopUrl($shop),
+                'feed_url' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getExportUrl($shop),
+                'total_product_number' => $export->getTotalProducts(),
+                'exported_product_number' => $export->getExportedProducts(),
+                'enabled' => $enabled
+            );
         }
         return $data;
     }
@@ -80,65 +93,53 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      */
     public static function sync($params)
     {
-        foreach ($params as $shopToken => $values) {
+        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setAccessIds(
+            array(
+                'lengowAccountId' => $params['account_id'],
+                'lengowAccessToken' => $params['access_token'],
+                'lengowSecretToken' => $params['secret_token']
+            )
+        );
+        foreach ($params['shops'] as $shopToken => $shopCatalogIds) {
             $shop = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopByToken($shopToken);
             if ($shop) {
-                $listKey = array(
-                    'account_id' => false,
-                    'access_token' => false,
-                    'secret_token' => false
+                Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setCatalogIds(
+                    $shopCatalogIds['catalog_ids'],
+                    $shop
                 );
-                foreach ($values as $k => $v) {
-                    if (!in_array($k, array_keys($listKey))) {
-                        continue;
-                    }
-                    if (strlen($v) > 0) {
-                        $listKey[$k] = true;
-                        $translationKey = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::camelCase(
-                            'lengow_' . strtolower($k)
-                        );
-                        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-                            $translationKey,
-                            $v,
-                            $shop
-                        );
-                    }
-                }
-                $findFalseValue = false;
-                foreach ($listKey as $k => $v) {
-                    if (!$v) {
-                        $findFalseValue = true;
-                        break;
-                    }
-                }
-                if (!$findFalseValue) {
-                    Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-                        'lengowShopActive',
-                        true,
-                        $shop
-                    );
-                } else {
-                    Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-                        'lengowShopActive',
-                        false,
-                        $shop
-                    );
-                }
+                Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setActiveShop($shop);
             }
         }
     }
 
     /**
-     * Check that a shop is activated and has account id and tokens non-empty
-     *
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
-     *
-     * @return boolean
+     * Sync Lengow catalogs for order synchronisation
      */
-    public static function checkSyncShop($shop)
+    public static function syncCatalog()
     {
-        return Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowShopActive', $shop)
-            && Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isValidAuth();
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant()) {
+            return false;
+        }
+        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('get', '/v3.1/cms');
+        if (isset($result->cms)) {
+            $cmsToken = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken();
+            foreach ($result->cms as $cms) {
+                if ($cms->token === $cmsToken) {
+                    foreach ($cms->shops as $cmsShop) {
+                        $shop = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopByToken($cmsShop->token);
+                        if ($shop) {
+                            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setCatalogIds(
+                                $cmsShop->catalog_ids,
+                                $shop
+                            );
+                            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setActiveShop($shop);
+                        }
+                    }
+                    break;
+                }
+            }
+
+        }
     }
 
     /**
@@ -151,32 +152,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
         $data = array();
         $data['cms'] = array(
             'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken(),
-            'type' => 'shopware',
             'version' => Shopware::VERSION,
             'plugin_version' => Shopware()->Plugins()->Backend()->Lengow()->getVersion(),
             'options' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAllValues()
         );
         $activeShops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops();
         foreach ($activeShops as $shop) {
-            $lengowStatus = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            $enabled = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowShopActive',
                 $shop
             );
-            $token = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop);
-            $exportUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getExportUrl($shop);
-            $importUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getImportUrl();
             $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, array());
             $data['shops'][] = array(
-                'enabled' => $lengowStatus,
-                'token' => $token,
-                'store_name' => $shop->getName(),
-                'domain_url' => $shop->getHost() . $shop->getBaseUrl(),
-                'feed_url' => $exportUrl,
-                'cron_url' => $importUrl,
-                'exported_product_number' => $export->getTotalProducts(),
-                'total_product_number' => $export->getExportedProducts(),
+                'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop),
+                'enabled' => $enabled,
+                'total_product_number' => $export->getTotalProducts(),
+                'exported_product_number' => $export->getExportedProducts(),
                 'options' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAllValues($shop)
-
             );
         }
         return $data;
@@ -203,12 +195,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             }
         }
         $options = json_encode(self::getOptionData());
-        Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
-            'put',
-            '/v3.0/cms',
-            array(),
-            $options
-        );
+        Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('put', '/v3.1/cms', array(), $options);
         Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
             'lengowOptionCmsUpdate',
             date('Y-m-d H:i:s')
@@ -236,10 +223,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 return json_decode($config, true);
             }
         }
-        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
-            'get',
-            '/v3.0/plans'
-        );
+        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('get', '/v3.0/plans');
         if (isset($result->isFreeTrial)) {
             $status = array();
             $status['type'] = $result->isFreeTrial ? 'free_trial' : '';
