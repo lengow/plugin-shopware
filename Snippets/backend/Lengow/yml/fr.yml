@@ -107,14 +107,14 @@ fr:
         description: "Sélectionnez un transporteur par défaut pour calculer les frais de livraison"
     lengow_import_settings:
       label: "Paramètres d'import"
-      description: "Toutes vos commandes sont centralisées sur votre plateforme Lengow : choisissez ici si vous voulez synchroniser vos commandes afin de diminuer les stocks dans votre backoffice Shopware."
+      description: "Toutes vos commandes sont centralisées sur votre plateforme Lengow : choisissez ici si vous voulez synchroniser et importer vos commandes dans votre backoffice Shopware. Vos stocks seront ainsi mis à jour dans votre backoffice Shopware."
       enable_import:
         label: "Activer la synchronisation des commandes"
         description: "Activez cette option pour importer les commandes  dans votre backoffice Shopware."
       ship_mp_enabled:
-        label: "Importez les commandes expédiées par les places de marché"
+        label: "Importer les commandes expédiées par les places de marché"
       decrease_stock:
-        label: "Diminuer mon stock avec les commandes envoyées par les places de marché."
+        label: "Diminuer mon stock avec les commandes envoyées par les places de marché"
         description: "Activez cette option pour prendre en compte les commandes des places de marché sur les stocks de votre backoffice Shopware."
       dispatcher:
         label: "Transporteur par défaut"

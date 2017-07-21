@@ -107,7 +107,7 @@ de:
         description: "Wählen Sie den Standard-Zulieferer um die Versandkosten zu berechen"
     lengow_import_settings:
       label: "Importeinstellungen"
-      description: "Bestellungen werden in Lengow zentralisiert. Hier können Sie die Bestellungen synchronisieren um den Lagerbestand in Ihrem Shopware-Backoffice zu verringern"
+      description: "Alle Bestellungen werden in der Lengow Plattform zentralisiert: Wählen Sie aus, ob Sie Ihre Bestellungen im Shopware Backoffice synchronisieren und importieren wollen. Das wird auch die Produktbestand in Ihrem Backoffice verringern"
       enable_import:
         label: "Aktivieren Sie die Bestellungssynchronisation"
         description: "Nutzen Sie diese Option, um Bestellungen in Ihr Shopware Backoffice zu importieren"

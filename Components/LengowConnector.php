@@ -417,7 +417,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     {
         $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
         list($accountId, $accessToken, $secretToken) = $accessIds;
-        if ($accountId != 0 && $accessToken != 0 && $secretToken != 0) {
+        if ($accountId != 0 && $accessToken != '0' && $secretToken != '0') {
            return false;
         }
         return true;

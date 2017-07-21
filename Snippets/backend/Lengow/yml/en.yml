@@ -104,10 +104,10 @@ en:
         description: "Activate this option if you do not want to export all of your avaible products. Then select your products one by one."
       dispatcher:
         label: "Default carrier"
-        description: "Select the default carrier to calculate shipping cost"
+        description: "Select the default carrier to calculate shipping costs"
     lengow_import_settings:
       label: "Import settings"
-      description: "All your orders are centralized in your Lengow platform : choose here if you want to synchronize your orders in order to decrease your products stock in your Shopware backoffice"
+      description: "All your orders are centralized in your Lengow platform : choose here if you want to synchronize and import your orders in your Shopware backoffice. It will also decrease your products stock in your backoffice"
       enable_import:
         label: "Activate order synchronisation"
         description: "Use this option to import orders in your Shopware backoffice"

@@ -148,7 +148,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      */
     public static function getAccessIds()
     {
-        $accountId = self::getConfig('lengowAccountId');
+        $accountId = (int)self::getConfig('lengowAccountId');
         $accessToken = self::getConfig('lengowAccessToken');
         $secretToken = self::getConfig('lengowSecretToken');
         return array($accountId, $accessToken, $secretToken);
