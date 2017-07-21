@@ -85,8 +85,8 @@ en:
         label: "Enable shop"
         description: "Enable shop to work with Lengow"
       catalog:
-        label: "Catalogs ID"
-        description: "Your catalogs ID for importing orders.\nSeparate them ' ; '"
+        label: "Catalogues ID"
+        description: "Your catalogues ID to import orders.\nSeparate them by ' ; '"
       ip_enable:
         label: "Enable authorisation by IP"
         description: "Enable this option if you want your export to be secured by IP. By default, your export is secured by a unique key."
