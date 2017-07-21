@@ -518,7 +518,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     array(
                         'updated_from' => $this->dateFrom,
                         'updated_to' => $this->dateTo,
-                        'catalog_id' => implode(',', $this->shopCatalogIds),
+                        'catalog_ids' => implode(',', $this->shopCatalogIds),
                         'account_id' => $this->accountId,
                         'page' => $page
                     ),
