@@ -507,8 +507,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     array(
                         'marketplace_order_id' => $this->marketplaceSku,
                         'marketplace' => $this->marketplaceName,
-                        'account_id' => $this->accountId,
-                        'page' => $page
+                        'account_id' => $this->accountId
                     ),
                     'stream'
                 );
@@ -566,7 +565,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 $orders[] = $order;
             }
             $page++;
-        } while ($results->next != null);
+            $finish = (is_null($results->next) || $this->importOneOrder) ? true : false;
+        } while ($finish != true);
         return $orders;
     }
 
