@@ -154,7 +154,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken(),
             'version' => Shopware::VERSION,
             'plugin_version' => Shopware()->Plugins()->Backend()->Lengow()->getVersion(),
-            'options' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAllValues()
+            'options' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAllValues(),
+            'shops' => array()
         );
         $activeShops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops();
         foreach ($activeShops as $shop) {
@@ -163,7 +164,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 $shop
             );
             $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, array());
-            $data['shops'][] = array(
+            $data['cms']['shops'][] = array(
                 'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop),
                 'enabled' => $enabled,
                 'total_product_number' => $export->getTotalProducts(),
