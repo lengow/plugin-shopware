@@ -68,7 +68,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
             $html['lgw-preprod-label'] = '<div id="lgw-preprod" class="adminlengowhome">'
                 . $preprodTranslation . '</div>';
         }
-        if ($accountStatus['type'] == 'free_trial' && $accountStatus['day'] != 0) {
+        if ($accountStatus['type'] == 'free_trial' && $accountStatus['expired'] != true) {
             $html['lgw-trial-label'] =
                 '<p class="text-right" id="menucountertrial">' . $counterTranslation .
                 '<a href="http://my.lengow.io" target="_blank">' . $upgradeTranslation . '</a>

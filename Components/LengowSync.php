@@ -229,6 +229,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             $status = array();
             $status['type'] = $result->isFreeTrial ? 'free_trial' : '';
             $status['day'] = (int)$result->leftDaysBeforeExpired;
+            $status['expired'] = (bool)$result->isExpired;
             if ($status['day'] < 0) {
                 $status['day'] = 0;
             }
