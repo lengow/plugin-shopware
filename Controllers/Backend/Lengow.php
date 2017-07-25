@@ -39,11 +39,11 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
     public function getSyncIframeAction()
     {
         $panelHtml = '
-            <div class="lgw-container">
-                <div class="lgw-content-section text-center">
+            <div class="lgw-container" style="height: 100%;">
+                <div class="lgw-content-section text-center" style="height: 100%;">
                     <iframe id="lengow_iframe" 
                         scrolling="yes"
-                        style="display: none; overflow-y: hidden;"
+                        style="display: none;"
                         frameborder="0"></iframe>
                 </div>
             </div>
