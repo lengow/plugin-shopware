@@ -149,8 +149,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      */
     public static function getOptionData()
     {
-        $data = array();
-        $data['cms'] = array(
+        $data = array(
             'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken(),
             'version' => Shopware::VERSION,
             'plugin_version' => Shopware()->Plugins()->Backend()->Lengow()->getVersion(),
