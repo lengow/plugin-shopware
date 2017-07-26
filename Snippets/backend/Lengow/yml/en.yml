@@ -186,22 +186,22 @@ en:
       button: "Launch import"
     details:
       title: "Lengow"
-      marketplace_sku: 'MarketPlace Sku',
-      marketplace_label: 'MarketPlace Name',
-      delivery_address_id: 'Delivery Address Id'
-      currency: 'Currency'
-      total_paid: 'Total Paid'
-      commission: 'Commission'
-      customer_name: 'Customer Name',
-      customer_email: 'Customer Email',
-      carrier: 'Carrier',
-      carrier_method: 'Carrier Method',
-      carrier_tracking: 'Carrier Tracking',
-      carrier_id_relay: 'Carrier Id Relay',
-      sent_by_mkp: 'Sent by Marketplace',
-      created_at: 'Imported At',
-      message: 'Message',
-      extra: 'Extra',
+      marketplace_sku: "MarketPlace Sku"
+      marketplace_label: "MarketPlace Name"
+      delivery_address_id: "Delivery Address Id"
+      currency: "Currency"
+      total_paid: "Total Paid"
+      commission: "Commission"
+      customer_name: "Customer Name"
+      customer_email: "Customer Email"
+      carrier: "Carrier"
+      carrier_method: "Carrier Method"
+      carrier_tracking: "Carrier Tracking"
+      carrier_id_relay: "Carrier Id Relay"
+      sent_by_mkp: "Sent by Marketplace"
+      created_at: "Imported At"
+      message: "Message"
+      extra: "Extra"
   log:
     panel:
       empty_selection: "Please choose a log file..."
