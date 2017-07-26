@@ -1,7 +1,7 @@
-/Bootstrap.php|c933d999626651ad8f687a78740cf2e7
+/Bootstrap.php|aaef7d4097b483fb343f8a69a85ffad0
 /plugin.json|4ee97bd88932f0be7e9d92c0f8207889
-/Snippets/backend/Lengow/translation.ini|76563fef5ea7086d025af9a23b8b3f1f
-/Bootstrap/Database.php|ed228319884a467aad997ef79fe3fe91
+/Snippets/backend/Lengow/translation.ini|7772e1d60707bcb4311e1d838269b6de
+/Bootstrap/Database.php|ad949d5f90adaa496b4676b9bb6d5c47
 /Bootstrap/Form.php|d28f7fe5d1eee97db8dfd633d9c76770
 /Components/LengowImportOrder.php|a593020f7dcc1f80f10f9c8bebcd932b
 /Components/LengowEvent.php|8fbc0d9af951128ea95b2b573726dfda
@@ -27,6 +27,7 @@
 /Controllers/Backend/LengowSync.php|d4c3d29fb86c1aedeb00784022f7dc57
 /Controllers/Backend/LengowImport.php|0b725ad4c3cb248ec46787d0c4f7bfc9
 /Controllers/Backend/Lengow.php|dda09d13551cbd95fcb8b2bc6e20d706
+/Controllers/Backend/LengowOrder.php|d0062bd9086f41d6dc42d21b1d3757d1
 /Controllers/Backend/LengowExport.php|3797b5e85ee6367f2609fbf6279e4d42
 /Controllers/Backend/LengowHome.php|7fd262c8798bd37bb23227672d6f5c44
 /Controllers/Backend/LengowLogs.php|dab2dd558f5273bed8b0755e87677690
@@ -53,12 +54,14 @@
 /Views/backend/lengow/model/logs.js|38e0561a31dbd9a27f8d10e56e210dcb
 /Views/backend/lengow/model/article.js|ba507dbba4bd4935ddd5bd328c143948
 /Views/backend/lengow/model/shops.js|256fbea7b726e7e24b624ee3ebe89d0e
+/Views/backend/lengow/order.js|5340b9fc4c5dc69b72960137ff14ff3d
 /Views/backend/lengow/controller/main.js|8b96f95c8c355e5125e4e29d2dab8886
 /Views/backend/lengow/controller/import.js|7cb1588ccc77445468aa1bce55a50a06
 /Views/backend/lengow/controller/dashboard.js|2e99b0f4fa2d52bce14b2edac8981c61
 /Views/backend/lengow/controller/export.js|4c33bc8e2b5dd8481b39e86e91d7849e
+/Views/backend/lengow/controller/order.js|132f2d7dc974a2f6e5f6432c4b94d692
 /Views/backend/lengow/controller/help.js|ed08102b32b0bbad721c4b23e6ac4d93
-/Views/backend/lengow/app.js|e8d41a3fd32ddb488eb2c63677214bdc
+/Views/backend/lengow/app.js|c365aa835bd733832e488aea3899a912
 /Views/backend/lengow/resources/img/home-orders.png|db05b21ec6b166d844b42c0e807cb265
 /Views/backend/lengow/resources/img/home-products.png|99ff45448ea094f8c70b58a0cd4d9303
 /Views/backend/lengow/resources/img/logo-blue.png|20c05b7249c00f126861223ecc5b6ce9
@@ -71,7 +74,7 @@
 /Views/backend/lengow/resources/lengow-template.tpl|15ab4381c4841e85cd77295f9c8e4d95
 /Views/backend/lengow/view/import/panel.js|d96f5cb1e89b7f28bfa6d493a7c6ab61
 /Views/backend/lengow/view/main/home.js|2f0a5e0adc890f98597c418d9f47e817
-/Views/backend/lengow/view/main/sync.js|e010c011ad21b600bd43d7b31bd995df
+/Views/backend/lengow/view/main/sync.js|ad017e8af2da30f43e2cddc7eb73c712
 /Views/backend/lengow/view/export/grid.js|08a951c1e0646e9ce345ab74ebb73b49
 /Views/backend/lengow/view/export/panel.js|a745bad72477014dbe2467760bceecc1
 /Views/backend/lengow/view/export/container.js|296783c31422c2442a4a916dfcce70ae
