@@ -29,7 +29,7 @@
  */
 
 /**
- * Backend Lengow Order Controller
+ * Backend Lengow Order Legacy Controller
  */
 class Shopware_Controllers_Backend_LengowOrderLegacy extends Shopware_Controllers_Backend_Application
 {

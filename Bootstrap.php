@@ -218,18 +218,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowHelp',
             'onGetHelpControllerPath'
         );
-
         // Order controller
         $this->subscribeEvent(
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowOrder',
             'onGetOrderControllerPath'
         );
-
         $this->subscribeEvent(
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowOrderLegacy',
             'onGetOrderControllerPath'
         );
-
         // Backend events
         $this->subscribeEvent(
             'Enlight_Controller_Action_PostDispatch_Backend_Index',
@@ -240,7 +237,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Enlight_Controller_Action_PostDispatch_Backend_Config',
             'onPostDispatchBackendConfig'
         );
-        // Order event
+        // Order events
         $this->subscribeEvent(
             'Enlight_Controller_Action_PostDispatchSecure_Backend_Order',
             'onOrderPostDispatch'
