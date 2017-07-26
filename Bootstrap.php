@@ -225,6 +225,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'onGetOrderControllerPath'
         );
 
+        $this->subscribeEvent(
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowOrderLegacy',
+            'onGetOrderControllerPath'
+        );
+
         // Backend events
         $this->subscribeEvent(
             'Enlight_Controller_Action_PostDispatch_Backend_Index',
@@ -336,7 +341,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function onGetOrderControllerPath()
     {
-        return $this->Path() . 'Controllers/Backend/LengowOrder.php';
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.0')) {
+            return $this->Path() . 'Controllers/Backend/LengowOrder.php';
+        } else {
+            return $this->Path() . 'Controllers/Backend/LengowOrderLegacy.php';
+        }
     }
 
     /**

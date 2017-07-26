@@ -42,9 +42,16 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
 
     onShowDetail: function (record) {
         var me = this;
+        var shopwareVersion = '{Shopware::VERSION}';
+        var url;
+        if (shopwareVersion >= '5.2.0') {
+            url = '{url controller=LengowOrder action=getOrderDetail}';
+        } else {
+            url = '{url controller=LengowOrderLegacy action=getOrderDetail}';
+        }
         me.callParent(arguments);
         Ext.Ajax.request({
-            url: '{url controller=LengowOrder action=getOrderDetail}',
+            url: url,
             method: 'POST',
             type: 'json',
             params: {
