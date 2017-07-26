@@ -396,6 +396,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         );
     }
 
+    /**
+     * Listen to order details
+     *
+     * @param Enlight_Event_EventArgs $args
+     */
     public function onOrderPostDispatch(Enlight_Event_EventArgs $args)
     {
         /** @var \Enlight_Controller_Action $controller */

@@ -202,6 +202,8 @@ en:
       created_at: "Imported At"
       message: "Message"
       extra: "Extra"
+      not_tracked_by_lengow: "This order is no longer tracked by Lengow"
+      not_lengow_order: "This is not a Lengow order"
   log:
     panel:
       empty_selection: "Please choose a log file..."
