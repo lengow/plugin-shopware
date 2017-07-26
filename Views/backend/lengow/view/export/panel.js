@@ -82,8 +82,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
                             // Update shop name and shop id
                             var label = record.get('text') + ' (' + record.get('id') + ')';
                             Ext.getCmp('shopName').update(label);
-                            // Update selected shop status
-                            grid.setLengowShopStatus();
                             // Init checkbox options listeners
                             grid.initConfigCheckboxes();
                         }

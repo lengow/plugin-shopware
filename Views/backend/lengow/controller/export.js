@@ -9,8 +9,7 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
         me.control({
             'product-listing-grid': {
                 setStatusInLengow: me.onSetStatusInLengow,
-                getConfigValue: me.onGetConfigValue,
-                displaySyncIframe: me.onDisplaySyncIframe
+                getConfigValue: me.onGetConfigValue
             },
             'lengow-export-container': {
                 getFeed: me.onGetFeed,
@@ -159,31 +158,6 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
                         return true;
                     }
                 });
-            }
-        });
-    },
-
-    /**
-     * Display iframe to synchronize shop
-     */
-    onDisplaySyncIframe: function() {
-        var syncWindow;
-        Ext.Ajax.request({
-            url: '{url controller="Lengow" action="getSyncIframe"}',
-            method: 'POST',
-            type: 'json',
-            success: function(response) {
-                var data = Ext.decode(response.responseText)['data'];
-                // Display sync iframe
-                syncWindow = Ext.create('Shopware.apps.Lengow.view.main.Sync', {
-                    panelHtml: data['panelHtml'],
-                    syncLink: true,
-                    langIsoCode: data['langIsoCode']
-                });
-                syncWindow.initFrame();
-                // Show main window
-                syncWindow.show();
-                syncWindow.maximize();
             }
         });
     }

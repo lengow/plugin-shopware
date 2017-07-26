@@ -292,8 +292,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                 $result[] = array(
                     'leaf' => $mainCategory->isLeaf(),
                     'text' => $shop->getName(),
-                    'id' => $shop->getId(),
-                    'lengowStatus' => Shopware_Plugins_Backend_Lengow_Components_LengowSync::checkSyncShop($shop)
+                    'id' => $shop->getId()
                 );
             }
         } else {

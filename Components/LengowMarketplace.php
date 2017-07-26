@@ -92,30 +92,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     public $argValues = array();
 
     /**
-     * @var \Shopware\Models\Shop\Shop Shopware shop instance
-     */
-    public $shop;
-
-    /**
-     * @var integer Shopware shop id
-     */
-    public $idShop;
-
-    /**
      * Construct a new Marketplace instance with xml configuration
      *
      * @param string $name name of the marketplace
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
      *
      * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException marketplace not present
      */
-    public function __construct($name, $shop = null)
+    public function __construct($name)
     {
-        $this->shop = $shop;
-        $this->idShop = $shop->getId();
         $this->loadApiMarketplace();
         $this->name = strtolower($name);
-        if (!isset(self::$marketplaces[$this->idShop]->{$this->name})) {
+        if (!isset(self::$marketplaces->{$this->name})) {
             throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'lengow_log/exception/marketplace_not_present',
@@ -123,7 +110,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                 )
             );
         }
-        $this->marketplace = self::$marketplaces[$this->idShop]->{$this->name};
+        $this->marketplace = self::$marketplaces->{$this->name};
         if (!empty($this->marketplace)) {
             $this->labelName = $this->marketplace->name;
             foreach ($this->marketplace->orders->status as $key => $state) {
@@ -178,13 +165,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      */
     public function loadApiMarketplace()
     {
-        if (!array_key_exists($this->idShop, self::$marketplaces)) {
+        if (count(self::$marketplaces) === 0) {
             $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
                 'get',
-                '/v3.0/marketplaces',
-                $this->shop
+                '/v3.0/marketplaces'
             );
-            self::$marketplaces[$this->idShop] = $result;
+            self::$marketplaces = $result;
         }
     }
 
@@ -359,14 +345,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
             $params['marketplace_order_id'] = $lengowOrder->getMarketplaceSku();
             $params['marketplace'] = $lengowOrder->getMarketplaceName();
             $params['action_type'] = $action;
-            // get shop for call api
-            $shopId = $lengowOrder->getShopId();
-            $shop = Shopware()->Models()->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('id' => $shopId));
             // check if action is already created
             $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
                 'get',
                 '/v3.0/orders/actions/',
-                $shop,
                 array_merge($params, array("queued" => "True"))
             );
             if (isset($result->error) && isset($result->error->message)) {
@@ -400,7 +382,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                     $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
                         'post',
                         '/v3.0/orders/actions/',
-                        $shop,
                         $params
                     );
                     if (isset($result->id)) {
