@@ -32,7 +32,7 @@ require_once('./config.inc.php');
 
 $check = new Shopware_Plugins_Backend_Lengow_Components_LengowCheck();
 $locale = new Shopware_Plugins_Backend_Lengow_Components_LengowTranslation();
-if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp()) {
+if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkIp(true)) {
     echo '
     <!DOCTYPE html>
     <html lang="en">

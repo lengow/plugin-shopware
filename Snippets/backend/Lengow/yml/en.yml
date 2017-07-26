@@ -72,9 +72,6 @@ en:
     lengow_main_settings:
       label: "Main settings"
       description: "Below you will find your Lengow login details.\nAccount ID, Access Token and Secret Token are automatically completed at your first connection : please do not change them."
-      enable:
-        label: "Enable shop"
-        description: "Enable shop to work with Lengow"
       account:
         label: "Account ID"
         description: "Your Lengow account ID. Please do not change it."
@@ -84,6 +81,15 @@ en:
       secret:
         label: "Secret Token"
         description: "Your secret token. Please do not change it."
+      enable:
+        label: "Enable shop"
+        description: "Enable shop to work with Lengow"
+      catalog:
+        label: "Catalogues ID"
+        description: "Your catalogues ID to import orders.\nSeparate them by ' ; '"
+      ip_enable:
+        label: "Enable authorisation by IP"
+        description: "Enable this option if you want your export to be secured by IP. By default, your export is secured by a unique key."
       ip:
         label: "Authorised IPs"
         description: "Authorise IP to get access to your export feed.\nSeparate them ' ; '"
@@ -98,22 +104,38 @@ en:
         description: "Activate this option if you do not want to export all of your avaible products. Then select your products one by one."
       dispatcher:
         label: "Default carrier"
-        description: "Select the default carrier that you would like to apply to your orders"
+        description: "Select the default carrier to calculate shipping costs"
     lengow_import_settings:
       label: "Import settings"
-      description: "All your orders are centralized in your Lengow platform : choose here if you want to synchronize your orders in order to decrease your products stock in your Shopware backoffice"
+      description: "All your orders are centralized in your Lengow platform : choose here if you want to synchronize and import your orders in your Shopware backoffice. It will also decrease your products stock in your backoffice"
       enable_import:
-        label: "Activate stock synchronisation"
-        description: "Use this option to decrease stocks in your Shopware backoffice"
+        label: "Activate order synchronisation"
+        description: "Use this option to import orders in your Shopware backoffice"
+      ship_mp_enabled:
+        label: "Import orders shipped by marketplaces"
       decrease_stock:
         label: "Decrease my stock with the orders sent by marketplaces"
         description: "Use this option to take into account your orders sent by marketplaces on your stock in your Shopware backoffice"
+      dispatcher:
+        label: "Default carrier"
+        description: "Select the default carrier that you would like to apply to your orders"
       import_days:
         label: "Re-import all orders made since (in days)"
         description: "Activate this option if you have incorrect pending orders. It lets you re-import all orders that have been processed during this faulty period"
       preprod_mode:
         label: "Activate pre-production mode"
         description: "Use pre-production mode for testing and to simulate fictitious orders. Please note that you have to activate this setting on your pre-production server ONLY"
+    lengow_order_status_settings:
+      label: "Order Status"
+      description: "Match your Lengow order status to retrieve them in your orders easily"
+      id_waiting_shipment:
+        label: "Orders in preparation"
+      id_shipped:
+        label: "Shipped orders"
+      id_canceled:
+        label: "Cancelled orders"
+      id_shipped_by_mp:
+        label: "Orders shipped by marketplace"
   export:
     filter:
       filter_title: "Filter"

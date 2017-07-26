@@ -39,11 +39,11 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
     public function getSyncIframeAction()
     {
         $panelHtml = '
-            <div class="lgw-container">
-                <div class="lgw-content-section text-center">
+            <div class="lgw-container" style="height: 100%;">
+                <div class="lgw-content-section text-center" style="height: 100%;">
                     <iframe id="lengow_iframe" 
                         scrolling="yes"
-                        style="display: none; overflow-y: hidden;"
+                        style="display: none;"
                         frameborder="0"></iframe>
                 </div>
             </div>
@@ -55,7 +55,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
                 'success' => true,
                 'data' => array(
                     'panelHtml' => $panelHtml,
-                    'isNewMerchant' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::isNewMerchant(),
+                    'isNewMerchant' => Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant(),
                     'langIsoCode' => substr(Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale(), 0, 2)
                 )
             )

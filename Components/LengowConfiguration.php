@@ -37,17 +37,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * @var array $lengowSettings specific Lengow settings in s_lengow_settings table
      */
     public static $lengowSettings = array(
+        'lengowGlobalToken',
+        'lengowShopToken',
+        'lengowLastExport',
         'lengowImportInProgress',
         'lengowLastImportCron',
         'lengowLastImportManual',
-        'lengowGlobalToken',
-        'lengowShopToken',
         'lengowAccountStatusUpdate',
         'lengowAccountStatus',
         'lengowOrderStat',
         'lengowOrderStatUpdate',
-        'lengowOptionCmsUpdate',
-        'lengowLastExport'
+        'lengowOptionCmsUpdate'
     );
 
     /**
@@ -139,6 +139,96 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         return $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
+    }
+
+    /**
+     * Get Valid Account id / Access token / Secret token
+     *
+     * @return array
+     */
+    public static function getAccessIds()
+    {
+        $accountId = (int)self::getConfig('lengowAccountId');
+        $accessToken = self::getConfig('lengowAccessToken');
+        $secretToken = self::getConfig('lengowSecretToken');
+        return array($accountId, $accessToken, $secretToken);
+    }
+
+    /**
+     * Set Valid Account id / Access token / Secret token
+     *
+     * @param array $accessIds Account id / Access token / Secret token
+     */
+    public static function setAccessIds($accessIds)
+    {
+        $listKey = array('lengowAccountId', 'lengowAccessToken', 'lengowSecretToken');
+        foreach ($accessIds as $key => $value) {
+            if (!in_array($key, array_keys($listKey))) {
+                continue;
+            }
+            if (strlen($value) > 0) {
+                self::setConfig($key, $value);
+            }
+        }
+    }
+
+    /**
+     * Get catalog ids for a specific shop
+     *
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     *
+     * @return array
+     */
+    public static function getCatalogIds($shop)
+    {
+        $catalogIds = array();
+        $shopCatalogIds = self::getConfig('lengowCatalogId', $shop);
+        if (strlen($shopCatalogIds) > 0 && $shopCatalogIds != 0) {
+            $ids = trim(str_replace(array("\r\n", ',', '-', '|', ' ', '/'), ';', $shopCatalogIds), ';');
+            $ids = array_filter(explode(';', $ids));
+            foreach ($ids as $id) {
+                if (is_numeric($id) && $id > 0) {
+                    $catalogIds[] = (int)$id;
+                }
+            }
+        }
+        return $catalogIds;
+    }
+
+    /**
+     * Set catalog ids for a specific shop
+     *
+     * @param array $catalogIds Lengow catalog ids
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     */
+    public static function setCatalogIds($catalogIds, $shop)
+    {
+        $shopCatalogIds = self::getCatalogIds($shop);
+        foreach ($catalogIds as $catalogId) {
+            if (!in_array($catalogId, $shopCatalogIds) && is_numeric($catalogId) && $catalogId > 0) {
+                $shopCatalogIds[] = (int)$catalogId;
+            }
+        }
+        self::setConfig(
+            'lengowCatalogId',
+            count($shopCatalogIds) > 0 ? implode(';', $shopCatalogIds) : 0,
+            $shop
+        );
+    }
+
+    /**
+     * Set active shop or not
+     *
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     */
+    public static function setActiveShop($shop)
+    {
+        $active = true;
+        $shopCatalogIds = self::getCatalogIds($shop);
+        if (count($shopCatalogIds) === 0) {
+            $active = false;
+        }
+        self::setConfig('lengowShopActive', $active, $shop);
     }
 
     /**
@@ -265,23 +355,32 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     {
         static $keys = null;
         $keys = array(
-            'LENGOW_ACCOUNT_ID' => array('shop' => true),
-            'LENGOW_ACCESS_TOKEN' => array('shop' => true),
-            'LENGOW_SECRET_TOKEN' => array('shop' => true),
-            'LENGOW_SHOP_ACTIVE' => array('shop' => true),
-            'LENGOW_SHOP_TOKEN' => array('shop' => true),
-            'LENGOW_EXPORT_SELECTION_ENABLED' => array('shop' => true),
-            'LENGOW_EXPORT_VARIATION_ENABLED' => array('shop' => true),
-            'LENGOW_LAST_EXPORT' => array('shop' => true),
-            'LENGOW_IMPORT_DAYS' => array('global' => true),
-            'LENGOW_IMPORT_PREPROD_ENABLED' => array('global' => true),
-            'LENGOW_IMPORT_SHIP_MP_ENABLED' => array('global' => true),
-            'LENGOW_IMPORT_IN_PROGRESS' => array('global' => true),
-            'LENGOW_LAST_IMPORT_CRON' => array('global' => true),
-            'LENGOW_LAST_IMPORT_MANUAL' => array('global' => true),
-            'LENGOW_GLOBAL_TOKEN' => array('global' => true),
-            'LENGOW_AUTHORIZED_IP' => array('global' => true),
-            'LENGOW_OPTION_CMS_UPDATE' => array('global' => true)
+            'lengowAccountId' => array('global' => true),
+            'lengowAccessToken' => array('global' => true),
+            'lengowSecretToken' => array('global' => true),
+            'lengowIpEnabled' => array('global' => true),
+            'lengowAuthorizedIp' => array('global' => true),
+            'lengowShopToken' => array('shop' => true),
+            'lengowShopActive' => array('shop' => true),
+            'lengowCatalogId' => array('shop' => true),
+            'lengowExportDisabledProduct' => array('shop' => true),
+            'lengowExportSelectionEnabled' => array('shop' => true),
+            'lengowDefaultDispatcher' => array('shop' => true),
+            'lengowLastExport' => array('shop' => true),
+            'lengowGlobalToken' => array('global' => true),
+            'lengowEnableImport' => array('global' => true),
+            'lengowImportShipMpEnabled' => array('global' => true),
+            'lengowImportStockMpEnabled' => array('global' => true),
+            'lengowImportDefaultDispatcher' => array('shop' => true),
+            'lengowImportDays' => array('global' => true),
+            'lengowImportPreprodEnabled' => array('global' => true),
+            'lengowImportInProgress' => array('global' => true),
+            'lengowLastImportCron' => array('global' => true),
+            'lengowLastImportManual' => array('global' => true),
+            'lengowIdWaitingShipment' => array('global' => true),
+            'lengowIdShipped' => array('global' => true),
+            'lengowIdCanceled' => array('global' => true),
+            'lengowIdShippedByMp' => array('global' => true),
         );
         return $keys;
     }
@@ -298,37 +397,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         $rows = array();
         $keys = self::getKeys();
         foreach ($keys as $key => $value) {
-            $toCamelCase = self::camelCase(strtolower($key));
             if ($shop) {
                 if (isset($value['shop']) && $value['shop']) {
-                    $rows[$key] = self::getConfig($toCamelCase, $shop);
+                    $rows[$key] = self::getConfig($key, $shop);
                 }
             } else {
                 if (isset($value['global']) && $value['global']) {
-                    $rows[$key] = self::getConfig($toCamelCase);
+                    $rows[$key] = self::getConfig($key);
                 }
             }
         }
         return $rows;
-    }
-
-    /**
-     * Transform from Snake_Case to camelCase
-     *
-     * @param string $str string to convert
-     * @param array $noStrip element to remove
-     *
-     * @return string
-     */
-    public static function camelCase($str, array $noStrip = array())
-    {
-        // non-alpha and non-numeric characters become spaces
-        $str = preg_replace('/[^a-z0-9' . implode("", $noStrip) . ']+/i', ' ', $str);
-        $str = trim($str);
-        // uppercase the first character of each word
-        $str = ucwords($str);
-        $str = str_replace(" ", "", $str);
-        $str = lcfirst($str);
-        return $str;
     }
 }

@@ -40,7 +40,7 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
     {
         $status = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatusAccount();
         $showTabBar = false;
-        if ($status['type'] == 'free_trial' && $status['day'] == 0) {
+        if ($status['type'] == 'free_trial' && $status['expired']) {
             $htmlContent = Shopware_Plugins_Backend_Lengow_Components_LengowElements::getEndFreeTrial();
         } elseif ($status['type'] == 'bad_payer') {
             $htmlContent = Shopware_Plugins_Backend_Lengow_Components_LengowElements::getBadPayer();

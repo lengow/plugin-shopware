@@ -40,12 +40,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         '127.0.0.1',
         '10.0.4.150',
         '46.19.183.204',
+        '46.19.183.217',
         '46.19.183.218',
+        '46.19.183.219',
         '46.19.183.222',
+        '52.50.58.130',
         '89.107.175.172',
+        '89.107.175.185',
         '89.107.175.186',
+        '89.107.175.187',
         '90.63.241.226',
         '109.190.189.175',
+        '146.185.41.180',
+        '146.185.41.177',
         '185.61.176.129',
         '185.61.176.130',
         '185.61.176.131',
@@ -66,7 +73,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static $log;
 
     /**
-     * @var array marketlace registers
+     * @var array marketplace registers
      */
     public static $registers;
 
@@ -76,23 +83,140 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static $logLife = 20;
 
     /**
-     * Check if current IP is authorized.
+     * Get export web services links
+     *
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     *
+     * @return string
+     */
+    public static function getExportUrl($shop)
+    {
+        $shopBaseUrl = self::getBaseUrl($shop);
+        return $shopBaseUrl . '/LengowController/export?shop=' . $shop->getId() . '&token=' . self::getToken($shop);
+    }
+
+    /**
+     * Get import web services link
+     *
+     * @return string
+     */
+    public static function getImportUrl()
+    {
+        return self::getBaseUrl() . '/LengowController/cron?token=' . self::getToken();
+    }
+
+    /**
+     * Check if Shopware current version is older than the specified one
+     *
+     * @param string $versionToCompare version to compare
      *
      * @return boolean
      */
-    public static function checkIp()
+    public static function compareVersion($versionToCompare)
+    {
+        return version_compare(Shopware::VERSION, $versionToCompare, ">=");
+    }
+
+    /**
+     * Check webservice access (export and import)
+     *
+     * @param string $token shop token
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     *
+     * @return boolean
+     */
+    public static function checkWebservicesAccess($token, $shop = null)
+    {
+        $ipEnabled = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowIpEnabled');
+        if (!$ipEnabled && self::checkToken($token, $shop)) {
+            return true;
+        }
+        if (self::checkIp()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if token is correct
+     *
+     * @param string $token shop token
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     *
+     * @return boolean
+     */
+    public static function checkToken($token, $shop = null)
+    {
+        $storeToken = self::getToken($shop);
+        if ($token === $storeToken) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if current IP is authorized
+     *
+     * @param boolean $toolbox force check ip for toolbox
+     *
+     * @return boolean
+     */
+    public static function checkIp($toolbox = false)
     {
         $ips = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAuthorizedIp');
-        $ips = trim(str_replace(array("\r\n", ',', '-', '|', ' '), ';', $ips), ';');
-        $ips = explode(';', $ips);
-        $authorizedIps = array_merge($ips, self::$ipsLengow);
-        $authorizedIps[] = $_SERVER['SERVER_ADDR'];
+        $ipEnabled = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowIpEnabled');
+        if (strlen($ips) > 0 && ($ipEnabled || $toolbox)) {
+            $ips = trim(str_replace(array("\r\n", ',', '-', '|', ' '), ';', $ips), ';');
+            $ips = array_filter(explode(';', $ips));
+            $authorizedIps = count($ips) > 0 ? array_merge($ips, self::$ipsLengow) : self::$ipsLengow;
+        } else {
+            $authorizedIps = self::$ipsLengow;
+        }
+        if (isset($_SERVER['SERVER_ADDR'])) {
+            $authorizedIps[] = $_SERVER['SERVER_ADDR'];
+        }
         $hostnameIp = $_SERVER['REMOTE_ADDR'];
         if (in_array($hostnameIp, $authorizedIps)) {
             return true;
-        } else {
-            return false;
         }
+        return false;
+    }
+
+    /**
+     * Generate token
+     *
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     *
+     * @return string
+     */
+    public static function getToken($shop = null)
+    {
+        // If no shop, get global value
+        if (is_null($shop)) {
+            $token = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowGlobalToken');
+            if ($token && strlen($token) > 0) {
+                return $token;
+            } else {
+                $token = bin2hex(openssl_random_pseudo_bytes(16));
+                Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('lengowGlobalToken', $token);
+            }
+        } else {
+            $token = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowShopToken',
+                $shop
+            );
+            if ($token && strlen($token) > 0) {
+                return $token;
+            } else {
+                $token = bin2hex(openssl_random_pseudo_bytes(16));
+                Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
+                    'lengowShopToken',
+                    $token,
+                    $shop
+                );
+            }
+        }
+        return $token;
     }
 
     /**
@@ -176,48 +300,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
                 'lengowShopToken',
                 $shop
             );
-            if ($shopToken == $token) {
+            if ($shopToken === $token) {
                 return $shop;
             }
         }
         return false;
-    }
-
-    /**
-     * Generate token
-     *
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
-     *
-     * @return string
-     */
-    public static function getToken($shop = null)
-    {
-        // If no shop, get global value
-        if (is_null($shop)) {
-            $token = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowGlobalToken');
-            if ($token && strlen($token) > 0) {
-                return $token;
-            } else {
-                $token = bin2hex(openssl_random_pseudo_bytes(16));
-                Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('lengowGlobalToken', $token);
-            }
-        } else {
-            $token = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowShopToken',
-                $shop
-            );
-            if ($token && strlen($token) > 0) {
-                return $token;
-            } else {
-                $token = bin2hex(openssl_random_pseudo_bytes(16));
-                Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-                    'lengowShopToken',
-                    $token,
-                    $shop
-                );
-            }
-        }
-        return $token;
     }
 
     /**
@@ -249,35 +336,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         $path = $shop->getBasePath() ? $shop->getBasePath() : '';
         $url = 'http' . $isHttps . '://' . $host . $path;
         return $url;
-    }
-
-    /**
-     * Get export web services links
-     *
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
-     *
-     * @return string
-     */
-    public static function getExportUrl($shop)
-    {
-        $base = self::getBaseUrl($shop);
-        return $base . '/LengowController/export?shop=' . $shop->getId();
-    }
-
-    /**
-     * Get import web services link
-     *
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
-     *
-     * @return string
-     */
-    public static function getImportUrl($shop = null)
-    {
-        if ($shop == null) {
-            $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
-        }
-        $base = self::getBaseUrl($shop);
-        return $base . '/LengowController/cron';
     }
 
     /**
@@ -345,7 +403,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      * @param string $category log category
      * @param string $txt log message
      * @param boolean $logOutput output on screen
-     * @param string $marketplaceSku lengow marketplace sku
+     * @param string $marketplaceSku Lengow marketplace sku
      */
     public static function log($category, $txt, $logOutput = false, $marketplaceSku = null)
     {
@@ -391,9 +449,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Decode message with params for translation
      *
-     * @param string $message Key to translate
-     * @param string $isoCode Language translation iso code
-     * @param mixed $params array Parameters to display in the translation message
+     * @param string $message key to translate
+     * @param string $isoCode language translation iso code
+     * @param mixed $params array parameters to display in the translation message
      *
      * @return string
      */
@@ -440,19 +498,159 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
-     * The shipping names options
+     * Get a specific marketplace
      *
      * @param string $name Marketplace name
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
      *
      * @return Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      */
-    public static function getMarketplaceSingleton($name, $shop = null)
+    public static function getMarketplaceSingleton($name)
     {
         if (!isset(self::$registers[$name])) {
-            self::$registers[$name] = new Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace($name, $shop);
+            self::$registers[$name] = new Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace($name);
         }
         return self::$registers[$name];
+    }
+
+    /**
+     * Load Lengow Payment Shopware
+     *
+     * @return Shopware\Models\Payment\Payment|null
+     */
+    public static function getLengowPayment()
+    {
+        $payment = Shopware()->Models()
+            ->getRepository('Shopware\Models\Payment\Payment')
+            ->findOneBy(array('name' => 'lengow'));
+        if (is_null($payment)) {
+            $plugin = Shopware()->Models()
+                ->getRepository('Shopware\Models\Plugin\Plugin')
+                ->findOneBy(array('name' => 'Lengow'));
+            if (!is_null($plugin) && !$plugin->getPayments()->isEmpty()) {
+                $payment = $plugin->getPayments()->first();
+            }
+        }
+        return $payment;
+    }
+
+    /**
+     * Get Shopware order status corresponding to the current order state
+     *
+     * @param string $orderStateMarketplace order state marketplace
+     * @param Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace $marketplace Lengow marketplace instance
+     * @param boolean $shipmentByMp order shipped by marketplace
+     *
+     * @return \Shopware\Models\Order\Status|false
+     */
+    public static function getShopwareOrderStatus($orderStateMarketplace, $marketplace, $shipmentByMp = false)
+    {
+        if ($shipmentByMp) {
+            $orderState = 'shipped_by_marketplace';
+        } elseif ($marketplace->getStateLengow($orderStateMarketplace) === 'shipped'
+            || $marketplace->getStateLengow($orderStateMarketplace) === 'closed'
+        ) {
+            $orderState = 'shipped';
+        } else {
+            $orderState = 'accepted';
+        }
+        return self::getOrderStatus($orderState);
+    }
+
+    /**
+     * Get the matching Shopware order status to the one given
+     *
+     * @param string $orderState state to be matched
+     *
+     * @return \Shopware\Models\Order\Status|false
+     */
+    public static function getOrderStatus($orderState)
+    {
+        switch ($orderState) {
+            case 'accepted':
+            case 'waiting_shipment':
+                $settingName = 'lengowIdWaitingShipment';
+                break;
+            case 'shipped':
+            case 'closed':
+                $settingName = 'lengowIdShipped';
+                break;
+            case 'refused':
+            case 'canceled':
+                $settingName = 'lengowIdCanceled';
+                break;
+            case 'shipped_by_marketplace':
+                $settingName = 'lengowIdShippedByMp';
+                break;
+            default:
+                $settingName = false;
+                break;
+        }
+        if ($settingName) {
+            $orderStatusId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig($settingName);
+            $orderStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', (int)$orderStatusId);
+            if (!is_null($orderStatus)) {
+                return $orderStatus;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get tax associated with a dispatch
+     *
+     * @param Shopware\Models\Dispatch\Dispatch $dispatch Shopware dispatch instance
+     *
+     * @return Shopware\Models\Tax\Tax
+     */
+    public static function getDispatchTax($dispatch)
+    {
+        if ($dispatch->getTaxCalculation() !== 0 ) {
+            $taxId = (int)$dispatch->getTaxCalculation();
+        } else {
+            $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS sct.id 
+	     		FROM s_core_tax as sct
+	            WHERE sct.tax = (SELECT MAX(tax) from s_core_tax)";
+            $taxId = (int)Shopware()->Db()->fetchOne($sql);
+        }
+        return Shopware()->Models()->getReference('Shopware\Models\Tax\Tax', $taxId);
+    }
+
+    /**
+     * Get all admin users
+     *
+     * @return array
+     */
+    public static function getAllAdminUsers()
+    {
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select('user')
+            ->from('Shopware\Models\User\User', 'user')
+            ->leftJoin('Shopware\Models\User\Role', 'role')
+            ->where('user.active = :active')
+            ->andWhere('role.name = :name')
+            ->setParameters(
+                array(
+                    'active' => 1,
+                    'name' => 'local_admins'
+                )
+            );
+        return $builder->getQuery()->getResult();
+    }
+
+    /**
+     * Clean phone number
+     *
+     * @param string $phone phone number to clean
+     *
+     * @return string
+     */
+    public static function cleanPhone($phone)
+    {
+        $replace = array('.', ' ', '-', '/');
+        if (!$phone) {
+            return '';
+        }
+        return str_replace($replace, '', preg_replace('/[^0-9]*/', '', $phone));
     }
 
     /**
@@ -550,19 +748,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         );
         return $value;
     }
-
-    /**
-     * Check if Shopware current version is older than the specified one
-     *
-     * @param string $versionToCompare version to compare
-     *
-     * @return boolean
-     */
-    public static function compareVersion($versionToCompare)
-    {
-        return version_compare(Shopware::VERSION, $versionToCompare, ">=");
-    }
-
 
     /**
      * Replace all accented chars by their equivalent non accented chars
@@ -714,29 +899,5 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             'OE'
         );
         return preg_replace($patterns, $replacements, $str);
-    }
-
-    /**
-     * Check if new merchant
-     *
-     * @return boolean
-     */
-    public static function isNewMerchant()
-    {
-        $result = true;
-        $shops = self::getShops();
-        foreach ($shops as $shop) {
-            if ($shop->getActive()) {
-                $accountId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                    'lengowAccountId',
-                    $shop
-                );
-                if ($accountId != 0) {
-                    $result = false;
-                    break;
-                }
-            }
-        }
-        return $result;
     }
 }

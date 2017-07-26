@@ -47,41 +47,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     }
 
     /**
-     * Check API authentication
-     *
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
-     *
-     * @return boolean
-     */
-    public static function isValidAuth($shop)
-    {
-        if (!self::isCurlActivated()) {
-            return false;
-        }
-        $accountId = (int)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowAccountId',
-            $shop
-        );
-        if (is_null($accountId) || $accountId == 0 || !is_numeric($accountId)) {
-            return false;
-        }
-        $connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector(
-            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAccessToken', $shop),
-            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowSecretToken', $shop)
-        );
-        try {
-            $result = $connector->connect();
-        } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
-            return false;
-        }
-        if (isset($result['token'])) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * Check if PHP Curl is activated
      *
      * @return boolean
@@ -173,6 +138,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/ip_server'),
             'message' => $_SERVER['SERVER_ADDR']
+        );
+        $checklist[] = array(
+            'title' => $this->locale->t('toolbox/index/ip_enabled'),
+            'state' => (int)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowIpEnabled')
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/ip_authorized'),
@@ -279,7 +248,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
             'lengowLastExport',
             $shop
         );
-        if (is_null($lastExport) || $lastExport == '') {
+        if (is_null($lastExport) || $lastExport == '' || $lastExport == 0) {
             $lastExport = $this->locale->t('toolbox/index/last_import_none');
         }
         $checklist = array();
@@ -291,6 +260,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
             'title' => $this->locale->t('toolbox/index/shop_active'),
             'state' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowShopActive',
+                $shop
+            )
+        );
+        $checklist[] = array(
+            'title' => $this->locale->t('toolbox/index/shop_catalogs_id'),
+            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowCatalogId',
                 $shop
             )
         );

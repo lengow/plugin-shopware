@@ -86,8 +86,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      */
     protected $lengowUrls = array(
         '/v3.0/orders' => 15,
+        '/v3.0/orders/moi/' => 5,
+        '/v3.0/orders/actions/' => 10,
         '/v3.0/marketplaces' => 10,
-        '/v3.0/subscriptions' => 3,
+        '/v3.0/plans' => 3,
         '/v3.0/stats' => 3,
         '/v3.0/cms' => 3,
     );
@@ -407,40 +409,46 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     }
 
     /**
-     * Get Valid Account / Access / Secret
+     * Check if new merchant
      *
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
-     *
-     * @return array
+     * @return boolean
      */
-    public static function getAccessId($shop = null)
+    public static function isNewMerchant()
     {
-        $accountId = null;
-        $accessToken = null;
-        $secretToken = null;
-        if ($shop == null) {
-            $shopCollection = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowActiveShops();
-            if (count($shopCollection) > 0) {
-                $shop = $shopCollection[0];
-            } else {
-                $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
-            }
+        $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
+        list($accountId, $accessToken, $secretToken) = $accessIds;
+        if ($accountId != 0 && $accessToken != '0' && $secretToken != '0') {
+           return false;
         }
-        if ($shop != null) {
-            $accountId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowAccountId',
-                $shop
-            );
-            $accessToken = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowAccessToken',
-                $shop
-            );
-            $secretToken = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowSecretToken',
-                $shop
-            );
+        return true;
+    }
+
+    /**
+     * Check API authentication
+     *
+     * @return boolean
+     */
+    public static function isValidAuth()
+    {
+        if (!Shopware_Plugins_Backend_Lengow_Components_LengowCheck::isCurlActivated()) {
+            return false;
         }
-        return array($accountId, $accessToken, $secretToken);
+        $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
+        list($accountId, $accessToken, $secretToken) = $accessIds;
+        if (is_null($accountId) || $accountId == 0 || !is_numeric($accountId)) {
+            return false;
+        }
+        $connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector($accessToken, $secretToken);
+        try {
+            $result = $connector->connect();
+        } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
+            return false;
+        }
+        if (isset($result['token'])) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -448,19 +456,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      *
      * @param string $type request type (GET / POST / PUT / PATCH)
      * @param string $url request url
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
      * @param array $params request params
      * @param string $body body datas for request
      *
      * @return mixed
      */
-    public static function queryApi($type, $url, $shop = null, $params = array(), $body = '')
+    public static function queryApi($type, $url, $params = array(), $body = '')
     {
         if (!in_array($type, array('get', 'post', 'put', 'patch'))) {
             return false;
         }
         try {
-            list($accountId, $accessToken, $secretToken) = self::getAccessId($shop);
+            $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
+            list($accountId, $accessToken, $secretToken) = $accessIds;
             if ($accountId != 0 && $accessToken !== 0 && $secretToken !== 0) {
                 $connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector(
                     $accessToken,
@@ -473,16 +481,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                     $body
                 );
             } else {
-                if ($shop == null) {
-                    $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
-                }
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Connector',
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                        'lengow_log/error/account_id_empty',
-                        array('name_shop' => $shop->getName(), 'id_shop' => $shop->getId())
-                    ),
-                    true
+                        'lengow_log/error/account_id_empty'
+                    )
                 );
                 return false;
             }

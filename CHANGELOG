@@ -1,4 +1,13 @@
 =============================================================
+Version 1.2.0
+=============================================================
+
+    - Feature: Added import order management
+    - Feature: Adding action management to order
+    - Feature: New multi-store management system
+    - Feature: Automatic management of catalog addition
+
+============================================================
 Version 1.1.0
 =============================================================
 

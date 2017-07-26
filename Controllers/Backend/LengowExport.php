@@ -292,8 +292,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                 $result[] = array(
                     'leaf' => $mainCategory->isLeaf(),
                     'text' => $shop->getName(),
-                    'id' => $shop->getId(),
-                    'lengowStatus' => Shopware_Plugins_Backend_Lengow_Components_LengowSync::checkSyncShop($shop)
+                    'id' => $shop->getId()
                 );
             }
         } else {
@@ -378,6 +377,23 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             array(
                 'success' => true,
                 'data' => $defaultShop->getId()
+            )
+        );
+    }
+
+    /**
+     * Get shop token for a specific shop
+     */
+    public function getShopTokenAction()
+    {
+        $shopId = $this->Request()->getParam('shopId');
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $shop = $em->getRepository('Shopware\Models\Shop\Shop')->find($shopId);
+        $shopToken = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop);
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $shopToken
             )
         );
     }
