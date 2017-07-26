@@ -1,3 +1,4 @@
+//{namespace name="backend/lengow/controller/order"}
 //{block name="backend/order/controller/detail" append}
 Ext.define('Shopware.apps.Lengow.controller.Order', {
     override: 'Shopware.apps.Order.controller.Detail',
@@ -8,23 +9,23 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
      */
     snippets:{
         details: {
-            title: '{s name="order/details/lengow/title" namespace="backend/Lengow/translation"}{/s}',
-            marketplace_sku: '{s name="order/details/lengow/marketplace_sku" namespace="backend/Lengow/translation"}{/s}',
-            marketplace_label: '{s name="order/details/lengow/marketplace_label" namespace="backend/Lengow/translation"}{/s}',
-            delivery_address_id: '{s name="order/details/lengow/delivery_address_id" namespace="backend/Lengow/translation"}{/s}',
-            currency: '{s name="order/details/lengow/currency" namespace="backend/Lengow/translation"}{/s}',
-            total_paid: '{s name="order/details/lengow/total_paid" namespace="backend/Lengow/translation"}{/s}',
-            commission: '{s name="order/details/lengow/commission" namespace="backend/Lengow/translation"}{/s}',
-            customer_name: '{s name="order/details/lengow/customer_name" namespace="backend/Lengow/translation"}{/s}',
-            customer_email: '{s name="order/details/lengow/customer_email" namespace="backend/Lengow/translation"}{/s}',
-            carrier: '{s name="order/details/lengow/carrier" namespace="backend/Lengow/translation"}{/s}',
-            carrier_method: '{s name="order/details/lengow/carrier_method" namespace="backend/Lengow/translation"}{/s}',
-            carrier_tracking: '{s name="order/details/lengow/carrier_tracking" namespace="backend/Lengow/translation"}{/s}',
-            carrier_id_relay: '{s name="order/details/lengow/carrier_id_relay" namespace="backend/Lengow/translation"}{/s}',
-            sent_by_mkp: '{s name="order/details/lengow/sent_by_mkp" namespace="backend/Lengow/translation"}{/s}',
-            created_at: '{s name="order/details/lengow/created_at" namespace="backend/Lengow/translation"}{/s}',
-            message: '{s name="order/details/lengow/message" namespace="backend/Lengow/translation"}{/s}',
-            extra: '{s name="order/details/lengow/extra" namespace="backend/Lengow/translation"}{/s}',
+            title: '{s name="order/details/title" namespace="backend/Lengow/translation"}{/s}',
+            marketplace_sku: '{s name="order/details/marketplace_sku" namespace="backend/Lengow/translation"}{/s}',
+            marketplace_label: '{s name="order/details/marketplace_label" namespace="backend/Lengow/translation"}{/s}',
+            delivery_address_id: '{s name="order/details/delivery_address_id" namespace="backend/Lengow/translation"}{/s}',
+            currency: '{s name="order/details/currency" namespace="backend/Lengow/translation"}{/s}',
+            total_paid: '{s name="order/details/total_paid" namespace="backend/Lengow/translation"}{/s}',
+            commission: '{s name="order/details/commission" namespace="backend/Lengow/translation"}{/s}',
+            customer_name: '{s name="order/details/customer_name" namespace="backend/Lengow/translation"}{/s}',
+            customer_email: '{s name="order/details/customer_email" namespace="backend/Lengow/translation"}{/s}',
+            carrier: '{s name="order/details/carrier" namespace="backend/Lengow/translation"}{/s}',
+            carrier_method: '{s name="order/details/carrier_method" namespace="backend/Lengow/translation"}{/s}',
+            carrier_tracking: '{s name="order/details/carrier_tracking" namespace="backend/Lengow/translation"}{/s}',
+            carrier_id_relay: '{s name="order/details/carrier_id_relay" namespace="backend/Lengow/translation"}{/s}',
+            sent_by_mkp: '{s name="order/details/sent_by_mkp" namespace="backend/Lengow/translation"}{/s}',
+            created_at: '{s name="order/details/created_at" namespace="backend/Lengow/translation"}{/s}',
+            message: '{s name="order/details/message" namespace="backend/Lengow/translation"}{/s}',
+            extra: '{s name="order/details/extra" namespace="backend/Lengow/translation"}{/s}',
         }
     },
 
@@ -77,19 +78,18 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
                                 border: 0
                             };
                         }
-                        me.detailsForm = Ext.create('Ext.form.Panel', {
-                            title: me.snippets.details.title,
+                        return Ext.create('Ext.form.Panel', {
                             bodyPadding: 10,
                             layout: 'anchor',
                             defaults: {
                                 anchor: '100%'
                             },
                             margin: '10 0',
+                            title: 'Lengow',
                             items: [
                                 item
                             ]
                         });
-                        return me.detailsForm;
                     },
 
                     createInnerDetailContainer: function() {

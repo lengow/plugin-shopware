@@ -38,6 +38,14 @@ class Shopware_Controllers_Backend_LengowOrder extends Shopware_Controllers_Back
 
     public function getOrderDetailAction()
     {
+        $keys = array(
+            'order/details/' => array(
+                'not_tracked_by_lengow',
+                'not_lengow_order',
+            )
+        );
+        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
+
         $orderId = $this->Request()->getParam('orderId');
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $repository = $em->getRepository('Shopware\CustomModels\Lengow\Order');
@@ -48,12 +56,12 @@ class Shopware_Controllers_Backend_LengowOrder extends Shopware_Controllers_Back
             if ($lengowOrder) {
                 $data = Shopware()->Models()->toArray($lengowOrder);
             } else {
-                $lengowOrder = 'This order is no longer tracked by Lengow';
+                $lengowOrder = $translations['not_tracked_by_lengow'];
                 $data = json_encode($lengowOrder);
 
             }
         } else {
-            $lengowOrder = 'This is not a Lengow order';
+            $lengowOrder = $translations['not_lengow_order'];
             $data = json_encode($lengowOrder);
         }
         $this->View()->assign(
