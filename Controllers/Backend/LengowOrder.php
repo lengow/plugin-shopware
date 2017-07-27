@@ -52,7 +52,7 @@ class Shopware_Controllers_Backend_LengowOrder extends Shopware_Controllers_Back
         $lengowOrder = $repository->findOneBy(array(
             'orderId' => $orderId
         ));
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowOrder::isFromLengow($orderId) == 1) {
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowOrder::orderIsFromLengow($orderId) == 1) {
             if ($lengowOrder) {
                 $data = Shopware()->Models()->toArray($lengowOrder);
             } else {

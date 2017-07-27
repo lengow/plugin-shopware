@@ -179,6 +179,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     }
 
     /**
+     * Check if a lengow order or not
+     *
+     * @param integer $orderId Shopware order id
+     *
+     * @return boolean
+     */
+    public static function orderIsFromLengow($orderId)
+    {
+        $result = Shopware()->Db()->fetchRow("
+        SELECT * FROM s_order_attributes WHERE orderID = ?
+        ", array($orderId));
+
+        if ($result['lengow_is_from_lengow'] == 1) {
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
      * Get order process state
      *
      * @param string $state state to be matched
