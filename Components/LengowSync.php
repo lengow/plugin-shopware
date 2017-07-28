@@ -117,7 +117,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      */
     public static function syncCatalog()
     {
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant()) {
+        $preprodMode = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            'lengowImportPreprodEnabled'
+        );
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant() || $preprodMode) {
             return false;
         }
         $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('get', '/v3.1/cms');
@@ -183,7 +186,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      */
     public static function setCmsOption($force = false)
     {
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant()) {
+        $preprodMode = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            'lengowImportPreprodEnabled'
+        );
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant() || $preprodMode) {
             return false;
         }
         if (!$force) {

@@ -316,7 +316,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function getShopUrl($shop)
     {
-        return self::getBaseUrl() . $shop->getBaseUrl();
+        return self::getBaseUrl($shop) . $shop->getBaseUrl();
     }
 
     /**
