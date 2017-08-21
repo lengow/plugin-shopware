@@ -91,7 +91,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function getExportUrl($shop)
     {
-        $shopBaseUrl = self::getBaseUrl($shop);
+        $shopBaseUrl = self::getShopUrl($shop);
         return $shopBaseUrl . '/LengowController/export?shop=' . $shop->getId() . '&token=' . self::getToken($shop);
     }
 
