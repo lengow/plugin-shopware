@@ -164,9 +164,6 @@ fr:
         counter:
           count: "produits exportés sur"
           total: "produits disponibles"
-        status:
-          synchronized: "Synchronisé"
-          not_synchronized: "Synchroniser ma boutique avec Lengow"
       button:
         add: "Ajouter à l'export"
         remove: "Retirer de l'export"

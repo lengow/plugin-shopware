@@ -242,7 +242,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                     Shopware_Plugins_Backend_Lengow_Components_LengowSync::setCmsOption();
                 }
                 // sync parameter is not valid
-                if ($sync && (!in_array($sync, Shopware_Plugins_Backend_Lengow_Components_LengowSync::$syncActions))) {
+                if ($sync && !in_array($sync, Shopware_Plugins_Backend_Lengow_Components_LengowSync::$syncActions)) {
                     header('HTTP/1.1 400 Bad Request');
                     die(
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(

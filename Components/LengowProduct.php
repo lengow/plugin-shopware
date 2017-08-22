@@ -146,8 +146,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 $sep = '/';
                 $idCategory = 0;
                 $idProduct = $this->product->getId();
-                $host = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getBaseUrl();
-                $baseUrl = ($this->shop->getBaseUrl() ? $this->shop->getBaseUrl() : '');
+                $shopUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopUrl($this->shop);
                 $idCategoryParent = $this->shop->getCategory()->getId();
                 $categories = $this->product->getCategories();
                 foreach ($categories as $category) {
@@ -157,7 +156,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                         break;
                     }
                 }
-                return $host . $baseUrl . $sep . 'detail' . $sep . 'index' . $sep
+                return $shopUrl . $sep . 'detail' . $sep . 'index' . $sep
                     . 'sArticle' . $sep . $idProduct . $sep . 'sCategory' . $sep . $idCategory;
             case 'price_excl_tax':
                 $price = $this->price->getPrice();

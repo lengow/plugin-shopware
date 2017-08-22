@@ -91,7 +91,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         '/v3.0/marketplaces' => 10,
         '/v3.0/plans' => 3,
         '/v3.0/stats' => 3,
-        '/v3.0/cms' => 3,
+        '/v3.1/cms' => 3,
     );
 
     /**
