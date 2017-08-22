@@ -409,20 +409,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function onOrderPostDispatch(Enlight_Event_EventArgs $args)
     {
-        /** @var \Enlight_Controller_Action $controller */
-        $controller = $args->getSubject();
-        $view = $controller->View();
-        $request = $controller->Request();
-
-        $view->addTemplateDir(__DIR__ . '/Views');
-
-        if ($request->getActionName() === 'index') {
-            $view->extendsTemplate('backend/lengow/order.js');
-        }
-
-        if ($request->getActionName() === 'load') {
-            $view->extendsTemplate('backend/lengow/controller/order.js');
-            $view->extendsTemplate('backend/lengow/order.js');
-        }
+        Shopware_Plugins_Backend_Lengow_Components_LengowEvent::onOrderPostDispatch($args);
     }
 }

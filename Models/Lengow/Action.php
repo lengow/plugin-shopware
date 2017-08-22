@@ -37,7 +37,7 @@ class Action extends ModelEntity
      *
      * @ORM\Column(name="order_id", type="integer", nullable=false)
      */
-    private $OrderId;
+    private $orderId;
 
     /**
      * @var \Shopware\Models\Order\Order

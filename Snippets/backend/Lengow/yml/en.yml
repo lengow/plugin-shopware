@@ -207,6 +207,12 @@ en:
       extra: "Extra"
       not_tracked_by_lengow: "This order is no longer tracked by Lengow"
       not_lengow_order: "This is not a Lengow order"
+      ship_confirmation_title: "Send ship action"
+      ship_confirmation_message: "Are you sure you want to send ship action ?"
+      cancel_confirmation_title: "Send cancel action"
+      cancel_confirmation_message: "Are you sure you want to send cancel action ?"
+      success_message: "The action was sent successfully"
+      fail_message: "Order action failed (See logs for more information)"
   log:
     panel:
       empty_selection: "Please choose a log file..."

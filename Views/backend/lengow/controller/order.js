@@ -26,6 +26,12 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
             created_at: '{s name="order/details/created_at" namespace="backend/Lengow/translation"}{/s}',
             message: '{s name="order/details/message" namespace="backend/Lengow/translation"}{/s}',
             extra: '{s name="order/details/extra" namespace="backend/Lengow/translation"}{/s}',
+            ship_confirmation_title: '{s name="order/details/ship_confirmation_title" namespace="backend/Lengow/translation"}{/s}',
+            ship_confirmation_message: '{s name="order/details/ship_confirmation_message" namespace="backend/Lengow/translation"}{/s}',
+            cancel_confirmation_title: '{s name="order/details/cancel_confirmation_title" namespace="backend/Lengow/translation"}{/s}',
+            cancel_confirmation_message: '{s name="order/details/cancel_confirmation_message" namespace="backend/Lengow/translation"}{/s}',
+            success_message: '{s name="order/details/success_message" namespace="backend/Lengow/translation"}{/s}',
+            fail_message: '{s name="order/details/fail_message" namespace="backend/Lengow/translation"}{/s}'
         }
     },
 
@@ -59,6 +65,9 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
             },
             success: function(response) {
                 var data = Ext.decode(response.responseText)['data'];
+                if (Ext.getCmp('lengow_order_tab') != undefined) {
+                    Ext.getCmp('lengow_order_tab').hide();
+                }
                 var lengowTab = Ext.define('Shopware.apps.Lengow.view.order.LengowOrderTab', {
                     extend: 'Ext.container.Container',
                     alias: 'widget.lengow-order-panel',
@@ -71,6 +80,9 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
                         me.items = [
                             me.createDetailsContainer()
                         ];
+                        if (data.canResendAction != undefined) {
+                            me.items.push(me.createToolbarButton(data));
+                        }
                         me.callParent(arguments);
                     },
 
@@ -78,12 +90,14 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
                         var me = this;
                         var item;
                         if (data.orderId) {
-                            item = me.createInnerDetailContainer();
+                            item = [
+                                me.createInnerDetailContainer()
+                            ];
                         } else {
-                            item = {
+                            item = [{
                                 html: data,
                                 border: 0
-                            };
+                            }];
                         }
                         return Ext.create('Ext.form.Panel', {
                             bodyPadding: 10,
@@ -93,9 +107,7 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
                             },
                             margin: '10 0',
                             title: 'Lengow',
-                            items: [
-                                item
-                            ]
+                            items: item
                         });
                     },
 
@@ -139,10 +151,86 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
                             { value: data.carrierIdRelay, fieldLabel: me.snippets.details.carrier_id_relay },
                             { value: sentByMkp, fieldLabel: me.snippets.details.sent_by_mkp },
                             { value: data.createdAt, fieldLabel: me.snippets.details.created_at },
-                            { value: data.message, xtype: 'textarea', width: 800, height: 50, fieldLabel: me.snippets.details.message },
+                            { value: data.message, xtype: 'textarea', width: 800, height: 30, fieldLabel: me.snippets.details.message },
                             { value: data.extra, xtype: 'textarea', width: 800, height: 200, fieldLabel: me.snippets.details.extra },
                         ];
                         return fields;
+                    },
+                    createActionButton: function(action) {
+                        return Ext.create('Ext.button.Button', {
+                            id: 'resend_lengow_'+ action +'_action_button',
+                            cls: 'primary',
+                            name: action,
+                            text: Ext.String.capitalize(action),
+                            handler: function () {
+                                var confirmationTitle;
+                                var confirmationMessage;
+                                if (action == 'ship') {
+                                    confirmationTitle = me.snippets.details.ship_confirmation_title;
+                                    confirmationMessage = me.snippets.details.ship_confirmation_message;
+                                } else {
+                                    confirmationTitle = me.snippets.details.cancel_confirmation_title;
+                                    confirmationMessage = me.snippets.details.cancel_confirmation_message;
+                                }
+                                Ext.MessageBox.confirm(
+                                    confirmationTitle,
+                                    confirmationMessage,
+                                    function (response) {
+                                        if (response !== 'yes') {
+                                            return;
+                                        }
+                                        var loading = new Ext.LoadMask(Ext.getBody(), {
+                                            msg: 'Send ' + action + ' action...',
+                                            hideModal: true
+                                        });
+                                        if (Ext.getCmp('resend_lengow_action_message') != undefined) {
+                                            Ext.getCmp('resend_lengow_action_message').hide();
+                                        }
+                                        loading.show();
+                                        Ext.getCmp('resend_lengow_cancel_action_button').disable();
+                                        if (shopwareVersion >= '5.2.0') {
+                                            url = '{url controller=LengowOrder action=getCallAction}';
+                                        } else {
+                                            url = '{url controller=LengowOrderLegacy action=getCallAction}';
+                                        }
+                                        Ext.Ajax.request({
+                                            url: url,
+                                            method: 'POST',
+                                            type: 'json',
+                                            params: {
+                                                orderId: record.get('id'),
+                                                actionName: action
+                                            },
+                                            success: function (response) {
+                                                var success = Ext.decode(response.responseText)['data'];
+                                                var lengowMessage;
+                                                if (success) {
+                                                    lengowMessage = me.snippets.details.success_message;
+                                                } else {
+                                                    lengowMessage = me.snippets.details.fail_message;
+                                                    Ext.getCmp('resend_lengow_cancel_action_button').enable();
+                                                }
+                                                Ext.MessageBox.alert(confirmationTitle, lengowMessage);
+                                                loading.hide();
+                                            }
+                                        });
+                                    }
+                                );
+                            }
+                        });
+
+                    },
+                    createToolbarButton: function() {
+                        var me = this;
+                        return Ext.create('Ext.container.Container', {
+                            width: '850px',
+                            id: 'resend_lengow_action',
+                            layout: 'column',
+                            items: [
+                                me.createActionButton('ship'),
+                                me.createActionButton('cancel')
+                            ]
+                        });
                     },
 
                 });
@@ -158,7 +246,7 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
                         var me = this;
                         var tabPanel = me.callParent(arguments);
                         Ext.each(tabPanel.items.items, function (tab) {
-                            if (tab.id.indexOf('lengow', 0) === 0) {
+                            if (tab.id.indexOf('lengow', 0) == 0) {
                                 tabPanel.remove(tab);
                             }
                         });
@@ -167,9 +255,11 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
                         return tabPanel;
                     }
                 });
+            },
+            fail: function (response) {
+                console.log(response);
             }
         });
     },
-
 });
 //{/block}

@@ -33,37 +33,23 @@
  */
 class Shopware_Controllers_Backend_LengowOrder extends Shopware_Controllers_Backend_Application implements \Shopware\Components\CSRFWhitelistAware
 {
-    protected $model = 'Shopware\CustomModels\Lengow\Order';
+    /**
+     * @var string
+     */
+    protected $model = 'Shopware\Models\Order\Order';
+
+    /**
+     * @var string
+     */
     protected $alias = 'order';
 
+    /**
+     * Get lengow order detail in order detail page
+     */
     public function getOrderDetailAction()
     {
-        $keys = array(
-            'order/details/' => array(
-                'not_tracked_by_lengow',
-                'not_lengow_order',
-            )
-        );
-        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
-
         $orderId = $this->Request()->getParam('orderId');
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $repository = $em->getRepository('Shopware\CustomModels\Lengow\Order');
-        $lengowOrder = $repository->findOneBy(array(
-            'orderId' => $orderId
-        ));
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowOrder::orderIsFromLengow($orderId) == 1) {
-            if ($lengowOrder) {
-                $data = Shopware()->Models()->toArray($lengowOrder);
-            } else {
-                $lengowOrder = $translations['not_tracked_by_lengow'];
-                $data = json_encode($lengowOrder);
-
-            }
-        } else {
-            $lengowOrder = $translations['not_lengow_order'];
-            $data = json_encode($lengowOrder);
-        }
+        $data = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderDetailAction($orderId);
         $this->View()->assign(
             array(
                 'success' => true,
@@ -73,14 +59,34 @@ class Shopware_Controllers_Backend_LengowOrder extends Shopware_Controllers_Back
     }
 
     /**
+     * Send Order action
+     */
+    public function getCallActionAction()
+    {
+        $orderId = $this->Request()->getParam('orderId');
+        $action = $this->Request()->getParam('actionName');
+        $order = Shopware()->Models()->getRepository('\Shopware\Models\Order\Order')->findOneBy(array(
+                'id' => $orderId
+            ));
+        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order,$action);
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $success
+            )
+        );
+    }
+
+    /**
      * Returns a list with actions which should not be validated for CSRF protection
      *
-     * @return string[]
+     * @return array
      */
     public function getWhitelistedCSRFActions()
     {
-        return [
+        return array(
             'getOrderDetail',
-        ];
+            'getCallAction',
+        );
     }
 }
