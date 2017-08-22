@@ -187,10 +187,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      */
     public static function orderIsFromLengow($orderId)
     {
-        $result = Shopware()->Db()->fetchRow("
-        SELECT * FROM s_order_attributes WHERE orderID = ?
-        ", array($orderId));
-
+        $result = Shopware()->Db()->fetchRow(
+            "SELECT * FROM s_order_attributes WHERE orderID = ?",
+            array(
+                $orderId
+            )
+        );
         if ($result['lengow_is_from_lengow'] == 1) {
             return true;
         }
@@ -569,12 +571,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                     $data['canResendAction'] = true;
                 }
             } else {
-                $lengowOrder = $translations['not_tracked_by_lengow'];
-                $data = json_encode($lengowOrder);
+                $data = json_encode($translations['not_tracked_by_lengow']);
             }
         } else {
-            $lengowOrder = $translations['not_lengow_order'];
-            $data = json_encode($lengowOrder);
+            $data = json_encode($translations['not_lengow_order']);
         }
         return $data;
     }
