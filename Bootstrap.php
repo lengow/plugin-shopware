@@ -218,6 +218,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowHelp',
             'onGetHelpControllerPath'
         );
+        // Order controller
+        $this->subscribeEvent(
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowOrder',
+            'onGetOrderControllerPath'
+        );
+        $this->subscribeEvent(
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowOrderLegacy',
+            'onGetOrderControllerPath'
+        );
         // Backend events
         $this->subscribeEvent(
             'Enlight_Controller_Action_PostDispatch_Backend_Index',
@@ -229,6 +238,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'onPostDispatchBackendConfig'
         );
         // Order events
+        $this->subscribeEvent(
+            'Enlight_Controller_Action_PostDispatchSecure_Backend_Order',
+            'onOrderPostDispatch'
+        );
         $this->subscribeEvent(
             'Enlight_Controller_Action_PreDispatch_Backend_Order',
             'onPreDispatchBackendOrder'
@@ -319,6 +332,20 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
+     * Returns the path to Lengow order controller
+     *
+     * @return string
+     */
+    public function onGetOrderControllerPath()
+    {
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.0')) {
+            return $this->Path() . 'Controllers/Backend/LengowOrder.php';
+        } else {
+            return $this->Path() . 'Controllers/Backend/LengowOrderLegacy.php';
+        }
+    }
+
+    /**
      * Load Lengow icon. Triggered when Shopware backend is loaded
      *
      * @param Enlight_Controller_ActionEventArgs $args Shopware Enlight Controller Action instance
@@ -373,5 +400,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Install',
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage($key, $params)
         );
+    }
+
+    /**
+     * Listen to order details
+     *
+     * @param Enlight_Event_EventArgs $args
+     */
+    public function onOrderPostDispatch(Enlight_Event_EventArgs $args)
+    {
+        Shopware_Plugins_Backend_Lengow_Components_LengowEvent::onOrderPostDispatch($args);
     }
 }

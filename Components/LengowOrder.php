@@ -179,6 +179,28 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     }
 
     /**
+     * Check if a lengow order or not
+     *
+     * @param integer $orderId Shopware order id
+     *
+     * @return boolean
+     */
+    public static function orderIsFromLengow($orderId)
+    {
+        $result = Shopware()->Db()->fetchRow(
+            "SELECT * FROM s_order_attributes WHERE orderID = ?",
+            array(
+                $orderId
+            )
+        );
+        if ($result['lengow_is_from_lengow'] == 1) {
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
      * Get order process state
      *
      * @param string $state state to be matched
@@ -520,5 +542,40 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         }
         $return = $orderLines[$lengowOrder->getDeliveryAddressId()];
         return count($return) > 0 ? $return : false;
+    }
+
+    /**
+     * Get lengow order detail in order detail page
+     *
+     * @param $orderId
+     * @return array|string
+     */
+    public static function getOrderDetailAction($orderId) {
+
+        $keys = array(
+            'order/details/' => array(
+                'not_tracked_by_lengow',
+                'not_lengow_order',
+            )
+        );
+        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $repository = $em->getRepository('Shopware\CustomModels\Lengow\Order');
+        $lengowOrder = $repository->findOneBy(array(
+            'orderId' => $orderId
+        ));
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowOrder::orderIsFromLengow($orderId) == 1) {
+            if ($lengowOrder) {
+                $data = Shopware()->Models()->toArray($lengowOrder);
+                if (!Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowImportPreprodEnabled')) {
+                    $data['canResendAction'] = true;
+                }
+            } else {
+                $data = json_encode($translations['not_tracked_by_lengow']);
+            }
+        } else {
+            $data = json_encode($translations['not_lengow_order']);
+        }
+        return $data;
     }
 }
