@@ -484,6 +484,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             'marketplace_name' => (string)$this->marketplace->name,
             'lengow_state' => $this->orderStateLengow,
             'order_new' => $typeResult === 'new' ? true : false,
+            'order_update' => $typeResult == 'update' ? true : false,
             'order_error' => $typeResult === 'error' ? true : false
         );
         return $result;
@@ -1084,8 +1085,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $order = Shopware()->Models()
                 ->getRepository('Shopware\Models\Order\Order')
                 ->findOneBy(array('number' => $orderNumber));
-            // get and set order attributes
+            // get and set order attributes is from lengow
             $orderAttribute = new Shopware\Models\Attribute\Order();
+            $orderAttribute->setLengowIsFromLengow(true);
             $order->setAttribute($orderAttribute);
             // get and set billing and shipping addresses
             $billingAddress = $this->lengowAddress->getOrderAddress();

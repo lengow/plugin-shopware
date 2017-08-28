@@ -26,6 +26,8 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
             created_at: '{s name="order/details/created_at" namespace="backend/Lengow/translation"}{/s}',
             message: '{s name="order/details/message" namespace="backend/Lengow/translation"}{/s}',
             extra: '{s name="order/details/extra" namespace="backend/Lengow/translation"}{/s}',
+            say_yes: '{s name="order/details/say_yes" namespace="backend/Lengow/translation"}{/s}',
+            say_no: '{s name="order/details/say_no" namespace="backend/Lengow/translation"}{/s}',
             ship_confirmation_title: '{s name="order/details/ship_confirmation_title" namespace="backend/Lengow/translation"}{/s}',
             ship_confirmation_message: '{s name="order/details/ship_confirmation_message" namespace="backend/Lengow/translation"}{/s}',
             cancel_confirmation_title: '{s name="order/details/cancel_confirmation_title" namespace="backend/Lengow/translation"}{/s}',
@@ -135,7 +137,9 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
 
                     createDetailElements: function() {
                         var fields;
-                        var sentByMkp = data.sentByMarketplace == true ? 'Yes' : 'No';
+                        var sentByMkp = data.sentByMarketplace == true
+                            ? me.snippets.details.say_yes
+                            : me.snippets.details.say_no;
                         fields = [
                             { value: data.marketplaceSku, fieldLabel: me.snippets.details.marketplace_sku },
                             { value: data.marketplaceLabel, fieldLabel: me.snippets.details.marketplace_label },

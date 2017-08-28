@@ -65,9 +65,7 @@ class Shopware_Controllers_Backend_LengowOrderLegacy extends Shopware_Controller
     {
         $orderId = $this->Request()->getParam('orderId');
         $action = $this->Request()->getParam('actionName');
-        $order = Shopware()->Models()->getRepository('\Shopware\Models\Order\Order')->findOneBy(array(
-            'id' => $orderId
-        ));
+        $order = Shopware()->Models()->getRepository('\Shopware\Models\Order\Order')->findOneBy(array('id' => $orderId));
         $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order,$action);
         $this->View()->assign(
             array(

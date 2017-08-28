@@ -166,7 +166,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 $shop
             );
             $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, array());
-            $data['cms']['shops'][] = array(
+            $data['shops'][] = array(
                 'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop),
                 'enabled' => $enabled,
                 'total_product_number' => $export->getTotalProducts(),

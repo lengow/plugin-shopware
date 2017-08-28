@@ -188,10 +188,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     public static function orderIsFromLengow($orderId)
     {
         $result = Shopware()->Db()->fetchRow(
-            "SELECT * FROM s_order_attributes WHERE orderID = ?",
-            array(
-                $orderId
-            )
+            'SELECT * FROM s_order_attributes WHERE orderID = ?',
+            array($orderId)
         );
         if ($result['lengow_is_from_lengow'] == 1) {
             return true;

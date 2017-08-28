@@ -4,6 +4,8 @@ Version 1.2.1
 
     - Feature: Added Lengow tab in order details
     - Feature: Add cancel and ship action buttons
+    - Bugfix: Fix shop url with specific domain name
+    - Bugfix: Change shop data for sending option
 
 =============================================================
 Version 1.2.0

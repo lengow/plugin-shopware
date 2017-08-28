@@ -335,6 +335,24 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
     }
 
     /**
+     * Check and update order attribute
+     */
+    public function updateOrderAttribute()
+    {
+        $sql = 'SELECT oa.id FROM s_order_attributes oa
+            LEFT JOIN s_lengow_order lo ON lo.order_id = oa.orderID
+            WHERE lo.order_id IS NOT NULL AND oa.lengow_is_from_lengow IS NULL';
+        $results = Shopware()->Db()->fetchAll($sql);
+        if (count($results) > 0) {
+            foreach ($results as $result) {
+                Shopware()->Db()->exec(
+                    'UPDATE s_order_attributes SET lengow_is_from_lengow = 1 WHERE id = ' . $result['id']
+                );
+            }
+        }
+    }
+
+    /**
      * Set Installation Status
      *
      * @param boolean $status installation status

@@ -100,6 +100,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $lengowDatabase->updateSchema();
         $lengowDatabase->createCustomModels();
         $lengowDatabase->setLengowSettings();
+        $lengowDatabase->updateOrderAttribute();
         $this->createLengowPayment();
         $this->registerMyEvents();
         $this->registerCustomModels();
@@ -135,6 +136,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $lengowDatabase->createCustomModels();
         $lengowDatabase->updateCustomModels($version);
         $lengowDatabase->setLengowSettings();
+        $lengowDatabase->updateOrderAttribute();
         $this->createLengowPayment();
         $this->registerMyEvents();
         $this->registerCustomModels();
