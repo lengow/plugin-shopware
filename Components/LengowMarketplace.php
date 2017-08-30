@@ -166,11 +166,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     public function loadApiMarketplace()
     {
         if (count(self::$marketplaces) === 0) {
-            $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
+            self::$marketplaces = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
                 'get',
                 '/v3.0/marketplaces'
             );
-            self::$marketplaces = $result;
         }
     }
 
@@ -311,6 +310,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                         $params[$arg] = date('c');
                         break;
                     default:
+                        if (isset($actions['optional_args']) && in_array($arg, $actions['optional_args'])) {
+                            continue;
+                        }
                         $defaultValue = $this->getDefaultValue((string)$arg);
                         $paramValue = $defaultValue ? $defaultValue : $arg . ' not available';
                         $params[$arg] = $paramValue;
