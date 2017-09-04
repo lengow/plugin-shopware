@@ -281,6 +281,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
             $actions = $this->actions[$action];
             if (isset($actions['args']) && isset($actions['optional_args'])) {
                 $allArgs = array_merge($actions['args'], $actions['optional_args']);
+            } elseif (!isset($actions['args']) && isset($actions['optional_args'])) {
+                $allArgs = $actions['optional_args'];
             } elseif (isset($actions['args'])) {
                 $allArgs = $actions['args'];
             } else {
