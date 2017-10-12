@@ -117,10 +117,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      */
     public static function syncCatalog()
     {
-        $preprodMode = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowImportPreprodEnabled'
-        );
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant() || $preprodMode) {
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant()) {
             return false;
         }
         $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('get', '/v3.1/cms');
