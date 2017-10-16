@@ -100,14 +100,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 'lengowSecretToken' => $params['secret_token']
             )
         );
-        foreach ($params['shops'] as $shopToken => $shopCatalogIds) {
-            $shop = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopByToken($shopToken);
-            if ($shop) {
-                Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setCatalogIds(
-                    $shopCatalogIds['catalog_ids'],
-                    $shop
-                );
-                Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setActiveShop($shop);
+        if (isset($params['shops'])) {
+            foreach ($params['shops'] as $shopToken => $shopCatalogIds) {
+                $shop = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopByToken($shopToken);
+                if ($shop) {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setCatalogIds(
+                        $shopCatalogIds['catalog_ids'],
+                        $shop
+                    );
+                    Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setActiveShop($shop);
+                }
             }
         }
     }
