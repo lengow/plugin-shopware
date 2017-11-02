@@ -7,7 +7,7 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
      * Contains all snippets for the view component
      * @object
      */
-    snippets:{
+    snippet:{
         details: {
             title: '{s name="order/details/title" namespace="backend/Lengow/translation"}{/s}',
             marketplace_sku: '{s name="order/details/marketplace_sku" namespace="backend/Lengow/translation"}{/s}',
@@ -74,7 +74,7 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
                     extend: 'Ext.container.Container',
                     alias: 'widget.lengow-order-panel',
                     padding: 10,
-                    title: me.snippets.details.title,
+                    title: me.snippet.details.title,
                     autoScroll: true,
 
                     initComponent: function() {
@@ -138,25 +138,25 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
                     createDetailElements: function() {
                         var fields;
                         var sentByMkp = data.sentByMarketplace == true
-                            ? me.snippets.details.say_yes
-                            : me.snippets.details.say_no;
+                            ? me.snippet.details.say_yes
+                            : me.snippet.details.say_no;
                         fields = [
-                            { value: data.marketplaceSku, fieldLabel: me.snippets.details.marketplace_sku },
-                            { value: data.marketplaceLabel, fieldLabel: me.snippets.details.marketplace_label },
-                            { value: data.deliveryAddressId, fieldLabel: me.snippets.details.delivery_address_id },
-                            { value: data.currency, fieldLabel: me.snippets.details.currency },
-                            { value: data.totalPaid, fieldLabel: me.snippets.details.total_paid },
-                            { value: data.commission, fieldLabel: me.snippets.details.commission },
-                            { value: data.customerName, fieldLabel: me.snippets.details.customer_name },
-                            { value: data.customerEmail, fieldLabel: me.snippets.details.customer_email },
-                            { value: data.carrier, fieldLabel: me.snippets.details.carrier },
-                            { value: data.carrierMethod, fieldLabel: me.snippets.details.carrier_method },
-                            { value: data.carrierTracking, fieldLabel: me.snippets.details.carrier_tracking },
-                            { value: data.carrierIdRelay, fieldLabel: me.snippets.details.carrier_id_relay },
-                            { value: sentByMkp, fieldLabel: me.snippets.details.sent_by_mkp },
-                            { value: data.createdAt, fieldLabel: me.snippets.details.created_at },
-                            { value: data.message, xtype: 'textarea', width: 800, height: 30, fieldLabel: me.snippets.details.message },
-                            { value: data.extra, xtype: 'textarea', width: 800, height: 200, fieldLabel: me.snippets.details.extra },
+                            { value: data.marketplaceSku, fieldLabel: me.snippet.details.marketplace_sku },
+                            { value: data.marketplaceLabel, fieldLabel: me.snippet.details.marketplace_label },
+                            { value: data.deliveryAddressId, fieldLabel: me.snippet.details.delivery_address_id },
+                            { value: data.currency, fieldLabel: me.snippet.details.currency },
+                            { value: data.totalPaid, fieldLabel: me.snippet.details.total_paid },
+                            { value: data.commission, fieldLabel: me.snippet.details.commission },
+                            { value: data.customerName, fieldLabel: me.snippet.details.customer_name },
+                            { value: data.customerEmail, fieldLabel: me.snippet.details.customer_email },
+                            { value: data.carrier, fieldLabel: me.snippet.details.carrier },
+                            { value: data.carrierMethod, fieldLabel: me.snippet.details.carrier_method },
+                            { value: data.carrierTracking, fieldLabel: me.snippet.details.carrier_tracking },
+                            { value: data.carrierIdRelay, fieldLabel: me.snippet.details.carrier_id_relay },
+                            { value: sentByMkp, fieldLabel: me.snippet.details.sent_by_mkp },
+                            { value: data.createdAt, fieldLabel: me.snippet.details.created_at },
+                            { value: data.message, xtype: 'textarea', width: 800, height: 30, fieldLabel: me.snippet.details.message },
+                            { value: data.extra, xtype: 'textarea', width: 800, height: 200, fieldLabel: me.snippet.details.extra },
                         ];
                         return fields;
                     },
@@ -170,11 +170,11 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
                                 var confirmationTitle;
                                 var confirmationMessage;
                                 if (action == 'ship') {
-                                    confirmationTitle = me.snippets.details.ship_confirmation_title;
-                                    confirmationMessage = me.snippets.details.ship_confirmation_message;
+                                    confirmationTitle = me.snippet.details.ship_confirmation_title;
+                                    confirmationMessage = me.snippet.details.ship_confirmation_message;
                                 } else {
-                                    confirmationTitle = me.snippets.details.cancel_confirmation_title;
-                                    confirmationMessage = me.snippets.details.cancel_confirmation_message;
+                                    confirmationTitle = me.snippet.details.cancel_confirmation_title;
+                                    confirmationMessage = me.snippet.details.cancel_confirmation_message;
                                 }
                                 Ext.MessageBox.confirm(
                                     confirmationTitle,
@@ -209,9 +209,9 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
                                                 var success = Ext.decode(response.responseText)['data'];
                                                 var lengowMessage;
                                                 if (success) {
-                                                    lengowMessage = me.snippets.details.success_message;
+                                                    lengowMessage = me.snippet.details.success_message;
                                                 } else {
-                                                    lengowMessage = me.snippets.details.fail_message;
+                                                    lengowMessage = me.snippet.details.fail_message;
                                                     Ext.getCmp('resend_lengow_cancel_action_button').enable();
                                                 }
                                                 Ext.MessageBox.alert(confirmationTitle, lengowMessage);
@@ -264,6 +264,6 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
                 console.log(response);
             }
         });
-    },
+    }
 });
 //{/block}

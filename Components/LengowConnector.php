@@ -484,7 +484,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Connector',
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                        'lengow_log/error/account_id_empty'
+                        'lengow_log/error/credentials_not_valid'
                     )
                 );
                 return false;

@@ -1,4 +1,12 @@
 =============================================================
+Version 1.2.2
+=============================================================
+
+    - Feature: Translation management for catalog export
+    - Bugfix: Fix the bug blocking the Shopware order details screen
+    - Bugfix: Blocking unauthorized actions for a marketplace
+
+=============================================================
 Version 1.2.1
 =============================================================
 

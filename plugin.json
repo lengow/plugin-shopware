@@ -6,8 +6,12 @@
     "support_mail": "support.lengow.zendesk@lengow.com",
     "license": "proprietary",
     "link": "http://lengow.com",
-    "currentVersion": "1.2.1",
+    "currentVersion": "1.2.2",
     "changes": {
+        "1.2.2": {
+            "releasedate": "2017-11-06",
+            "line": ""
+        },
         "1.2.1": {
             "releasedate": "2017-09-12",
             "line": ""
@@ -43,6 +47,7 @@
     },
     "changelog": {
         "en": {
+            "1.2.2": "Feature: Translation management for catalog export; Bugfix: Fix the bug blocking the Shopware order details screen; Bugfix: Blocking unauthorized actions for a marketplace",
             "1.2.1": "Feature: Added Lengow tab in order details; Feature: Add cancel and ship action buttons; Bugfix: Fix shop url with specific domain name; Bugfix: Change shop data for sending option",
             "1.2.0": "Feature: Added import order management; Feature: Adding action management to order; Feature: New multi-store management system; Feature: Automatic management of catalog addition",
             "1.1.0": "Feature: Add get_sync parameter for cron; Feature: Add PSR-2 coding standards; Feature: Delete out of stock and variation options for export; Feature: Add locale variable for Lengow Iframe; Feature: Add supplier field for export; Bugfix: Get images for article variations; Bugfix: Optimize Lengow Statistics; Bugfix: Add https protocol for Lengow iframe",

@@ -80,6 +80,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     protected $currency;
 
     /**
+     * @var array Shopware article translation
+     */
+    protected $translations;
+
+    /**
      * @var float currency factor (compare to Euro)
      */
     protected $factor;
@@ -105,6 +110,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $this->currency = $currency;
         $this->factor = $this->currency->getFactor();
         $this->attributes = self::getArticleAttributes($this->details->getId());
+        $this->translations = $this->getProductTranslations();
         $this->getPrice();
     }
 
@@ -131,7 +137,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             case 'ean':
                 return $this->details->getEan();
             case 'name':
-                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->product->getName());
+                $name = isset($this->translations['name']) ? $this->translations['name'] : $this->product->getName();
+                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($name);
             case 'quantity':
                 if ($this->isVariation) {
                     return $this->details->getInStock() > 0 ? $this->details->getInStock() : 0;
@@ -220,23 +227,34 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             case 'minimal_quantity':
                 return $this->details->getMinPurchase();
             case 'description_short':
+                $description = isset($this->translations['description'])
+                    ? $this->translations['description']
+                    : $this->product->getDescription();
                 return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanHtml(
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->product->getDescription())
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($description)
                 );
             case 'description':
+                $descriptionLong = isset($this->translations['descriptionLong'])
+                    ? $this->translations['descriptionLong']
+                    : $this->product->getDescriptionLong();
                 return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanHtml(
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
-                        $this->product->getDescriptionLong()
-                    )
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($descriptionLong)
                 );
             case 'description_html':
-                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
-                    $this->product->getDescriptionLong()
-                );
+                $descriptionLong = isset($this->translations['descriptionLong'])
+                    ? $this->translations['descriptionLong']
+                    : $this->product->getDescriptionLong();
+                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($descriptionLong);
             case 'meta_title':
-                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->product->getMetaTitle());
+                $metaTitle = isset($this->translations['metaTitle'])
+                    ? $this->translations['metaTitle']
+                    : $this->product->getMetaTitle();
+                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($metaTitle);
             case 'meta_keyword':
-                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($this->product->getKeywords());
+                $keywords = isset($this->translations['keywords'])
+                    ? $this->translations['keywords']
+                    : $this->product->getKeywords();
+                return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($keywords);
             case 'supplier':
                 return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
                     $this->product->getSupplier()->getName()
@@ -316,6 +334,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             }
         }
         return $result;
+    }
+
+    /**
+     * Get article translations to export
+     *
+     * @return array
+     */
+    private function getProductTranslations()
+    {
+        $translation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getTranslationComponent();
+        return $translation->read($this->shop->getId(), 'article', $this->product->getId());
     }
 
     /**

@@ -83,6 +83,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static $logLife = 20;
 
     /**
+     * @var Shopware_Components_Translation Shopware translation instance
+     */
+    public static $translation;
+
+    /**
      * Get export web services links
      *
      * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
@@ -593,6 +598,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             }
         }
         return false;
+    }
+
+    /**
+     * Get Shopware translation instance
+     *
+     * @return Shopware_Components_Translation
+     */
+    public static function getTranslationComponent()
+    {
+        if (self::$translation === null) {
+            self::$translation = new Shopware_Components_Translation();
+        }
+        return self::$translation;
     }
 
     /**
