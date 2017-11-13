@@ -424,7 +424,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         $productPrices = $this->details->getPrices();
         foreach ($productPrices as $price) {
-            if ($price->getTo() == 'beliebig') {
+            if ($price->getCustomerGroup() == $this->shop->getCustomerGroup()) {
                 $this->price = $price;
                 break;
             }

@@ -337,7 +337,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
         }
         $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '';
-        $host = $shop->getHost() ? $shop->getHost() : $_SERVER['SERVER_NAME'];
+        $mainHost = !is_null($shop->getMain()) ? $shop->getMain()->getHost() : $_SERVER['SERVER_NAME'];
+        $host = $shop->getHost() ? $shop->getHost() : $mainHost;
         $path = $shop->getBasePath() ? $shop->getBasePath() : '';
         $url = 'http' . $isHttps . '://' . $host . $path;
         return $url;
