@@ -276,6 +276,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Enlight_Controller_Action_PostDispatch_Backend_Order',
             'onPostDispatchBackendOrder'
         );
+        // Api events
+        $this->subscribeEvent(
+            'Enlight_Controller_Action_PostDispatch_Api_Orders',
+            'onApiOrderPostDispatch'
+        );
     }
 
     /**
@@ -403,6 +408,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public function onOrderPostDispatch(Enlight_Event_EventArgs $args)
     {
         Shopware_Plugins_Backend_Lengow_Components_LengowEvent::onOrderPostDispatch($args);
+    }
+
+    /**
+     * Listen to api orders changes after save / send call action if necessary
+     *
+     * @param Enlight_Event_EventArgs $args
+     */
+    public function onApiOrderPostDispatch(Enlight_Event_EventArgs $args)
+    {
+        Shopware_Plugins_Backend_Lengow_Components_LengowEvent::onApiOrderPostDispatch($args);
     }
 
     /**

@@ -164,6 +164,31 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     }
 
     /**
+     * Get Shopware order id by number
+     *
+     * @param string $number Shopware order number
+     *
+     * @return integer|false
+     */
+    public static function getOrderIdByNumber($number)
+    {
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select('o.id')
+            ->from('Shopware\Models\Order\Order', 'o')
+            ->where('o.number = :number')
+            ->setParameters(array('number' => $number));
+        try {
+            $result = $builder->getQuery()->getOneOrNullResult();
+            if (!is_null($result['id'])) {
+                return (int)$result['id'];
+            }
+        } catch (Doctrine\ORM\NonUniqueResultException $e) {
+            return false;
+        }
+        return false;
+    }
+
+    /**
      * Check if a lengow order or not
      *
      * @param integer $orderId Shopware order id
@@ -580,7 +605,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         if (Shopware_Plugins_Backend_Lengow_Components_LengowOrder::orderIsFromLengow($orderId) == 1) {
             if ($lengowOrder) {
                 $data = Shopware()->Models()->toArray($lengowOrder);
-                if (!Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowImportPreprodEnabled')) {
+                if (!Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                    'lengowImportPreprodEnabled'
+                )) {
                     $data['canResendAction'] = true;
                 }
             } else {

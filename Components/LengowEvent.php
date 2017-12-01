@@ -155,4 +155,33 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
             $view->extendsTemplate('backend/lengow/order.js');
         }
     }
+
+    /**
+     * Listen to api order changes after save / send call action if necessary
+     *
+     * @param Enlight_Event_EventArgs $args Shopware Enlight Controller Action instance
+     */
+    public static function onApiOrderPostDispatch($args)
+    {
+        $request = $args->getSubject()->Request();
+        if ($request->getActionName() === 'put') {
+            $orderId = $request->getParam('id');
+            $useNumberAsId = (bool)$request->getParam('useNumberAsId', 0);
+            if ($useNumberAsId) {
+                $orderId = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderIdByNumber($orderId);
+            }
+            if ($orderId && Shopware_Plugins_Backend_Lengow_Components_LengowOrder::isFromLengow((int)$orderId)) {
+                $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')
+                    ->findOneBy(array('id' => $orderId));
+                // Call Lengow API WSDL to send ship or cancel actions
+                $shippedStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('shipped');
+                $canceledStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('canceled');
+                if ($order->getOrderStatus() == $shippedStatus) {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, 'ship');
+                } elseif ($order->getOrderStatus() == $canceledStatus) {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, 'cancel');
+                }
+            }
+        }
+    }
 }
