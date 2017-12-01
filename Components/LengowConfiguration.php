@@ -94,6 +94,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * @param string $configName name of the setting to edit/add
      * @param mixed $value value to set for the setting
      * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     *
+     * @return boolean
      */
     public static function setConfig($configName, $value, $shop = null)
     {
@@ -119,15 +121,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             $config->setValue($value)
                 ->setDateUpd(new DateTime());
             $em->persist($config);
-            $em->flush($config);
+            try {
+                $em->flush($config);
+            } catch (Exception $e) {
+                return false;
+            }
         } else {
             // If shop no shop, get default one
             if (!($shop instanceof \Shopware\Models\Shop\Shop)) {
                 $shop = self::getDefaultShop();
             }
             $lengowConf = new Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration();
-            $lengowConf->save($configName, $value, $shop->getId());
+            return $lengowConf->save($configName, $value, $shop->getId());
         }
+        return true;
     }
 
     /**
@@ -259,16 +266,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * @param string $name new config name
      * @param mixed $value config value
      * @param integer $shopId Shopware shop id
+     *
+     * @return boolean
      */
     public function save($name, $value, $shopId = 1)
     {
-        $query = $this->getConfigValueByNameQuery($name, $shopId);
-        $result = $query->execute()->fetch(\PDO::FETCH_ASSOC);
-        if (isset($result['valueId']) && $result['valueId']) {
-            $this->update($value, $result['valueId']);
-        } else {
-            $this->insert($value, $shopId, $result['elementId']);
+        try {
+            $query = $this->getConfigValueByNameQuery($name, $shopId);
+            $result = $query->execute()->fetch(\PDO::FETCH_ASSOC);
+            if (isset($result['valueId']) && $result['valueId']) {
+                $this->update($value, $result['valueId']);
+            } else {
+                $this->insert($value, $shopId, $result['elementId']);
+            }
+        } catch (Exception $e) {
+            return false;
         }
+        return true;
     }
 
     /**

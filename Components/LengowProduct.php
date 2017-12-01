@@ -50,14 +50,44 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     protected $product;
 
     /**
+     * @var Shopware\Models\Article\Detail Shopware article details instance
+     */
+    protected $details;
+
+    /**
+     * @var Shopware\Models\Shop\Shop Shopware shop instance
+     */
+    protected $shop;
+
+    /**
+     * @var string article type
+     */
+    protected $type;
+
+    /**
+     * @var boolean enable/disable log output
+     */
+    protected $logOutput;
+
+    /**
      * @var boolean is this article a simple product (true) or a variation (false)
      */
     protected $isVariation = false;
 
     /**
-     * @var Shopware\Models\Article\Detail Shopware article details instance
+     * @var Shopware\Models\Shop\Currency Shopware currency instance
      */
-    protected $details;
+    protected $currency;
+
+    /**
+     * @var float currency factor (compare to Euro)
+     */
+    protected $factor;
+
+    /**
+     * @var array Shopware article translation
+     */
+    protected $translations;
 
     /**
      * @var array specific attributes for the product
@@ -68,26 +98,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      * @var Shopware\Models\Article\Price Shopware article price instance
      */
     protected $price;
-
-    /**
-     * @var Shopware\Models\Shop\Shop Shopware shop instance
-     */
-    protected $shop;
-
-    /**
-     * @var Shopware\Models\Shop\Currency Shopware currency instance
-     */
-    protected $currency;
-
-    /**
-     * @var array Shopware article translation
-     */
-    protected $translations;
-
-    /**
-     * @var float currency factor (compare to Euro)
-     */
-    protected $factor;
 
     /**
      * Construct
@@ -103,21 +113,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $this->product = $details->getArticle();
         $this->details = $details;
         $this->shop = $shop;
-        $this->attributes = array();
         $this->type = $type;
         $this->logOutput = $logOutput;
-        $this->isVariation = $type == 'child' ? true : false;
+        $this->isVariation = $type === 'child' ? true : false;
         $this->currency = $currency;
         $this->factor = $this->currency->getFactor();
         $this->attributes = self::getArticleAttributes($this->details->getId());
         $this->translations = $this->getProductTranslations();
-        $this->getPrice();
+        $this->price = $this->getPrice();
     }
 
     /**
      * Retrieve Lengow product data
      *
      * @param string $name name of the data to get
+     *
+     * @throws Exception
      *
      * @return string
      */
@@ -308,6 +319,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      *
      * @param Shopware\Models\Article\Image $image Shopware article image instance
      *
+     * @throws Exception
+     *
      * @return string
      */
     private function formatImagePath($image)
@@ -391,6 +404,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Create the breadcrumb for this product
      *
+     * @throws Exception
+     *
      * @return string
      */
     private function getBreadcrumb()
@@ -419,20 +434,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
 
     /**
      * Get main price of a product
+     *
+     * @return Shopware\Models\Article\Price
      */
     private function getPrice()
     {
+        $articlePrice = '';
         $productPrices = $this->details->getPrices();
         foreach ($productPrices as $price) {
             if ($price->getCustomerGroup() == $this->shop->getCustomerGroup()) {
-                $this->price = $price;
+                $articlePrice = $price;
                 break;
             }
         }
+        return $articlePrice;
     }
 
     /**
      * Get article shipping cost
+     *
+     * @throws Exception
      *
      * @return float
      */
@@ -526,6 +547,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Get total stock of a product
      * Used to count number of articles for parents
+     *
+     * @throws Exception
      */
     private function getTotalStock()
     {
@@ -589,7 +612,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $ids = explode('_', $articleId);
         $parentId = $ids[0];
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $article = $em->find('Shopware\Models\Article\Article', $parentId);
+        try {
+            $article = $em->find('Shopware\Models\Article\Article', $parentId);
+        } catch (Exception $e) {
+            $article = null;
+        }
         // If parent article is found
         if ($article != null) {
             $isConfigurable = count($article->getDetails()) > 1;

@@ -42,6 +42,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
      * Listen to basic settings changes. Add/remove lengow column from s_articles_attributes
      *
      * @param Enlight_Event_EventArgs $args Shopware Enlight Controller Action instance
+     *
+     * @return boolean
      */
     public static function onPostDispatchBackendConfig($args)
     {
@@ -59,18 +61,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
             $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
             $data = $request->getPost();
             // If new shop, get last entity put in db
-            if ($action == 'saveValues') {
-                $shop = Shopware()->Models()
-                    ->getRepository('Shopware\Models\Shop\Shop')
-                    ->findOneBy(array(), array('id' => 'DESC'));
-                $lengowDatabase->addLengowColumns(array($shop->getId()));
-            } elseif ($action == 'deleteValues') {
-                $shopId = isset($data['id']) ? $data['id'] : null;
-                if (!empty($shopId)) {
-                    $lengowDatabase->removeLengowColumn(array($shopId));
+            try {
+                if ($action == 'saveValues') {
+                    $shop = Shopware()->Models()
+                        ->getRepository('Shopware\Models\Shop\Shop')
+                        ->findOneBy(array(), array('id' => 'DESC'));
+                    $lengowDatabase->addLengowColumns(array($shop->getId()));
+                } elseif ($action == 'deleteValues') {
+                    $shopId = isset($data['id']) ? $data['id'] : null;
+                    if (!empty($shopId)) {
+                        $lengowDatabase->removeLengowColumn(array($shopId));
+                    }
                 }
+            } catch (Exception $e) {
+                return false;
             }
         }
+        return true;
     }
 
     /**

@@ -50,6 +50,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      * @param string $marketplaceName marketplace name
      * @param integer $deliveryAddressId Lengow delivery address id
      *
+     * @throws Exception
+     *
      * @return \Shopware\Models\Order\Order|false
      */
     public static function getOrderFromLengowOrder($marketplaceSku, $marketplaceName, $deliveryAddressId)
@@ -101,9 +103,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                     'deliveryAddressId' => $deliveryAddressId
                 )
             );
-        $result = $builder->getQuery()->getOneOrNullResult();
-        if (!is_null($result['id'])) {
-            return (int)$result['id'];
+        try {
+            $result = $builder->getQuery()->getOneOrNullResult();
+            if (!is_null($result['id'])) {
+                return (int)$result['id'];
+            }
+        } catch (Doctrine\ORM\NonUniqueResultException $e) {
+            return false;
         }
         return false;
     }
@@ -166,16 +172,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      */
     public static function isFromLengow($orderId)
     {
+        $isFromLengow = false;
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('lo.id')
             ->from('Shopware\CustomModels\Lengow\Order', 'lo')
             ->where('lo.orderId = :orderId')
             ->setParameters(array('orderId' => $orderId));
-        $result = $builder->getQuery()->getOneOrNullResult();
-        if (!is_null($result)) {
-            return true;
+        try {
+            $result = $builder->getQuery()->getOneOrNullResult();
+            if (!is_null($result)) {
+                $isFromLengow = true;
+            }
+        } catch (Doctrine\ORM\NonUniqueResultException $e) {
+            $isFromLengow = false;
         }
-        return false;
+        return $isFromLengow;
     }
 
     /**
@@ -230,6 +241,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      * @param mixed $orderData order data
      * @param mixed $packageData package data
      * @param boolean $logOutput output on screen
+     *
+     * @throws Exception
      *
      * @return string|false
      */
@@ -382,15 +395,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             foreach ($orderIds as $orderId) {
                 $shopwareIds[] = $orderId['orderId'];
             }
-            $result = $connector->patch(
-                '/v3.0/orders/moi/',
-                array(
-                    'account_id' => $accountId,
-                    'marketplace_order_id' => $lengowOrder->getMarketplaceSku(),
-                    'marketplace' => $lengowOrder->getMarketplaceName(),
-                    'merchant_order_id' => $shopwareIds
-                )
-            );
+            try {
+                $result = $connector->patch(
+                    '/v3.0/orders/moi/',
+                    array(
+                        'account_id' => $accountId,
+                        'marketplace_order_id' => $lengowOrder->getMarketplaceSku(),
+                        'marketplace' => $lengowOrder->getMarketplaceName(),
+                        'merchant_order_id' => $shopwareIds
+                    )
+                );
+            } catch (Exception $e) {
+                return false;
+            }
             if (is_null($result)
                 || (isset($result['detail']) && $result['detail'] == 'Pas trouvé.')
                 || isset($result['error'])
@@ -408,8 +425,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      *
      * @param \Shopware\Models\Order\Order $order Shopware order instance
      * @param string $action Lengow Actions type (ship or cancel)
-     *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException order line is required
      *
      * @return boolean
      */
@@ -516,7 +531,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      *
      * @return array|false
      */
-    public function getOrderLineByApi($lengowOrder)
+    public static function getOrderLineByApi($lengowOrder)
     {
         $orderLines = array();
         $results = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(

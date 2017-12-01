@@ -348,8 +348,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      * Record the date of the last import
      *
      * @param string $type (cron or manual)
-     *
-     * @return boolean
      */
     public static function updateDateImport($type)
     {
@@ -593,9 +591,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         }
         if ($settingName) {
             $orderStatusId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig($settingName);
-            $orderStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', (int)$orderStatusId);
-            if (!is_null($orderStatus)) {
-                return $orderStatus;
+            try {
+                $orderStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', (int)$orderStatusId);
+                if (!is_null($orderStatus)) {
+                    return $orderStatus;
+                }
+            } catch (Exception $e) {
+                return false;
             }
         }
         return false;
@@ -618,6 +620,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      * Get tax associated with a dispatch
      *
      * @param Shopware\Models\Dispatch\Dispatch $dispatch Shopware dispatch instance
+     *
+     * @throws Exception
      *
      * @return Shopware\Models\Tax\Tax
      */

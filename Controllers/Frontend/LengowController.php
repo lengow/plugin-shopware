@@ -35,6 +35,8 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
 {
     /**
      * Export Lengow feed
+     *
+     *
      */
     public function exportAction()
     {
@@ -131,16 +133,14 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                         )
                     );
                     $export->exec();
-                } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
-                    $errorMessage = $e->getMessage();
-                    $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                        $errorMessage
-                    );
+                } catch (Exception $e) {
+                    $errorMessage = '[Shopware error] "' . $e->getMessage()
+                        . '" ' . $e->getFile() . ' | ' . $e->getLine();
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                         'Export',
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                             'log/export/export_failed',
-                            array('decoded_message' => $decodedMessage)
+                            array('decoded_message' => $errorMessage)
                         ),
                         $logOutput
                     );

@@ -194,7 +194,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     /**
      * Create or update order
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException no product to cart / customer not saved
+     * @throws Exception|Shopware_Plugins_Backend_Lengow_Components_LengowException no product to cart / customer not saved
      *         order not saved
      *
      * @return array|false
@@ -494,6 +494,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
      * Check the order and updates data if necessary
      *
      * @param \Shopware\Models\Order\Order $order Shopware order instance
+     *
+     * @throws Exception
      *
      * @return array|false
      */

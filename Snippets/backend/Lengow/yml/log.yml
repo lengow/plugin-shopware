@@ -9,7 +9,9 @@ default:
       add_form: "Creating %{formName} form"
       add_menu: "Installing menu item"
       add_model: "Adding custom model %{name}"
+      add_model_error: "WARNING! Error when adding custom model %{name}"
       add_upgrade_version: "Adding data for the plugin version %{version}"
+      add_upgrade_error: "WARNING! Error when updating custom model: %{error_message}"
       add_payment: "Adding Lengow payment method"
     uninstall:
       start: "## start uninstall ##"

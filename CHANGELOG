@@ -4,6 +4,7 @@ Version 1.2.3
 
     - Feature: Export specific price product for a customer group
     - Bugfix: Get specific domain name for a sub shop
+    - Bugfix: Improvement of the update system to avoid sql errors
 
 =============================================================
 Version 1.2.2

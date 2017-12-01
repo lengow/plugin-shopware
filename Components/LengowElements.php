@@ -41,7 +41,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
     /**
      * Get Header html
      *
-     * @return string
+     * @return array
      */
     public static function getHeader()
     {

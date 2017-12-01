@@ -52,6 +52,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     /**
      * Returns plugin info
      *
+     * @throws Exception
+     *
      * @return array
      */
     public function getInfo()
@@ -72,6 +74,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
 
     /**
      * Install plugin method
+     *
+     * @throws Exception
      *
      * @return array
      */
@@ -99,6 +103,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
         $lengowDatabase->updateSchema();
         $lengowDatabase->createCustomModels();
+        $lengowDatabase->updateCustomModels();
         $lengowDatabase->setLengowSettings();
         $lengowDatabase->updateOrderAttribute();
         $this->createLengowPayment();
@@ -134,7 +139,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
         $lengowDatabase->updateSchema();
         $lengowDatabase->createCustomModels();
-        $lengowDatabase->updateCustomModels($version);
+        $lengowDatabase->updateCustomModels();
         $lengowDatabase->setLengowSettings();
         $lengowDatabase->updateOrderAttribute();
         $this->createLengowPayment();
@@ -170,6 +175,25 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $lengowDatabase->removeCustomModels();
         self::log('log/uninstall/end');
         return true;
+    }
+
+    /**
+     * Creates and save the payment row
+     */
+    private function createLengowPayment()
+    {
+        $payment = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowPayment();
+        if (is_null($payment)) {
+            $this->createPayment(
+                array(
+                    'active' => 0,
+                    'name' => 'lengow',
+                    'description' => 'Lengow',
+                    'additionalDescription' => 'Default payment for Lengow orders'
+                )
+            );
+            self::log('log/install/add_payment');
+        }
     }
 
     /**
@@ -252,25 +276,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Enlight_Controller_Action_PostDispatch_Backend_Order',
             'onPostDispatchBackendOrder'
         );
-    }
-
-    /**
-     * Creates and save the payment row
-     */
-    private function createLengowPayment()
-    {
-        $payment = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowPayment();
-        if (is_null($payment)) {
-            $this->createPayment(
-                array(
-                    'active' => 0,
-                    'name' => 'lengow',
-                    'description' => 'Lengow',
-                    'additionalDescription' => 'Default payment for Lengow orders'
-                )
-            );
-            self::log('log/install/add_payment');
-        }
     }
 
     /**
@@ -391,6 +396,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
+     * Listen to order details
+     *
+     * @param Enlight_Event_EventArgs $args
+     */
+    public function onOrderPostDispatch(Enlight_Event_EventArgs $args)
+    {
+        Shopware_Plugins_Backend_Lengow_Components_LengowEvent::onOrderPostDispatch($args);
+    }
+
+    /**
      * Log when installing / uninstalling the plugin
      *
      * @param string $key translation key
@@ -402,15 +417,5 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Install',
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage($key, $params)
         );
-    }
-
-    /**
-     * Listen to order details
-     *
-     * @param Enlight_Event_EventArgs $args
-     */
-    public function onOrderPostDispatch(Enlight_Event_EventArgs $args)
-    {
-        Shopware_Plugins_Backend_Lengow_Components_LengowEvent::onOrderPostDispatch($args);
     }
 }

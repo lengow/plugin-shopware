@@ -354,7 +354,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
      * @param $articles array list of articles to export
      * @param $fields   array list of fields
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException folder not writable
+     * @throws Exception|Shopware_Plugins_Backend_Lengow_Components_LengowException folder not writable
      */
     private function export($articles, $fields)
     {
