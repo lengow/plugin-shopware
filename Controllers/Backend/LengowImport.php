@@ -150,23 +150,9 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                     $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
                     $shop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('id' => (int)$shopId));
                     $shopName = !is_null($shop) ? $shop->getName() . ' : ' :  '';
-                } else {
-                    $shopName = '';
-                }
-                if (is_array($values)) {
-                    $error = false;
-                    foreach ($values as $value) {
-                        $error .= !$error
-                            ? Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($value, $locale)
-                            : ', ' .  Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                                $value,
-                                $locale
-                            );
-                    }
-                } else {
                     $error = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($values, $locale);
+                    $messages[] = $shopName . $error;
                 }
-                $messages[] = $shopName . $error;
             }
         }
         return $messages;
