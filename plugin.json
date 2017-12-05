@@ -6,8 +6,12 @@
     "support_mail": "support.lengow.zendesk@lengow.com",
     "license": "proprietary",
     "link": "http://lengow.com",
-    "currentVersion": "1.2.3",
+    "currentVersion": "1.3.0",
     "changes": {
+        "1.3.0": {
+            "releasedate": "",
+            "line": ""
+        },
         "1.2.3": {
             "releasedate": "2017-12-04",
             "line": ""
@@ -51,6 +55,7 @@
     },
     "changelog": {
         "en": {
+            "1.3.0": "",
             "1.2.3": "Feature: Direct shipment of actions from Shopware API; Feature: Export specific price product for a customer group; Bugfix: Get specific domain name for a sub shop; Bugfix: Improvement of the update system to avoid sql errors",
             "1.2.2": "Feature: Translation management for catalog export; Bugfix: Fix the bug blocking the Shopware order details screen; Bugfix: Blocking unauthorized actions for a marketplace",
             "1.2.1": "Feature: Added Lengow tab in order details; Feature: Add cancel and ship action buttons; Bugfix: Fix shop url with specific domain name; Bugfix: Change shop data for sending option",
