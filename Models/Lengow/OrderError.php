@@ -1,7 +1,7 @@
 <?php
 
 /**
- * OrderLine.php
+ * OrderError.php
  *
  * @category   Shopware
  * @package    Shopware_Plugins
