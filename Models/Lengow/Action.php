@@ -300,7 +300,7 @@ class Action extends ModelEntity
     /**
      * Sets the value of created at
      *
-     * @param \DateTime $createdAt $createdAt the created at
+     * @param \DateTime $createdAt the created at
      *
      * @return self
      */
@@ -323,7 +323,7 @@ class Action extends ModelEntity
     /**
      * Sets the value of update at
      *
-     * @param \DateTime $updatedAt $orderDate the created at
+     * @param \DateTime $updatedAt the created at
      *
      * @return self
      */

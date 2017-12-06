@@ -51,6 +51,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
             'entity' => 'Shopware\CustomModels\Lengow\Order',
             'remove' => false,
         ),
+        's_lengow_order_error' => array(
+            'entity' => 'Shopware\CustomModels\Lengow\OrderError',
+            'remove' => false,
+        ),
         's_lengow_order_line' => array(
             'entity' => 'Shopware\CustomModels\Lengow\OrderLine',
             'remove' => false,
