@@ -59,6 +59,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     protected $content = '';
 
     /**
+     * @var boolean stream or file
+     */
+    protected $stream;
+
+    /**
      * @var string feed format
      */
     protected $format;
@@ -94,6 +99,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
      * @var boolean $stream export streaming or in a file
      * @var string $format export format
      * @var string $shopName Shopware shop name
+     *
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException unable to create folder
      */
     public function __construct($stream, $format, $shopName)
     {

@@ -170,7 +170,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     protected $shop;
 
     /**
-     * @var Shopware\Models\Shop\Currency Shopware Currency instance
+     * @var \Shopware\Models\Shop\Currency Shopware Currency instance
      */
     protected $currency;
 
@@ -354,7 +354,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
      * @param $articles array list of articles to export
      * @param $fields   array list of fields
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException folder not writable
+     * @throws Exception|Shopware_Plugins_Backend_Lengow_Components_LengowException folder not writable
      */
     private function export($articles, $fields)
     {
@@ -381,11 +381,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             if ($this->limit != null && $this->limit <= $displayedProducts) {
                 break;
             }
-            // \Shopware\Models\Article\Detail $details
-            $details = $this->em->getReference(
-                'Shopware\Models\Article\Detail',
-                $article['detailId']
-            );
+            $details = $this->em->getReference('Shopware\Models\Article\Detail', $article['detailId']);
             $product = new Shopware_Plugins_Backend_Lengow_Components_LengowProduct(
                 $details,
                 $this->shop,

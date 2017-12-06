@@ -38,6 +38,8 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
 {
     /**
      * Event listener function of articles store to list Lengow products
+     *
+     * @throws Exception
      */
     public function getListAction()
     {
@@ -207,6 +209,8 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
 
     /**
      * Set Lengow status for an article
+     *
+     * @throws Exception
      */
     public function setStatusInLengowAction()
     {
@@ -246,6 +250,8 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
      * @param Shopware\Models\Category\Category $category Shopware category instance
      * @param integer $shopId Shopware shop id
      * @param boolean $status Lengow status to set for articles which belong to the category
+     *
+     * @throws Exception
      */
     private function setLengowStatusFromCategory($category, $shopId, $status)
     {
@@ -275,8 +281,10 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         }
     }
 
-    /*
+    /**
      * Get tree structure
+     *
+     * @throws Exception
      */
     public function getShopsTreeAction()
     {
@@ -331,6 +339,8 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
      * integer id     Shop id
      * string  name   Setting name
      * boolean status New setting value
+     *
+     * @throws Exception
      */
     public function setConfigValueAction()
     {
@@ -346,6 +356,8 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
      * Get config value for a shop from the database
      * integer id         Shop id
      * array   configList List of settings to get
+     *
+     * @throws Exception
      */
     public function getConfigValueAction()
     {

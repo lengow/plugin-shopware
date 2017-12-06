@@ -91,7 +91,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         '/v3.0/marketplaces' => 10,
         '/v3.0/plans' => 3,
         '/v3.0/stats' => 3,
-        '/v3.0/cms' => 3,
+        '/v3.1/cms' => 3,
     );
 
     /**
@@ -110,6 +110,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * Connection to the API
      *
      * @param string $userToken The user token if is connected
+     *
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException get Curl error
      *
      * @return array|false
      */
@@ -143,7 +145,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $format return format of API
      * @param string $body body datas for request
      *
-     * @return array
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException get Curl error
+     *
+     * @return mixed
      */
     public function call($method, $array = array(), $type = 'GET', $format = 'json', $body = '')
     {
@@ -167,7 +171,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $format return format of API
      * @param string $body body datas for request
      *
-     * @return array The format data response
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException get Curl error
+     *
+     * @return mixed
      */
     public function get($method, $array = array(), $format = 'json', $body = '')
     {
@@ -182,7 +188,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $format return format of API
      * @param string $body body datas for request
      *
-     * @return array
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException get Curl error
+     *
+     * @return mixed
      */
     public function post($method, $array = array(), $format = 'json', $body = '')
     {
@@ -197,7 +205,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $format return format of API
      * @param string $body body datas for request
      *
-     * @return array
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException get Curl error
+     *
+     * @return mixed
      */
     public function head($method, $array = array(), $format = 'json', $body = '')
     {
@@ -212,7 +222,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $format return format of API
      * @param string $body body datas for request
      *
-     * @return array The format data response
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException get Curl error
+     *
+     * @return mixed
      */
     public function put($method, $array = array(), $format = 'json', $body = '')
     {
@@ -227,7 +239,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $format return format of API
      * @param string $body body datas for request
      *
-     * @return array
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException get Curl error
+     *
+     * @return mixed
      */
     public function delete($method, $array = array(), $format = 'json', $body = '')
     {
@@ -242,7 +256,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $format return format of API
      * @param string $body body datas for request
      *
-     * @return array
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException get Curl error
+     *
+     * @return mixed
      */
     public function patch($method, $array = array(), $format = 'json', $body = '')
     {
@@ -258,7 +274,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $format return format of API
      * @param string $body body datas for request
      *
-     * @return array The format data response
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException get Curl error
+     *
+     * @return mixed
      */
     private function callAction($api, $args, $type, $format = 'json', $body = '')
     {
@@ -301,7 +319,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      *
      * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException get Curl error
      *
-     * @return array
+     * @return mixed
      */
     protected function makeRequest($type, $url, $args, $token, $body = '')
     {
@@ -484,7 +502,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Connector',
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                        'lengow_log/error/account_id_empty'
+                        'lengow_log/error/credentials_not_valid'
                     )
                 );
                 return false;

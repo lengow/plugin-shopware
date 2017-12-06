@@ -83,6 +83,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static $logLife = 20;
 
     /**
+     * @var Shopware_Components_Translation Shopware translation instance
+     */
+    public static $translation;
+
+    /**
      * Get export web services links
      *
      * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
@@ -91,7 +96,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function getExportUrl($shop)
     {
-        $shopBaseUrl = self::getBaseUrl($shop);
+        $shopBaseUrl = self::getShopUrl($shop);
         return $shopBaseUrl . '/LengowController/export?shop=' . $shop->getId() . '&token=' . self::getToken($shop);
     }
 
@@ -316,7 +321,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function getShopUrl($shop)
     {
-        return self::getBaseUrl() . $shop->getBaseUrl();
+        return self::getBaseUrl($shop) . $shop->getBaseUrl();
     }
 
     /**
@@ -332,7 +337,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
         }
         $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '';
-        $host = $shop->getHost() ? $shop->getHost() : $_SERVER['SERVER_NAME'];
+        $mainHost = !is_null($shop->getMain()) ? $shop->getMain()->getHost() : $_SERVER['SERVER_NAME'];
+        $host = $shop->getHost() ? $shop->getHost() : $mainHost;
         $path = $shop->getBasePath() ? $shop->getBasePath() : '';
         $url = 'http' . $isHttps . '://' . $host . $path;
         return $url;
@@ -342,8 +348,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      * Record the date of the last import
      *
      * @param string $type (cron or manual)
-     *
-     * @return boolean
      */
     public static function updateDateImport($type)
     {
@@ -587,18 +591,37 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         }
         if ($settingName) {
             $orderStatusId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig($settingName);
-            $orderStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', (int)$orderStatusId);
-            if (!is_null($orderStatus)) {
-                return $orderStatus;
+            try {
+                $orderStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', (int)$orderStatusId);
+                if (!is_null($orderStatus)) {
+                    return $orderStatus;
+                }
+            } catch (Exception $e) {
+                return false;
             }
         }
         return false;
     }
 
     /**
+     * Get Shopware translation instance
+     *
+     * @return Shopware_Components_Translation
+     */
+    public static function getTranslationComponent()
+    {
+        if (self::$translation === null) {
+            self::$translation = new Shopware_Components_Translation();
+        }
+        return self::$translation;
+    }
+
+    /**
      * Get tax associated with a dispatch
      *
      * @param Shopware\Models\Dispatch\Dispatch $dispatch Shopware dispatch instance
+     *
+     * @throws Exception
      *
      * @return Shopware\Models\Tax\Tax
      */

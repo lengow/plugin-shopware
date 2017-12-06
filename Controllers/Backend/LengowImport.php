@@ -81,63 +81,80 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     public function launchImportProcessAction()
     {
         $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport();
-        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
         $result = $import->exec();
+        $messages = $this->loadMessage($result);
         $data = array();
-        $success = !empty($result['error']) ? false : true;
-        // Get number of processed orders. If equals zero, display "no_notification" message
-        $totalOrder = $result['order_error'] + $result['order_new'];
-        // Retrieve log of the day
-        $logUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getPathPlugin() .
-            'Logs/logs-' . date('Y-m-d') . '.txt';
-        // If error during import process
-        if (!$success) {
-            $data['error'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                'order/panel/order_import_failed',
-                $locale,
-                array('log_url' => $logUrl)
-            );
-        } elseif ($totalOrder > 0) {
-            foreach ($result as $key => $nbOrders) {
-                switch ($key) {
-                    case 'error':
-                        continue;
-                        break;
-                    case 'order_error':
-                        $params = array('nb_order' => $nbOrders);
-                        // If more than one error, display link to log file
-                        if ($nbOrders > 0) {
-                            $translationKey = 'order/panel/order_error_link';
-                            $params['log_url'] = $logUrl;
-                        } else {
-                            $translationKey = 'order/panel/no_error';
-                        }
-                        $data['order_error'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                            $translationKey,
-                            $locale,
-                            $params
-                        );
-                        break;
-                    case 'order_new':
-                        $data['order_new'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                            'order/panel/order_new',
-                            $locale,
-                            array('nb_order' => $nbOrders)
-                        );
-                        break;
-                }
-            }
-        } else {
-            $data['no_notification'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                'order/panel/no_notification',
-                $locale
-            );
-        }
+        $data['messages'] = join( '<br/>', $messages);
         $this->View()->assign(
             array(
                 'success' => true,
                 'data' => $data
             )
         );
+    }
+
+    /**
+     * Generate message array (new, update and errors)
+     *
+     * @param array $return
+     *
+     * @return array
+     */
+    public function loadMessage($return)
+    {
+        $messages = array();
+        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
+        // if global error return this
+        if (isset($return['error'][0])) {
+            $messages['error'] =  Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                $return['error'][0],
+                $locale
+            );
+            return $messages;
+        }
+        if (isset($return['order_new']) && $return['order_new'] > 0) {
+            $messages['order_new'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                'lengow_log/error/nb_order_imported',
+                $locale,
+                array('nb_order' => (int)$return['order_new'])
+            );
+        }
+        if (isset($return['order_update']) && $return['order_update'] > 0) {
+            $messages['order_update'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                'lengow_log/error/nb_order_updated',
+                $locale,
+                array('nb_order' => (int)$return['order_update'])
+            );
+        }
+        if (isset($return['order_error']) && $return['order_error'] > 0) {
+            $logUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getPathPlugin() .
+                'Logs/logs-' . date('Y-m-d') . '.txt';
+            $messages['order_error'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                'order/panel/order_error_link',
+                $locale,
+                array(
+                    'nb_order' => (int)$return['order_error'],
+                    'log_url' => $logUrl
+                )
+            );
+        }
+        if (count($messages) == 0) {
+            $messages['no_notification'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                'lengow_log/error/no_notification',
+                $locale
+            );
+        }
+        if (isset($return['error'])) {
+            foreach ($return['error'] as $shopId => $values) {
+                if ((int)$shopId > 0) {
+                    $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+                    $shop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('id' => (int)$shopId));
+                    $shopName = !is_null($shop) ? $shop->getName() . ' : ' :  '';
+                    $error = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($values, $locale);
+                    $messages[] = $shopName . $error;
+                }
+            }
+        }
+        return $messages;
     }
 }

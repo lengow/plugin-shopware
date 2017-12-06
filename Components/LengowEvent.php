@@ -42,6 +42,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
      * Listen to basic settings changes. Add/remove lengow column from s_articles_attributes
      *
      * @param Enlight_Event_EventArgs $args Shopware Enlight Controller Action instance
+     *
+     * @return boolean
      */
     public static function onPostDispatchBackendConfig($args)
     {
@@ -59,18 +61,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
             $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
             $data = $request->getPost();
             // If new shop, get last entity put in db
-            if ($action == 'saveValues') {
-                $shop = Shopware()->Models()
-                    ->getRepository('Shopware\Models\Shop\Shop')
-                    ->findOneBy(array(), array('id' => 'DESC'));
-                $lengowDatabase->addLengowColumns(array($shop->getId()));
-            } elseif ($action == 'deleteValues') {
-                $shopId = isset($data['id']) ? $data['id'] : null;
-                if (!empty($shopId)) {
-                    $lengowDatabase->removeLengowColumn(array($shopId));
+            try {
+                if ($action == 'saveValues') {
+                    $shop = Shopware()->Models()
+                        ->getRepository('Shopware\Models\Shop\Shop')
+                        ->findOneBy(array(), array('id' => 'DESC'));
+                    $lengowDatabase->addLengowColumns(array($shop->getId()));
+                } elseif ($action == 'deleteValues') {
+                    $shopId = isset($data['id']) ? $data['id'] : null;
+                    if (!empty($shopId)) {
+                        $lengowDatabase->removeLengowColumn(array($shopId));
+                    }
                 }
+            } catch (Exception $e) {
+                return false;
             }
         }
+        return true;
     }
 
     /**
@@ -120,6 +127,60 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
                     Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, 'cancel');
                 }
                 unset(self::$orderChanged[$data['id']]);
+            }
+        }
+    }
+
+    /**
+     * Listen to order details
+     *
+     * @param Enlight_Event_EventArgs $args Shopware Enlight Controller Action instance
+     */
+    public static function onOrderPostDispatch($args)
+    {
+        /** @var \Enlight_Controller_Action $controller */
+        $controller = $args->getSubject();
+        $view = $controller->View();
+        $request = $controller->Request();
+
+        $view->addTemplateDir(__DIR__ . '/../Views');
+
+        if ($request->getActionName() === 'index') {
+            $view->extendsTemplate('backend/lengow/controller/order.js');
+            $view->extendsTemplate('backend/lengow/order.js');
+        }
+
+        if ($request->getActionName() === 'load') {
+            $view->extendsTemplate('backend/lengow/controller/order.js');
+            $view->extendsTemplate('backend/lengow/order.js');
+        }
+    }
+
+    /**
+     * Listen to api order changes after save / send call action if necessary
+     *
+     * @param Enlight_Event_EventArgs $args Shopware Enlight Controller Action instance
+     */
+    public static function onApiOrderPostDispatch($args)
+    {
+        $request = $args->getSubject()->Request();
+        if ($request->getActionName() === 'put') {
+            $orderId = $request->getParam('id');
+            $useNumberAsId = (bool)$request->getParam('useNumberAsId', 0);
+            if ($useNumberAsId) {
+                $orderId = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderIdByNumber($orderId);
+            }
+            if ($orderId && Shopware_Plugins_Backend_Lengow_Components_LengowOrder::isFromLengow((int)$orderId)) {
+                $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')
+                    ->findOneBy(array('id' => $orderId));
+                // Call Lengow API WSDL to send ship or cancel actions
+                $shippedStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('shipped');
+                $canceledStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('canceled');
+                if ($order->getOrderStatus() == $shippedStatus) {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, 'ship');
+                } elseif ($order->getOrderStatus() == $canceledStatus) {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, 'cancel');
+                }
             }
         }
     }

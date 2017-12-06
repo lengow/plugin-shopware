@@ -238,10 +238,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             )
         );
         // Auto-generate form
-        $orderStatusSettingForm = $this->createSettingForm(
-            'lengow_order_status_settings',
-            $orderStatusFormElements
-        );
+        $orderStatusSettingForm = $this->createSettingForm('lengow_order_status_settings', $orderStatusFormElements);
         $orderStatusSettingForm->setParent($mainForm);
         $forms = array($mainSettingForm, $exportSettingForm, $importSettingForm, $orderStatusSettingForm);
         $mainForm->setChildren($forms);

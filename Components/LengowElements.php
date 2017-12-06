@@ -41,7 +41,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
     /**
      * Get Header html
      *
-     * @return string
+     * @return array
      */
     public static function getHeader()
     {
@@ -134,10 +134,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                 ' . $translations['vat_identification_number'] . 'FR42513381434 <br />
                 <h3>' . $translations['address'] . '</h3>6 rue René Viviani <br /> 44200 Nantes
                 <h3>' . $translations['contact'] . '</h3> contact@lengow.com <br /> +33 (0)2 85 52 64 14
-                <h3>' . $translations['hosting'] . '</h3>Linkbynet<br />
-                RCS Bobigny : 430 359 927<br />
-                5-9 Rue, de l’Industrie – 93200 Saint-Denis<br />
-                +33 (0)1 48 13 00 00
+                <h3>' . $translations['hosting'] . '</h3>OXALIDE<br />
+                RCS Paris : 803 816 529<br />
+                25 Boulevard de Strasbourg – 75010 Paris<br />
+                +33 (0)1 75 77 16 66
             </div>
         </div>';
         return $html;

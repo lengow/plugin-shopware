@@ -194,7 +194,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     /**
      * Create or update order
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException no product to cart / customer not saved
+     * @throws Exception|Shopware_Plugins_Backend_Lengow_Components_LengowException no product to cart / customer not saved
      *         order not saved
      *
      * @return array|false
@@ -484,6 +484,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             'marketplace_name' => (string)$this->marketplace->name,
             'lengow_state' => $this->orderStateLengow,
             'order_new' => $typeResult === 'new' ? true : false,
+            'order_update' => $typeResult == 'update' ? true : false,
             'order_error' => $typeResult === 'error' ? true : false
         );
         return $result;
@@ -493,6 +494,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
      * Check the order and updates data if necessary
      *
      * @param \Shopware\Models\Order\Order $order Shopware order instance
+     *
+     * @throws Exception
      *
      * @return array|false
      */
@@ -1084,8 +1087,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $order = Shopware()->Models()
                 ->getRepository('Shopware\Models\Order\Order')
                 ->findOneBy(array('number' => $orderNumber));
-            // get and set order attributes
+            // get and set order attributes is from lengow
             $orderAttribute = new Shopware\Models\Attribute\Order();
+            $orderAttribute->setLengowIsFromLengow(true);
             $order->setAttribute($orderAttribute);
             // get and set billing and shipping addresses
             $billingAddress = $this->lengowAddress->getOrderAddress();

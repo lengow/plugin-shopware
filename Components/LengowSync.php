@@ -100,14 +100,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 'lengowSecretToken' => $params['secret_token']
             )
         );
-        foreach ($params['shops'] as $shopToken => $shopCatalogIds) {
-            $shop = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopByToken($shopToken);
-            if ($shop) {
-                Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setCatalogIds(
-                    $shopCatalogIds['catalog_ids'],
-                    $shop
-                );
-                Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setActiveShop($shop);
+        if (isset($params['shops'])) {
+            foreach ($params['shops'] as $shopToken => $shopCatalogIds) {
+                $shop = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopByToken($shopToken);
+                if ($shop) {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setCatalogIds(
+                        $shopCatalogIds['catalog_ids'],
+                        $shop
+                    );
+                    Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setActiveShop($shop);
+                }
             }
         }
     }
@@ -163,7 +165,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 $shop
             );
             $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, array());
-            $data['cms']['shops'][] = array(
+            $data['shops'][] = array(
                 'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop),
                 'enabled' => $enabled,
                 'total_product_number' => $export->getTotalProducts(),
@@ -183,7 +185,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      */
     public static function setCmsOption($force = false)
     {
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant()) {
+        $preprodMode = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            'lengowImportPreprodEnabled'
+        );
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant() || $preprodMode) {
             return false;
         }
         if (!$force) {

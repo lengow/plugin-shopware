@@ -50,6 +50,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      * @param string $marketplaceName marketplace name
      * @param integer $deliveryAddressId Lengow delivery address id
      *
+     * @throws Exception
+     *
      * @return \Shopware\Models\Order\Order|false
      */
     public static function getOrderFromLengowOrder($marketplaceSku, $marketplaceName, $deliveryAddressId)
@@ -101,9 +103,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                     'deliveryAddressId' => $deliveryAddressId
                 )
             );
-        $result = $builder->getQuery()->getOneOrNullResult();
-        if (!is_null($result['id'])) {
-            return (int)$result['id'];
+        try {
+            $result = $builder->getQuery()->getOneOrNullResult();
+            if (!is_null($result['id'])) {
+                return (int)$result['id'];
+            }
+        } catch (Doctrine\ORM\NonUniqueResultException $e) {
+            return false;
         }
         return false;
     }
@@ -158,6 +164,31 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     }
 
     /**
+     * Get Shopware order id by number
+     *
+     * @param string $number Shopware order number
+     *
+     * @return integer|false
+     */
+    public static function getOrderIdByNumber($number)
+    {
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select('o.id')
+            ->from('Shopware\Models\Order\Order', 'o')
+            ->where('o.number = :number')
+            ->setParameters(array('number' => $number));
+        try {
+            $result = $builder->getQuery()->getOneOrNullResult();
+            if (!is_null($result['id'])) {
+                return (int)$result['id'];
+            }
+        } catch (Doctrine\ORM\NonUniqueResultException $e) {
+            return false;
+        }
+        return false;
+    }
+
+    /**
      * Check if a lengow order or not
      *
      * @param integer $orderId Shopware order id
@@ -166,17 +197,42 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      */
     public static function isFromLengow($orderId)
     {
+        $isFromLengow = false;
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('lo.id')
             ->from('Shopware\CustomModels\Lengow\Order', 'lo')
             ->where('lo.orderId = :orderId')
             ->setParameters(array('orderId' => $orderId));
-        $result = $builder->getQuery()->getOneOrNullResult();
-        if (!is_null($result)) {
+        try {
+            $result = $builder->getQuery()->getOneOrNullResult();
+            if (!is_null($result)) {
+                $isFromLengow = true;
+            }
+        } catch (Doctrine\ORM\NonUniqueResultException $e) {
+            $isFromLengow = false;
+        }
+        return $isFromLengow;
+    }
+
+    /**
+     * Check if a lengow order or not
+     *
+     * @param integer $orderId Shopware order id
+     *
+     * @return boolean
+     */
+    public static function orderIsFromLengow($orderId)
+    {
+        $result = Shopware()->Db()->fetchRow(
+            'SELECT * FROM s_order_attributes WHERE orderID = ?',
+            array($orderId)
+        );
+        if ($result['lengow_is_from_lengow'] == 1) {
             return true;
         }
         return false;
     }
+
 
     /**
      * Get order process state
@@ -210,6 +266,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      * @param mixed $orderData order data
      * @param mixed $packageData package data
      * @param boolean $logOutput output on screen
+     *
+     * @throws Exception
      *
      * @return string|false
      */
@@ -362,15 +420,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             foreach ($orderIds as $orderId) {
                 $shopwareIds[] = $orderId['orderId'];
             }
-            $result = $connector->patch(
-                '/v3.0/orders/moi/',
-                array(
-                    'account_id' => $accountId,
-                    'marketplace_order_id' => $lengowOrder->getMarketplaceSku(),
-                    'marketplace' => $lengowOrder->getMarketplaceName(),
-                    'merchant_order_id' => $shopwareIds
-                )
-            );
+            try {
+                $result = $connector->patch(
+                    '/v3.0/orders/moi/',
+                    array(
+                        'account_id' => $accountId,
+                        'marketplace_order_id' => $lengowOrder->getMarketplaceSku(),
+                        'marketplace' => $lengowOrder->getMarketplaceName(),
+                        'merchant_order_id' => $shopwareIds
+                    )
+                );
+            } catch (Exception $e) {
+                return false;
+            }
             if (is_null($result)
                 || (isset($result['detail']) && $result['detail'] == 'Pas trouvé.')
                 || isset($result['error'])
@@ -388,8 +450,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      *
      * @param \Shopware\Models\Order\Order $order Shopware order instance
      * @param string $action Lengow Actions type (ship or cancel)
-     *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException order line is required
      *
      * @return boolean
      */
@@ -496,7 +556,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      *
      * @return array|false
      */
-    public function getOrderLineByApi($lengowOrder)
+    public static function getOrderLineByApi($lengowOrder)
     {
         $orderLines = array();
         $results = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
@@ -520,5 +580,42 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         }
         $return = $orderLines[$lengowOrder->getDeliveryAddressId()];
         return count($return) > 0 ? $return : false;
+    }
+
+    /**
+     * Get lengow order detail in order detail page
+     *
+     * @param $orderId
+     * @return array|string
+     */
+    public static function getOrderDetailAction($orderId) {
+
+        $keys = array(
+            'order/details/' => array(
+                'not_tracked_by_lengow',
+                'not_lengow_order',
+            )
+        );
+        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $repository = $em->getRepository('Shopware\CustomModels\Lengow\Order');
+        $lengowOrder = $repository->findOneBy(array(
+            'orderId' => $orderId
+        ));
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowOrder::orderIsFromLengow($orderId) == 1) {
+            if ($lengowOrder) {
+                $data = Shopware()->Models()->toArray($lengowOrder);
+                if (!Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                    'lengowImportPreprodEnabled'
+                )) {
+                    $data['canResendAction'] = true;
+                }
+            } else {
+                $data = json_encode($translations['not_tracked_by_lengow']);
+            }
+        } else {
+            $data = json_encode($translations['not_lengow_order']);
+        }
+        return $data;
     }
 }

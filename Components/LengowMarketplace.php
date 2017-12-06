@@ -166,11 +166,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     public function loadApiMarketplace()
     {
         if (count(self::$marketplaces) === 0) {
-            $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
+            self::$marketplaces = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
                 'get',
                 '/v3.0/marketplaces'
             );
-            self::$marketplaces = $result;
         }
     }
 
@@ -216,15 +215,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      */
     public function containOrderLine($action)
     {
-        $actions = $this->actions[$action];
-        if (isset($actions['args']) && is_array($actions['args'])) {
-            if (in_array('line', $actions['args'])) {
-                return true;
+        if (isset($this->actions[$action])) {
+            $actions = $this->actions[$action];
+            if (isset($actions['args']) && is_array($actions['args'])) {
+                if (in_array('line', $actions['args'])) {
+                    return true;
+                }
             }
-        }
-        if (isset($actions['optional_args']) && is_array($actions['optional_args'])) {
-            if (in_array('line', $actions['optional_args'])) {
-                return true;
+            if (isset($actions['optional_args']) && is_array($actions['optional_args'])) {
+                if (in_array('line', $actions['optional_args'])) {
+                    return true;
+                }
             }
         }
         return false;
@@ -238,7 +239,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      * @param \Shopware\CustomModels\Lengow\Order $lengowOrder Lengow order instance
      * @param string $orderLineId Lengow order line id
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException action not valid
+     * @throws Exception|Shopware_Plugins_Backend_Lengow_Components_LengowException action not valid
      *      marketplace action not present / store id is required /marketplace name is required
      *      argument is required / action not created
      *
@@ -282,6 +283,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
             $actions = $this->actions[$action];
             if (isset($actions['args']) && isset($actions['optional_args'])) {
                 $allArgs = array_merge($actions['args'], $actions['optional_args']);
+            } elseif (!isset($actions['args']) && isset($actions['optional_args'])) {
+                $allArgs = $actions['optional_args'];
             } elseif (isset($actions['args'])) {
                 $allArgs = $actions['args'];
             } else {
@@ -311,6 +314,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                         $params[$arg] = date('c');
                         break;
                     default:
+                        if (isset($actions['optional_args']) && in_array($arg, $actions['optional_args'])) {
+                            continue;
+                        }
                         $defaultValue = $this->getDefaultValue((string)$arg);
                         $paramValue = $defaultValue ? $defaultValue : $arg . ' not available';
                         $params[$arg] = $paramValue;

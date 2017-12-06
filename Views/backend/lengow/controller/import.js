@@ -53,18 +53,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
                     success = result['success'],
                     data = result['data'],
                     statusLabel = Ext.getCmp('importStatusPanel');
-                // If no main error, display number of new orders/orders in error
-                if (typeof data['error'] !== 'undefined' && data['error'].length > 0) {
-                    // Display main error message and a link to the log
-                    statusLabel.update(data['error']);
-                } else if (typeof data['no_notification'] !== 'undefined' && data['no_notification'].length > 0){
-                    // If no order is added/in error
-                    statusLabel.update(data['no_notification']);
-                } else {
-                    var order_new = data['order_new'],
-                        order_error = data['order_error'];
-                    statusLabel.update(order_new + '<br/>' + order_error);
-                }
+                statusLabel.update(data.messages);
                 // Update last synchronization date
                 me.onInitImportPanels();
                 // Hide waiting message
