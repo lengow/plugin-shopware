@@ -64,8 +64,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 ->setOrderLineSku($orderLineId)
                 ->setParameters(json_encode($params))
                 ->setState(self::STATE_NEW)
-                ->setCreatedAt(new DateTime())
-                ->setUpdatedDate(new DateTime());
+                ->setCreatedAt(new DateTime());
             Shopware()->Models()->persist($orderAction);
             Shopware()->Models()->flush($orderAction);
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
@@ -75,14 +74,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 $params['marketplace_order_id']
             );
         } catch (Exception $e) {
-            $errorMessage = '[Doctrine error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Orm',
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'log/exception/order_insert_failed',
-                    array('decoded_message' => $errorMessage)
-                )
-            );
             return false;
         }
         return true;

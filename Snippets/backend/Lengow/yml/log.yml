@@ -37,6 +37,7 @@ default:
       connector_get_all_order: "get orders between %{date_from} and %{date_to} for catalogs ID: %{catalog_id}"
       connector_get_order: "get order with order id: %{marketplace_sku} and marketplace: %{marketplace_name}"
       find_all_orders: "%{nb_order} order(s) found for shop %{name_shop} (%{id_shop})"
+      error_already_created: "%{decoded_message} (created on the %{date_message})"
       current_order_state_unavailable: "current order's status [%{order_state_marketplace}] makes it unavailable to import for marketplace %{marketplace_name}"
       product_be_found: "article %{article_number} found with field %{attribute_name} (%{attribute_value})"
       lengow_order_saved: "order saved in Lengow orders table"
