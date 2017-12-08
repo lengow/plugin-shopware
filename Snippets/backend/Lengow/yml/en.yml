@@ -239,6 +239,7 @@ en:
       marketplace_name_require: "marketplace name is required"
       arg_is_required: "can't send action: %{arg_name} is required"
       action_not_created: "can't create action: %{error_message}"
+      action_is_too_old: "order action is too old. Please retry the call"
       product_is_a_parent: "article %{product_id} is a parent ID. Article variation is needed"
       no_product_to_cart: "no product to be added to cart"
       no_connection_webservice: "connection did not work with the Lengow webservice in shop %{name_shop} (%{id_shop})"

@@ -237,6 +237,11 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                     $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport($params);
                     $import->exec();
                 }
+                // sync actions between Lengow and Shopware
+                if (!$sync || $sync === 'action') {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkFinishAction();
+                    Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkOldAction();
+                }
                 // sync options between Lengow and Shopware
                 if (!$sync || $sync === 'option') {
                     Shopware_Plugins_Backend_Lengow_Components_LengowSync::setCmsOption();

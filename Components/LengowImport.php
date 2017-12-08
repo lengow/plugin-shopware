@@ -415,6 +415,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 ),
                 $this->logOutput
             );
+            //check if order action is finish (Ship / Cancel)
+            if (!$this->preprodMode && !$this->importOneOrder && $this->typeImport === 'manual') {
+                Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkFinishAction();
+                Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkOldAction();
+            }
         }
         if ($globalError) {
             $error[0] = $globalError;
