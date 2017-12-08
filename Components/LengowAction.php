@@ -284,7 +284,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
             'API-OrderAction',
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'log/order_action/finish_old_action'
+                'log/order_action/check_old_action'
             )
         );
         // get all old order action (+ 3 days)
