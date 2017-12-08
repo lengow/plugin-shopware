@@ -162,7 +162,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
         $preprodMode = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
             'lengowImportPreprodEnabled'
         );
-        $processStateFinish = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderProcessState('closed');
         if ($preprodMode) {
             return false;
         }
@@ -172,6 +171,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 'log/order_action/check_completed_action'
             )
         );
+        $processStateFinish = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderProcessState('closed');
         // Get all active actions by shop
         $activeActions = self::getActiveActions();
         if (!$activeActions) {
@@ -281,6 +281,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
      */
     public static function checkOldAction($actionType = null)
     {
+        $preprodMode = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            'lengowImportPreprodEnabled'
+        );
+        if ($preprodMode) {
+            return false;
+        }
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
             'API-OrderAction',
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
