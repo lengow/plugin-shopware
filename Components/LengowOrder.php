@@ -326,9 +326,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             $flushLengowOrder = true;
         }
         if ($orderProcessState == self::PROCESS_STATE_FINISH) {
-
-            // TODO Finish actions if lengow order is shipped, closed or cancel
-
+            Shopware_Plugins_Backend_Lengow_Components_LengowAction::finishAllActions($order->getId());
             if ($lengowOrder->getOrderProcessState() != $orderProcessState) {
                 $lengowOrder->setOrderProcessState($orderProcessState);
                 $flushLengowOrder = true;
