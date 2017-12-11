@@ -201,6 +201,31 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
      */
     public function importOrder()
     {
+        // if log import exist and not finished
+        $importLog = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::orderIsInError(
+            $this->marketplaceSku,
+            $this->deliveryAddressId,
+            'import'
+        );
+        if ($importLog && isset($importLog['message']) && isset($importLog['createdAt'])) {
+            $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                $importLog['message']
+            );
+            $dateMessage = $importLog['createdAt'];
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                'Import',
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/import/error_already_created',
+                    array(
+                        'decoded_message' => $decodedMessage,
+                        'date_message' => $dateMessage->format('Y-m-d H:i:s')
+                    )
+                ),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+            return false;
+        }
         // get a Shopware order id in the lengow order table
         $order = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderFromLengowOrder(
             $this->marketplaceSku,
@@ -284,7 +309,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             }
         }
         // checks if the required order data is present
-        if (!$this->checkOrderData()) {
+        if (!$this->checkOrderData($lengowOrder)) {
             return $this->returnResult('error', $lengowOrder->getId());
         }
         // get order amount and load processing fees and shipping cost
@@ -444,6 +469,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
         }
         if (isset($errorMessage)) {
+            Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::createOrderError($lengowOrder, $errorMessage);
             $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
                 $errorMessage
             );
@@ -557,9 +583,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     /**
      * Checks if order data are present
      *
+     * @param \Shopware\CustomModels\Lengow\Order $lengowOrder Lengow Order instance
+     *
      * @return boolean
      */
-    protected function checkOrderData()
+    protected function checkOrderData($lengowOrder)
     {
         $errorMessages = array();
         if (count($this->packageData->cart) == 0) {
@@ -602,6 +630,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         }
         if (count($errorMessages) > 0) {
             foreach ($errorMessages as $errorMessage) {
+                Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::createOrderError(
+                    $lengowOrder,
+                    $errorMessage
+                );
                 $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
                     $errorMessage
                 );
@@ -907,8 +939,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 ->setMessage($message)
                 ->setOrderDate(new DateTime(date('Y-m-d H:i:s', strtotime($orderDate))))
                 ->setCreatedAt(new DateTime())
-                ->setUpdatedAt(new DateTime())
-                ->setExtra(json_encode($this->orderData));
+                ->setExtra(json_encode($this->orderData))
+                ->setInError(true);
             $this->entityManager->persist($lengowOrder);
             $this->entityManager->flush($lengowOrder);
             return $lengowOrder;

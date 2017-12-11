@@ -366,7 +366,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                         ->findOneBy(array('actionId' => $row->id));
                     if ($orderAction) {
                         $orderAction->setRetry($orderAction->getRetry() + 1);
-                        $orderAction->setUpdatedDate(new DateTime());
+                        $orderAction->setUpdatedAt(new DateTime());
                         Shopware()->Models()->flush($orderAction);
                     } else {
                         // if update doesn't work, create new action
@@ -429,9 +429,32 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
             $errorMessage = '[Shopware error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
         }
         if (isset($errorMessage)) {
-
-            // TODO create order error
-
+            $processStateFinish = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderProcessState(
+                'closed'
+            );
+            if ($lengowOrder->getOrderProcessState() != $processStateFinish) {
+                Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::createOrderError(
+                    $lengowOrder,
+                    $errorMessage,
+                    'send'
+                );
+                try {
+                    $lengowOrder->setInError(true);
+                    Shopware()->Models()->flush($lengowOrder);
+                } catch (Exception $e) {
+                    $doctrineError = '[Doctrine error] "' . $e->getMessage() . '" '
+                        . $e->getFile() . ' | ' . $e->getLine();
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                        'Orm',
+                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                            'log/exception/order_insert_failed',
+                            array('decoded_message' => $doctrineError)
+                        ),
+                        false,
+                        $lengowOrder->getMarketplaceSku()
+                    );
+                }
+            }
             $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($errorMessage);
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                 'API-OrderAction',
