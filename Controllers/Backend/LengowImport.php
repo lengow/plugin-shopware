@@ -33,6 +33,177 @@
  */
 class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Backend_ExtJs
 {
+
+    /**
+     * Event listener function of orders store to list Lengow orders
+     *
+     * @throws Exception
+     */
+    public function getListAction()
+    {
+        $order = $this->Request()->getParam('sort', null);
+        $start = $this->Request()->getParam('start', 0);
+        $limit = $this->Request()->getParam('limit', 20);
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $select = array(
+            'orderLengow.id',
+            'orderLengow.orderId',
+            'orderLengow.orderSku',
+            'orderLengow.totalPaid',
+            'orderLengow.currency',
+            'orderLengow.inError',
+            'orderLengow.marketplaceSku',
+            'orderLengow.marketplaceName',
+            'orderLengow.orderLengowState',
+            'orderLengow.orderProcessState',
+            'orderLengow.orderDate',
+            'orderLengow.customerName',
+            'orderLengow.orderItem',
+            'orderLengow.deliveryCountryIso'
+        );
+        $builder = $em->createQueryBuilder();
+        $builder->select($select)
+            ->from('Shopware\CustomModels\Lengow\Order', 'orderLengow');
+
+        $totalOrders = count($builder->getQuery()->getArrayResult());
+        $builder->setFirstResult($start)->setMaxResults($limit);
+        $result = $builder->getQuery()->getArrayResult();
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $result,
+                'total' => $totalOrders
+            )
+        );
+
+//        $treeId = $this->Request()->getParam('categoryId');
+//        $filterParams = $this->Request()->getParam('filter', array());
+//        $filterBy = $this->Request()->getParam('filterBy');
+//        $order = $this->Request()->getParam('sort', null);
+//        $start = $this->Request()->getParam('start', 0);
+//        $limit = $this->Request()->getParam('limit', 20);
+//        $categoryId = $treeId;
+//        $shopId = $treeId;
+//        $ids = explode('_', $treeId);
+//        $isShopSelected = true;
+//        if (count($ids) > 1) {
+//            $isShopSelected = false;
+//            $shopId = $ids[0];
+//            $categoryId = $ids[1];
+//        }
+//        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+//        /** @var Shopware\Models\Shop\Shop $shop */
+//        $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
+//        $filters = array();
+//        foreach ($filterParams as $singleFilter) {
+//            $filters[$singleFilter['property']] = $singleFilter['value'];
+//        }
+//        $select = array(
+//            'attributes.id AS attributeId',
+//            'articles.id AS articleId',
+//            'articles.name AS name',
+//            'suppliers.name AS supplier',
+//            'articles.active AS status',
+//            'details.number AS number',
+//            'details.inStock',
+//            'CONCAT(tax.tax, \' %\') AS vat',
+//            'prices.price*(100+tax.tax)/100 AS price',
+//            'attributes.lengowShop' . $shopId . 'Active AS lengowActive'
+//        );
+//        $builder = $em->createQueryBuilder();
+//        $builder->select($select)
+//            ->from('Shopware\Models\Article\Detail', 'details')
+//            ->join('details.article', 'articles')
+//            ->join('articles.attribute', 'attributes')
+//            ->leftJoin('articles.supplier', 'suppliers')
+//            ->leftJoin('details.prices', 'prices')
+//            ->leftJoin('articles.tax', 'tax')
+//            ->where('prices.to = \'beliebig\'')
+//            ->andWhere('prices.customerGroupKey = \'EK\'')
+//            ->andWhere('details.kind = 1')
+//            ->andWhere('attributes.articleDetailId = details.id');
+//        // Filter category
+//        if ($filterBy == 'inStock') {
+//            $builder->andWhere('details.inStock > 0');
+//        } elseif ($filterBy == 'lengowProduct') {
+//            $builder->andWhere('attributes.lengowShop' . $shopId . 'Active = 1');
+//        } elseif ($filterBy == 'noCategory') {
+//            $builder->leftJoin('articles.allCategories', 'allCategories')
+//                ->andWhere('allCategories.id IS NULL');
+//        } elseif ($categoryId !== 'NaN' && $categoryId != null) {
+//            $mainCategory = null;
+//            if ($isShopSelected) {
+//                $mainCategory = $shop->getCategory();
+//            } else {
+//                $mainCategory = $em->getReference('Shopware\Models\Category\Category', $categoryId);
+//            }
+//            // Construct where clause with selected category children
+//            $where = $this->getAllCategoriesClause($mainCategory);
+//            $builder->leftJoin('articles.categories', 'categories')
+//                ->innerJoin('articles.allCategories', 'allCategories')
+//                ->andWhere($where);
+//        }
+//        // Search criteria
+//        if (isset($filters['search'])) {
+//            $searchFilter = '%' . $filters['search'] . '%';
+//            $condition = 'details.number LIKE :searchFilter OR ' .
+//                'articles.name LIKE :searchFilter OR ' .
+//                'suppliers.name LIKE :searchFilter';
+//            $builder->andWhere($condition)
+//                ->setParameter('searchFilter', $searchFilter);
+//        }
+//        // Make sure that whe don't get a cold here
+//        $columns = array(
+//            'number',
+//            'name',
+//            'supplier',
+//            'status',
+//            'price',
+//            'tax',
+//            'inStock',
+//            'lengowActive'
+//        );
+//        $directions = array('ASC', 'DESC');
+//        if (null === $order
+//            || !in_array($order[0]['property'], $columns)
+//            || !in_array($order[0]['direction'], $directions)
+//        ) {
+//            $builder->orderBy('articles.id');
+//        } else {
+//            $order = array_shift($order);
+//            switch ($order['property']) {
+//                case 'active':
+//                    $orderColumn = 'details.active';
+//                    break;
+//                case 'inStock':
+//                    $orderColumn = 'details.inStock';
+//                    break;
+//                case 'status':
+//                    $orderColumn = 'articles.active';
+//                    break;
+//                default:
+//                    $orderColumn = $order['property'];
+//                    break;
+//            }
+//            $builder->orderBy($orderColumn, $order['direction']);
+//        }
+//        $builder->distinct()->addOrderBy('details.number');
+//        // Used to get number of products available/exported
+//        $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, null);
+//        $totalProducts = count($builder->getQuery()->getArrayResult());
+//        $builder->setFirstResult($start)->setMaxResults($limit);
+//        $result = $builder->getQuery()->getArrayResult();
+//        $this->View()->assign(
+//            array(
+//                'success' => true,
+//                'data' => $result,
+//                'total' => $totalProducts,
+//                'nbProductsAvailable' => $export->getTotalProducts(),
+//                'nbExportedProducts' => $export->getExportedProducts()
+//            )
+//        );
+    }
+
     /**
      * Check if Lengow import setting is enabled
      */

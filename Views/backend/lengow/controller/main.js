@@ -33,6 +33,7 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                 if (!data['isNewMerchant']) {
                     me.mainWindow = me.getView('main.Home').create({
                         exportStore: Ext.create('Shopware.apps.Lengow.store.Article'),
+                        importStore: Ext.create('Shopware.apps.Lengow.store.Orders'),
                         logStore: Ext.create('Shopware.apps.Lengow.store.Logs')
                     }).show();
 

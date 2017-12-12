@@ -23,18 +23,22 @@ Ext.define('Shopware.apps.Lengow', {
         'export.Grid',
         'export.Tree',
         'import.Panel',
+        'import.Container',
+        'import.Grid',
         'logs.Panel',
         'help.Panel'
     ],
     models: [
         'Article',
         'Logs',
-        'Shops'
+        'Shops',
+        'Orders'
     ],
     stores: [
         'Article',
         'Logs',
-        'Shops'
+        'Shops',
+        'Orders'
     ],
 
     launch: function() {
