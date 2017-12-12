@@ -57,7 +57,8 @@ class Order extends ModelEntity
     /**
      * @var integer
      *
-     * @ORM\Column(name="shop_id", type="integer", nullable=false)
+     * @ORM\ManyToOne(targetEntity="\Shopware\Models\Shop\Shop")
+     * @ORM\JoinColumn(name="shop_id", referencedColumnName="id")
      */
     private $shopId;
 

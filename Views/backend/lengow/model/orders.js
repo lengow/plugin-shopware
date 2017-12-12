@@ -14,11 +14,12 @@ Ext.define('Shopware.apps.Lengow.model.Orders', {
         { name : 'marketplaceSku', type: 'string' },
         { name : 'marketplaceName', type: 'string' },
         { name : 'orderLengowState', type: 'string' },
-        { name : 'orderProcessState', type: 'int' },
+        { name : 'orderStatus', type: 'string' },
         { name : 'orderDate', type: 'string' },
         { name : 'customerName', type: 'string' },
         { name : 'orderItem', type: 'int' },
-        { name : 'deliveryCountryIso', type: 'string' }
+        { name : 'deliveryCountryIso', type: 'string' },
+        { name : 'storeName', type: 'string' }
 	]
 });
 //{/block}

@@ -41,9 +41,17 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
      */
     public function getListAction()
     {
+        $filterParams = $this->Request()->getParam('filter', array());
+        $filterBy = $this->Request()->getParam('filterBy');
         $order = $this->Request()->getParam('sort', null);
         $start = $this->Request()->getParam('start', 0);
         $limit = $this->Request()->getParam('limit', 20);
+
+        $filters = array();
+        foreach ($filterParams as $singleFilter) {
+            $filters[$singleFilter['property']] = $singleFilter['value'];
+        }
+
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $select = array(
             'orderLengow.id',
@@ -59,11 +67,62 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             'orderLengow.orderDate',
             'orderLengow.customerName',
             'orderLengow.orderItem',
-            'orderLengow.deliveryCountryIso'
+            'orderLengow.deliveryCountryIso',
+            'shops.name as storeName',
+            's_core_states.name as orderStatus'
         );
         $builder = $em->createQueryBuilder();
         $builder->select($select)
-            ->from('Shopware\CustomModels\Lengow\Order', 'orderLengow');
+            ->from('Shopware\CustomModels\Lengow\Order', 'orderLengow')
+            ->join('orderLengow.shopId', 'shops')
+            ->leftJoin('orderLengow.order', 's_order')
+            ->leftJoin('s_order.orderStatus', 's_core_states');
+
+        //        // Search criteria
+//        if (isset($filters['search'])) {
+//            $searchFilter = '%' . $filters['search'] . '%';
+//            $condition = 'details.number LIKE :searchFilter OR ' .
+//                'articles.name LIKE :searchFilter OR ' .
+//                'suppliers.name LIKE :searchFilter';
+//            $builder->andWhere($condition)
+//                ->setParameter('searchFilter', $searchFilter);
+//        }
+//        // Make sure that whe don't get a cold here
+//        $columns = array(
+//            'number',
+//            'name',
+//            'supplier',
+//            'status',
+//            'price',
+//            'tax',
+//            'inStock',
+//            'lengowActive'
+//        );
+//        $directions = array('ASC', 'DESC');
+//        if (null === $order
+//            || !in_array($order[0]['property'], $columns)
+//            || !in_array($order[0]['direction'], $directions)
+//        ) {
+//            $builder->orderBy('articles.id');
+//        } else {
+//            $order = array_shift($order);
+//            switch ($order['property']) {
+//                case 'active':
+//                    $orderColumn = 'details.active';
+//                    break;
+//                case 'inStock':
+//                    $orderColumn = 'details.inStock';
+//                    break;
+//                case 'status':
+//                    $orderColumn = 'articles.active';
+//                    break;
+//                default:
+//                    $orderColumn = $order['property'];
+//                    break;
+//            }
+//            $builder->orderBy($orderColumn, $order['direction']);
+//        }
+//        $builder->distinct()->addOrderBy('details.number');
 
         $totalOrders = count($builder->getQuery()->getArrayResult());
         $builder->setFirstResult($start)->setMaxResults($limit);
