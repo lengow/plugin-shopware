@@ -35,8 +35,6 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
 {
     /**
      * Export Lengow feed
-     *
-     *
      */
     public function exportAction()
     {
@@ -241,6 +239,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 if (!$sync || $sync === 'action') {
                     Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkFinishAction();
                     Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkOldAction();
+                    Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkActionNotSent();
                 }
                 // sync options between Lengow and Shopware
                 if (!$sync || $sync === 'option') {
