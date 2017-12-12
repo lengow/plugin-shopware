@@ -298,6 +298,49 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     }
 
     /**
+     * Get all unset orders
+     *
+     * @return array|false
+     */
+    public static function getUnsentOrders()
+    {
+        $unsentOrders = array();
+        $changeDate = new DateTime(date('Y-m-d h:m:i', strtotime('-5 days', time())));
+        $orderStatusShipped = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('shipped');
+        $orderStatusCanceled = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('canceled');
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select(array('lo.orderId', 'oh.orderStatusId'))
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
+            ->leftJoin('lo.order', 'o')
+            ->leftJoin('o.history', 'oh')
+            ->where('lo.orderProcessState = :orderProcessState')
+            ->andWhere('lo.inError = :inError')
+            ->andWhere('o.orderStatus IN (:orderStatusShipped, :orderStatusCanceled)')
+            ->andWhere('oh.changeDate >= :changeDate')
+            ->groupBy('lo.orderId')
+            ->setParameters(
+                array(
+                    'orderProcessState' => self::PROCESS_STATE_IMPORT,
+                    'inError' => false,
+                    'orderStatusShipped' => $orderStatusShipped,
+                    'orderStatusCanceled' => $orderStatusCanceled,
+                    'changeDate' => $changeDate
+                )
+            );
+        $results = $builder->getQuery()->getResult();
+        if (count($results) > 0) {
+            foreach ($results as $result) {
+                $orderId = (int)$result['orderId'];
+                if (!Shopware_Plugins_Backend_Lengow_Components_LengowAction::getActiveActionByOrderId($orderId)) {
+                    $action = $result['orderStatusId'] == $orderStatusCanceled->getId() ? 'cancel' : 'ship';
+                    $unsentOrders[$orderId] = $action;
+                }
+            }
+        }
+        return count($unsentOrders) > 0 ? $unsentOrders : false;
+    }
+
+    /**
      * Update order status
      *
      * @param \Shopware\Models\Order\Order $order Shopware order instance

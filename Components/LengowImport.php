@@ -419,6 +419,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             if (!$this->preprodMode && !$this->importOneOrder && $this->typeImport === 'manual') {
                 Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkFinishAction();
                 Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkOldAction();
+                Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkActionNotSent();
             }
         }
         if ($globalError) {

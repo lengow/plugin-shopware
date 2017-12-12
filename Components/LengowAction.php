@@ -99,6 +99,37 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
     }
 
     /**
+     * Find active actions by order id
+     *
+     * @param integer $orderId Shopware order id
+     * @param string $actionType action type (ship or cancel)
+     *
+     * @return array|false
+     */
+    public static function getActiveActionByOrderId($orderId, $actionType = null)
+    {
+        $params = array(
+            'orderId' => $orderId,
+            'state' => self::STATE_NEW
+        );
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select('la.id', 'la.actionId', 'la.actionType', 'la.orderId')
+            ->from('Shopware\CustomModels\Lengow\Action', 'la')
+            ->where('la.state = :state')
+            ->andWhere('la.orderId = :orderId');
+        if ($actionType) {
+            $builder->andWhere('la.actionType = :actionType');
+            $params['actionType'] = $actionType;
+        }
+        $builder->setParameters($params);
+        $results = $builder->getQuery()->getResult();
+        if (count($results) > 0) {
+            return $results;
+        }
+        return false;
+    }
+
+    /**
      * Finish action
      *
      * @param integer $id Lengow action id
@@ -289,9 +320,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
         }
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
             'API-OrderAction',
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'log/order_action/check_old_action'
-            )
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/order_action/check_old_action')
         );
         // get all old order action (+ 3 days)
         $processStateFinish = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderProcessState('closed');
@@ -357,6 +386,37 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                         );
                     }
                 }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if actions are not sent
+     *
+     * @return boolean
+     */
+    public static function checkActionNotSent()
+    {
+        $preprodMode = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            'lengowImportPreprodEnabled'
+        );
+        if ($preprodMode) {
+            return false;
+        }
+        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+            'API-OrderAction',
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                'log/order_action/check_action_not_sent'
+            )
+        );
+        // Get unsent orders
+        $unsentOrders = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getUnsentOrders();
+        if ($unsentOrders) {
+            foreach ($unsentOrders as $idOrder => $actionType) {
+                $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')->find($idOrder);
+                Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, $actionType);
             }
             return true;
         }

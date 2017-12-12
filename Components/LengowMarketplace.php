@@ -351,6 +351,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
             $params['marketplace_order_id'] = $lengowOrder->getMarketplaceSku();
             $params['marketplace'] = $lengowOrder->getMarketplaceName();
             $params['action_type'] = $action;
+            $sendAction = true;
             // check if action is already created
             $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
                 'get',
@@ -365,9 +366,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                     $orderAction = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Action')
                         ->findOneBy(array('actionId' => $row->id));
                     if ($orderAction) {
-                        $orderAction->setRetry($orderAction->getRetry() + 1);
-                        $orderAction->setUpdatedAt(new DateTime());
-                        Shopware()->Models()->flush($orderAction);
+                        $stateNew = Shopware_Plugins_Backend_Lengow_Components_LengowAction::STATE_NEW;
+                        if ($orderAction->getState() === $stateNew) {
+                            $orderAction->setRetry($orderAction->getRetry() + 1)
+                                ->setUpdatedAt(new DateTime());
+                            Shopware()->Models()->flush($orderAction);
+                            $sendAction = false;
+                        }
                     } else {
                         // if update doesn't work, create new action
                         Shopware_Plugins_Backend_Lengow_Components_LengowAction::createOrderAction(
@@ -377,10 +382,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                             $orderLineId,
                             $params
                         );
+                        $sendAction = false;
                     }
-                    ;
                 }
-            } else {
+            }
+            if ($sendAction) {
                 $preprodMode = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                     'lengowImportPreprodEnabled'
                 );
