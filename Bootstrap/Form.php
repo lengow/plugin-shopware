@@ -54,7 +54,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
      */
     public function createConfig($mainForm)
     {
-        // Get dispatches and order states for settings
+        // Get tracking ids, dispatches and order states for settings
+        $trackingIds = $this->getTrackingIds();
         $dispatches = $this->getDispatches();
         $orderStates = $this->getOrderStates();
         // Main settings
@@ -109,6 +110,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'required' => true,
                 'value' => '127.0.0.1',
                 'description' => 'settings/lengow_main_settings/ip/description'
+            ),
+            'lengowTrackingId' => array(
+                'type' => 'select',
+                'label' => 'settings/lengow_main_settings/tracking/label',
+                'required' => true,
+                'editable' => false,
+                'value' => $trackingIds['default_value'],
+                'store' => $trackingIds['selection'],
+                'description' => 'settings/lengow_main_settings/tracking/description'
             )
         );
         // Auto-generate form
@@ -313,6 +323,22 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         }
         Shopware_Plugins_Backend_Lengow_Bootstrap::log('log/install/settings', array('settingName' => $name));
         return $form;
+    }
+
+    /**
+     * Get all tracking ids for form
+     *
+     * @return array
+     */
+    protected function getTrackingIds()
+    {
+        return array(
+            'default_value' => 'ordernumber',
+            'selection' => array(
+                array('ordernumber', 'Product Number'),
+                array('id', 'Product Id')
+            )
+        );
     }
 
     /**

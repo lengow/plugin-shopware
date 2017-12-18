@@ -281,6 +281,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Enlight_Controller_Action_PostDispatch_Api_Orders',
             'onApiOrderPostDispatch'
         );
+        // front events
+        $this->subscribeEvent(
+            'Enlight_Controller_Action_PostDispatchSecure_Frontend_Checkout',
+            'onFrontendCheckoutPostDispatch'
+        );
     }
 
     /**
@@ -418,6 +423,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public function onApiOrderPostDispatch(Enlight_Event_EventArgs $args)
     {
         Shopware_Plugins_Backend_Lengow_Components_LengowEvent::onApiOrderPostDispatch($args);
+    }
+
+    /**
+     * Adding simple tracker Lengow on footer when order is confirmed
+     *
+     * @param Enlight_Event_EventArgs $args
+     */
+    public function onFrontendCheckoutPostDispatch(Enlight_Event_EventArgs $args)
+    {
+        Shopware_Plugins_Backend_Lengow_Components_LengowEvent::onFrontendCheckoutPostDispatch($args);
     }
 
     /**
