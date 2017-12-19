@@ -661,6 +661,98 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
+     * Check order error table and send mail for order not imported correctly
+     *
+     * @param boolean $logOutput see log or not
+     *
+     * @return boolean
+     */
+    public static function sendMailAlert($logOutput = false)
+    {
+        $success = true;
+        $orderErrors = Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::getOrderErrorNotSent();
+        if ($orderErrors) {
+            $subject = self::decodeLogMessage('lengow_log/mail_report/subject_report_mail');
+            $mailBody = self::getMailAlertBody($orderErrors);
+            $emails = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getReportEmailAddress();
+            foreach ($emails as $email) {
+                if (strlen($email) > 0) {
+                    if (self::sendMail($email, $subject, $mailBody)) {
+                        self::log(
+                            'MailReport',
+                            self::setLogMessage('log/mail_report/send_mail_to', array('email' => $email)),
+                            $logOutput
+                        );
+                    } else {
+                        self::log(
+                            'MailReport',
+                            self::setLogMessage('log/mail_report/unable_send_mail_to', array('email' => $email)),
+                            $logOutput
+                        );
+                        $success = false;
+                    }
+                }
+            }
+        }
+        return $success;
+    }
+
+    /**
+     * Get mail alert body and
+     *
+     * @param array $orderErrors order errors ready to be send
+     *
+     * @return string
+     */
+    public static function getMailAlertBody($orderErrors = array())
+    {
+        $mailBody = '';
+        if (!empty($orderErrors)) {
+            $support = self::decodeLogMessage('lengow_log/mail_report/no_error_in_report_mail');
+            $mailBody = '<h2>' . self::decodeLogMessage('lengow_log/mail_report/subject_report_mail') . '</h2><p><ul>';
+            foreach ($orderErrors as $orderError) {
+                $order = self::decodeLogMessage(
+                    'lengow_log/mail_report/order',
+                    null,
+                    array('marketplace_sku' => $orderError['marketplaceSku'])
+                );
+                $message = $orderError['message'] != '' ? self::decodeLogMessage($orderError['message']) : $support;
+                $mailBody .= '<li>' . $order . ' - ' . $message . '</li>';
+                Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::updateOrderError(
+                    $orderError['id'],
+                    array('mail' => true)
+                );
+            }
+            $mailBody .= '</ul></p>';
+        }
+        return $mailBody;
+    }
+
+    /**
+     * Send mail without template
+     *
+     * @param string $email send mail at
+     * @param string $subject subject email
+     * @param string $body body email
+     *
+     * @return boolean
+     */
+    public static function sendMail($email, $subject, $body)
+    {
+        try {
+            $mail = new \Zend_Mail();
+            $mail->setSubject($subject);
+            $mail->setBodyHtml($body);
+            $mail->setFrom(Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('mail'), 'Lengow');
+            $mail->addTo($email);
+            $mail->send();
+        } catch (\Exception $e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Clean phone number
      *
      * @param string $phone phone number to clean

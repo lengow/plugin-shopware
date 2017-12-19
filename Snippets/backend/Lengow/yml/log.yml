@@ -22,6 +22,9 @@ default:
     connector:
       call_api: "call %{curl_url}"
       error_api: "API call failed - %{error_code}"
+    mail_report:
+      send_mail_to: "report email sent to %{email}"
+      unable_send_mail_to: "unable to send report email to %{email}"
     import:
       not_valid_action: "Action: %{action} is not a valid action"
       start: "## start %{type} import ##"

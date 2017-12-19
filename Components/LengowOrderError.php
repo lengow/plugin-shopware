@@ -156,4 +156,31 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrderError
         }
         return false;
     }
+
+    /**
+     * Get order error not sent by email
+     *
+     * @return array|false
+     */
+    public static function getOrderErrorNotSent()
+    {
+        // get all order errors
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select('loe.id', 'loe.message', 'lo.marketplaceSku')
+            ->from('Shopware\CustomModels\Lengow\OrderError', 'loe')
+            ->leftJoin('loe.lengowOrder', 'lo')
+            ->where('loe.isFinished = :isFinished')
+            ->andWhere('loe.mail = :mail')
+            ->setParameters(
+                array(
+                    'isFinished' => false,
+                    'mail' => false
+                )
+            );
+        $results = $builder->getQuery()->getResult();
+        if (count($results) > 0) {
+            return $results;
+        }
+        return false;
+    }
 }
