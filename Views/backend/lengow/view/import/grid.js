@@ -21,7 +21,16 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             country: '{s name="order/grid/column/country" namespace="backend/Lengow/translation"}{/s}',
             nb_items: '{s name="order/grid/column/nb_items" namespace="backend/Lengow/translation"}{/s}',
             total_paid: '{s name="order/grid/column/total_paid" namespace="backend/Lengow/translation"}{/s}'
+        },
+        search: {
+            empty: '{s name="export/grid/search/empty" namespace="backend/Lengow/translation"}{/s}'
         }
+    },
+
+    registerEvents: function() {
+        this.addEvents(
+            'showDetail'
+        )
     },
 
     /**
@@ -31,7 +40,10 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
         var me = this;
 
         me.store = me.importStore;
+        me.orderStatusStore = Ext.create('Shopware.apps.Base.store.OrderStatus');
         me.columns = me.getColumns();
+        me.tbar = me.getToolbar();
+        me.bbar = me.createPagingToolbar();
 
         me.callParent(arguments);
     },
@@ -66,10 +78,15 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             }, {
                 header: me.snippets.column.shopware_status,
                 dataIndex: 'orderStatus',
+                renderer : function(value, metadata, record) {
+                    var orderStatusDescription = record.get('orderStatusDescription');
+                    if (orderStatusDescription) return orderStatusDescription;
+                    else if (value) return value;
+                    return '';
+                },
                 flex: 1
             }, {
-                //TODO link to shopware order
-                header: me.snippets.column.shopware_id,
+                header: me.snippets.column.shopware_sku,
                 dataIndex: 'orderId',
                 flex: 1
             }, {
@@ -91,10 +108,113 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             }, {
                 header: me.snippets.column.total_paid,
                 dataIndex: 'totalPaid',
-                flex: 1
+                flex: 1,
+                renderer : function(value, metadata, record) {
+                    return Ext.util.Format.currency(value);
+                }
             }
         ];
         return columns;
+    },
+
+    /**
+     * Creates the paging toolbar
+     */
+    createPagingToolbar: function() {
+        var me = this;
+        var pageSize = Ext.create('Ext.form.field.ComboBox', {
+            labelWidth: 120,
+            cls: Ext.baseCSSPrefix + 'page-size',
+            queryMode: 'local',
+            width: 80,
+            listeners: {
+                scope: me,
+                select: me.onPageSizeChange
+            },
+            store: Ext.create('Ext.data.Store', {
+                fields: [ 'value' ],
+                data: [
+                    { value: '20' },
+                    { value: '40' },
+                    { value: '60' },
+                    { value: '80' },
+                    { value: '100' }
+                ]
+            }),
+            displayField: 'value',
+            valueField: 'value'
+        });
+        pageSize.setValue(me.store.pageSize);
+
+        var pagingBar = Ext.create('Ext.toolbar.Paging', {
+            store: me.store,
+            dock:'bottom',
+            displayInfo:true
+        });
+
+        pagingBar.insert(pagingBar.items.length - 2, [ { xtype: 'tbspacer', width: 6 }, pageSize ]);
+        return pagingBar;
+    },
+
+    /**
+     * Event listener method which fires when the user selects a nwe page size
+     * @param [object] combo - Ext.form.field.ComboBox
+     * @param [array] records - Array of selected entries
+     * @return void
+     */
+    onPageSizeChange: function(combo, records) {
+        var record = records[0],
+            me = this;
+        me.store.pageSize = record.get('value');
+        me.store.loadPage(1);
+    },
+
+    /**
+     * Creates the grid toolbar
+     * @return [Ext.toolbar.Toolbar] grid toolbar
+     */
+    getToolbar: function() {
+        var me = this;
+
+        return [{
+            xtype: 'panel',
+            layout: {
+                type: 'hbox',
+                pack: 'bottom'
+            },
+            width: '100%',
+            border: false,
+            items: [
+                {
+                    xtype : 'textfield',
+                    name : 'searchfield',
+                    action : 'search',
+                    cls: 'searchfield',
+                    margins: '7 0 2 0',
+                    width: 230,
+                    enableKeyEvents: true,
+                    checkChangeBuffer: 500,
+                    emptyText: me.snippets.search.empty,
+                    listeners: {
+                        change: function(field, value) {
+                            var store        = me.store,
+                                searchString = Ext.String.trim(value);
+                            //scroll the store to first page
+                            store.currentPage = 1;
+                            //If the search-value is empty, reset the filter
+                            if (searchString.length === 0 ) {
+                                store.clearFilter();
+                            } else {
+                                //This won't reload the store
+                                store.filters.clear();
+                                //Loads the store with a special filter
+                                store.filter('search', searchString);
+                            }
+                        }
+                    }
+                }
+            ]
+        }];
     }
 });
 //{/block}
