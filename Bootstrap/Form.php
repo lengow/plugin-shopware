@@ -207,6 +207,17 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'label' => 'settings/lengow_import_settings/preprod_mode/label',
                 'value' => false,
                 'description' => 'settings/lengow_import_settings/preprod_mode/description'
+            ),
+            'lengowImportReportMailEnabled' => array(
+                'type' => 'boolean',
+                'label' => 'settings/lengow_import_settings/report_mail_enabled/label',
+                'value' => true
+            ),
+            'lengowImportReportMailAddress' => array(
+                'type' => 'text',
+                'label' => 'settings/lengow_import_settings/report_mail_address/label',
+                'required' => false,
+                'description' => 'settings/lengow_import_settings/report_mail_address/description'
             )
         );
         // Auto-generate form

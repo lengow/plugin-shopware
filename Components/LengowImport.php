@@ -415,6 +415,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 ),
                 $this->logOutput
             );
+            // sending email in error for orders
+            if (
+                (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                    'lengowImportReportMailEnabled'
+                )
+                && !$this->preprodMode
+                && !$this->importOneOrder
+            ) {
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::sendMailAlert($this->logOutput);
+            }
             //check if order action is finish (Ship / Cancel)
             if (!$this->preprodMode && !$this->importOneOrder && $this->typeImport === 'manual') {
                 Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkFinishAction();
