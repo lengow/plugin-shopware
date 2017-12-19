@@ -99,8 +99,13 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                 flex: 1
             }, {
                 header: me.snippets.column.country,
-                dataIndex: 'deliveryCountryIso',
-                flex: 1
+                dataIndex: 'countryIso',
+                flex: 1,
+                renderer : function(value, metadata, record) {
+                    return '<img src="/engine/Shopware/Plugins/Community/Backend/Lengow/Views/backend/lengow/resources/img/flag/'
+                        + value.substr(0,2).toUpperCase() + '.png" alt="' + record.get('countryName') + '" title="'
+                        + record.get('countryName') + '" />';
+                }
             }, {
                 header: me.snippets.column.nb_items,
                 dataIndex: 'orderItem',
@@ -109,7 +114,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                 header: me.snippets.column.total_paid,
                 dataIndex: 'totalPaid',
                 flex: 1,
-                renderer : function(value, metadata, record) {
+                renderer : function(value) {
                     return Ext.util.Format.currency(value);
                 }
             }

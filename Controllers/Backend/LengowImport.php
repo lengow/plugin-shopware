@@ -71,15 +71,17 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             'shops.name as storeName',
             's_core_states.name as orderStatus',
             's_core_states.description as orderStatusDescription',
-            's_order.deviceType as deviceType',
-            's_order.number as orderShopwareSku'
+            's_order.number as orderShopwareSku',
+            's_core_countries.name as countryName',
+            's_core_countries.iso as countryIso'
         );
         $builder = $em->createQueryBuilder();
         $builder->select($select)
             ->from('Shopware\CustomModels\Lengow\Order', 'orderLengow')
             ->leftJoin('orderLengow.shopId', 'shops')
             ->leftJoin('orderLengow.order', 's_order')
-            ->leftJoin('s_order.orderStatus', 's_core_states');
+            ->leftJoin('s_order.orderStatus', 's_core_states')
+            ->leftJoin('Shopware\Models\Country\Country', 's_core_countries', 'WITH', 'orderLengow.deliveryCountryIso = s_core_countries.iso3');
 
         // Search criteria
         if (isset($filters['search'])) {
