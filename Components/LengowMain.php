@@ -698,7 +698,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
-     * Get mail alert body and
+     * Get mail alert body and put mail attribute at true in order lengow record
      *
      * @param array $orderErrors order errors ready to be send
      *
