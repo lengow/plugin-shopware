@@ -188,6 +188,20 @@ en:
       last_import: "Last synchronisation : <b>%{import_date}</b>"
       order_error_link: "%{nb_order} order(s) with errors (<a href='%{log_url}' target='_blank'>See logs for more information</a>)"
       button: "Launch import"
+    grid:
+      column:
+        actions: "Actions"
+        lengow_status: "Lengow status"
+        marketplace: "Marketplace"
+        store_name: "Store"
+        marketplace_sku: "Marketplace SKU"
+        shopware_sku: "Shopware SKU"
+        shopware_status: "Shopware status"
+        order_date: "Order Date"
+        customer_name: "Customer name"
+        country: "Country"
+        nb_items: "Items"
+        total_paid: "Total Paid"
     details:
       title: "Lengow informations"
       marketplace_sku: "Marketplace SKU"

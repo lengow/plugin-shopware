@@ -33,6 +33,91 @@
  */
 class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Backend_ExtJs
 {
+
+    /**
+     * Event listener function of orders store to list Lengow orders
+     *
+     * @throws Exception
+     */
+    public function getListAction()
+    {
+        $filterParams = $this->Request()->getParam('filter', array());
+        $order = $this->Request()->getParam('sort', null);
+        $start = $this->Request()->getParam('start', 0);
+        $limit = $this->Request()->getParam('limit', 20);
+
+        $filters = array();
+        foreach ($filterParams as $singleFilter) {
+            $filters[$singleFilter['property']] = $singleFilter['value'];
+        }
+
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $select = array(
+            'orderLengow.id',
+            'orderLengow.orderId as orderId',
+            'orderLengow.orderSku as orderSku',
+            'orderLengow.totalPaid as totalPaid',
+            'orderLengow.currency as currency',
+            'orderLengow.inError as inError',
+            'orderLengow.marketplaceSku as marketplaceSku',
+            'orderLengow.marketplaceName as marketplaceName',
+            'orderLengow.orderLengowState as orderLengowState',
+            'orderLengow.orderProcessState as orderProcessState',
+            'orderLengow.orderDate as orderDate',
+            'orderLengow.customerName as customerName',
+            'orderLengow.orderItem as orderItem',
+            'orderLengow.deliveryCountryIso as deliveryCountryIso',
+            'shops.name as storeName',
+            's_core_states.description as orderStatusDescription',
+            's_order.number as orderShopwareSku',
+            's_core_countries.name as countryName',
+            's_core_countries.iso as countryIso'
+        );
+
+        $crudCompatibility = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1');
+
+        if ($crudCompatibility) {
+            $select['s_core_states.name as orderStatus'];
+        } else {
+            $select['s_order.orderStatus as orderStatus'];
+        }
+
+        $builder = $em->createQueryBuilder();
+        $builder->select($select)
+            ->from('Shopware\CustomModels\Lengow\Order', 'orderLengow')
+            ->leftJoin('Shopware\Models\Shop\Shop', 'shops', 'WITH', 'orderLengow.shopId = shops.id')
+            ->leftJoin('orderLengow.order', 's_order')
+            ->leftJoin('s_order.orderStatus', 's_core_states')
+            ->leftJoin('Shopware\Models\Country\Country', 's_core_countries', 'WITH', 'orderLengow.deliveryCountryIso = s_core_countries.iso');
+
+        // Search criteria
+        if (isset($filters['search'])) {
+            $searchFilter = '%' . $filters['search'] . '%';
+            $condition = 'orderLengow.marketplaceSku LIKE :searchFilter OR ' .
+                'orderLengow.marketplaceName LIKE :searchFilter OR ' .
+                'orderLengow.customerName LIKE :searchFilter';
+            $builder->andWhere($condition)
+                ->setParameter('searchFilter', $searchFilter);
+        }
+
+        $order = array_shift($order);
+        if ($order['property'] && $order['direction']) {
+            $builder->orderBy($order['property'], $order['direction']);
+        }
+        $builder->distinct()->addOrderBy('orderLengow.id');
+
+        $totalOrders = count($builder->getQuery()->getArrayResult());
+        $builder->setFirstResult($start)->setMaxResults($limit);
+        $result = $builder->getQuery()->getArrayResult();
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $result,
+                'total' => $totalOrders
+            )
+        );
+    }
+
     /**
      * Check if Lengow import setting is enabled
      */
