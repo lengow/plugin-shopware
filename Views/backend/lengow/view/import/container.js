@@ -30,8 +30,6 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
                     align: 'stretch'
                 },
                 items: [
-                    // me.getFirstLine(),
-                    // me.getSecondLine(),
                     Ext.create('Shopware.apps.Lengow.view.import.Grid', {
                         id: 'importGrid',
                         importStore: me.importStore,
