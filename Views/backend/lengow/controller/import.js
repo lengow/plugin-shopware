@@ -10,6 +10,9 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
             'lengow-main-home': {
                 initImportPanels: me.onInitImportPanels,
                 launchImportProcess: me.onLaunchImportProcess
+            },
+            'order-listing-grid': {
+                showDetail: me.onShowDetail
             }
         });
 
@@ -58,6 +61,21 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
                 me.onInitImportPanels();
                 // Hide waiting message
                 Ext.MessageBox.hide();
+            }
+        });
+    },
+
+    /**
+     * Event listener method which fired when the user clicks the pencil button
+     * in the order list to show the order detail page.
+     * @param record
+     */
+    onShowDetail: function(record) {
+        Shopware.app.Application.addSubApplication({
+            name: 'Shopware.apps.Order',
+            action: 'showOrder',
+            params: {
+                orderId: record.get('id')
             }
         });
     }

@@ -117,9 +117,43 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                 renderer : function(value) {
                     return Ext.util.Format.currency(value);
                 }
-            }
+            },
+            me.createActionColumn()
         ];
         return columns;
+    },
+
+    createActionColumn: function() {
+        var me = this;
+
+        return Ext.create('Ext.grid.column.Action', {
+            width:30,
+            items:[
+                me.createEditOrderColumn()
+            ]
+        });
+    },
+
+    createEditOrderColumn: function () {
+        var me = this;
+
+        return {
+            iconCls: 'sprite-pencil',
+            action: 'editOrder',
+            /**
+             * Add button handler to fire the showDetail event which is handled
+             * in the list controller.
+             */
+            handler: function (view, rowIndex, colIndex, item) {
+                var store = view.getStore(),
+                    record = store.getAt(rowIndex);
+
+                if (record.raw.orderShopwareSku > 0) {
+                    me.fireEvent('showDetail', record);
+                }
+
+            }
+        }
     },
 
     /**
