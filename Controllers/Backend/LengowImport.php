@@ -58,7 +58,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             'orderLengow.orderSku as orderSku',
             'orderLengow.totalPaid as totalPaid',
             'orderLengow.currency as currency',
-            'orderLengow.inError',
+            'orderLengow.inError as inError',
             'orderLengow.marketplaceSku as marketplaceSku',
             'orderLengow.marketplaceName as marketplaceName',
             'orderLengow.orderLengowState as orderLengowState',
@@ -88,7 +88,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             ->leftJoin('Shopware\Models\Shop\Shop', 'shops', 'WITH', 'orderLengow.shopId = shops.id')
             ->leftJoin('orderLengow.order', 's_order')
             ->leftJoin('s_order.orderStatus', 's_core_states')
-            ->leftJoin('Shopware\Models\Country\Country', 's_core_countries', 'WITH', 'orderLengow.deliveryCountryIso = s_core_countries.iso3');
+            ->leftJoin('Shopware\Models\Country\Country', 's_core_countries', 'WITH', 'orderLengow.deliveryCountryIso = s_core_countries.iso');
 
         // Search criteria
         if (isset($filters['search'])) {

@@ -57,7 +57,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
         var columns = [
             {
                 header: me.snippets.column.actions,
-                dataIndex: 'id',
+                dataIndex: 'inError',
                 flex: 1
             }, {
                 header: me.snippets.column.lengow_status,

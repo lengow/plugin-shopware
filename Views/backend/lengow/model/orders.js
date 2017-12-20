@@ -10,7 +10,7 @@ Ext.define('Shopware.apps.Lengow.model.Orders', {
 		{ name : 'orderId', type: 'string' },
 		{ name : 'totalPaid', type: 'float' },
 		{ name : 'currency', type: 'string' },
-		{ name : 'inError', type: 'int' },
+		{ name : 'inError', type: 'bool' },
         { name : 'marketplaceSku', type: 'string' },
         { name : 'marketplaceName', type: 'string' },
         { name : 'orderLengowState', type: 'string' },
