@@ -131,29 +131,30 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
     /**
      * Display decrease stocks window
      */
-    showImportWindow: function() {
-        var me = this;
-        Ext.define('LengowImportWindow', {
-            id: 'lengowImportWindow',
-            modal: true,
-            draggable: false,
-            resizable: false,
-            extend: 'Ext.window.Window',
-            title: me.snippets.tab.import,
-            items: [{
-                xtype: 'lengow-import-panel'
-            }]
-        });
-        me.importWindow = new LengowImportWindow;
-        // Issue when opening settings tab and coming back to import tab
-        // Needed to reset listeners each time we click on import tab
-        me.fireEvent('initImportPanels');
-        Ext.getCmp('importButton').on('click', function(){
-            me.fireEvent('launchImportProcess');
-        });
-
-        me.importWindow.show();
-    },
+    //TODO clean
+    // showImportWindow: function() {
+    //     var me = this;
+    //     Ext.define('LengowImportWindow', {
+    //         id: 'lengowImportWindow',
+    //         modal: true,
+    //         draggable: false,
+    //         resizable: false,
+    //         extend: 'Ext.window.Window',
+    //         title: me.snippets.tab.import,
+    //         items: [{
+    //             xtype: 'lengow-import-panel'
+    //         }]
+    //     });
+    //     me.importWindow = new LengowImportWindow;
+    //     // Issue when opening settings tab and coming back to import tab
+    //     // Needed to reset listeners each time we click on import tab
+    //     me.fireEvent('initImportPanels');
+    //     Ext.getCmp('importButton').on('click', function(){
+    //         me.fireEvent('launchImportProcess');
+    //     });
+    //
+    //     me.importWindow.show();
+    // },
 
     /**
      * Display logs window
