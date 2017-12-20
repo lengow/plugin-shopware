@@ -83,6 +83,46 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     }
 
     /**
+     * Check if an order has an error
+     *
+     * @param string $marketplaceSku Marketplace sku
+     * @param integer $deliveryAddressId Lengow delivery address id
+     * @param string $type order error type (import or send)
+     *
+     * @return array|false
+     */
+    public static function orderIsInError($marketplaceSku, $deliveryAddressId, $type = 'import')
+    {
+        $type = Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::getOrderErrorType($type);
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select(array('loe.id', 'loe.message', 'loe.createdAt'))
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
+            ->leftJoin(
+                'Shopware\CustomModels\Lengow\OrderError',
+                'loe',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'lo.id = loe.lengowOrderId'
+            )
+            ->where('lo.marketplaceSku = :marketplaceSku')
+            ->andWhere('lo.deliveryAddressId = :deliveryAddressId')
+            ->andWhere('loe.type = :type')
+            ->andWhere('loe.isFinished != :isFinished')
+            ->setParameters(
+                array(
+                    'marketplaceSku' => $marketplaceSku,
+                    'deliveryAddressId' => $deliveryAddressId,
+                    'type' => $type,
+                    'isFinished' => true
+                )
+            );
+        $results = $builder->getQuery()->getResult();
+        if (count($results) == 0) {
+            return false;
+        }
+        return $results[0];
+    }
+
+    /**
      * Get lengow order id from lengow order table
      *
      * @param integer $orderId Shopware order id
@@ -258,6 +298,49 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     }
 
     /**
+     * Get all unset orders
+     *
+     * @return array|false
+     */
+    public static function getUnsentOrders()
+    {
+        $unsentOrders = array();
+        $changeDate = new DateTime(date('Y-m-d h:m:i', strtotime('-5 days', time())));
+        $orderStatusShipped = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('shipped');
+        $orderStatusCanceled = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('canceled');
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select(array('lo.orderId', 'oh.orderStatusId'))
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
+            ->leftJoin('lo.order', 'o')
+            ->leftJoin('o.history', 'oh')
+            ->where('lo.orderProcessState = :orderProcessState')
+            ->andWhere('lo.inError = :inError')
+            ->andWhere('o.orderStatus IN (:orderStatusShipped, :orderStatusCanceled)')
+            ->andWhere('oh.changeDate >= :changeDate')
+            ->groupBy('lo.orderId')
+            ->setParameters(
+                array(
+                    'orderProcessState' => self::PROCESS_STATE_IMPORT,
+                    'inError' => false,
+                    'orderStatusShipped' => $orderStatusShipped,
+                    'orderStatusCanceled' => $orderStatusCanceled,
+                    'changeDate' => $changeDate
+                )
+            );
+        $results = $builder->getQuery()->getResult();
+        if (count($results) > 0) {
+            foreach ($results as $result) {
+                $orderId = (int)$result['orderId'];
+                if (!Shopware_Plugins_Backend_Lengow_Components_LengowAction::getActiveActionByOrderId($orderId)) {
+                    $action = $result['orderStatusId'] == $orderStatusCanceled->getId() ? 'cancel' : 'ship';
+                    $unsentOrders[$orderId] = $action;
+                }
+            }
+        }
+        return count($unsentOrders) > 0 ? $unsentOrders : false;
+    }
+
+    /**
      * Update order status
      *
      * @param \Shopware\Models\Order\Order $order Shopware order instance
@@ -286,9 +369,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             $flushLengowOrder = true;
         }
         if ($orderProcessState == self::PROCESS_STATE_FINISH) {
-
-            // TODO Finish actions if lengow order is shipped, closed or cancel
-
+            Shopware_Plugins_Backend_Lengow_Components_LengowAction::finishAllActions($order->getId());
             if ($lengowOrder->getOrderProcessState() != $orderProcessState) {
                 $lengowOrder->setOrderProcessState($orderProcessState);
                 $flushLengowOrder = true;
@@ -473,9 +554,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             false,
             $lengowOrder->getMarketplaceSku()
         );
-
-        // TODO Finish all order error before new action
-
+        // Finish all order logs send
+        Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::finishOrderErrors($lengowOrder->getId(), 'send');
         try {
             $marketplace = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getMarketplaceSingleton(
                 $lengowOrder->getMarketplaceName()
@@ -508,9 +588,29 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                 . '" ' . $e->getFile() . ' | ' . $e->getLine();
         }
         if (isset($errorMessage)) {
-
-            // TODO create order error
-
+            if ($lengowOrder->getOrderProcessState() != self::PROCESS_STATE_FINISH) {
+                Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::createOrderError(
+                    $lengowOrder,
+                    $errorMessage,
+                    'send'
+                );
+                try {
+                    $lengowOrder->setInError(true);
+                    Shopware()->Models()->flush($lengowOrder);
+                } catch (Exception $e) {
+                    $doctrineError = '[Doctrine error] "' . $e->getMessage() . '" '
+                        . $e->getFile() . ' | ' . $e->getLine();
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                        'Orm',
+                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                            'log/exception/order_insert_failed',
+                            array('decoded_message' => $doctrineError)
+                        ),
+                        false,
+                        $lengowOrder->getMarketplaceSku()
+                    );
+                }
+            }
             $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($errorMessage);
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                 'API-OrderAction',

@@ -267,7 +267,7 @@ class OrderError extends ModelEntity
      *
      * @return self
      */
-    public function setUpdatedDate($updatedAt)
+    public function setUpdatedAt($updatedAt)
     {
         $this->updatedAt = $updatedAt;
         return $this;

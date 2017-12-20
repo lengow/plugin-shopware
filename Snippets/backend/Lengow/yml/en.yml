@@ -93,6 +93,9 @@ en:
       ip:
         label: "Authorised IPs"
         description: "Authorise IP to get access to your export feed.\nSeparate them ' ; '"
+      tracking:
+        label: "Tracker Product ID"
+        description: "Select the product ID you want to send to the Lengow tracker"
     lengow_export_settings:
       label: "Export settings"
       description: "Define the settings to create your feed."
@@ -125,6 +128,11 @@ en:
       preprod_mode:
         label: "Activate pre-production mode"
         description: "Use pre-production mode for testing and to simulate fictitious orders. Please note that you have to activate this setting on your pre-production server ONLY"
+      report_mail_enabled:
+        label: "I would like to be notified when there are issues regarding order importation"
+      report_mail_address:
+        label: "Mail for the report email"
+        description: "Email separated by ;"
     lengow_order_status_settings:
       label: "Order Status"
       description: "Match your Lengow order status to retrieve them in your orders easily"
@@ -253,6 +261,7 @@ en:
       marketplace_name_require: "marketplace name is required"
       arg_is_required: "can't send action: %{arg_name} is required"
       action_not_created: "can't create action: %{error_message}"
+      action_is_too_old: "order action is too old. Please retry the call"
       product_is_a_parent: "article %{product_id} is a parent ID. Article variation is needed"
       no_product_to_cart: "no product to be added to cart"
       no_connection_webservice: "connection did not work with the Lengow webservice in shop %{name_shop} (%{id_shop})"
@@ -261,3 +270,7 @@ en:
       shopware_order_not_saved: "WARNING! Order could NOT be saved in Shopware order table"
       timeout_api: "API call has been blocked by a timeout"
       error_curl: "Curl error %{error_code} - %{error_message}"
+    mail_report:
+      subject_report_mail: "Lengow imports errors"
+      order: "Order %{marketplace_sku}"
+      no_error_in_report_mail: "no error message, contact support via https://supportlengow.zendesk.com/agent/"
