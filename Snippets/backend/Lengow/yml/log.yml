@@ -22,6 +22,9 @@ default:
     connector:
       call_api: "call %{curl_url}"
       error_api: "API call failed - %{error_code}"
+    mail_report:
+      send_mail_to: "report email sent to %{email}"
+      unable_send_mail_to: "unable to send report email to %{email}"
     import:
       not_valid_action: "Action: %{action} is not a valid action"
       start: "## start %{type} import ##"
@@ -37,6 +40,7 @@ default:
       connector_get_all_order: "get orders between %{date_from} and %{date_to} for catalogs ID: %{catalog_id}"
       connector_get_order: "get order with order id: %{marketplace_sku} and marketplace: %{marketplace_name}"
       find_all_orders: "%{nb_order} order(s) found for shop %{name_shop} (%{id_shop})"
+      error_already_created: "%{decoded_message} (created on the %{date_message})"
       current_order_state_unavailable: "current order's status [%{order_state_marketplace}] makes it unavailable to import for marketplace %{marketplace_name}"
       product_be_found: "article %{article_number} found with field %{attribute_name} (%{attribute_value})"
       lengow_order_saved: "order saved in Lengow orders table"
@@ -67,6 +71,9 @@ default:
       multiple_article_found: "WARNING! %{total_product} articles found while searching '%{searched_value}' in %{searched_field} field"
       create_payment_instance: "payment instance has been created for the order"
     order_action:
+      check_completed_action: "check completed actions"
+      check_old_action: "check and finish old actions"
+      check_action_not_sent: "check actions not sent"
       try_to_send_action: "try to send %{action} action (ORDER ID %{order_id})"
       action_send: "action %{action} was successfully sent (ORDER ID %{order_id})"
       action_not_send: "WARNING ! action %{action} could not be sent (ORDER ID %{order_id})"

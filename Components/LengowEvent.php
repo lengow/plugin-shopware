@@ -184,4 +184,57 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
             }
         }
     }
+
+    /**
+     * Adding simple tracker Lengow on footer when order is confirmed
+     *
+     * @param Enlight_Event_EventArgs $args Shopware Enlight Controller Action instance
+     */
+    public static function onFrontendCheckoutPostDispatch($args)
+    {
+        $request = $args->getSubject()->Request();
+        if ($request->getActionName() === 'finish') {
+            $session = Shopware()->Session();
+            // Get all tracker variables
+            $accountId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAccountId');
+            $trackingId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowTrackingId');
+            if (!empty($session['sOrderVariables']) && $accountId > 0) {
+                // Get all tracker variables
+                $sOrderVariables = $session['sOrderVariables']->getArrayCopy();
+                $payment = isset($sOrderVariables['sPayment']) ? $sOrderVariables['sPayment'] : '';
+                $articleCart = array();
+                $articles = isset($sOrderVariables['sBasket']['content'])
+                    ? $sOrderVariables['sBasket']['content']
+                    : array();
+                foreach ($articles as $article) {
+                    $articleCart[] = array(
+                        'product_id' => $trackingId === 'id' ? (int)$article['id'] : $article['ordernumber'],
+                        'price' => (float)$article['price'],
+                        'quantity' => (int)$article['quantity']
+                    );
+                }
+                // assign all tracker variables in page
+                /** @var \Enlight_Controller_Action $controller */
+                $controller = $args->getSubject();
+                $view = $controller->View();
+                $view->assign(
+                    'lengowVariables',
+                    array(
+                        'account_id' => $accountId,
+                        'order_ref' => isset($sOrderVariables['sOrderNumber'])? $sOrderVariables['sOrderNumber'] : '',
+                        'amount' => isset($sOrderVariables['sAmount']) ? $sOrderVariables['sAmount'] : '',
+                        'currency' => Shopware()->Shop()->getCurrency()->getCurrency(),
+                        'payment_method' => isset($payment['name']) ? $payment['name'] : '',
+                        'cart' => json_encode($articleCart),
+                        'cart_number' => 0,
+                        'newbiz' => 1,
+                        'valid' => 1
+                    )
+                );
+                // generate tracker template in footer
+                $view->addTemplateDir(__DIR__ . '/../Views');
+                $view->extendsTemplate('frontend/lengow/tracker.tpl');
+            }
+        }
+    }
 }
