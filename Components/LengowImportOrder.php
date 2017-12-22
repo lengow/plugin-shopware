@@ -905,7 +905,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                     : (string)$articleData['marketplace_product_id'];
                 throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                        'log/exception/product_not_be_found',
+                        'lengow_log/exception/product_not_be_found',
                         array('product_id' => $articleId)
                     )
                 );
