@@ -100,7 +100,7 @@ a.lgw-box-link:hover {
   white-space: nowrap;
 }
 
-.lgw-label_red {
+.lgw-label.red {
   color: white;
   background: #e55a4d;
 }
