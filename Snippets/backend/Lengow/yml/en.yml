@@ -188,7 +188,7 @@ en:
       last_import: "Last synchronisation : <b>[0]</b>"
       order_error: "You have [0] order(s) with errors"
       button: "Launch import"
-      mail_report: "All order issue reports will be sent by mail to [0] (Change this?)"
+      mail_report: "All order issue reports will be sent by mail to [0] (<a href='#'>Change this?</a>)"
     grid:
       column:
         actions: "Actions"

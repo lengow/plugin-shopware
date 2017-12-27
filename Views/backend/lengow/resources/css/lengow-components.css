@@ -88,12 +88,12 @@ a.lgw-box-link:hover {
 /*************************************************/
 
 .lgw-label {
-  font-size: 13px;
+  font-size: 11px;
   background :#ebebeb;
   color: #828282;
-  height: 23px;
-  line-height: 23px;
-  padding: 0 20px;
+  height: 18px;
+  line-height: 18px;
+  padding: 0 10px;
   border-radius: 12px;
   display: inline-block;
   vertical-align: middle;
@@ -109,7 +109,7 @@ a.lgw-box-link:hover {
   background: transparent;
   border: 1px solid #e6594d;
   color: #e6594d;
-  line-height: 21px;
+  line-height: 18px;
 }
 
 .lgw-label.orange {
