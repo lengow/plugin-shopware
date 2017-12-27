@@ -77,9 +77,9 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $crudCompatibility = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1');
 
         if ($crudCompatibility) {
-            $select[] = 's_core_states.name as orderStatus';
-        } else {
             $select[] = 's_order.orderStatus as orderStatus';
+        } else {
+            $select[] = 's_core_states.name as orderStatus';
         }
 
         $builder = $em->createQueryBuilder();
