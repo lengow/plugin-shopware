@@ -569,9 +569,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             false,
             $lengowOrder->getMarketplaceSku()
         );
-        // Finish all order logs send
-        Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::finishOrderErrors($lengowOrder->getId(), 'send');
         try {
+            // Finish all order errors before API cal
+            Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::finishOrderErrors(
+                $lengowOrder->getId(),
+                'send'
+            );
+            if ($lengowOrder->isInError()) {
+                $lengowOrder->setInError(false);
+                Shopware()->Models()->flush($lengowOrder);
+            }
             $marketplace = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getMarketplaceSingleton(
                 $lengowOrder->getMarketplaceName()
             );
