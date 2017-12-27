@@ -62,7 +62,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
     onInitImportPanels: function () {
         var me = this;
         Ext.Ajax.request({
-            url: '{url controller="LengowImport" action="getPanelContents2"}',
+            url: '{url controller="LengowImport" action="getPanelContents"}',
             method: 'POST',
             type: 'json',
             success: function(response) {

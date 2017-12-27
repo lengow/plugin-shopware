@@ -184,7 +184,7 @@ en:
     screen:
       import_charge_second: "Please bear with us; this will not take long (2 min average waiting time)"
     panel:
-      to_be_sent: "You have [0] waiting to be sent"
+      to_be_sent: "You have [0] order(s) waiting to be sent"
       last_import: "Last synchronisation : <b>[0]</b>"
       order_error: "You have [0] order(s) with errors"
       button: "Launch import"

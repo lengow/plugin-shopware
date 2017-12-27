@@ -133,39 +133,15 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     }
 
     /**
-     * Get translations and create labels displayed in import panel
-     * Used despite Shopware translation tool because of parameters which are not settable
+     * Get datas for import header page
      */
     public function getPanelContentsAction()
     {
-        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
-        $nbDays = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowImportDays');
-        $data['importDescription'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-            'order/panel/description',
-            $locale,
-            array('nb_days' => $nbDays)
-        );
-        // Get last import date
-        $lastImport = Shopware_Plugins_Backend_Lengow_Components_LengowImport::getLastImport();
-        $data['lastImport'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-            'order/panel/last_import',
-            $locale,
-            array('import_date' => $lastImport)
-        );
-        $this->View()->assign(
-            array(
-                'success' => true,
-                'data' => $data
-            )
-        );
-    }
-
-    public function getPanelContents2Action()
-    {
-        $data['nb_order_in_error'] = '222';
-        $data['nb_order_to_be_sent'] = '222';
-        $data['last_import'] = '01/01/2001';
-        $data['mail_report'] = 'controller@lengow.com';
+        $data['nb_order_in_error'] = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::countOrderWithError();
+        $data['nb_order_to_be_sent'] = count(Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getUnsentOrders());
+        $data['last_import'] = Shopware_Plugins_Backend_Lengow_Components_LengowImport::getLastImport();;
+        $data['mail_report'] = implode(", ",
+            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getReportEmailAddress());
         $this->View()->assign(
             array(
                 'success' => true,
