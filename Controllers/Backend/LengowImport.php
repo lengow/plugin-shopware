@@ -87,11 +87,8 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             ->from('Shopware\CustomModels\Lengow\Order', 'orderLengow')
             ->leftJoin('Shopware\Models\Shop\Shop', 'shops', 'WITH', 'orderLengow.shopId = shops.id')
             ->leftJoin('orderLengow.order', 's_order')
+            ->leftJoin('Shopware\Models\Order\Status', 's_core_states', 'WITH', 's_order.orderStatus = s_core_states')
             ->leftJoin('Shopware\Models\Country\Country', 's_core_countries', 'WITH', 'orderLengow.deliveryCountryIso = s_core_countries.iso');
-
-        if ($crudCompatibility) {
-            $builder->leftJoin('s_order.orderStatus', 's_core_states');
-        }
 
         // Search criteria
         if (isset($filters['search'])) {
