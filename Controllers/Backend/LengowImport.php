@@ -77,9 +77,9 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $crudCompatibility = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1');
 
         if ($crudCompatibility) {
-            $select['s_core_states.name as orderStatus'];
+            $select[] = 's_core_states.name as orderStatus';
         } else {
-            $select['s_order.orderStatus as orderStatus'];
+            $select[] = 's_order.orderStatus as orderStatus';
         }
 
         $builder = $em->createQueryBuilder();
@@ -104,7 +104,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         if ($order['property'] && $order['direction']) {
             $builder->orderBy($order['property'], $order['direction']);
         }
-        $builder->distinct()->addOrderBy('orderLengow.id');
+        $builder->distinct()->addOrderBy('orderLengow.orderDate', 'DESC');
 
         $totalOrders = count($builder->getQuery()->getArrayResult());
         $builder->setFirstResult($start)->setMaxResults($limit);
@@ -152,6 +152,20 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             $locale,
             array('import_date' => $lastImport)
         );
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $data
+            )
+        );
+    }
+
+    public function getPanelContents2Action()
+    {
+        $data['nb_order_in_error'] = '222';
+        $data['nb_order_to_be_sent'] = '222';
+        $data['last_import'] = '01/01/2001';
+        $data['mail_report'] = 'controller@lengow.com';
         $this->View()->assign(
             array(
                 'success' => true,

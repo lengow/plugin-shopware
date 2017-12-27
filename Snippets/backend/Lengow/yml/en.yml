@@ -184,10 +184,11 @@ en:
     screen:
       import_charge_second: "Please bear with us; this will not take long (2 min average waiting time)"
     panel:
-      description: "Import orders from <b>%{nb_days}</b> days."
-      last_import: "Last synchronisation : <b>%{import_date}</b>"
-      order_error_link: "%{nb_order} order(s) with errors (<a href='%{log_url}' target='_blank'>See logs for more information</a>)"
+      to_be_sent: "You have [0] waiting to be sent"
+      last_import: "Last synchronisation : <b>[0]</b>"
+      order_error: "You have [0] order(s) with errors"
       button: "Launch import"
+      mail_report: "All order issue reports will be sent by mail to [0] (Change this?)"
     grid:
       column:
         actions: "Actions"
@@ -202,6 +203,12 @@ en:
         country: "Country"
         nb_items: "Items"
         total_paid: "Total Paid"
+      status_accepted: "Accepted"
+      status_waiting_shipment: "Awaiting shipment"
+      status_shipped: "Shipped"
+      status_closed: "Closed"
+      status_shipped_by_mkp: "Shipped by Marketplace"
+      status_canceled: "Canceled"
     details:
       title: "Lengow informations"
       marketplace_sku: "Marketplace SKU"

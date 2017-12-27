@@ -20,22 +20,6 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
     },
 
     /**
-     * Init/update import window labels (description and last synchronization date)
-     */
-    onInitImportPanels: function () {
-        Ext.Ajax.request({
-            url: '{url controller="LengowImport" action="getPanelContents"}',
-            method: 'POST',
-            type: 'json',
-            success: function(response) {
-                var data = Ext.decode(response.responseText)['data'];
-                Ext.getCmp('importDescriptionPanel').update(data['importDescription']);
-                Ext.getCmp('lastImportPanel').update(data['lastImport']);
-            }
-        });
-    },
-
-    /**
      * Start import listener
      */
     onLaunchImportProcess: function () {
