@@ -71,7 +71,8 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             's_core_states.description as orderStatusDescription',
             's_order.number as orderShopwareSku',
             's_core_countries.name as countryName',
-            's_core_countries.iso as countryIso'
+            's_core_countries.iso as countryIso',
+            'orderError.message as errorMessage'
         );
 
         $crudCompatibility = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1');
@@ -88,7 +89,8 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             ->leftJoin('Shopware\Models\Shop\Shop', 'shops', 'WITH', 'orderLengow.shopId = shops.id')
             ->leftJoin('orderLengow.order', 's_order')
             ->leftJoin('Shopware\Models\Order\Status', 's_core_states', 'WITH', 's_order.status = s_core_states')
-            ->leftJoin('Shopware\Models\Country\Country', 's_core_countries', 'WITH', 'orderLengow.deliveryCountryIso = s_core_countries.iso');
+            ->leftJoin('Shopware\Models\Country\Country', 's_core_countries', 'WITH', 'orderLengow.deliveryCountryIso = s_core_countries.iso')
+            ->leftJoin('Shopware\CustomModels\Lengow\OrderError', 'orderError', 'WITH', 'orderLengow.id = orderError.lengowOrderId');
 
         // Search criteria
         if (isset($filters['search'])) {

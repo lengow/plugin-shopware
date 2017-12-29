@@ -137,3 +137,60 @@ a.lgw-box-link:hover {
   background: transparent;
   line-height: 21px;
 }
+
+/*************************************************/
+/*                    TOOLTIP                    */
+/*************************************************/
+
+.lengow_tooltip {
+  position: relative;
+  color: #000;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.lengow_tooltip:hover {
+  z-index: 1070;
+  background-color: #FFF
+}
+
+.lengow_tooltip span {
+  display: none
+}
+
+.lengow_tooltip:hover span {
+  display: block;
+  position: absolute;
+  background-color: #000;
+  color: #FFF;
+  border-radius: 4px;
+  padding: 3px 8px;
+  text-align: center;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1.42857143;
+  max-width: 200px;
+  opacity: .9;
+}
+
+/*************************************************/
+/*                    ACTION ORDER               */
+/*************************************************/
+
+.custom-grid-action, .custom-grid-action .x-grid-cell-inner{
+  overflow: visible;
+}
+
+.lengow_action {
+  cursor: pointer;
+}
+
+.lengow_action i {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-left: 3px;
+  vertical-align: middle;
+}

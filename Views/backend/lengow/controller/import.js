@@ -16,7 +16,8 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
 
         me.control({
             'order-listing-grid': {
-                showDetail: me.onShowDetail
+                showDetail: me.onShowDetail,
+                sendAction: me.sendAction
             },
             'lengow-import-container': {
                 launchImportProcess: me.onLaunchImportProcess,
@@ -25,6 +26,20 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
         });
 
         me.callParent(arguments);
+    },
+
+    /**
+     * Start import listener
+     */
+    sendAction: function (type) {
+        var me = this;
+        // Display waiting message
+        Ext.MessageBox.show({
+            // msg: '{s name="order/screen/import_charge_second" namespace="backend/Lengow/translation"}{/s}',
+            msg: type,
+            width: 300,
+            wait: true
+        });
     },
 
     /**

@@ -15,6 +15,7 @@ Ext.define('Shopware.apps.Lengow.model.Orders', {
         { name : 'marketplaceSku', type: 'string' },
         { name : 'marketplaceName', type: 'string' },
         { name : 'orderLengowState', type: 'string' },
+        { name : 'orderProcessState', type: 'string' },
         { name : 'orderStatus', type: 'string' },
         { name : 'orderStatusDescription', type: 'string' },
         { name : 'orderDate', type: 'string' },
@@ -23,6 +24,7 @@ Ext.define('Shopware.apps.Lengow.model.Orders', {
         { name : 'deliveryCountryIso', type: 'string' },
         { name : 'storeName', type: 'string' },
         { name : 'orderShopwareSku', type: 'string' },
+        { name : 'errorMessage', type: 'string' },
         { name : 'countryName', type: 'string' },
         { name : 'countryIso', type: 'string' }
 	]

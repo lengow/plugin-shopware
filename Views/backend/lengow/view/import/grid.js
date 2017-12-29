@@ -32,12 +32,28 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
         },
         search: {
             empty: '{s name="export/grid/search/empty" namespace="backend/Lengow/translation"}{/s}'
+        },
+        errors: {
+            import: '{s name="export/grid/errors/import" namespace="backend/Lengow/translation"}{/s}',
+            action: '{s name="export/grid/errors/action" namespace="backend/Lengow/translation"}{/s}'
+        }
+    },
+
+    listeners : {
+        cellclick : function(view, cell, cellIndex, record, row, rowIndex, e) {
+            var errorType = record.raw.orderProcessState == 0 ? 'import' : 'send';
+            var clickedColumnName = view.panel.headerCt.getHeaderAtIndex(cellIndex).dataIndex;
+            if (clickedColumnName == 'inError') {
+                console.log('plop' + errorType);
+                // me.fireEvent('sendAction', errorType);
+            }
         }
     },
 
     registerEvents: function() {
         this.addEvents(
-            'showDetail'
+            'showDetail',
+            'sendAction'
         )
     },
 
@@ -65,8 +81,30 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
         var columns = [
             {
                 header: me.snippets.column.actions,
+                tdCls: 'custom-grid-action',
                 dataIndex: 'inError',
-                flex: 1
+                flex: 1,
+                renderer: function(value, metadata, record) {
+                    if (value) {
+                        var errorType = record.get('orderProcessState') == 0 ? 'import' : 'send';
+                        var errorMessage = record.get('errorMessage');// get all errorMessages
+                        if (errorType == 'import') {
+                            var tootlip = me.snippets.errors.import + '<br/>' + errorMessage;
+                            return '<span class="lengow_action lengow_tooltip lgw-btn lgw-btn-white lgw_order_action_grid-js"'
+                                + ' data-href="#">not imported'
+                                + '<span class="lengow_order_action">' + tootlip
+                                + '</span>&nbsp<i class="sprite-arrow-circle-double-135 lgw_order_action_grid-js"></i></span>';
+                        } else {
+                            var tootlip = me.snippets.errors.action + '<br/>' + errorMessage;
+                            return '<span class="lengow_action lengow_tooltip lgw-btn lgw-btn-white lgw_order_action_grid-js"'
+                                + ' data-href="#">not sent'
+                                + '<span class="lengow_order_action lgw_order_action_grid-js">' + tootlip
+                                + '</span>&nbsp<i class="sprite-arrow-circle-double-135 lgw_order_action_grid-js"></i></span>';
+                        }
+                    } else {
+                        return 'sent or else';
+                    }
+                }
             }, {
                 header: me.snippets.column.lengow_status,
                 dataIndex: 'orderLengowState',
