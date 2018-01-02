@@ -77,9 +77,9 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $crudCompatibility = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1');
 
         if ($crudCompatibility) {
-            $select['s_core_states.name as orderStatus'];
+            $select[] = 's_core_states.name as orderStatus';
         } else {
-            $select['s_order.orderStatus as orderStatus'];
+            $select[] = 's_order.status as orderStatus';
         }
 
         $builder = $em->createQueryBuilder();
@@ -87,7 +87,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             ->from('Shopware\CustomModels\Lengow\Order', 'orderLengow')
             ->leftJoin('Shopware\Models\Shop\Shop', 'shops', 'WITH', 'orderLengow.shopId = shops.id')
             ->leftJoin('orderLengow.order', 's_order')
-            ->leftJoin('s_order.orderStatus', 's_core_states')
+            ->leftJoin('Shopware\Models\Order\Status', 's_core_states', 'WITH', 's_order.status = s_core_states')
             ->leftJoin('Shopware\Models\Country\Country', 's_core_countries', 'WITH', 'orderLengow.deliveryCountryIso = s_core_countries.iso');
 
         // Search criteria
@@ -104,7 +104,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         if ($order['property'] && $order['direction']) {
             $builder->orderBy($order['property'], $order['direction']);
         }
-        $builder->distinct()->addOrderBy('orderLengow.id');
+        $builder->distinct()->addOrderBy('orderLengow.orderDate', 'DESC');
 
         $totalOrders = count($builder->getQuery()->getArrayResult());
         $builder->setFirstResult($start)->setMaxResults($limit);
@@ -133,25 +133,15 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     }
 
     /**
-     * Get translations and create labels displayed in import panel
-     * Used despite Shopware translation tool because of parameters which are not settable
+     * Get datas for import header page
      */
     public function getPanelContentsAction()
     {
-        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
-        $nbDays = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowImportDays');
-        $data['importDescription'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-            'order/panel/description',
-            $locale,
-            array('nb_days' => $nbDays)
-        );
-        // Get last import date
-        $lastImport = Shopware_Plugins_Backend_Lengow_Components_LengowImport::getLastImport();
-        $data['lastImport'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-            'order/panel/last_import',
-            $locale,
-            array('import_date' => $lastImport)
-        );
+        $data['nb_order_in_error'] = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::countOrderWithError();
+        $data['nb_order_to_be_sent'] = count(Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getUnsentOrders());
+        $data['last_import'] = Shopware_Plugins_Backend_Lengow_Components_LengowImport::getLastImport();;
+        $data['mail_report'] = implode(", ",
+            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getReportEmailAddress());
         $this->View()->assign(
             array(
                 'success' => true,

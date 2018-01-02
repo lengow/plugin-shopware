@@ -8,6 +8,7 @@ Ext.define('Shopware.apps.Lengow.model.Orders', {
 	fields: [
 		{ name : 'id', type: 'int' },
 		{ name : 'orderId', type: 'string' },
+        { name : 'orderSku', type: 'string' },
 		{ name : 'totalPaid', type: 'float' },
 		{ name : 'currency', type: 'string' },
 		{ name : 'inError', type: 'bool' },

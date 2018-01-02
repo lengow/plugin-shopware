@@ -298,6 +298,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     }
 
     /**
+     * Count order lengow with error
+     *
+     * @return integer
+     */
+    public static function countOrderWithError()
+    {
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select(array('lo.orderId'))
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
+            ->where('lo.inError = true');
+        $results = $builder->getQuery()->getResult();
+        return count($results);
+    }
+
+    /**
      * Get all unset orders
      *
      * @return array|false

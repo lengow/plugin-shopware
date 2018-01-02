@@ -22,6 +22,14 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             nb_items: '{s name="order/grid/column/nb_items" namespace="backend/Lengow/translation"}{/s}',
             total_paid: '{s name="order/grid/column/total_paid" namespace="backend/Lengow/translation"}{/s}'
         },
+        status: {
+            accepted: '{s name="order/grid/status_accepted" namespace="backend/Lengow/translation"}{/s}',
+            waiting_shipment: '{s name="order/grid/status_waiting_shipment" namespace="backend/Lengow/translation"}{/s}',
+            shipped: '{s name="order/grid/status_shipped" namespace="backend/Lengow/translation"}{/s}',
+            closed: '{s name="order/grid/status_closed" namespace="backend/Lengow/translation"}{/s}',
+            shipped_by_mkp: '{s name="order/grid/status_shipped_by_mkp" namespace="backend/Lengow/translation"}{/s}',
+            canceled: '{s name="order/grid/status_canceled" namespace="backend/Lengow/translation"}{/s}'
+        },
         search: {
             empty: '{s name="export/grid/search/empty" namespace="backend/Lengow/translation"}{/s}'
         }
@@ -62,7 +70,11 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             }, {
                 header: me.snippets.column.lengow_status,
                 dataIndex: 'orderLengowState',
-                flex: 1
+                flex: 1,
+                renderer : function(value, metadata, record) {
+                    return '<span class="lgw-label lgw-label-' + value + '">'
+                        + me.snippets.status[value] + '</span>';
+                }
             }, {
                 header: me.snippets.column.marketplace,
                 dataIndex: 'marketplaceName',
@@ -87,7 +99,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                 flex: 1
             }, {
                 header: me.snippets.column.shopware_sku,
-                dataIndex: 'orderId',
+                dataIndex: 'orderSku',
                 flex: 1
             }, {
                 header: me.snippets.column.order_date,
@@ -152,6 +164,11 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                     me.fireEvent('showDetail', record);
                 }
 
+            },
+            getClass: function(value, metadata, record) {
+                if (record.raw.orderShopwareSku < 1) {
+                    return Ext.baseCSSPrefix + 'hidden';
+                }
             }
         }
     },
