@@ -176,10 +176,11 @@ fr:
     screen:
       import_charge_second: "Restez avec nous, cela ne va pas durer longtemps (2 min d'attente en moyenne)"
     panel:
-      description: "Importez les commandes passées depuis <b>%{nb_days}</b>."
-      last_import: "Dernière synchronisation : <b>%{import_date}</b>"
-      order_error_link: "%{nb_order} commande(s) avec erreurs (<a href='%{log_url}' target='_blank'>Voir les logs pour plus d'informations</a>)"
+      to_be_sent: "Vous avez [0] commande(s) en attente d'expédition"
+      last_import: "Dernière synchronisation : <b>[0]</b>"
+      order_error: "Vous avez [0] commande(s) en erreurs"
       button: "Démarrer l'import"
+      mail_report: "Les rapports d'erreurs de vos commandes seront envoyés par email à [0] (<a href='#'>Vous voulez modifier cela ?</a>)"
     details:
       title: "Informations sur Lengow"
       marketplace_sku: "ID Commande"

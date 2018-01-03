@@ -176,10 +176,11 @@ de:
     screen:
       import_charge_second: "Haben Sie bitte etwas Geduld, es dauert nicht lange (die durchschnittliche Wartezeit beträgt 2 min)"
     panel:
-      description: "Bestellungen importieren von <b>%{nb_days}</b> Tagen."
-      last_import: "Letzte Synchronisierung: <b>%{import_date}</b>"
-      order_error_link: "%{nb_order} Bestellung/en mit Fehlern (<a href='%{log_url}' target='_blank'>Siehe Logs für weitere Informationen</a>)"
+      to_be_sent: "Sie haben [0] Bestellung(en) die zum Versand bereit sind"
+      last_import: "Letzte Synchronisierung: <b>[0]</b>"
+      order_error: "Sie haben [0] Bestellung(en) mit Fehlern"
       button: "Import starten"
+      mail_report: "Alle Bestellfehler-Reports werden per Email gesendet [0] (<a href='#'>Dies ändern?</a>)"
     details:
       title: "Informationen zu Lengow"
       marketplace_sku: "Marktplatz-SKU"

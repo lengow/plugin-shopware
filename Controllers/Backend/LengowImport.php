@@ -202,15 +202,10 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             );
         }
         if (isset($return['order_error']) && $return['order_error'] > 0) {
-            $logUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getPathPlugin() .
-                'Logs/logs-' . date('Y-m-d') . '.txt';
             $messages['order_error'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                'order/panel/order_error_link',
+                'lengow_log/error/nb_order_with_error',
                 $locale,
-                array(
-                    'nb_order' => (int)$return['order_error'],
-                    'log_url' => $logUrl
-                )
+                array('nb_order' => (int)$return['order_error'])
             );
         }
         if (count($messages) == 0) {
