@@ -74,4 +74,22 @@ class Shopware_Controllers_Backend_LengowOrderLegacy extends Shopware_Controller
             )
         );
     }
+
+    /**
+     * Synchronize Order action
+     */
+    public function synchronizeAction()
+    {
+        $orderId = $this->Request()->getParam('orderId');
+        $order = Shopware()->Models()
+            ->getRepository('\Shopware\Models\Order\Order')
+            ->findOneBy(array('id' => $orderId));
+        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::synchronizeOrder($order);
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $success
+            )
+        );
+    }
 }

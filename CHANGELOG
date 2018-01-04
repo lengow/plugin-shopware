@@ -6,6 +6,7 @@ Version 1.3.0
     - Feature: Automatic sending of action if the first shipment was a failure
     - Feature: Setting up the simple Lengow tracker
     - Feature: Sending a report email with order import and action upload errors
+    - Feature: Adding a order resynchronisation button with Lengow
 
 =============================================================
 Version 1.2.3
