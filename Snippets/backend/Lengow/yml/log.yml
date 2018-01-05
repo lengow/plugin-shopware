@@ -13,6 +13,8 @@ default:
       add_upgrade_version: "Adding data for the plugin version %{version}"
       add_upgrade_error: "WARNING! Error when updating custom model: %{error_message}"
       add_payment: "Adding Lengow payment method"
+      add_technical_error_status: "Adding Lengow technical error status"
+      add_technical_error_status_error: "WARNING! Error when adding Lengow technical error status: %{error_message}"
     uninstall:
       start: "## start uninstall ##"
       end: "## end uninstall ##"

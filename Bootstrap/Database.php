@@ -369,6 +369,54 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
     }
 
     /**
+     * Add Lengow technical error status
+     *
+     * @return boolean
+     */
+    public function addLengowTechnicalErrorStatus()
+    {
+        $lengowTechnicalError = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowTechnicalErrorStatus();
+        if (self::tableExist('s_core_states') && is_null($lengowTechnicalError)) {
+            try {
+                // Get id max for new order status - id is not auto-increment
+                $idMax = (int)Shopware()->Db()->fetchOne('SELECT MAX(id) FROM `s_core_states`');
+                // Get position max for new order status - exclude cancelled order status
+                $positionMax = (int)Shopware()->Db()->fetchOne(
+                    'SELECT MAX(position) FROM `s_core_states`
+                    WHERE `group` = \'state\' AND `description` != \'Abgebrochen\''
+                );
+                $params = array(
+                    'id' => $idMax + 1,
+                    'description' => 'Technischer Fehler - Lengow',
+                    'position' => $positionMax === 24 ? 26 : $positionMax + 1,
+                    'group' => 'state',
+                    'mail' => 0
+                );
+                // Compatibility with 4.3 version - the name field did not exist
+                if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0')) {
+                    $sql = 'INSERT INTO `s_core_states` (`id`, `name`, `description`, `position`, `group`, `mail`)
+                        VALUES (:id, :name , :description, :position, :group, :mail)';
+                    $params['name'] = 'lengow_technical_error';
+                } else {
+                    $sql = 'INSERT INTO `s_core_states` (`id`, `description`, `position`, `group`, `mail`)
+                        VALUES (:id, :description, :position, :group, :mail)';
+                }
+                // Insert lengow technical error status in database
+                Shopware()->Db()->query($sql, $params);
+                Shopware_Plugins_Backend_Lengow_Bootstrap::log('log/install/add_technical_error_status');
+            } catch (Exception $e) {
+                $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+                Shopware_Plugins_Backend_Lengow_Bootstrap::log(
+                    'log/install/add_technical_error_status_error',
+                    array('error_message' => $errorMessage)
+                );
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Set Installation Status
      *
      * @param boolean $status installation status
