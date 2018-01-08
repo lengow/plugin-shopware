@@ -55,7 +55,7 @@
     },
     "changelog": {
         "en": {
-            "1.3.0": "Feature: Automatic verification of actions sent to the marketplace; Feature: Automatic sending of action if the first shipment was a failure; Feature: Setting up the simple Lengow tracker; Feature: Sending a report email with order import and action upload errors; Feature: Adding a order resynchronisation button with Lengow",
+            "1.3.0": "Feature: Automatic verification of actions sent to the marketplace; Feature: Automatic sending of action if the first shipment was a failure; Feature: Setting up the simple Lengow tracker; Feature: Sending a report email with order import and action upload errors; Feature: Adding a order resynchronisation button with Lengow; Feature: Adding a reimport order button and Lengow technical error status",
             "1.2.3": "Feature: Direct shipment of actions from Shopware API; Feature: Export specific price product for a customer group; Bugfix: Get specific domain name for a sub shop; Bugfix: Improvement of the update system to avoid sql errors",
             "1.2.2": "Feature: Translation management for catalog export; Bugfix: Fix the bug blocking the Shopware order details screen; Bugfix: Blocking unauthorized actions for a marketplace",
             "1.2.1": "Feature: Added Lengow tab in order details; Feature: Add cancel and ship action buttons; Bugfix: Fix shop url with specific domain name; Bugfix: Change shop data for sending option",

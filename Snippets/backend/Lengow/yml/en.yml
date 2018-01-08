@@ -235,14 +235,16 @@ en:
       ship_confirmation_message: "Do you really want to ship the order?"
       cancel_confirmation_title: "Send cancel action"
       cancel_confirmation_message: "Do you really want to cancel the order?"
-      action_loading_message: "Action [0] being sent..."
       success_message: "The action was sent successfully"
       fail_message: "Order action failed (See logs for more information)"
       synchronize_confirmation_title: "Synchronize ID"
       synchronize_confirmation_message: "Do you really want to synchronize the order?"
-      synchronize_loading_message: "Ongoing synchronization with Lengow..."
       synchronize_success_message: "The order was correctly synchronised with Lengow"
       synchronize_fail_message: "Order synchronisation failed (See logs for more information)"
+      reimport_confirmation_title: "Re-import order"
+      reimport_confirmation_message: "Do you really want to re-import the order?"
+      reimport_success_message: "The order [0] successfully re-imported (ORDER ID [1])"
+      reimport_fail_message: "Order re-importation failed (See logs for more information)"
   log:
     panel:
       empty_selection: "Please choose a log file..."

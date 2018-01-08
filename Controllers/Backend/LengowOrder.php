@@ -78,6 +78,24 @@ class Shopware_Controllers_Backend_LengowOrder extends Shopware_Controllers_Back
     }
 
     /**
+     * Cancel and re-import order action
+     */
+    public function cancelAndReImportAction()
+    {
+        $orderId = $this->Request()->getParam('orderId');
+        $order = Shopware()->Models()
+            ->getRepository('\Shopware\Models\Order\Order')
+            ->findOneBy(array('id' => $orderId));
+        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::cancelAndReImportOrder($order);
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $success
+            )
+        );
+    }
+
+    /**
      * Synchronize Order action
      */
     public function synchronizeAction()
@@ -105,6 +123,7 @@ class Shopware_Controllers_Backend_LengowOrder extends Shopware_Controllers_Back
         return array(
             'getOrderDetail',
             'getCallAction',
+            'cancelAndReImport',
             'synchronize'
         );
     }

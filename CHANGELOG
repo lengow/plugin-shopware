@@ -7,6 +7,7 @@ Version 1.3.0
     - Feature: Setting up the simple Lengow tracker
     - Feature: Sending a report email with order import and action upload errors
     - Feature: Adding a order resynchronisation button with Lengow
+    - Feature: Adding a reimport command button and Lengow technical error status
 
 =============================================================
 Version 1.2.3
