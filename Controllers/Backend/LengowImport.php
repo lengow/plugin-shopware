@@ -119,26 +119,12 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     }
 
     /**
-     * Check if Lengow import setting is enabled
-     */
-    public function getImportSettingStatusAction()
-    {
-        $status = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowEnableImport');
-        $this->View()->assign(
-            array(
-                'success' => true,
-                'data' => $status
-            )
-        );
-    }
-
-    /**
      * Get datas for import header page
      */
     public function getPanelContentsAction()
     {
         $data['nb_order_in_error'] = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::countOrderWithError();
-        $data['nb_order_to_be_sent'] = count(Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getUnsentOrders());
+        $data['nb_order_to_be_sent'] = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::countOrderToBeSent();
         $data['last_import'] = Shopware_Plugins_Backend_Lengow_Components_LengowImport::getLastImport();;
         $data['mail_report'] = implode(", ",
             Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getReportEmailAddress());

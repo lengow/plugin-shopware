@@ -366,9 +366,6 @@ Ext.define('Shopware.apps.Lengow.controller.Order', {
                         return tabPanel;
                     }
                 });
-            },
-            fail: function (response) {
-                console.log(response);
             }
         });
     }
