@@ -92,9 +92,8 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
     onShowDetail: function(record) {
         Shopware.app.Application.addSubApplication({
             name: 'Shopware.apps.Order',
-            action: 'showOrder',
             params: {
-                orderId: record.get('id')
+                orderId: record.get('orderId')
             }
         });
     }
