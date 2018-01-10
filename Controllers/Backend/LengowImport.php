@@ -67,6 +67,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             'orderLengow.customerName as customerName',
             'orderLengow.orderItem as orderItem',
             'orderLengow.deliveryCountryIso as deliveryCountryIso',
+            'orderLengow.sentByMarketplace as sentByMarketplace',
             'shops.name as storeName',
             's_core_states.description as orderStatusDescription',
             's_order.number as orderShopwareSku',
