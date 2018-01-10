@@ -72,6 +72,9 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                 dataIndex: 'orderLengowState',
                 flex: 1,
                 renderer : function(value, metadata, record) {
+                    if(record.get('sentByMarketplace')) {
+                        value = 'shipped_by_mkp';
+                    }
                     return '<span class="lgw-label lgw-label-' + value + '">'
                         + me.snippets.status[value] + '</span>';
                 }
