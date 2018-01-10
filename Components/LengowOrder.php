@@ -542,6 +542,71 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     }
 
     /**
+     * Cancel and re-import order
+     *
+     * @param \Shopware\Models\Order\Order $order Shopware order instance
+     *
+     * @return array|false
+     */
+    public static function cancelAndReImportOrder($order)
+    {
+        $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
+            ->findOneBy(array('order' => $order));
+        if (is_null($lengowOrder)) {
+            return false;
+        }
+        if (!self::isReimported($lengowOrder)) {
+            return false;
+        }
+        $params = array(
+            'marketplace_sku' => $lengowOrder->getMarketplaceSku(),
+            'marketplace_name' => $lengowOrder->getMarketplaceName(),
+            'delivery_address_id' => $lengowOrder->getDeliveryAddressId(),
+            'shop_id' => $lengowOrder->getShopId()
+        );
+        // import orders
+        $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport($params);
+        $result = $import->exec();
+        if ((isset($result['order_id']) && $result['order_id'] != $order->getId())
+            && (isset($result['order_new']) && $result['order_new'])
+        ) {
+            $newOrder = Shopware()->Models()
+                ->getRepository('\Shopware\Models\Order\Order')
+                ->findOneBy(array('id' => $result['order_id']));
+            if ($newOrder) {
+                $newStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowTechnicalErrorStatus();
+                if ($newStatus) {
+                    self::createOrderHistory($order, $newStatus);
+                    self::updateOrderStatus($order->getId(), $newStatus->getId());
+                }
+                return array(
+                    'marketplace_sku' => $lengowOrder->getMarketplaceSku(),
+                    'order_sku' => $newOrder->getNumber()
+                );
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Mark Lengow order as is_reimported in lengow_order table
+     *
+     * @param \Shopware\CustomModels\Lengow\Order $lengowOrder Lengow order instance
+     *
+     * @return boolean
+     */
+    public static function isReimported($lengowOrder)
+    {
+        try {
+            $lengowOrder->setReimported(true);
+            Shopware()->Models()->flush($lengowOrder);
+        } catch (Exception $e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Send Order action
      *
      * @param \Shopware\Models\Order\Order $order Shopware order instance
