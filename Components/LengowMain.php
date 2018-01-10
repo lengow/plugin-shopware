@@ -538,6 +538,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
+     * Load Lengow technical error status
+     *
+     * @return Shopware\Models\Order\Status|null
+     */
+    public static function getLengowTechnicalErrorStatus()
+    {
+        $params = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0')
+            ? array('name' => 'lengow_technical_error')
+            : array('description' => 'Technischer Fehler - Lengow');
+        $orderStatus = Shopware()->Models()->getRepository('Shopware\Models\Order\Status')->findOneBy($params);
+        return $orderStatus;
+    }
+
+    /**
      * Get Shopware order status corresponding to the current order state
      *
      * @param string $orderStateMarketplace order state marketplace
