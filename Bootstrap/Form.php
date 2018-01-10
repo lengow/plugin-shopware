@@ -417,11 +417,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             ->findBy(array('group' => 'state'));
         // Default dispatcher used to get shipping fees in export
         foreach ($orderStates as $orderState) {
-            $name = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0')
-                ? $orderState->getName()
-                : $orderState->getDescription();
             if ($orderState->getId() != -1) {
-                $selection[] = array($orderState->getId(), $name);
+                $selection[] = array($orderState->getId(), $orderState->getDescription());
             }
         }
         return array(
