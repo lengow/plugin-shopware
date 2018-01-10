@@ -313,6 +313,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     }
 
     /**
+     * Count order to be sent
+     *
+     * @return integer
+     */
+    public static function countOrderToBeSent()
+    {
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select(array('lo.orderId'))
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
+            ->where('lo.orderProcessState = 1');
+        $results = $builder->getQuery()->getResult();
+        return count($results);
+    }
+
+    /**
      * Get all unset orders
      *
      * @return array|false

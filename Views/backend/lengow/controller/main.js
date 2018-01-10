@@ -36,8 +36,6 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                         importStore: Ext.create('Shopware.apps.Lengow.store.Orders'),
                         logStore: Ext.create('Shopware.apps.Lengow.store.Logs')
                     }).show();
-
-                    me.initImportTab();
                 } else {
                     // Display sync iframe
                     me.mainWindow = me.getView('main.Sync').create({
@@ -50,23 +48,6 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                 }
                 // Show main window
                 me.mainWindow.maximize();
-            }
-        });
-    },
-
-    /**
-     * Hide import tab if import setting option is not enabled
-     */
-    initImportTab: function() {
-        Ext.Ajax.request({
-            url: '{url controller="LengowImport" action="getImportSettingStatus"}',
-            method: 'POST',
-            type: 'json',
-            success: function(response) {
-                var status = Ext.decode(response.responseText)['data'];
-                if (status) {
-                    Ext.getCmp('lengowTabPanel').child('#lengowImportTab').tab.show();
-                }
             }
         });
     },
@@ -89,7 +70,7 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                 } else {
                     var toolbar = Ext.getCmp('lengowMainToolbar');
                     if (toolbar !== 'undefined') {
-                        // Hide tabbar if nothing to show
+                        // Hide toolbar if nothing to show
                         toolbar.hide();
                     }
                 }
@@ -107,7 +88,8 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
         // For each one, listen on click and trigger concerned tab
         Ext.each(tabShortcuts, function(item) {
             item.onclick = function() {
-                var tabEl = Ext.getCmp(item.id); // Get tab reference
+                // Get tab reference
+                var tabEl = Ext.getCmp(item.id);
                 Ext.getCmp('lengowTabPanel').setActiveTab(tabEl);
             };
         });

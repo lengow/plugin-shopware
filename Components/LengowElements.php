@@ -203,6 +203,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                 </div>
             ';
         }
+        $numberOrderToBeSent = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::countOrderToBeSent();
+        $alertOrderToBeSent = $numberOrderToBeSent > 0
+            ? ' <span class="lgw-label red">' . $numberOrderToBeSent . '</span>'
+            : '';
         // get Lengow Dashboard
         $dashboardHtml = '
         <div id="lengow_home_wrapper">
@@ -215,7 +219,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                     </a>
                 </div>
                 <div class="lgw-row lgw-home-menu text-center">
-                    <div class="lgw-col-6">
+                    <div class="lgw-col-4">
                         <a id="lengowExportTab" href="#" class="lgw-box-link">
                             <div class="lgw-box">
                                 <img src="' . self::$imgFolder . 'home-products.png" class="img-responsive">
@@ -224,7 +228,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                             </div>
                         </a>
                     </div>
-                    <div class="lgw-col-6">
+                    <div class="lgw-col-4">
+                        <a id="lengowImportTab" href="#" class="lgw-box-link">
+                            <div class="lgw-box">
+                                <img src="' . self::$imgFolder . 'home-orders.png" class="img-responsive">
+                                <h2>' . $translations['orders_title'] . $alertOrderToBeSent . '</h2>
+                                <p>' . $translations['orders_text'] . '</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="lgw-col-4">
                         <a id="lengowSettingsTab" href="#" class="lgw-box-link">
                             <div class="lgw-box">
                                 <img src="' . self::$imgFolder . 'home-settings.png" class="img-responsive">
