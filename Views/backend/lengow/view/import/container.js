@@ -66,7 +66,6 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
                 },
                 {
                     xtype: 'label',
-                    padding: '5',
                     html: '<span class="lgw-btn-order">' + Ext.String.format(me.snippets.button) + "</span>",
                     listeners: {
                         render: function (component) {
