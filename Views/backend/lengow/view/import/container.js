@@ -35,8 +35,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
                     align: 'stretch'
                 },
                 items: [
-                    me.getFirstLine(),
-                    me.getSecondLine(),
+                    me.getImportHeader(),
                     Ext.create('Shopware.apps.Lengow.view.import.Grid', {
                         id: 'importGrid',
                         importStore: me.importStore,
@@ -52,20 +51,59 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
         me.callParent(arguments);
     },
 
-    getFirstLine: function() {
+    getImportHeader: function() {
         var me = this;
         return {
             xtype: 'container',
                 layout: {
                     type: 'hbox'
             },
-            margins: '7 0 7 0',
+            margins: '7',
             items: [
+                {
+                    xtype: 'container',
+                    width: 600,
+                    items: [
+                        {
+                            xtype: 'panel',
+                            id: 'nb_order_in_error',
+                            margin: '3',
+                            border: false
+                        }, {
+                            xtype: 'panel',
+                            id: 'nb_order_to_be_sent',
+                            margin: '3',
+                            border: false
+                        }, {
+                            xtype: 'panel',
+                            id: 'last_import',
+                            margin: '3',
+                            border: false
+                        }, {
+                            xtype: 'panel',
+                            id: 'mail_report',
+                            margin: '3',
+                            border: false,
+                            listeners: {
+                                render: function(component){
+                                    // On click, see configuration
+                                    component.getEl().on('click', function(){
+                                        Shopware.app.Application.addSubApplication({
+                                            name: 'Shopware.apps.Config'
+                                        });
+                                    });
+                                }
+                            }
+                        }
+                    ]
+                },
                 {
                     xtype: 'tbfill'
                 },
                 {
                     xtype: 'label',
+                    align: 'right',
+                    margins: '0 30 0 0',
                     html: '<span class="lgw-btn-order">' + Ext.String.format(me.snippets.button) + "</span>",
                     listeners: {
                         render: function (component) {
@@ -78,50 +116,6 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
                 }
             ]
         };
-    },
-
-    getSecondLine: function() {
-        var me = this;
-
-        return {
-            xtype: 'container',
-            left: '10',
-            items: [
-                {
-                    xtype: 'container',
-                    id: 'nb_order_in_error',
-                    margin: '3'
-                }, {
-                    xtype: 'container',
-                    id: 'nb_order_to_be_sent',
-                    margin: '3'
-                }, {
-                    xtype: 'container',
-                    id: 'last_import',
-                    margin: '3'
-                }, {
-                    xtype: 'container',
-                    id: 'mail_report',
-                    margin: '3',
-                    listeners: {
-                        render: function(component){
-                            // On click, see configuration
-                            component.getEl().on('click', function(){
-                                Shopware.app.Application.addSubApplication({
-                                    name: 'Shopware.apps.Config'
-                                });
-                            });
-                        }
-                    }
-                }, { // Display import error messages
-                    xtype: 'panel',
-                    id: 'importStatusPanel',
-                    border: false,
-                    align: 'center'
-                }
-            ]
-        }
     }
-
 });
 //{/block}
