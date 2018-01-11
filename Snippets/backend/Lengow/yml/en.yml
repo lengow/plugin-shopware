@@ -14,6 +14,8 @@ en:
       go_to_lengow: "Go to Lengow"
       products_title: "Products"
       products_text: "Take a look at all available products so that you can prepare your catalogue"
+      orders_title: "Orders"
+      orders_text: "Manage your orders directly on your Magento dashboard"
       settings_title: "Settings"
       settings_text: "Configure your Shopware plugin main settings"
       partner_business: "Lengow, your business partner"
@@ -111,9 +113,6 @@ en:
     lengow_import_settings:
       label: "Import settings"
       description: "All your orders are centralized in your Lengow platform : choose here if you want to synchronize and import your orders in your Shopware backoffice. It will also decrease your products stock in your backoffice"
-      enable_import:
-        label: "Activate order synchronisation"
-        description: "Use this option to import orders in your Shopware backoffice"
       ship_mp_enabled:
         label: "Import orders shipped by marketplaces"
       decrease_stock:
@@ -240,6 +239,14 @@ en:
       cancel_confirmation_message: "Do you really want to cancel the order?"
       success_message: "The action was sent successfully"
       fail_message: "Order action failed (See logs for more information)"
+      synchronize_confirmation_title: "Synchronize ID"
+      synchronize_confirmation_message: "Do you really want to synchronize the order?"
+      synchronize_success_message: "The order was correctly synchronised with Lengow"
+      synchronize_fail_message: "Order synchronisation failed (See logs for more information)"
+      reimport_confirmation_title: "Re-import order"
+      reimport_confirmation_message: "Do you really want to re-import the order?"
+      reimport_success_message: "The order [0] successfully re-imported (ORDER ID [1])"
+      reimport_fail_message: "Order re-importation failed (See logs for more information)"
   log:
     panel:
       empty_selection: "Please choose a log file..."
@@ -259,7 +266,6 @@ en:
       no_currency: "Lengow error: no currency in the order"
       currency_not_available: "the %{currency_iso} currency is not available in your shop"
       rest_time_to_import: "Please wait %{rest_time} seconds before re-importing orders"
-      import_not_active: "Import option is not enabled in Lengow's settings"
       credentials_not_valid: "Account ID, token access or secret token are not valid"
       no_catalog_for_shop: "No catalog ID valid for the shop %{name_shop} (%{id_shop})"
     exception:

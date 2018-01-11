@@ -65,8 +65,46 @@ class Shopware_Controllers_Backend_LengowOrder extends Shopware_Controllers_Back
     {
         $orderId = $this->Request()->getParam('orderId');
         $action = $this->Request()->getParam('actionName');
-        $order = Shopware()->Models()->getRepository('\Shopware\Models\Order\Order')->findOneBy(array('id' => $orderId));
+        $order = Shopware()->Models()
+            ->getRepository('\Shopware\Models\Order\Order')
+            ->findOneBy(array('id' => $orderId));
         $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order,$action);
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $success
+            )
+        );
+    }
+
+    /**
+     * Cancel and re-import order action
+     */
+    public function cancelAndReImportAction()
+    {
+        $orderId = $this->Request()->getParam('orderId');
+        $order = Shopware()->Models()
+            ->getRepository('\Shopware\Models\Order\Order')
+            ->findOneBy(array('id' => $orderId));
+        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::cancelAndReImportOrder($order);
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $success
+            )
+        );
+    }
+
+    /**
+     * Synchronize Order action
+     */
+    public function synchronizeAction()
+    {
+        $orderId = $this->Request()->getParam('orderId');
+        $order = Shopware()->Models()
+            ->getRepository('\Shopware\Models\Order\Order')
+            ->findOneBy(array('id' => $orderId));
+        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::synchronizeOrder($order);
         $this->View()->assign(
             array(
                 'success' => true,
@@ -85,6 +123,8 @@ class Shopware_Controllers_Backend_LengowOrder extends Shopware_Controllers_Back
         return array(
             'getOrderDetail',
             'getCallAction',
+            'cancelAndReImport',
+            'synchronize'
         );
     }
 }

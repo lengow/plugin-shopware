@@ -202,24 +202,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         $orderError = 0;
         $error = array();
         $globalError = false;
-        $isImportActivated = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowEnableImport'
-        );
-        // Import option enabled in plugin options
-        if (!$isImportActivated) {
-            // Required to display error in the frontend window
-            $error['error'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                'lengow_log/error/import_not_active'
-            );
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Import',
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'lengow_log/error/import_not_active'
-                ),
-                $this->logOutput
-            );
-            return $error;
-        }
         // clean logs
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanLog();
         if (self::isInProcess() && !$this->preprodMode && !$this->importOneOrder) {

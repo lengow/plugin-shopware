@@ -35,9 +35,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     /**
      * Returns plugin version
      *
-     * @throws Exception
-     *
-     * @return string
+     * @return string|false
      */
     public function getVersion()
     {
@@ -45,14 +43,12 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         if ($info) {
             return $info['currentVersion'];
         } else {
-            throw new Exception('The plugin has an invalid version file.');
+            return false;
         }
     }
 
     /**
      * Returns plugin info
-     *
-     * @throws Exception
      *
      * @return array
      */
@@ -100,12 +96,14 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         self::log('log/install/add_menu');
         $lengowForm = new Shopware_Plugins_Backend_Lengow_Bootstrap_Form();
         $lengowForm->createConfig($this->Form());
+        $lengowForm->removeOldSettings();
         $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
         $lengowDatabase->updateSchema();
         $lengowDatabase->createCustomModels();
         $lengowDatabase->updateCustomModels();
         $lengowDatabase->setLengowSettings();
         $lengowDatabase->updateOrderAttribute();
+        $lengowDatabase->addLengowTechnicalErrorStatus();
         $this->createLengowPayment();
         $this->registerMyEvents();
         $this->registerCustomModels();
@@ -134,17 +132,22 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public function update($version)
     {
+        $newVersion  = $this->getVersion();
+        self::log('log/update/start', array('old_version' => $version, 'new_version' => $newVersion));
         $lengowForm = new Shopware_Plugins_Backend_Lengow_Bootstrap_Form();
         $lengowForm->createConfig($this->Form());
+        $lengowForm->removeOldSettings();
         $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
         $lengowDatabase->updateSchema();
         $lengowDatabase->createCustomModels();
         $lengowDatabase->updateCustomModels();
         $lengowDatabase->setLengowSettings();
         $lengowDatabase->updateOrderAttribute();
+        $lengowDatabase->addLengowTechnicalErrorStatus();
         $this->createLengowPayment();
         $this->registerMyEvents();
         $this->registerCustomModels();
+        self::log('log/update/end', array('old_version' => $version, 'new_version' => $newVersion));
         return array(
             'success' => true,
             'invalidateCache' => array('backend')

@@ -67,6 +67,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             'orderLengow.customerName as customerName',
             'orderLengow.orderItem as orderItem',
             'orderLengow.deliveryCountryIso as deliveryCountryIso',
+            'orderLengow.sentByMarketplace as sentByMarketplace',
             'shops.name as storeName',
             's_core_states.description as orderStatusDescription',
             's_order.number as orderShopwareSku',
@@ -121,27 +122,13 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     }
 
     /**
-     * Check if Lengow import setting is enabled
-     */
-    public function getImportSettingStatusAction()
-    {
-        $status = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowEnableImport');
-        $this->View()->assign(
-            array(
-                'success' => true,
-                'data' => $status
-            )
-        );
-    }
-
-    /**
      * Get datas for import header page
      */
     public function getPanelContentsAction()
     {
         $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
         $data['nb_order_in_error'] = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::countOrderWithError();
-        $data['nb_order_to_be_sent'] = count(Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getUnsentOrders());
+        $data['nb_order_to_be_sent'] = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::countOrderToBeSent();
         $data['last_import'] = Shopware_Plugins_Backend_Lengow_Components_LengowImport::getLastImport();;
         $reportMailActive = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowImportReportMailEnabled');
 
@@ -220,15 +207,10 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             );
         }
         if (isset($return['order_error']) && $return['order_error'] > 0) {
-            $logUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getPathPlugin() .
-                'Logs/logs-' . date('Y-m-d') . '.txt';
             $messages['order_error'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                'order/panel/order_error_link',
+                'lengow_log/error/nb_order_with_error',
                 $locale,
-                array(
-                    'nb_order' => (int)$return['order_error'],
-                    'log_url' => $logUrl
-                )
+                array('nb_order' => (int)$return['order_error'])
             );
         }
         if (count($messages) == 0) {

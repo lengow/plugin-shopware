@@ -39,6 +39,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
     protected $entityManager;
 
     /**
+     * @var array old Lengow settings
+     */
+    protected $oldSettings = array(
+        'lengowExportVariationEnabled',
+        'lengowExportOutOfStock',
+        'lengowEnableImport',
+    );
+
+    /**
      * Construct
      */
     public function __construct()
@@ -160,14 +169,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         $exportSettingForm->setParent($mainForm);
         // Import settings
         $importFormElements = array(
-            'lengowEnableImport' => array(
-                'type' => 'boolean',
-                'label' => 'settings/lengow_import_settings/enable_import/label',
-                'editable' => false,
-                'value' => false,
-                'required' => false,
-                'description' => 'settings/lengow_import_settings/enable_import/description'
-            ),
             'lengowImportShipMpEnabled' => array(
                 'type' => 'boolean',
                 'label' => 'settings/lengow_import_settings/ship_mp_enabled/label',
@@ -287,6 +288,32 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
     }
 
     /**
+     * Remove old settings for old plugin versions
+     */
+    public function removeOldSettings()
+    {
+        foreach ($this->oldSettings as $setting) {
+            $element = $this->entityManager->getRepository('\Shopware\Models\Config\Element')
+                ->findOneBy(array('name' => $setting));
+            if ($element) {
+                try {
+                    $this->entityManager->remove($element);
+                    $this->entityManager->flush();
+                    Shopware_Plugins_Backend_Lengow_Bootstrap::log(
+                        'log/install/delete_old_setting',
+                        array('name' => $setting)
+                    );
+                } catch (Exception $e) {
+                    Shopware_Plugins_Backend_Lengow_Bootstrap::log(
+                        'log/install/delete_old_setting_error',
+                        array('name' => $setting)
+                    );
+                }
+            }
+        }
+    }
+
+    /**
      * Create settings forms for the plugin (basic settings)
      *
      * @param string $name name of the form
@@ -390,11 +417,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             ->findBy(array('group' => 'state'));
         // Default dispatcher used to get shipping fees in export
         foreach ($orderStates as $orderState) {
-            $name = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0')
-                ? $orderState->getName()
-                : $orderState->getDescription();
             if ($orderState->getId() != -1) {
-                $selection[] = array($orderState->getId(), $name);
+                $selection[] = array($orderState->getId(), $orderState->getDescription());
             }
         }
         return array(

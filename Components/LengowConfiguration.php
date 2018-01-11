@@ -405,7 +405,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'lengowDefaultDispatcher' => array('shop' => true),
             'lengowLastExport' => array('shop' => true),
             'lengowGlobalToken' => array('global' => true),
-            'lengowEnableImport' => array('global' => true),
             'lengowImportShipMpEnabled' => array('global' => true),
             'lengowImportStockMpEnabled' => array('global' => true),
             'lengowImportDefaultDispatcher' => array('shop' => true),
