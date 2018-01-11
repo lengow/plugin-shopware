@@ -34,8 +34,8 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             empty: '{s name="export/grid/search/empty" namespace="backend/Lengow/translation"}{/s}'
         },
         errors: {
-            import: '{s name="export/grid/errors/import" namespace="backend/Lengow/translation"}{/s}',
-            action: '{s name="export/grid/errors/action" namespace="backend/Lengow/translation"}{/s}'
+            import: '{s name="order/grid/errors/import" namespace="backend/Lengow/translation"}{/s}',
+            action: '{s name="order/grid/errors/action" namespace="backend/Lengow/translation"}{/s}'
         }
     },
 

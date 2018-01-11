@@ -211,6 +211,9 @@ en:
       status_closed: "Closed"
       status_shipped_by_mkp: "Shipped by Marketplace"
       status_canceled: "Canceled"
+      errors:
+        action: "Action sent to the marketplace didn't work"
+        import: "Order hasn't been imported into Magento"
     details:
       title: "Lengow informations"
       marketplace_sku: "Marketplace SKU"
