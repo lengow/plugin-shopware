@@ -61,7 +61,7 @@ a.lgw-box-link:hover {
 /*                    BUTTONS                    */
 /*************************************************/
 
-.lgw-container .lgw-btn {
+.lgw-container .lgw-btn, .lgw-btn-order {
   border-radius: 3px;
   padding: 10px 20px;
   margin: 15px 0;
@@ -78,7 +78,9 @@ a.lgw-box-link:hover {
 }
 
 .lgw-container .lgw-btn:hover,
-.lgw-container .lgw-btn:active {
+.lgw-container .lgw-btn:active,
+.lgw-btn-order:hover,
+.lgw-btn-order:active{
   background: #019ce2;
   color: white;
 }
@@ -193,4 +195,11 @@ a.lgw-box-link:hover {
   height: 16px;
   margin-left: 3px;
   vertical-align: middle;
+}
+
+.lengow_import_orders_style {
+  padding: 5px;
+  display: inline-block;
+  vertical-align: top;
+  cursor: pointer;
 }

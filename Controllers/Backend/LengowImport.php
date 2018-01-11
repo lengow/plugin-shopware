@@ -60,7 +60,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             'orderLengow.currency as currency',
             'orderLengow.inError as inError',
             'orderLengow.marketplaceSku as marketplaceSku',
-            'orderLengow.marketplaceName as marketplaceName',
+            'orderLengow.marketplaceLabel as marketplaceLabel',
             'orderLengow.orderLengowState as orderLengowState',
             'orderLengow.orderProcessState as orderProcessState',
             'orderLengow.orderDate as orderDate',
@@ -139,11 +139,27 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
      */
     public function getPanelContentsAction()
     {
+        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
         $data['nb_order_in_error'] = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::countOrderWithError();
         $data['nb_order_to_be_sent'] = count(Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getUnsentOrders());
         $data['last_import'] = Shopware_Plugins_Backend_Lengow_Components_LengowImport::getLastImport();;
-        $data['mail_report'] = implode(", ",
-            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getReportEmailAddress());
+        $reportMailActive = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowImportReportMailEnabled');
+
+        if ($reportMailActive) {
+            $data['mail_report'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                'order/panel/mail_report',
+                $locale,
+                array('email' => implode(", ",
+                    Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getReportEmailAddress())
+                )
+            );
+        } else {
+            $data['mail_report'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                'order/panel/no_mail_report',
+                $locale
+            );
+        }
+        $data['mail_report'] .= ' (<a href="#">Change this?</a>)';
         $this->View()->assign(
             array(
                 'success' => true,
@@ -161,7 +177,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $result = $import->exec();
         $messages = $this->loadMessage($result);
         $data = array();
-        $data['messages'] = join( '<br/>', $messages);
+        $data['messages'] = join('<br/>', $messages);
         $this->View()->assign(
             array(
                 'success' => true,

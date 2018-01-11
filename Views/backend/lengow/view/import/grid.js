@@ -115,7 +115,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                 }
             }, {
                 header: me.snippets.column.marketplace,
-                dataIndex: 'marketplaceName',
+                dataIndex: 'marketplaceLabel',
                 flex: 1
             }, {
                 header: me.snippets.column.store_name,

@@ -8,7 +8,8 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
         order_error: '{s name="order/panel/order_error" namespace="backend/Lengow/translation"}{/s}',
         last_import: '{s name="order/panel/last_import" namespace="backend/Lengow/translation"}{/s}',
         to_be_sent: '{s name="order/panel/to_be_sent" namespace="backend/Lengow/translation"}{/s}',
-        mail_report: '{s name="order/panel/mail_report" namespace="backend/Lengow/translation"}{/s}'
+        close: '{s name="order/panel/close" namespace="backend/Lengow/translation"}{/s}',
+        synchronisation_report: '{s name="order/panel/synchronisation_report" namespace="backend/Lengow/translation"}{/s}'
     },
 
     init: function () {
@@ -63,7 +64,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
                     '<p>' + Ext.String.format(me.snippets.last_import, data['last_import']) + '</p>'
                 );
                 Ext.getCmp('mail_report').update(
-                    '<p>' + Ext.String.format(me.snippets.mail_report, data['mail_report']) + '</p>'
+                    '<p>' + data['mail_report'] + '</p>'
                 );
             }
         });
@@ -89,12 +90,23 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
                 var result = Ext.decode(response.responseText),
                     success = result['success'],
                     data = result['data'],
-                    statusLabel = Ext.getCmp('importStatusPanel');
-                statusLabel.update(data.messages);
+                    grid = Ext.getCmp('importGrid');
                 // Update last synchronization date
                 me.onInitImportPanels();
                 // Hide waiting message
                 Ext.MessageBox.hide();
+                grid.getStore().load();
+                grid.getView().refresh();
+                Ext.MessageBox.show({
+                    title: me.snippets.synchronisation_report,
+                    msg: data.messages,
+                    width: 600,
+                    buttons: Ext.Msg.YES,
+                    buttonText :
+                    {
+                        yes : me.snippets.close
+                    }
+                });
             }
         });
     },

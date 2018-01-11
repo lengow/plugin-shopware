@@ -7,7 +7,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
 
     // Translations
     snippets: {
-        button: '{s name="order/panel/button" namespace="backend/Lengow/translation"}{/s}'
+        button: '{s name="order/panel/button_import" namespace="backend/Lengow/translation"}{/s}'
     },
 
     /**
@@ -56,23 +56,22 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
         var me = this;
         return {
             xtype: 'container',
-            layout: {
-                type: 'hbox'
+                layout: {
+                    type: 'hbox'
             },
+            margins: '7 0 7 0',
             items: [
                 {
-                    xtype: 'container',
-                    padding: '5',
-                    html: Ext.String.format(me.snippets.button)
+                    xtype: 'tbfill'
                 },
                 {
-                    xtype: 'container',
+                    xtype: 'label',
                     padding: '5',
-                    html: "<a href='#' id='importOrders' class='lengow_import_orders'></a>",
+                    html: '<span class="lgw-btn-order">' + Ext.String.format(me.snippets.button) + "</span>",
                     listeners: {
-                        render: function(component){
+                        render: function (component) {
                             // On click, import orders
-                            component.getEl().on('click', function(){
+                            component.getEl().on('click', function () {
                                 me.fireEvent('launchImportProcess');
                             });
                         }

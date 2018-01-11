@@ -187,8 +187,11 @@ en:
       to_be_sent: "You have [0] order(s) waiting to be sent"
       last_import: "Last synchronisation : <b>[0]</b>"
       order_error: "You have [0] order(s) with errors"
-      button: "Launch import"
-      mail_report: "All order issue reports will be sent by mail to [0] (<a href='#'>Change this?</a>)"
+      button_import: "Synchronize Orders"
+      mail_report: "All order issue reports will be sent by mail to %{email}"
+      no_mail_report: "No order issue reports will be sent by mail"
+      close : "Close"
+      synchronisation_report: "Order synchronisation report"
     grid:
       column:
         actions: "Actions"

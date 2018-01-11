@@ -13,7 +13,7 @@ Ext.define('Shopware.apps.Lengow.model.Orders', {
 		{ name : 'currency', type: 'string' },
 		{ name : 'inError', type: 'bool' },
         { name : 'marketplaceSku', type: 'string' },
-        { name : 'marketplaceName', type: 'string' },
+        { name : 'marketplaceLabel', type: 'string' },
         { name : 'orderLengowState', type: 'string' },
         { name : 'orderProcessState', type: 'string' },
         { name : 'orderStatus', type: 'string' },
