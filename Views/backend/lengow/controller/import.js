@@ -8,7 +8,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
         order_error: '{s name="order/panel/order_error" namespace="backend/Lengow/translation"}{/s}',
         last_import: '{s name="order/panel/last_import" namespace="backend/Lengow/translation"}{/s}',
         to_be_sent: '{s name="order/panel/to_be_sent" namespace="backend/Lengow/translation"}{/s}',
-        close: '{s name="order/panel/close" namespace="backend/Lengow/translation"}{/s}',
+        ok: '{s name="order/panel/ok" namespace="backend/Lengow/translation"}{/s}',
         synchronisation_report: '{s name="order/panel/synchronisation_report" namespace="backend/Lengow/translation"}{/s}'
     },
 
@@ -104,7 +104,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
                     buttons: Ext.Msg.YES,
                     buttonText :
                     {
-                        yes : me.snippets.close
+                        yes : me.snippets.ok
                     }
                 });
             }

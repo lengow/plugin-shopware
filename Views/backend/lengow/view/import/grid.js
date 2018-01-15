@@ -36,7 +36,9 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
         errors: {
             import: '{s name="order/grid/errors/import" namespace="backend/Lengow/translation"}{/s}',
             action: '{s name="order/grid/errors/action" namespace="backend/Lengow/translation"}{/s}'
-        }
+        },
+        action_sent: '{s name="order/grid/action_sent" namespace="backend/Lengow/translation"}{/s}',
+        action_waiting_return: '{s name="order/grid/action_waiting_return" namespace="backend/Lengow/translation"}{/s}'
     },
 
     listeners : {
@@ -85,24 +87,41 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                 dataIndex: 'inError',
                 flex: 1,
                 renderer: function(value, metadata, record) {
+                    var orderIdShopware = record.get('orderId');
+                    var orderIdLengow = record.get('id');
+                    var orderProcessState = record.get('orderProcessState');
+                    var lastActionType = record.get('lastActionType');
+                    var errorMessages = record.get('errorMessage');
                     if (value) {
                         var errorType = record.get('orderProcessState') == 0 ? 'import' : 'send';
-                        var errorMessage = record.get('errorMessage');// get all errorMessages
+                        // var errorMessages = me.fireEvent('getErrors', orderIdLengow, errorType);//TODO
                         if (errorType == 'import') {
-                            var tootlip = me.snippets.errors.import + '<br/>' + errorMessage;
-                            return '<span class="lengow_action lengow_tooltip lgw-btn lgw-btn-white lgw_order_action_grid-js"'
+                            var tootlip = me.snippets.errors.import + errorMessages;
+                            return '<span class="lengow_action lengow_tooltip lgw-btn lgw-btn-white lgw-label lgw_order_action_grid-js"'
                                 + ' data-href="#">not imported'
-                                + '<span class="lengow_order_action">' + tootlip
-                                + '</span>&nbsp<i class="sprite-arrow-circle-double-135 lgw_order_action_grid-js"></i></span>';
+                                + '<span class="lengow_order_action">' + tootlip + '</span></span>';
                         } else {
-                            var tootlip = me.snippets.errors.action + '<br/>' + errorMessage;
-                            return '<span class="lengow_action lengow_tooltip lgw-btn lgw-btn-white lgw_order_action_grid-js"'
+                            var tootlip = me.snippets.errors.action + errorMessages;
+                            return '<span class="lengow_action lengow_tooltip lgw-btn lgw-label lgw-btn-white lgw_order_action_grid-js"'
                                 + ' data-href="#">not sent'
-                                + '<span class="lengow_order_action lgw_order_action_grid-js">' + tootlip
-                                + '</span>&nbsp<i class="sprite-arrow-circle-double-135 lgw_order_action_grid-js"></i></span>';
+                                + '<span class="lengow_order_action">' + tootlip + '</span></span>';
                         }
                     } else {
-                        return 'sent or else';
+                        if (null != orderIdShopware && orderProcessState == 1) {
+                            if (lastActionType) {
+                                var lengowMessage = Ext.String.format(
+                                    me.snippets.action_sent,
+                                    lastActionType
+                                );
+                                return '<a class="lengow_action lengow_tooltip lgw-btn lgw-label lgw-btn-white">' +
+                                    lengowMessage + '<span class="lengow_order_action">' +
+                                    me.snippets.action_waiting_return + '</span></a>';
+                            } else {
+                                return '';
+                            }
+                        } else {
+                            return '';
+                        }
                     }
                 }
             }, {

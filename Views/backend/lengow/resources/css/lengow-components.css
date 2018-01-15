@@ -85,6 +85,24 @@ a.lgw-box-link:hover {
   color: white;
 }
 
+.lgw-btn-order {
+  margin: 0;
+}
+
+/* WHITE */
+
+.lgw-btn-white a, .custom-grid-action a {
+  background-color: #fff;
+  border:1px solid #d7d7d7;
+  color: #555;
+}
+
+.lgw-btn-white a:hover, .custom-grid-action a:hover
+.lgw-btn-white a:focus, .custom-grid-action a:focus {
+  background-color: #f7f7f7;
+  color: #00aeef;
+}
+
 /*************************************************/
 /*                    LABELS                     */
 /*************************************************/
@@ -173,7 +191,7 @@ a.lgw-box-link:hover {
   font-style: normal;
   font-weight: normal;
   line-height: 1.42857143;
-  max-width: 200px;
+  max-width: 300px;
   opacity: .9;
 }
 
