@@ -2,6 +2,7 @@
 Version 1.3.0
 =============================================================
 
+    - Feature: Implementation of the new Lengow order management screen
     - Feature: Automatic verification of actions sent to the marketplace
     - Feature: Automatic sending of action if the first shipment was a failure
     - Feature: Setting up the simple Lengow tracker
@@ -26,7 +27,7 @@ Version 1.2.2
     - Bugfix: Fix the bug blocking the Shopware order details screen
     - Bugfix: Blocking unauthorized actions for a marketplace
 
-=============================================================
+=============================================================cddcdcd
 Version 1.2.1
 =============================================================
 

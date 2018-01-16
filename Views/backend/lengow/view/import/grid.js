@@ -64,12 +64,29 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
         var me = this;
 
         me.store = me.importStore;
+        me.selModel = me.getGridSelModel();
         me.orderStatusStore = Ext.create('Shopware.apps.Base.store.OrderStatus');
         me.columns = me.getColumns();
         me.tbar = me.getToolbar();
         me.bbar = me.createPagingToolbar();
 
         me.callParent(arguments);
+    },
+
+    /**
+     * Creates the grid selection model for checkboxes
+     * @return [Ext.selection.CheckboxModel] grid selection model
+     */
+    getGridSelModel: function () {
+        var me = this;
+
+        return Ext.create('Ext.selection.CheckboxModel', {
+            listeners:{
+                selectionchange: function (view, selections) {
+                    me.fireEvent('selectOrder', selections[0]);
+                }
+            }
+        });
     },
 
     /**

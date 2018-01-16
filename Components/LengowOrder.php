@@ -596,7 +596,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                 }
                 return array(
                     'marketplace_sku' => $lengowOrder->getMarketplaceSku(),
-                    'order_sku' => $newOrder->getNumber()
+                    'order_sku' => $newOrder->getNumber(),
+                    'order_id' => $newOrder->getId()
                 );
             }
         }
@@ -782,42 +783,5 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         }
         $return = $orderLines[$lengowOrder->getDeliveryAddressId()];
         return count($return) > 0 ? $return : false;
-    }
-
-    /**
-     * Get lengow order detail in order detail page
-     *
-     * @param $orderId
-     * @return array|string
-     */
-    public static function getOrderDetailAction($orderId) {
-
-        $keys = array(
-            'order/details/' => array(
-                'not_tracked_by_lengow',
-                'not_lengow_order',
-            )
-        );
-        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $repository = $em->getRepository('Shopware\CustomModels\Lengow\Order');
-        $lengowOrder = $repository->findOneBy(array(
-            'orderId' => $orderId
-        ));
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowOrder::orderIsFromLengow($orderId) == 1) {
-            if ($lengowOrder) {
-                $data = Shopware()->Models()->toArray($lengowOrder);
-                if (!Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                    'lengowImportPreprodEnabled'
-                )) {
-                    $data['canResendAction'] = true;
-                }
-            } else {
-                $data = json_encode($translations['not_tracked_by_lengow']);
-            }
-        } else {
-            $data = json_encode($translations['not_lengow_order']);
-        }
-        return $data;
     }
 }

@@ -27,13 +27,12 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
 
         me.items = [
             {
-                xtype: 'panel',
-                region: 'center',
-                id: 'topPanelImport',
+                xtype: 'container',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
                 },
+                region: 'center',
                 items: [
                     me.getImportHeader(),
                     Ext.create('Shopware.apps.Lengow.view.import.Grid', {
@@ -41,10 +40,19 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
                         importStore: me.importStore,
                         flex: 1,
                         autoScroll : true,
+                        region:'center',
                         style: 'border: none',
                         bodyStyle: 'background:#fff;'
                     })
                 ]
+            },
+            {
+                xtype: 'lengow-import-panel',
+                collapsed: true,
+                collapsible: true,
+                autoScroll : true,
+                flex: 1,
+                region: 'east'
             }
         ];
         me.fireEvent('initImportPanels');

@@ -132,31 +132,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
     }
 
     /**
-     * Listen to order details
-     *
-     * @param Enlight_Event_EventArgs $args Shopware Enlight Controller Action instance
-     */
-    public static function onOrderPostDispatch($args)
-    {
-        /** @var \Enlight_Controller_Action $controller */
-        $controller = $args->getSubject();
-        $view = $controller->View();
-        $request = $controller->Request();
-
-        $view->addTemplateDir(__DIR__ . '/../Views');
-
-        if ($request->getActionName() === 'index') {
-            $view->extendsTemplate('backend/lengow/controller/order.js');
-            $view->extendsTemplate('backend/lengow/order.js');
-        }
-
-        if ($request->getActionName() === 'load') {
-            $view->extendsTemplate('backend/lengow/controller/order.js');
-            $view->extendsTemplate('backend/lengow/order.js');
-        }
-    }
-
-    /**
      * Listen to api order changes after save / send call action if necessary
      *
      * @param Enlight_Event_EventArgs $args Shopware Enlight Controller Action instance
