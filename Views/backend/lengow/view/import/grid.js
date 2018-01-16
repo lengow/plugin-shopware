@@ -43,11 +43,11 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
 
     listeners : {
         cellclick : function(view, cell, cellIndex, record, row, rowIndex, e) {
-            var errorType = record.raw.orderProcessState == 0 ? 'import' : 'send';
+            var me = this;
+            var errorType = record.raw.orderProcessState == 0 ? 're_import' : 're_send';
             var clickedColumnName = view.panel.headerCt.getHeaderAtIndex(cellIndex).dataIndex;
             if (clickedColumnName == 'inError') {
-                console.log('plop' + errorType);
-                // me.fireEvent('sendAction', errorType);
+                me.fireEvent('reSendActionGrid', record.raw.orderId, errorType, record.raw.lastActionType);
             }
         }
     },
@@ -55,7 +55,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
     registerEvents: function() {
         this.addEvents(
             'showDetail',
-            'sendAction'
+            'reSendActionGrid'
         )
     },
 
@@ -87,24 +87,24 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                 dataIndex: 'inError',
                 flex: 1,
                 renderer: function(value, metadata, record) {
-                    var orderIdShopware = record.get('orderId');
-                    var orderIdLengow = record.get('id');
-                    var orderProcessState = record.get('orderProcessState');
-                    var lastActionType = record.get('lastActionType');
-                    var errorMessages = record.get('errorMessage');
+                    var orderIdShopware = record.get('orderId'),
+                        orderProcessState = record.get('orderProcessState'),
+                        lastActionType = record.get('lastActionType'),
+                        errorMessages = record.get('errorMessage');
                     if (value) {
-                        var errorType = record.get('orderProcessState') == 0 ? 'import' : 'send';
-                        // var errorMessages = me.fireEvent('getErrors', orderIdLengow, errorType);//TODO
-                        if (errorType == 'import') {
+                        var errorType = record.get('orderProcessState') == 0 ? 're_import' : 're_send';
+                        if (errorType == 're_import') {
                             var tootlip = me.snippets.errors.import + errorMessages;
-                            return '<span class="lengow_action lengow_tooltip lgw-btn lgw-btn-white lgw-label lgw_order_action_grid-js"'
+                            return '<div class=" x-btn primary small lengow_action_button_grid">' +
+                                '<span class="lengow_action lengow_tooltip lgw_order_action_grid-js"'
                                 + ' data-href="#">not imported'
-                                + '<span class="lengow_order_action">' + tootlip + '</span></span>';
+                                + '<span class="lengow_order_action">' + tootlip + '</span></span></div>';
                         } else {
                             var tootlip = me.snippets.errors.action + errorMessages;
-                            return '<span class="lengow_action lengow_tooltip lgw-btn lgw-label lgw-btn-white lgw_order_action_grid-js"'
+                            return '<div class=" x-btn primary small lengow_action_button_grid">' +
+                                '<span class="lengow_action lengow_tooltip lgw_order_action_grid-js"'
                                 + ' data-href="#">not sent'
-                                + '<span class="lengow_order_action">' + tootlip + '</span></span>';
+                                + '<span class="lengow_order_action">' + tootlip + '</span></span></div>';
                         }
                     } else {
                         if (null != orderIdShopware && orderProcessState == 1) {
