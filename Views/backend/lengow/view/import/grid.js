@@ -43,11 +43,13 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
 
     listeners : {
         cellclick : function(view, cell, cellIndex, record, row, rowIndex, e) {
-            var me = this;
-            var errorType = record.raw.orderProcessState == 0 ? 're_import' : 're_send';
-            var clickedColumnName = view.panel.headerCt.getHeaderAtIndex(cellIndex).dataIndex;
+            var me = this,
+                idOrder,
+                errorType = record.raw.orderProcessState == 0 ? 'import' : 'send',
+                clickedColumnName = view.panel.headerCt.getHeaderAtIndex(cellIndex).dataIndex;
             if (clickedColumnName == 'inError') {
-                me.fireEvent('reSendActionGrid', record.raw.orderId, errorType, record.raw.lastActionType);
+                idOrder = errorType == 'send' ? record.raw.orderId : record.raw.id;
+                me.fireEvent('reSendActionGrid', idOrder, errorType, record.raw.lastActionType);
             }
         }
     },
@@ -102,7 +104,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                 header: me.snippets.column.actions,
                 tdCls: 'custom-grid-action',
                 dataIndex: 'inError',
-                flex: 1,
+                flex: 2,
                 renderer: function(value, metadata, record) {
                     var orderIdShopware = record.get('orderId'),
                         orderProcessState = record.get('orderProcessState'),
@@ -144,7 +146,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             }, {
                 header: me.snippets.column.lengow_status,
                 dataIndex: 'orderLengowState',
-                flex: 1,
+                flex: 2,
                 renderer : function(value, metadata, record) {
                     if(record.get('sentByMarketplace')) {
                         value = 'shipped_by_mkp';
@@ -155,15 +157,15 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             }, {
                 header: me.snippets.column.marketplace,
                 dataIndex: 'marketplaceLabel',
-                flex: 1
+                flex: 2
             }, {
                 header: me.snippets.column.store_name,
                 dataIndex: 'storeName',
-                flex: 1
+                flex: 2
             }, {
                 header: me.snippets.column.marketplace_sku,
                 dataIndex: 'marketplaceSku',
-                flex: 1
+                flex: 2
             }, {
                 header: me.snippets.column.shopware_status,
                 dataIndex: 'orderStatus',
@@ -173,19 +175,19 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                     else if (value) return value;
                     return '';
                 },
-                flex: 1
+                flex: 2
             }, {
                 header: me.snippets.column.shopware_sku,
                 dataIndex: 'orderSku',
-                flex: 1
+                flex: 2
             }, {
                 header: me.snippets.column.order_date,
                 dataIndex: 'orderDate',
-                flex: 1
+                flex: 2
             }, {
                 header: me.snippets.column.customer_name,
                 dataIndex: 'customerName',
-                flex: 1
+                flex: 2
             }, {
                 header: me.snippets.column.country,
                 dataIndex: 'countryIso',

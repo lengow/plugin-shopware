@@ -113,7 +113,12 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 'WITH',
                 'orderLengow.id = orderError.lengowOrderId'
             )
-            ->leftJoin('Shopware\CustomModels\Lengow\Action', 's_lengow_action', 'WITH', 'orderLengow.id = s_lengow_action.orderId');
+            ->leftJoin(
+                'Shopware\CustomModels\Lengow\Action',
+                's_lengow_action',
+                'WITH',
+                's_order.id = s_lengow_action.orderId'
+            );
         ;
 
         // Search criteria
@@ -170,7 +175,8 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $builder = $em->createQueryBuilder();
         $builder->select($select)
-            ->from('Shopware\CustomModels\Lengow\OrderError', 'orderError');
+            ->from('Shopware\CustomModels\Lengow\OrderError', 'orderError')
+            ->where('orderError.isFinished = 0');
 
         $results = $builder->getQuery()->getArrayResult();
 
@@ -358,29 +364,19 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     /**
      * reImport action
      */
-    public function reImportActionAction()
+    public function reImportAction()
     {
         $orderId = $this->Request()->getParam('orderId');
 
-        $orderLengow = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
-                                 ->findOneBy(array('orderId' => $orderId));
+        $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
+                                 ->findOneBy(array('id' => $orderId));
 
-        $params = array(
-            'type' => 'manual',
-            'order_lengow_id' => $orderLengow->getId(),
-            'marketplace_sku' => $orderLengow->getMarketplaceSku(),
-            'marketplace_name' => $orderLengow->getMarketplaceName(),
-            'delivery_address_id' => $orderLengow->getDeliveryAddressId(),
-            'store_id' => $orderLengow->getShopId()
-        );
-
-        $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport($params);
-        $results = $import->exec();
+        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::reImportOrder($lengowOrder);
 
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $results
+                'data' => $success
             )
         );
     }

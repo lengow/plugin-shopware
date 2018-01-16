@@ -274,6 +274,7 @@ en:
       rest_time_to_import: "Please wait %{rest_time} seconds before re-importing orders"
       credentials_not_valid: "Account ID, token access or secret token are not valid"
       no_catalog_for_shop: "No catalog ID valid for the shop %{name_shop} (%{id_shop})"
+      order_not_found: "Lengow error: order cannot be found in Lengow feed"
     exception:
       marketplace_not_present: "Lengow error: %{marketplace_name} does not feature in the marketplace list"
       order_line_required: "order line is required but cannot be not found in order"

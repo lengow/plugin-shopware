@@ -103,10 +103,10 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
      */
     reSendActionGrid: function (id, type, lastActionType) {
         var me = this;
-        if (type == 're_send') {
+        if (type == 'send') {
             url = '{url controller=LengowImport action=reSendAction}';
         } else {
-            url = '{url controller=LengowImport action=reImportAction}';
+            url = '{url controller=LengowImport action=reImport}';
         }
         var loading = new Ext.LoadMask(Ext.getBody(), {
             hideModal: true

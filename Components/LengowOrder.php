@@ -557,6 +557,30 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     }
 
     /**
+     * re-import order
+     *
+     * @param \Shopware\CustomModels\Lengow\Order $lengowOrder Lengow order instance
+     *
+     * @return array
+     */
+    public static function reImportOrder($lengowOrder)
+    {
+        $params = array(
+            'type' => 'manual',
+            'lengow_order_id' => $lengowOrder->getId(),
+            'marketplace_sku' => $lengowOrder->getMarketplaceSku(),
+            'marketplace_name' => $lengowOrder->getMarketplaceName(),
+            'delivery_address_id' => $lengowOrder->getDeliveryAddressId(),
+            'shop_id' => $lengowOrder->getShopId()
+        );
+
+        $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport($params);
+        $results = $import->exec();
+
+        return $results;
+    }
+
+    /**
      * Cancel and re-import order
      *
      * @param \Shopware\Models\Order\Order $order Shopware order instance
