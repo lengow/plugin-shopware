@@ -119,7 +119,6 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 'WITH',
                 's_order.id = s_lengow_action.orderId'
             );
-        ;
 
         // Search criteria
         if (isset($filters['search'])) {
