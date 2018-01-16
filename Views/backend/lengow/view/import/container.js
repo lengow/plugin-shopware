@@ -7,7 +7,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
 
     // Translations
     snippets: {
-        button: '{s name="order/panel/button" namespace="backend/Lengow/translation"}{/s}'
+        button: '{s name="order/panel/button_import" namespace="backend/Lengow/translation"}{/s}'
     },
 
     /**
@@ -27,52 +27,96 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
 
         me.items = [
             {
-                xtype: 'panel',
-                region: 'center',
-                id: 'topPanelImport',
+                xtype: 'container',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
                 },
+                region: 'center',
                 items: [
-                    me.getFirstLine(),
-                    me.getSecondLine(),
+                    me.getImportHeader(),
                     Ext.create('Shopware.apps.Lengow.view.import.Grid', {
                         id: 'importGrid',
                         importStore: me.importStore,
                         flex: 1,
                         autoScroll : true,
+                        region:'center',
                         style: 'border: none',
                         bodyStyle: 'background:#fff;'
                     })
                 ]
+            },
+            {
+                xtype: 'lengow-import-panel',
+                collapsed: true,
+                collapsible: true,
+                autoScroll : true,
+                flex: 1,
+                region: 'east'
             }
         ];
         me.fireEvent('initImportPanels');
         me.callParent(arguments);
     },
 
-    getFirstLine: function() {
+    getImportHeader: function() {
         var me = this;
         return {
             xtype: 'container',
-            layout: {
-                type: 'hbox'
+                layout: {
+                    type: 'hbox'
             },
+            margins: '7',
             items: [
                 {
                     xtype: 'container',
-                    padding: '5',
-                    html: Ext.String.format(me.snippets.button)
+                    width: 600,
+                    items: [
+                        {
+                            xtype: 'panel',
+                            id: 'nb_order_in_error',
+                            margin: '3',
+                            border: false
+                        }, {
+                            xtype: 'panel',
+                            id: 'nb_order_to_be_sent',
+                            margin: '3',
+                            border: false
+                        }, {
+                            xtype: 'panel',
+                            id: 'last_import',
+                            margin: '3',
+                            border: false
+                        }, {
+                            xtype: 'panel',
+                            id: 'mail_report',
+                            margin: '3',
+                            border: false,
+                            listeners: {
+                                render: function(component){
+                                    // On click, see configuration
+                                    component.getEl().on('click', function(){
+                                        Shopware.app.Application.addSubApplication({
+                                            name: 'Shopware.apps.Config'
+                                        });
+                                    });
+                                }
+                            }
+                        }
+                    ]
                 },
                 {
-                    xtype: 'container',
-                    padding: '5',
-                    html: "<a href='#' id='importOrders' class='lengow_import_orders'></a>",
+                    xtype: 'tbfill'
+                },
+                {
+                    xtype: 'label',
+                    align: 'right',
+                    margins: '0 30 0 0',
+                    html: '<span class="lgw-btn-order">' + Ext.String.format(me.snippets.button) + "</span>",
                     listeners: {
-                        render: function(component){
+                        render: function (component) {
                             // On click, import orders
-                            component.getEl().on('click', function(){
+                            component.getEl().on('click', function () {
                                 me.fireEvent('launchImportProcess');
                             });
                         }
@@ -80,50 +124,6 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
                 }
             ]
         };
-    },
-
-    getSecondLine: function() {
-        var me = this;
-
-        return {
-            xtype: 'container',
-            left: '10',
-            items: [
-                {
-                    xtype: 'container',
-                    id: 'nb_order_in_error',
-                    margin: '3'
-                }, {
-                    xtype: 'container',
-                    id: 'nb_order_to_be_sent',
-                    margin: '3'
-                }, {
-                    xtype: 'container',
-                    id: 'last_import',
-                    margin: '3'
-                }, {
-                    xtype: 'container',
-                    id: 'mail_report',
-                    margin: '3',
-                    listeners: {
-                        render: function(component){
-                            // On click, see configuration
-                            component.getEl().on('click', function(){
-                                Shopware.app.Application.addSubApplication({
-                                    name: 'Shopware.apps.Config'
-                                });
-                            });
-                        }
-                    }
-                }, { // Display import error messages
-                    xtype: 'panel',
-                    id: 'importStatusPanel',
-                    border: false,
-                    align: 'center'
-                }
-            ]
-        }
     }
-
 });
 //{/block}

@@ -22,9 +22,9 @@ Ext.define('Shopware.apps.Lengow', {
         'export.Container',
         'export.Grid',
         'export.Tree',
-        'import.Panel',
         'import.Container',
         'import.Grid',
+        'import.Panel',
         'logs.Panel',
         'help.Panel'
     ],
