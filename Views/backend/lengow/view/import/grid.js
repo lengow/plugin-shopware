@@ -36,16 +36,20 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
         errors: {
             import: '{s name="order/grid/errors/import" namespace="backend/Lengow/translation"}{/s}',
             action: '{s name="order/grid/errors/action" namespace="backend/Lengow/translation"}{/s}'
-        }
+        },
+        action_sent: '{s name="order/grid/action_sent" namespace="backend/Lengow/translation"}{/s}',
+        action_waiting_return: '{s name="order/grid/action_waiting_return" namespace="backend/Lengow/translation"}{/s}'
     },
 
     listeners : {
         cellclick : function(view, cell, cellIndex, record, row, rowIndex, e) {
-            var errorType = record.raw.orderProcessState == 0 ? 'import' : 'send';
-            var clickedColumnName = view.panel.headerCt.getHeaderAtIndex(cellIndex).dataIndex;
+            var me = this,
+                idOrder,
+                errorType = record.raw.orderProcessState == 0 ? 'import' : 'send',
+                clickedColumnName = view.panel.headerCt.getHeaderAtIndex(cellIndex).dataIndex;
             if (clickedColumnName == 'inError') {
-                console.log('plop' + errorType);
-                // me.fireEvent('sendAction', errorType);
+                idOrder = errorType == 'send' ? record.raw.orderId : record.raw.id;
+                me.fireEvent('reSendActionGrid', idOrder, errorType, record.raw.lastActionType);
             }
         }
     },
@@ -53,7 +57,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
     registerEvents: function() {
         this.addEvents(
             'showDetail',
-            'sendAction'
+            'reSendActionGrid'
         )
     },
 
@@ -100,32 +104,49 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                 header: me.snippets.column.actions,
                 tdCls: 'custom-grid-action',
                 dataIndex: 'inError',
-                flex: 1,
+                flex: 2,
                 renderer: function(value, metadata, record) {
+                    var orderIdShopware = record.get('orderId'),
+                        orderProcessState = record.get('orderProcessState'),
+                        lastActionType = record.get('lastActionType'),
+                        errorMessages = record.get('errorMessage');
                     if (value) {
-                        var errorType = record.get('orderProcessState') == 0 ? 'import' : 'send';
-                        var errorMessage = record.get('errorMessage');// get all errorMessages
-                        if (errorType == 'import') {
-                            var tootlip = me.snippets.errors.import + '<br/>' + errorMessage;
-                            return '<span class="lengow_action lengow_tooltip lgw-btn lgw-btn-white lgw_order_action_grid-js"'
+                        var errorType = record.get('orderProcessState') == 0 ? 're_import' : 're_send';
+                        if (errorType == 're_import') {
+                            var tootlip = me.snippets.errors.import + errorMessages;
+                            return '<div class=" x-btn primary small lengow_action_button_grid">' +
+                                '<span class="lengow_action lengow_tooltip lgw_order_action_grid-js"'
                                 + ' data-href="#">not imported'
-                                + '<span class="lengow_order_action">' + tootlip
-                                + '</span>&nbsp<i class="sprite-arrow-circle-double-135 lgw_order_action_grid-js"></i></span>';
+                                + '<span class="lengow_order_action">' + tootlip + '</span></span></div>';
                         } else {
-                            var tootlip = me.snippets.errors.action + '<br/>' + errorMessage;
-                            return '<span class="lengow_action lengow_tooltip lgw-btn lgw-btn-white lgw_order_action_grid-js"'
+                            var tootlip = me.snippets.errors.action + errorMessages;
+                            return '<div class=" x-btn primary small lengow_action_button_grid">' +
+                                '<span class="lengow_action lengow_tooltip lgw_order_action_grid-js"'
                                 + ' data-href="#">not sent'
-                                + '<span class="lengow_order_action lgw_order_action_grid-js">' + tootlip
-                                + '</span>&nbsp<i class="sprite-arrow-circle-double-135 lgw_order_action_grid-js"></i></span>';
+                                + '<span class="lengow_order_action">' + tootlip + '</span></span></div>';
                         }
                     } else {
-                        return 'sent or else';
+                        if (null != orderIdShopware && orderProcessState == 1) {
+                            if (lastActionType) {
+                                var lengowMessage = Ext.String.format(
+                                    me.snippets.action_sent,
+                                    lastActionType
+                                );
+                                return '<a class="lengow_action lengow_tooltip lgw-btn lgw-label lgw-btn-white">' +
+                                    lengowMessage + '<span class="lengow_order_action">' +
+                                    me.snippets.action_waiting_return + '</span></a>';
+                            } else {
+                                return '';
+                            }
+                        } else {
+                            return '';
+                        }
                     }
                 }
             }, {
                 header: me.snippets.column.lengow_status,
                 dataIndex: 'orderLengowState',
-                flex: 1,
+                flex: 2,
                 renderer : function(value, metadata, record) {
                     if(record.get('sentByMarketplace')) {
                         value = 'shipped_by_mkp';
@@ -136,15 +157,15 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             }, {
                 header: me.snippets.column.marketplace,
                 dataIndex: 'marketplaceLabel',
-                flex: 1
+                flex: 2
             }, {
                 header: me.snippets.column.store_name,
                 dataIndex: 'storeName',
-                flex: 1
+                flex: 2
             }, {
                 header: me.snippets.column.marketplace_sku,
                 dataIndex: 'marketplaceSku',
-                flex: 1
+                flex: 2
             }, {
                 header: me.snippets.column.shopware_status,
                 dataIndex: 'orderStatus',
@@ -154,19 +175,19 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                     else if (value) return value;
                     return '';
                 },
-                flex: 1
+                flex: 2
             }, {
                 header: me.snippets.column.shopware_sku,
                 dataIndex: 'orderSku',
-                flex: 1
+                flex: 2
             }, {
                 header: me.snippets.column.order_date,
                 dataIndex: 'orderDate',
-                flex: 1
+                flex: 2
             }, {
                 header: me.snippets.column.customer_name,
                 dataIndex: 'customerName',
-                flex: 1
+                flex: 2
             }, {
                 header: me.snippets.column.country,
                 dataIndex: 'countryIso',

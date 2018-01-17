@@ -85,6 +85,24 @@ a.lgw-box-link:hover {
   color: white;
 }
 
+.lgw-btn-order {
+  margin: 0;
+}
+
+/* WHITE */
+
+.lgw-btn-white a, .custom-grid-action a {
+  background-color: #fff;
+  border:1px solid #d7d7d7;
+  color: #555;
+}
+
+.lgw-btn-white a:hover, .custom-grid-action a:hover
+.lgw-btn-white a:focus, .custom-grid-action a:focus {
+  background-color: #f7f7f7;
+  color: #00aeef;
+}
+
 /*************************************************/
 /*                    LABELS                     */
 /*************************************************/
@@ -144,16 +162,32 @@ a.lgw-box-link:hover {
 /*                    TOOLTIP                    */
 /*************************************************/
 
+.lengow_action_button_grid:hover{
+  background: #019ce2;
+}
+
 .lengow_tooltip {
   position: relative;
-  color: #000;
+  color: #fff;
   text-decoration: none;
   font-weight: bold;
+  padding-right: 15px;
+}
+
+span.lengow_tooltip:after{
+  content: '';
+  background:  url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAABAklEQVQ4jcWSsS5EURCGvxEiFBuFFdqVrE2U2l2l6NU8wSZqWZWInhfwAt5ieQM6WylYhUYkaD7NuXFc9ya7UfibyZyZ7z8ncwb+qKgrqAEsAxERzxM7qk31Qh37rbF6rHbUF7VdB6+rowx8VT+y/C3F/YKZyeAl4BpopbgNNCJiHugBd8Biau8U3Gz2gD6wCgyBnYh4z2pbwGaWb1QZzAEj4KgEA1wCD8BauuSmcgb/K3VXPVX76p7aqOjppl86qTK48qcOS/UFdZhqgyqDswy+VbvpPNReBj+mL/9lcFBaFtXPtEyF7tVW3QzaaU076kB9Kq3yudqcdKaF6crU0LT6AhpCGITI3a7YAAAAAElFTkSuQmCC');
+  background-size: cover;
+  position: absolute;
+  margin-top: -1px;
+  margin-left: 2px;
+  width: 15px;
+  height: 15px;
+  color: #FFF;
 }
 
 .lengow_tooltip:hover {
   z-index: 1070;
-  background-color: #FFF
 }
 
 .lengow_tooltip span {
@@ -173,7 +207,7 @@ a.lgw-box-link:hover {
   font-style: normal;
   font-weight: normal;
   line-height: 1.42857143;
-  max-width: 200px;
+  max-width: 400px;
   opacity: .9;
 }
 

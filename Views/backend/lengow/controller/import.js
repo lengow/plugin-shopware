@@ -28,7 +28,12 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
         reimport_confirmation_title: '{s name="order/panel/reimport_confirmation_title" namespace="backend/Lengow/translation"}{/s}',
         reimport_confirmation_message: '{s name="order/panel/reimport_confirmation_message" namespace="backend/Lengow/translation"}{/s}',
         reimport_success_message: '{s name="order/panel/reimport_success_message" namespace="backend/Lengow/translation"}{/s}',
-        reimport_fail_message: '{s name="order/panel/reimport_fail_message" namespace="backend/Lengow/translation"}{/s}'
+        reimport_fail_message: '{s name="order/panel/reimport_fail_message" namespace="backend/Lengow/translation"}{/s}',
+        ok: '{s name="order/panel/ok" namespace="backend/Lengow/translation"}{/s}',
+        success_message: '{s name="order/details/success_message" namespace="backend/Lengow/translation"}{/s}',
+        fail_message: '{s name="order/details/fail_message" namespace="backend/Lengow/translation"}{/s}',
+        ship_confirmation_title: '{s name="order/details/ship_confirmation_title" namespace="backend/Lengow/translation"}{/s}',
+        cancel_confirmation_title: '{s name="order/details/cancel_confirmation_title" namespace="backend/Lengow/translation"}{/s}'
     },
 
     init: function () {
@@ -38,7 +43,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
             'order-listing-grid': {
                 selectOrder: me.onSelectOrder,
                 showDetail: me.onShowDetail,
-                sendAction: me.sendAction
+                reSendActionGrid: me.reSendActionGrid
             },
             'lengow-import-container': {
                 launchImportProcess: me.onLaunchImportProcess,
@@ -96,14 +101,32 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
     /**
      * Start import listener
      */
-    sendAction: function (type) {
+    reSendActionGrid: function (id, type, lastActionType) {
         var me = this;
-        // Display waiting message
-        Ext.MessageBox.show({
-            // msg: '{s name="order/screen/import_charge_second" namespace="backend/Lengow/translation"}{/s}',
-            msg: type,
-            width: 300,
-            wait: true
+        if (type == 'send') {
+            url = '{url controller=LengowImport action=reSendAction}';
+        } else {
+            url = '{url controller=LengowImport action=reImport}';
+        }
+        var loading = new Ext.LoadMask(Ext.getBody(), {
+            hideModal: true
+        });
+        loading.show();
+        Ext.Ajax.request({
+            url: url,
+            method: 'POST',
+            type: 'json',
+            params: {
+                orderId: id,
+                actionName: lastActionType
+            },
+            success: function (response) {
+                var grid = Ext.getCmp('importGrid');
+                loading.hide();
+                grid.getStore().load();
+                grid.getView().refresh();
+                me.onInitImportPanels();
+            }
         });
     },
 
@@ -168,7 +191,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
                     buttons: Ext.Msg.YES,
                     buttonText :
                     {
-                        yes : me.snippets.close
+                        yes : me.snippets.ok
                     }
                 });
             }

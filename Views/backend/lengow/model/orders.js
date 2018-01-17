@@ -6,8 +6,8 @@ Ext.define('Shopware.apps.Lengow.model.Orders', {
 
 	// Fields displayed in the grid
 	fields: [
-		{ name : 'id', type: 'int' },
-		{ name : 'orderId', type: 'string' },
+        { name : 'id', type: 'int' },
+        { name : 'orderId', type: 'string' },
         { name : 'orderSku', type: 'string' },
         { name : 'deliveryAddressId', type: 'int' },
         { name : 'deliveryCountryIso', type: 'string' },
@@ -18,7 +18,7 @@ Ext.define('Shopware.apps.Lengow.model.Orders', {
         { name : 'orderDate', type: 'string' },
         { name : 'orderItem', type: 'int' },
         { name : 'currency', type: 'string' },
-		{ name : 'totalPaid', type: 'float' },
+        { name : 'totalPaid', type: 'float' },
         { name : 'commission', type: 'float' },
         { name : 'customerName', type: 'string' },
         { name : 'customerEmail', type: 'string' },
@@ -27,7 +27,7 @@ Ext.define('Shopware.apps.Lengow.model.Orders', {
         { name : 'carrierTracking', type: 'string' },
         { name : 'carrierIdRelay', type: 'string' },
         { name : 'sentByMarketplace', type: 'bool' },
-		{ name : 'inError', type: 'bool' },
+        { name : 'inError', type: 'bool' },
         { name : 'message', type: 'string' },
         { name : 'createdAt', type: 'string' },
         { name : 'extra', type: 'string' },
@@ -37,7 +37,9 @@ Ext.define('Shopware.apps.Lengow.model.Orders', {
         { name : 'orderShopwareSku', type: 'string' },
         { name : 'errorMessage', type: 'string' },
         { name : 'countryIso', type: 'string' },
-        { name : 'countryName', type: 'string' }
+        { name : 'countryName', type: 'string' },
+        { name : 'sentByMarketplace', type: 'bool' },
+        { name : 'lastActionType', type: 'string' }
 	]
 });
 //{/block}

@@ -83,7 +83,8 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             's_order.number as orderShopwareSku',
             's_core_countries.name as countryName',
             's_core_countries.iso as countryIso',
-            'orderError.message as errorMessage'
+            'orderError.message as errorMessage',
+            's_lengow_action.actionType as lastActionType'
         );
 
         $crudCompatibility = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1');
@@ -111,6 +112,12 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 'orderError',
                 'WITH',
                 'orderLengow.id = orderError.lengowOrderId'
+            )
+            ->leftJoin(
+                'Shopware\CustomModels\Lengow\Action',
+                's_lengow_action',
+                'WITH',
+                's_order.id = s_lengow_action.orderId'
             );
 
         // Search criteria
@@ -129,9 +136,17 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         }
         $builder->distinct()->addOrderBy('orderLengow.orderDate', 'DESC');
 
-        $totalOrders = count($builder->getQuery()->getArrayResult());
-        $builder->setFirstResult($start)->setMaxResults($limit);
         $result = $builder->getQuery()->getArrayResult();
+        $totalOrders = count($result);
+        $builder->setFirstResult($start)->setMaxResults($limit);
+        $orderErrors = $this->getOrderErrors();
+
+        if ($result) {
+            foreach ($result as $key => $error) {
+                $result[$key]['errorMessage'] = $orderErrors[$error['id']];
+            }
+        }
+
         $this->View()->assign(
             array(
                 'success' => true,
@@ -139,6 +154,41 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 'total' => $totalOrders
             )
         );
+    }
+
+    /**
+     * Get Order Errors translated
+     *
+     * @return array
+     */
+    public function getOrderErrors()
+    {
+        $errorMessages = array();
+        $select = array(
+            'orderError.lengowOrderId',
+            'orderError.message',
+            'orderError.type',
+            'orderError.isFinished'
+        );
+
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $builder = $em->createQueryBuilder();
+        $builder->select($select)
+            ->from('Shopware\CustomModels\Lengow\OrderError', 'orderError')
+            ->where('orderError.isFinished = 0');
+
+        $results = $builder->getQuery()->getArrayResult();
+
+        if ($results) {
+            foreach ($results as $errorOrder) {
+                $errorMessages[$errorOrder['lengowOrderId']] .=
+                    '<br />' . Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                        $errorOrder['message']
+                    );
+            }
+        }
+
+        return $errorMessages;
     }
 
     /**
@@ -256,7 +306,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     }
 
     /**
-     * Re-send Order action
+     * Send Order action
      */
     public function reSendActionAction()
     {
@@ -309,4 +359,25 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             )
         );
     }
+
+    /**
+     * reImport action
+     */
+    public function reImportAction()
+    {
+        $orderId = $this->Request()->getParam('orderId');
+
+        $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
+                                 ->findOneBy(array('id' => $orderId));
+
+        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::reImportOrder($lengowOrder);
+
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $success
+            )
+        );
+    }
+
 }

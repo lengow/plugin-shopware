@@ -189,7 +189,7 @@ en:
       button_import: "Synchronize Orders"
       mail_report: "All order issue reports will be sent by mail to %{email}"
       no_mail_report: "No order issue reports will be sent by mail"
-      close : "Close"
+      ok : "Ok"
       synchronisation_report: "Order synchronisation report"
       order_not_imported: "This order can not be imported into Shopware due to an error"
       order_imported: "This order has been successfully imported into Shopware"
@@ -226,6 +226,8 @@ en:
       status_closed: "Closed"
       status_shipped_by_mkp: "Shipped by Marketplace"
       status_canceled: "Canceled"
+      action_sent: "action [0] sent"
+      action_waiting_return: "Action sent, waiting for response"
       errors:
         action: "Action sent to the marketplace didn't work"
         import: "Order hasn't been imported into Magento"
@@ -272,6 +274,7 @@ en:
       rest_time_to_import: "Please wait %{rest_time} seconds before re-importing orders"
       credentials_not_valid: "Account ID, token access or secret token are not valid"
       no_catalog_for_shop: "No catalog ID valid for the shop %{name_shop} (%{id_shop})"
+      order_not_found: "Lengow error: order cannot be found in Lengow feed"
     exception:
       marketplace_not_present: "Lengow error: %{marketplace_name} does not feature in the marketplace list"
       order_line_required: "order line is required but cannot be not found in order"
