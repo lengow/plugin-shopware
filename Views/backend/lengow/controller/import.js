@@ -104,7 +104,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
      * Start import listener
      */
     reSendActionGrid: function (id, type, lastActionType) {
-        var me = this;
+        var me = this, url;
         if (type == 'send') {
             url = '{url controller=LengowImport action=reSendAction}';
         } else {
@@ -133,7 +133,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
     },
 
     sendMassActionGrid: function(ids, type) {
-        var me = this, title, message;
+        var me = this, title, message, url;
 
         if (type == 'send') {
             title = me.snippets.mass_action_resend_check_title;
@@ -243,7 +243,6 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
             type: 'json',
             success: function(response) {
                 var result = Ext.decode(response.responseText),
-                    success = result['success'],
                     data = result['data'],
                     grid = Ext.getCmp('importGrid');
                 // Update last synchronization date

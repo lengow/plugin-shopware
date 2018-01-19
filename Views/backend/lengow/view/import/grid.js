@@ -46,7 +46,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
     },
 
     listeners : {
-        cellclick : function(view, cell, cellIndex, record, row, rowIndex, e) {
+        cellclick : function(view, cell, cellIndex, record) {
             var me = this,
                 idOrder,
                 errorType = record.raw.orderProcessState == 0 ? 'import' : 'send',
@@ -255,7 +255,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
              * Add button handler to fire the showDetail event which is handled
              * in the list controller.
              */
-            handler: function (view, rowIndex, colIndex, item) {
+            handler: function (view, rowIndex) {
                 var store = view.getStore(),
                     record = store.getAt(rowIndex);
 
@@ -313,7 +313,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
 
     /**
      * Event listener method which fires when the user selects a nwe page size
-     * @param object] combo - Ext.form.field.ComboBox
+     * @param [object] combo - Ext.form.field.ComboBox
      * @param [array] records - Array of selected entries
      * @return void
      */

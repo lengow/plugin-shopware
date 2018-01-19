@@ -307,8 +307,10 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
 
     /**
      * Send Order action
+     *
+     * @param int|null $orderId
      */
-    public function reSendActionAction($orderId)
+    public function reSendActionAction($orderId = null)
     {
         if (!$orderId) {
             $orderId = $this->Request()->getParam('orderId');
@@ -364,8 +366,10 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
 
     /**
      * reImport action
+     *
+     * @param int|null $orderId
      */
-    public function reImportAction($orderId)
+    public function reImportAction($orderId = null)
     {
         if (!$orderId) {
             $orderId = $this->Request()->getParam('orderId');
@@ -384,9 +388,12 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         );
     }
 
+    /**
+     * Mass action resend action
+     */
     public function reSendMassActionAction()
     {
-        $ids = $this->Request()->getParam('ids');
+        $ids = json_decode($this->Request()->getParam('ids'));
         $nbSelected = count($ids);
         $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
 
@@ -402,7 +409,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             'API-OrderAction',
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                 'lengow_log/error/mass_action_resend_success',
-                array('nb_sent' => $totalReSent, 'nb_selected' => count($ids))
+                array('nb_sent' => $totalReSent, 'nb_selected' => $nbSelected)
             ),
             false
         );
@@ -421,17 +428,20 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         );
     }
 
+    /**
+     * Mass action reimport order
+     */
     public function reImportMassAction()
     {
         $ids = json_decode($this->Request()->getParam('ids'));
         $nbSelected = count($ids);
         $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
 
-        $totalReSent = 0;
+        $totalReImport = 0;
         foreach ($ids as $orderLengowId) {
             $result = $this->reImportAction((int)$orderLengowId);
             if ($result && isset($result['order_new']) && $result['order_new']) {
-                $totalReSent++;
+                $totalReImport++;
             }
         }
 
@@ -439,7 +449,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             'API-OrderAction',
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                 'lengow_log/error/mass_action_reimport_success',
-                array('nb_imported' => $totalReSent, 'nb_selected' => $nbSelected)
+                array('nb_imported' => $totalReImport, 'nb_selected' => $nbSelected)
             ),
             false
         );
@@ -447,7 +457,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
             'lengow_log/error/mass_action_reimport_success',
             $locale,
-            array('nb_imported' => $totalReSent, 'nb_selected' => $nbSelected)
+            array('nb_imported' => $totalReImport, 'nb_selected' => $nbSelected)
         );
 
         $this->View()->assign(
