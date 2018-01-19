@@ -203,3 +203,18 @@ body.lgw-home-iframe .lgw-content-section p {
   border: 1px solid #00aeef;
   color: #2e6592;
 }
+
+.lgw-details-label,
+.lgw-details-label-top {
+  font-weight: 600;
+  margin-top: 5px;
+  color: #475c6a;
+  display: block;
+}
+
+.lgw-details-field {
+  font-size: 11px;
+  color: #475c6a;
+  height: 13px;
+  display: block
+}

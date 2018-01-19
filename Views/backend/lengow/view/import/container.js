@@ -48,7 +48,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
             },
             {
                 xtype: 'lengow-import-panel',
-                collapsed: true,
+                collapsed: false,
                 collapsible: true,
                 autoScroll : true,
                 flex: 1,
@@ -66,7 +66,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
                 layout: {
                     type: 'hbox'
             },
-            margins: '7',
+            margins: '20 7 7 7',
             items: [
                 {
                     xtype: 'container',
@@ -90,7 +90,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
                         }, {
                             xtype: 'panel',
                             id: 'mail_report',
-                            margin: '3',
+                            margin: '15 3 3 3',
                             border: false,
                             listeners: {
                                 render: function(component){
@@ -111,7 +111,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
                 {
                     xtype: 'label',
                     align: 'right',
-                    margins: '0 30 0 0',
+                    margins: '10 30 0 0',
                     html: '<span class="lgw-btn-order">' + Ext.String.format(me.snippets.button) + "</span>",
                     listeners: {
                         render: function (component) {

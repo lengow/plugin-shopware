@@ -356,6 +356,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 );
                 if (!$importShipMpEnabled) {
                     $lengowOrder->setOrderProcessState(2)
+                        ->setInError(false)
                         ->setExtra(json_encode($this->orderData));
                     $this->entityManager->flush($lengowOrder);
                     return false;

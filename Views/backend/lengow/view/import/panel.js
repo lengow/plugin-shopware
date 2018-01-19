@@ -48,7 +48,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
         }
     },
 
-    maxWidth: 700,
+    maxWidth: 400,
 
     bodyPadding: 10,
 
@@ -89,9 +89,13 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
         var me = this;
         return Ext.create('Ext.container.Container', {
             id: 'lgw-details-element',
+            hidden: true,
             defaults: {
                 xtype: 'displayfield',
-                labelWidth: 155
+                labelSeparator: ' ',
+                labelAlign: 'top',
+                labelCls: 'lgw-details-label',
+                fieldCls: 'lgw-details-field'
             },
             items: me.createDetailElements()
         });
@@ -183,7 +187,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
             {
                 name: 'extra',
                 xtype: 'textarea',
-                width: 650,
+                width: 360,
                 height: 150,
                 fieldLabel: me.snippets.details.extra
             }
@@ -195,10 +199,23 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
         var me = this;
 
         return Ext.create('Ext.container.Container', {
-            margin: '30 0',
-            id: 'lgw-action-buttons',
+            margin: '20 0',
+            id: 'lgw-toolbar-buttons',
             layout: 'column',
             hidden: true,
+            items: [
+                me.getResendButton(),
+                me.getActionButton()
+            ]
+        });
+    },
+
+    getResendButton: function () {
+        var me = this;
+
+        return Ext.create('Ext.container.Container', {
+            id: 'lgw-resend-buttons',
+            margin: '0 0 10 0',
             items: [
                 {
                     xtype: 'button',
@@ -219,7 +236,17 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
                     handler: function() {
                         me.fireEvent('reSendAction', 'cancel');
                     }
-                },
+                }
+            ]
+        });
+    },
+
+    getActionButton: function () {
+        var me = this;
+
+        return Ext.create('Ext.container.Container', {
+            id: 'lgw-action-buttons',
+            items: [
                 {
                     xtype: 'button',
                     id: 'lgw-synchronize-order',
@@ -243,6 +270,5 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
             ]
         });
     }
-
 });
 //{/block}

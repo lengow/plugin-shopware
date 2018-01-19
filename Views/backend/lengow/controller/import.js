@@ -86,21 +86,17 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
             }
         }
         Ext.get('lgw-summary-text').update(message);
+        Ext.getCmp('lgw-details-element').show();
         // show or hide action buttons
         if(record.get('orderId') > 0 && preprodMode == null) {
-            Ext.get('lgw-action-buttons').set({ orderId: record.get('orderId') });
-            Ext.getCmp('lgw-action-buttons').show();
+            Ext.get('lgw-toolbar-buttons').set({ orderId: record.get('orderId') });
+            Ext.getCmp('lgw-toolbar-buttons').show();
             if (record.get('orderProcessState') === 2) {
-                Ext.getCmp('lgw-send-ship-action').hide();
-                Ext.getCmp('lgw-send-cancel-action').hide();
+                Ext.getCmp('lgw-resend-buttons').hide();
             }
         } else {
-            Ext.get('lgw-action-buttons').set({ orderId: 0 });
-            Ext.getCmp('lgw-action-buttons').hide();
-        }
-        // open container automatically
-        if (importPanel.collapsed) {
-            importPanel.toggleCollapse(true);
+            Ext.get('lgw-toolbar-buttons').set({ orderId: 0 });
+            Ext.getCmp('lgw-toolbar-buttons').hide();
         }
     },
 
@@ -290,7 +286,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
      */
     reSendAction: function (type) {
         var me = this,
-            orderId = parseInt(Ext.get('lgw-action-buttons').getAttribute('orderId')),
+            orderId = parseInt(Ext.get('lgw-toolbar-buttons').getAttribute('orderId')),
             buttonId = 'lgw-send-' + type + '-action';
 
         Ext.MessageBox.confirm(
@@ -341,7 +337,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
      */
     synchronize: function () {
         var me = this,
-            orderId = parseInt(Ext.get('lgw-action-buttons').getAttribute('orderId'));
+            orderId = parseInt(Ext.get('lgw-toolbar-buttons').getAttribute('orderId'));
 
         Ext.MessageBox.confirm(
             me.snippets.synchronize_confirmation_title,
@@ -384,7 +380,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
      */
     cancelAndReImport: function () {
         var me = this,
-            orderId = parseInt(Ext.get('lgw-action-buttons').getAttribute('orderId'));
+            orderId = parseInt(Ext.get('lgw-toolbar-buttons').getAttribute('orderId'));
 
         Ext.MessageBox.confirm(
             me.snippets.reimport_confirmation_title,
@@ -415,7 +411,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
                                 success.marketplace_sku,
                                 success.order_sku
                             );
-                            Ext.get('lgw-action-buttons').set({ orderId: success.order_id });
+                            Ext.get('lgw-toolbar-buttons').set({ orderId: success.order_id });
                             grid.getStore().load();
                             grid.getView().refresh();
                         } else {
