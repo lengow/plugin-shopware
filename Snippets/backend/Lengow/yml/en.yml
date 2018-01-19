@@ -253,6 +253,13 @@ en:
       action_cancel: "Cancel the order"
       synchronize: "Synchronize ID"
       reimport: "Re-import order"
+      mass_action_reimport: "Re-import selected orders"
+      mass_action_reimport_check_title: "Re-import all selected orders"
+      mass_action_reimport_check_message: "Do you want to re-import all selected orders?"
+      mass_action_resend: "Re-send selected orders"
+      mass_action_resend_check_title: "Re-send all selected orders"
+      mass_action_resend_check_message: "Do you want to re-send all selected orders?"
+      mass_action_waiting_message: "Please bear with us; this will not take long"
   log:
     panel:
       empty_selection: "Please choose a log file..."
@@ -275,6 +282,8 @@ en:
       credentials_not_valid: "Account ID, token access or secret token are not valid"
       no_catalog_for_shop: "No catalog ID valid for the shop %{name_shop} (%{id_shop})"
       order_not_found: "Lengow error: order cannot be found in Lengow feed"
+      mass_action_reimport_success: "A total of %{nb_imported} order(s) in %{nb_selected} selected have been imported."
+      mass_action_resend_success: "A total of %{nb_sent} order(s) in %{nb_selected} selected have been sent."
     exception:
       marketplace_not_present: "Lengow error: %{marketplace_name} does not feature in the marketplace list"
       order_line_required: "order line is required but cannot be not found in order"

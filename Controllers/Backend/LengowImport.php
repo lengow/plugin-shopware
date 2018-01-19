@@ -308,14 +308,16 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     /**
      * Send Order action
      */
-    public function reSendActionAction()
+    public function reSendActionAction($orderId)
     {
-        $orderId = $this->Request()->getParam('orderId');
+        if (!$orderId) {
+            $orderId = $this->Request()->getParam('orderId');
+        }
         $action = $this->Request()->getParam('actionName');
         $order = Shopware()->Models()
             ->getRepository('\Shopware\Models\Order\Order')
             ->findOneBy(array('id' => $orderId));
-        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order,$action);
+        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, $action);
         $this->View()->assign(
             array(
                 'success' => true,
@@ -363,9 +365,11 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     /**
      * reImport action
      */
-    public function reImportAction()
+    public function reImportAction($orderId)
     {
-        $orderId = $this->Request()->getParam('orderId');
+        if (!$orderId) {
+            $orderId = $this->Request()->getParam('orderId');
+        }
 
         $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
                                  ->findOneBy(array('id' => $orderId));
@@ -376,6 +380,80 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             array(
                 'success' => true,
                 'data' => $success
+            )
+        );
+    }
+
+    public function reSendMassActionAction()
+    {
+        $ids = $this->Request()->getParam('ids');
+        $nbSelected = count($ids);
+        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
+
+        $totalReSent = 0;
+        foreach ($ids as $orderLengowId) {
+            $result = $this->reImportAction((int)$orderLengowId);
+            if ($result && isset($result['order_new']) && $result['order_new']) {
+                $totalReSent++;
+            }
+        }
+
+        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+            'API-OrderAction',
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                'lengow_log/error/mass_action_resend_success',
+                array('nb_sent' => $totalReSent, 'nb_selected' => count($ids))
+            ),
+            false
+        );
+
+        $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+            'lengow_log/error/mass_action_resend_success',
+            $locale,
+            array('nb_sent' => $totalReSent, 'nb_selected' => $nbSelected)
+        );
+
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $message
+            )
+        );
+    }
+
+    public function reImportMassAction()
+    {
+        $ids = json_decode($this->Request()->getParam('ids'));
+        $nbSelected = count($ids);
+        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
+
+        $totalReSent = 0;
+        foreach ($ids as $orderLengowId) {
+            $result = $this->reImportAction((int)$orderLengowId);
+            if ($result && isset($result['order_new']) && $result['order_new']) {
+                $totalReSent++;
+            }
+        }
+
+        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+            'API-OrderAction',
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                'lengow_log/error/mass_action_reimport_success',
+                array('nb_imported' => $totalReSent, 'nb_selected' => $nbSelected)
+            ),
+            false
+        );
+
+        $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+            'lengow_log/error/mass_action_reimport_success',
+            $locale,
+            array('nb_imported' => $totalReSent, 'nb_selected' => $nbSelected)
+        );
+
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $message
             )
         );
     }
