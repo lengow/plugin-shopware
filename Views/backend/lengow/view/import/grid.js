@@ -177,11 +177,11 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             }, {
                 header: me.snippets.column.marketplace,
                 dataIndex: 'marketplaceLabel',
-                flex: 2
+                flex: 1.5
             }, {
                 header: me.snippets.column.store_name,
                 dataIndex: 'storeName',
-                flex: 2
+                flex: 1.5
             }, {
                 header: me.snippets.column.marketplace_sku,
                 dataIndex: 'marketplaceSku',
@@ -199,11 +199,15 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             }, {
                 header: me.snippets.column.shopware_sku,
                 dataIndex: 'orderSku',
-                flex: 2
+                flex: 1.2
             }, {
                 header: me.snippets.column.order_date,
                 dataIndex: 'orderDate',
-                flex: 2
+                flex: 1.6,
+                renderer : function(value) {
+                    var date = new Date(value);
+                    return Ext.Date.format(date, 'd-M-Y G:i');
+                }
             }, {
                 header: me.snippets.column.customer_name,
                 dataIndex: 'customerName',
@@ -211,7 +215,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             }, {
                 header: me.snippets.column.country,
                 dataIndex: 'countryIso',
-                flex: 1,
+                flex: 0.7,
                 renderer : function(value, metadata, record) {
                     return '<img src="/engine/Shopware/Plugins/Community/Backend/Lengow/Views/backend/lengow/resources/img/flag/'
                         + value.substr(0,2).toUpperCase() + '.png" alt="' + record.get('countryName') + '" title="'
@@ -220,11 +224,11 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             }, {
                 header: me.snippets.column.nb_items,
                 dataIndex: 'orderItem',
-                flex: 1
+                flex: 0.5
             }, {
                 header: me.snippets.column.total_paid,
                 dataIndex: 'totalPaid',
-                flex: 1,
+                flex: 0.8,
                 renderer : function(value) {
                     return Ext.util.Format.currency(value);
                 }

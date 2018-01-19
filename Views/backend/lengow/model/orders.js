@@ -29,7 +29,7 @@ Ext.define('Shopware.apps.Lengow.model.Orders', {
         { name : 'sentByMarketplace', type: 'bool' },
         { name : 'inError', type: 'bool' },
         { name : 'message', type: 'string' },
-        { name : 'createdAt', type: 'string' },
+        { name : 'createdAt', type: 'datetime' },
         { name : 'extra', type: 'string' },
         { name : 'orderStatus', type: 'string' },
         { name : 'orderStatusDescription', type: 'string' },
