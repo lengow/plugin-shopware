@@ -15,7 +15,7 @@ Ext.define('Shopware.apps.Lengow.model.Orders', {
         { name : 'marketplaceLabel', type: 'string' },
         { name : 'orderLengowState', type: 'string' },
         { name : 'orderProcessState', type: 'int' },
-        { name : 'orderDate', type: 'string' },
+        { name : 'orderDate', type: 'datetime' },
         { name : 'orderItem', type: 'int' },
         { name : 'currency', type: 'string' },
         { name : 'totalPaid', type: 'float' },
