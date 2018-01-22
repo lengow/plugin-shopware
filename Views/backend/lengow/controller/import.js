@@ -29,7 +29,16 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
         reimport_confirmation_message: '{s name="order/panel/reimport_confirmation_message" namespace="backend/Lengow/translation"}{/s}',
         reimport_success_message: '{s name="order/panel/reimport_success_message" namespace="backend/Lengow/translation"}{/s}',
         reimport_fail_message: '{s name="order/panel/reimport_fail_message" namespace="backend/Lengow/translation"}{/s}',
-        ok: '{s name="order/panel/ok" namespace="backend/Lengow/translation"}{/s}'
+        ok: '{s name="order/panel/ok" namespace="backend/Lengow/translation"}{/s}',
+        success_message: '{s name="order/details/success_message" namespace="backend/Lengow/translation"}{/s}',
+        fail_message: '{s name="order/details/fail_message" namespace="backend/Lengow/translation"}{/s}',
+        ship_confirmation_title: '{s name="order/details/ship_confirmation_title" namespace="backend/Lengow/translation"}{/s}',
+        cancel_confirmation_title: '{s name="order/details/cancel_confirmation_title" namespace="backend/Lengow/translation"}{/s}',
+        mass_action_reimport_check_title: '{s name="order/buttons/mass_action_reimport_check_title" namespace="backend/Lengow/translation"}{/s}',
+        mass_action_reimport_check_message: '{s name="order/buttons/mass_action_reimport_check_message" namespace="backend/Lengow/translation"}{/s}',
+        mass_action_waiting_message: '{s name="order/buttons/mass_action_waiting_message" namespace="backend/Lengow/translation"}{/s}',
+        mass_action_resend_check_title: '{s name="order/buttons/mass_action_resend_check_title" namespace="backend/Lengow/translation"}{/s}',
+        mass_action_resend_check_message: '{s name="order/buttons/mass_action_resend_check_message" namespace="backend/Lengow/translation"}{/s}'
     },
 
     init: function () {
@@ -39,7 +48,8 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
             'order-listing-grid': {
                 selectOrder: me.onSelectOrder,
                 showDetail: me.onShowDetail,
-                reSendActionGrid: me.reSendActionGrid
+                reSendActionGrid: me.reSendActionGrid,
+                sendMassActionGrid: me.sendMassActionGrid
             },
             'lengow-import-container': {
                 launchImportProcess: me.onLaunchImportProcess,
@@ -94,7 +104,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
      * Start import listener
      */
     reSendActionGrid: function (id, type, lastActionType) {
-        var me = this;
+        var me = this, url;
         if (type == 'send') {
             url = '{url controller=LengowImport action=reSendAction}';
         } else {
@@ -112,7 +122,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
                 orderId: id,
                 actionName: lastActionType
             },
-            success: function (response) {
+            success: function () {
                 var grid = Ext.getCmp('importGrid');
                 loading.hide();
                 grid.getStore().load();
@@ -120,6 +130,72 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
                 me.onInitImportPanels();
             }
         });
+    },
+
+    sendMassActionGrid: function(ids, type) {
+        var me = this, title, message, url;
+
+        if (type == 'send') {
+            title = me.snippets.mass_action_resend_check_title;
+            message = me.snippets.mass_action_resend_check_message;
+
+        } else {
+            title = me.snippets.mass_action_reimport_check_title;
+            message = me.snippets.mass_action_reimport_check_message;
+        }
+
+        Ext.MessageBox.confirm(
+            Ext.String.format(title, type),
+            Ext.String.format(message, type),
+            function (response) {
+                if (response !== 'yes') {
+                    Ext.getCmp('lengowImportTab').getEl().unmask();
+                    return;
+                }
+
+                if (type == 'send') {
+                    url = '{url controller=LengowImport action=reSendMassAction}';
+                } else {
+                    url = '{url controller=LengowImport action=reImportMass}';
+                }
+
+                // Display waiting message
+                Ext.MessageBox.show({
+                    msg: me.snippets.mass_action_waiting_message,
+                    width: 300,
+                    wait: true
+                });
+
+                Ext.Ajax.request({
+                    url: url,
+                    method: 'POST',
+                    type: 'json',
+                    params: {
+                        ids: JSON.stringify(ids)
+                    },
+                    success: function (response) {
+                        var grid = Ext.getCmp('importGrid'),
+                            result = Ext.decode(response.responseText);
+                        var data = result['data'];
+                        grid.getStore().load();
+                        grid.getView().refresh();
+                        me.onInitImportPanels();
+
+                        Ext.MessageBox.hide();
+                        Ext.getCmp('lengowImportTab').getEl().unmask();
+                        Ext.MessageBox.show({
+                            title: me.snippets.synchronisation_report,
+                            msg: data,
+                            width: 600,
+                            buttons: Ext.Msg.YES,
+                            buttonText:
+                                {
+                                    yes: me.snippets.ok
+                                }
+                        });
+                    }
+                });
+            });
     },
 
     /**
@@ -167,7 +243,6 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
             type: 'json',
             success: function(response) {
                 var result = Ext.decode(response.responseText),
-                    success = result['success'],
                     data = result['data'],
                     grid = Ext.getCmp('importGrid');
                 // Update last synchronization date
