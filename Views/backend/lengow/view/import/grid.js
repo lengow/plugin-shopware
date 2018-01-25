@@ -51,7 +51,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                 idOrder,
                 errorType = record.raw.orderProcessState == 0 ? 'import' : 'send',
                 clickedColumnName = view.panel.headerCt.getHeaderAtIndex(cellIndex).dataIndex;
-            if (clickedColumnName == 'inError') {
+            if (clickedColumnName == 'inError' && record.raw.inError) {
                 idOrder = errorType == 'send' ? record.raw.orderId : record.raw.id;
                 me.fireEvent('reSendActionGrid', idOrder, errorType, record.raw.lastActionType);
             }

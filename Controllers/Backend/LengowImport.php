@@ -319,7 +319,14 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $order = Shopware()->Models()
             ->getRepository('\Shopware\Models\Order\Order')
             ->findOneBy(array('id' => $orderId));
-        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, $action);
+
+        $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
+            ->findOneBy(array('order' => $order));
+
+        $success = false;
+        if ($lengowOrder->getOrderProcessState() == 1 && $lengowOrder->isInError() == 1) {
+            $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, $action);
+        }
         $this->View()->assign(
             array(
                 'success' => true,
@@ -378,7 +385,10 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
                                  ->findOneBy(array('id' => $orderId));
 
-        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::reImportOrder($lengowOrder);
+        $success = false;
+        if ($lengowOrder->getOrderProcessState() == 0 && $lengowOrder->isInError() == 1) {
+            $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::reImportOrder($lengowOrder);
+        }
 
         $this->View()->assign(
             array(
@@ -399,7 +409,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
 
         $totalReSent = 0;
         foreach ($ids as $orderLengowId) {
-            $result = $this->reImportAction((int)$orderLengowId);
+            $result = $this->reSendActionAction((int)$orderLengowId);
             if ($result && isset($result['order_new']) && $result['order_new']) {
                 $totalReSent++;
             }
