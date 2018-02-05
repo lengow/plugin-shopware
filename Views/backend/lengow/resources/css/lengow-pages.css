@@ -196,8 +196,9 @@ body.lgw-home-iframe .lgw-content-section p {
   height: 16px;
 }
 
-#lgw-summary-text {
+#lgw-summary-element {
   border-radius: 3px;
+  margin: 10px 0px 15px 0px;
   padding: 5px;
   background: #cdf1ff;
   border: 1px solid #00aeef;
@@ -217,4 +218,11 @@ body.lgw-home-iframe .lgw-content-section p {
   color: #475c6a;
   height: 13px;
   display: block
+}
+
+#lgw-send-ship-action,
+#lgw-send-cancel-action,
+#lgw-synchronize-order,
+#lgw-reimport-order {
+  padding: 2px 5px;
 }

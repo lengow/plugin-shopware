@@ -75,7 +75,6 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
         var me = this;
         return Ext.create('Ext.container.Container', {
             id: 'lgw-summary-element',
-            padding: '10 0 20 0',
             items: [
                 {
                     xtype: 'label',

@@ -34,6 +34,8 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             empty: '{s name="export/grid/search/empty" namespace="backend/Lengow/translation"}{/s}'
         },
         errors: {
+            not_imported: '{s name="order/grid/errors/not_imported" namespace="backend/Lengow/translation"}{/s}',
+            not_sent: '{s name="order/grid/errors/not_sent" namespace="backend/Lengow/translation"}{/s}',
             import: '{s name="order/grid/errors/import" namespace="backend/Lengow/translation"}{/s}',
             action: '{s name="order/grid/errors/action" namespace="backend/Lengow/translation"}{/s}'
         },
@@ -136,13 +138,13 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                             var tootlip = me.snippets.errors.import + errorMessages;
                             return '<div class=" x-btn primary small lengow_action_button_grid">' +
                                 '<span class="lengow_action lengow_tooltip lgw_order_action_grid-js"'
-                                + ' data-href="#">not imported'
+                                + ' data-href="#">' + me.snippets.errors.not_imported
                                 + '<span class="lengow_order_action">' + tootlip + '</span></span></div>';
                         } else {
                             var tootlip = me.snippets.errors.action + errorMessages;
                             return '<div class=" x-btn primary small lengow_action_button_grid">' +
                                 '<span class="lengow_action lengow_tooltip lgw_order_action_grid-js"'
-                                + ' data-href="#">not sent'
+                                + ' data-href="#">' + me.snippets.errors.not_sent
                                 + '<span class="lengow_order_action">' + tootlip + '</span></span></div>';
                         }
                     } else {
