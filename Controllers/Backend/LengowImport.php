@@ -306,6 +306,27 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     }
 
     /**
+     * Get last action of an order
+     *
+     * @param $orderId
+     * @return string|null
+     */
+    public function getLastActionByShopwareOrderId($orderId)
+    {
+        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $builder = $em->createQueryBuilder();
+        $builder->select('s_lengow_action.actionType')
+            ->from('Shopware\CustomModels\Lengow\Action', 's_lengow_action')
+            ->where('s_lengow_action.orderId = :orderId')
+            ->orderBy('s_lengow_action.id', 'DESC')
+            ->setParameter('orderId', $orderId);
+
+        $result = $builder->getQuery()->getArrayResult();
+
+        return $result[0]['actionType'] ? $result[0]['actionType'] : null;
+    }
+
+    /**
      * Send Order action
      *
      * @param int|null $orderId
@@ -315,17 +336,26 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         if (!$orderId) {
             $orderId = $this->Request()->getParam('orderId');
         }
-        $action = $this->Request()->getParam('actionName');
-        $order = Shopware()->Models()
-            ->getRepository('\Shopware\Models\Order\Order')
-            ->findOneBy(array('id' => $orderId));
 
-        $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
-            ->findOneBy(array('order' => $order));
+        $action = $this->Request()->getParam('actionName');
+
+        if (!$action) {
+            $action = $this->getLastActionByShopwareOrderId($orderId);
+        }
 
         $success = false;
-        if ($lengowOrder->getOrderProcessState() == 1 && $lengowOrder->isInError() == 1) {
-            $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, $action);
+
+        if ($action) {
+            $order = Shopware()->Models()
+                ->getRepository('\Shopware\Models\Order\Order')
+                ->findOneBy(array('id' => $orderId));
+
+            $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
+                ->findOneBy(array('order' => $order));
+
+            if ($lengowOrder->getOrderProcessState() == 1 && $lengowOrder->isInError() == 1) {
+                $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, $action);
+            }
         }
         $this->View()->assign(
             array(
@@ -374,16 +404,16 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     /**
      * reImport action
      *
-     * @param int|null $orderId
+     * @param int|null $lengowOrderId
      */
-    public function reImportAction($orderId = null)
+    public function reImportAction($lengowOrderId = null)
     {
-        if (!$orderId) {
-            $orderId = $this->Request()->getParam('orderId');
+        if (!$lengowOrderId) {
+            $lengowOrderId = $this->Request()->getParam('orderId');
         }
 
         $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
-                                 ->findOneBy(array('id' => $orderId));
+                                 ->findOneBy(array('id' => $lengowOrderId));
 
         $success = false;
         if ($lengowOrder->getOrderProcessState() == 0 && $lengowOrder->isInError() == 1) {
@@ -409,7 +439,10 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
 
         $totalReSent = 0;
         foreach ($ids as $orderLengowId) {
-            $result = $this->reSendActionAction((int)$orderLengowId);
+            $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
+                ->findOneBy(array('id' => $orderLengowId));
+            if (is_null($lengowOrder->getOrderSku())) continue;
+            $result = $this->reSendActionAction((int)$lengowOrder->getOrder()->getId());
             if ($result && isset($result['order_new']) && $result['order_new']) {
                 $totalReSent++;
             }
