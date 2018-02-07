@@ -211,7 +211,7 @@ de:
         actions: "Aktionen"
         lengow_status: "Lengow status"
         marketplace: "Marktplatz"
-        store_name: "Marktplatz"
+        store_name: "Shop"
         marketplace_sku: "Marktplatz-SKU"
         shopware_sku: "Shopware SKU"
         shopware_status: "Status Shopware"
@@ -261,7 +261,7 @@ de:
       mass_action_resend: "Bestellungen importiert."
       mass_action_resend_check_title: "Ausgewählte Bestellungen erneut versenden"
       mass_action_resend_check_message: "Möchten Sie alle ausgewählten Bestellungen erneut versenden?"
-      mass_action_waiting_message: "Einen Augenblick bitte."
+      mass_action_waiting_message: "Einen Augenblick bitte"
   log:
     panel:
       empty_selection: "Log Datei auswählen..."
@@ -284,8 +284,8 @@ de:
       credentials_not_valid: "Konto-Nr., Access-Token oder Access-Token-Secret ungültig"
       no_catalog_for_shop: "Keine gültige Katalog-Nr. für den Shop %{name_shop} (%{id_shop})"
       order_not_found: "Fehler Lengow: Bestellung kann in Lengow nicht gefunden werden"
-      mass_action_reimport_success: "Insgesamt wurden %{nb_imported} Bestellungen von %{nb_selected}  importiert."
-      mass_action_resend_success: "Insgesamt wurden %{nb_sent} Insgesamt wurden %{nb_selected} versendet."
+      mass_action_reimport_success: "Insgesamt wurden %{nb_imported} Bestellungen von %{nb_selected}  importiert"
+      mass_action_resend_success: "Insgesamt wurden %{nb_sent} Insgesamt wurden %{nb_selected} versendet"
     exception:
       marketplace_not_present: "Lengow Fehler: %{marketplace_name} erscheint nicht in der Marketplace-Liste"
       order_line_required: "erforderliche Bestellzeile kann in der Bestellung nicht gefunden werden"

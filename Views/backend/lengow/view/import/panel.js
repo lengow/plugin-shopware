@@ -223,7 +223,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
                     text: Ext.String.capitalize(me.snippets.buttons.action_ship),
                     cls: 'primary',
                     handler: function() {
-                        me.fireEvent('reSendAction', 'ship');
+                        me.fireEvent('send', 'ship');
                     }
                 },
                 {
@@ -233,7 +233,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
                     text: Ext.String.capitalize(me.snippets.buttons.action_cancel),
                     cls: 'primary',
                     handler: function() {
-                        me.fireEvent('reSendAction', 'cancel');
+                        me.fireEvent('send', 'cancel');
                     }
                 }
             ]

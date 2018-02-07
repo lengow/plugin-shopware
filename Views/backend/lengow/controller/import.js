@@ -56,7 +56,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
                 initImportPanels: me.onInitImportPanels
             },
             'lengow-import-panel' : {
-                reSendAction: me.reSendAction,
+                send: me.send,
                 synchronize: me.synchronize,
                 cancelAndReImport: me.cancelAndReImport
             }
@@ -103,10 +103,10 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
     /**
      * Start import listener
      */
-    reSendActionGrid: function (id, type, lastActionType) {
+    reSendActionGrid: function (lengowOrderId, type) {
         var me = this, url;
-        if (type == 'send') {
-            url = '{url controller=LengowImport action=reSendAction}';
+        if (type === 'send') {
+            url = '{url controller=LengowImport action=reSend}';
         } else {
             url = '{url controller=LengowImport action=reImport}';
         }
@@ -119,8 +119,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
             method: 'POST',
             type: 'json',
             params: {
-                orderId: id,
-                actionName: lastActionType
+                lengowOrderId: lengowOrderId
             },
             success: function () {
                 var grid = Ext.getCmp('importGrid');
@@ -132,13 +131,12 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
         });
     },
 
-    sendMassActionGrid: function(ids, type) {
+    sendMassActionGrid: function(lengowOrderIds, type) {
         var me = this, title, message, url;
 
-        if (type == 'send') {
+        if (type === 'send') {
             title = me.snippets.mass_action_resend_check_title;
             message = me.snippets.mass_action_resend_check_message;
-
         } else {
             title = me.snippets.mass_action_reimport_check_title;
             message = me.snippets.mass_action_reimport_check_message;
@@ -153,8 +151,8 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
                     return;
                 }
 
-                if (type == 'send') {
-                    url = '{url controller=LengowImport action=reSendMassAction}';
+                if (type === 'send') {
+                    url = '{url controller=LengowImport action=reSendMass}';
                 } else {
                     url = '{url controller=LengowImport action=reImportMass}';
                 }
@@ -171,7 +169,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
                     method: 'POST',
                     type: 'json',
                     params: {
-                        ids: JSON.stringify(ids)
+                        lengowOrderIds: JSON.stringify(lengowOrderIds)
                     },
                     success: function (response) {
                         var grid = Ext.getCmp('importGrid'),
@@ -280,10 +278,10 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
     },
 
     /**
-     * Resend action (ship or cancel) from panel
+     * Send action (ship or cancel) from panel
      * @param type
      */
-    reSendAction: function (type) {
+    send: function (type) {
         var me = this,
             orderId = parseInt(Ext.get('lgw-toolbar-buttons').getAttribute('orderId')),
             buttonId = 'lgw-send-' + type + '-action';
@@ -301,7 +299,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
                 loading.show();
                 Ext.getCmp(buttonId).disable();
                 Ext.Ajax.request({
-                    url: '{url controller="LengowImport" action="reSendAction"}',
+                    url: '{url controller="LengowImport" action="send"}',
                     method: 'POST',
                     type: 'json',
                     params: {

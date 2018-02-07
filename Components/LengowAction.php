@@ -130,6 +130,25 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
     }
 
     /**
+     * Get last action of an order
+     *
+     * @param integer $orderId Shopware order id
+     *
+     * @return string|null
+     */
+    public static function getLastActionOrderType($orderId)
+    {
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select('s_lengow_action.actionType')
+            ->from('Shopware\CustomModels\Lengow\Action', 's_lengow_action')
+            ->where('s_lengow_action.orderId = :orderId')
+            ->orderBy('s_lengow_action.id', 'DESC')
+            ->setParameter('orderId', $orderId);
+        $result = $builder->getQuery()->getArrayResult();
+        return $result[0]['actionType'] ? $result[0]['actionType'] : false;
+    }
+
+    /**
      * Finish action
      *
      * @param integer $id Lengow action id

@@ -306,57 +306,15 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     }
 
     /**
-     * Get last action of an order
-     *
-     * @param $orderId
-     * @return string|null
-     */
-    public function getLastActionByShopwareOrderId($orderId)
-    {
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $builder = $em->createQueryBuilder();
-        $builder->select('s_lengow_action.actionType')
-            ->from('Shopware\CustomModels\Lengow\Action', 's_lengow_action')
-            ->where('s_lengow_action.orderId = :orderId')
-            ->orderBy('s_lengow_action.id', 'DESC')
-            ->setParameter('orderId', $orderId);
-
-        $result = $builder->getQuery()->getArrayResult();
-
-        return $result[0]['actionType'] ? $result[0]['actionType'] : null;
-    }
-
-    /**
      * Send Order action
-     *
-     * @param int|null $orderId
      */
-    public function reSendActionAction($orderId = null)
+    public function sendAction()
     {
-        if (!$orderId) {
-            $orderId = $this->Request()->getParam('orderId');
-        }
-
+        $orderId = $this->Request()->getParam('orderId');
         $action = $this->Request()->getParam('actionName');
-
-        if (!$action) {
-            $action = $this->getLastActionByShopwareOrderId($orderId);
-        }
-
-        $success = false;
-
-        if ($action) {
-            $order = Shopware()->Models()
-                ->getRepository('\Shopware\Models\Order\Order')
-                ->findOneBy(array('id' => $orderId));
-
-            $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
-                ->findOneBy(array('order' => $order));
-
-            if ($lengowOrder->getOrderProcessState() == 1 && $lengowOrder->isInError() == 1) {
-                $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, $action);
-            }
-        }
+        $order = Shopware()->Models()->getRepository('\Shopware\Models\Order\Order')
+            ->findOneBy(array('id' => $orderId));
+        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, $action);
         $this->View()->assign(
             array(
                 'success' => true,
@@ -402,24 +360,18 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     }
 
     /**
-     * reImport action
+     * Re-import action
      *
-     * @param int|null $lengowOrderId
+     * @param int|null $lengowOrderId Lengow Order Id
      */
     public function reImportAction($lengowOrderId = null)
     {
         if (!$lengowOrderId) {
-            $lengowOrderId = $this->Request()->getParam('orderId');
+            $lengowOrderId = $this->Request()->getParam('lengowOrderId');
         }
-
         $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
-                                 ->findOneBy(array('id' => $lengowOrderId));
-
-        $success = false;
-        if ($lengowOrder->getOrderProcessState() == 0 && $lengowOrder->isInError() == 1) {
-            $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::reImportOrder($lengowOrder);
-        }
-
+            ->findOneBy(array('id' => $lengowOrderId));
+        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::reImportOrder($lengowOrder);
         $this->View()->assign(
             array(
                 'success' => true,
@@ -429,60 +381,38 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     }
 
     /**
-     * Mass action resend action
+     * Re-send Order action
+     *
+     * @param int|null $lengowOrderId Lengow Order Id
      */
-    public function reSendMassActionAction()
+    public function reSendAction($lengowOrderId = null)
     {
-        $ids = json_decode($this->Request()->getParam('ids'));
-        $nbSelected = count($ids);
-        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
-
-        $totalReSent = 0;
-        foreach ($ids as $orderLengowId) {
-            $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
-                ->findOneBy(array('id' => $orderLengowId));
-            if (is_null($lengowOrder->getOrderSku())) continue;
-            $result = $this->reSendActionAction((int)$lengowOrder->getOrder()->getId());
-            if ($result && isset($result['order_new']) && $result['order_new']) {
-                $totalReSent++;
-            }
+        if (!$lengowOrderId) {
+            $lengowOrderId = $this->Request()->getParam('lengowOrderId');
         }
-
-        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-            'API-OrderAction',
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'lengow_log/error/mass_action_resend_success',
-                array('nb_sent' => $totalReSent, 'nb_selected' => $nbSelected)
-            ),
-            false
-        );
-
-        $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-            'lengow_log/error/mass_action_resend_success',
-            $locale,
-            array('nb_sent' => $totalReSent, 'nb_selected' => $nbSelected)
-        );
-
+        $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
+            ->findOneBy(array('id' => $lengowOrderId));
+        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::reSendOrder($lengowOrder);
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $message
+                'data' => $success
             )
         );
     }
 
     /**
-     * Mass action reimport order
+     * Mass action re-import order
      */
     public function reImportMassAction()
     {
-        $ids = json_decode($this->Request()->getParam('ids'));
-        $nbSelected = count($ids);
+        $lengowOrderIds = json_decode($this->Request()->getParam('lengowOrderIds'));
+        $nbSelected = count($lengowOrderIds);
         $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
 
         $totalReImport = 0;
-        foreach ($ids as $orderLengowId) {
-            $result = $this->reImportAction((int)$orderLengowId);
+        foreach ($lengowOrderIds as $lengowOrderId) {
+            $result = $this->reImportAction((int)$lengowOrderId);
             if ($result && isset($result['order_new']) && $result['order_new']) {
                 $totalReImport++;
             }
@@ -511,4 +441,43 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         );
     }
 
+    /**
+     * Mass action re-send action
+     */
+    public function reSendMassAction()
+    {
+        $lengowOrderIds = json_decode($this->Request()->getParam('lengowOrderIds'));
+        $nbSelected = count($lengowOrderIds);
+        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
+
+        $totalReSent = 0;
+        foreach ($lengowOrderIds as $lengowOrderId) {
+            $result = $this->reSendAction((int)$lengowOrderId);
+            if ($result && isset($result['order_new']) && $result['order_new']) {
+                $totalReSent++;
+            }
+        }
+
+        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+            'API-OrderAction',
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                'lengow_log/error/mass_action_resend_success',
+                array('nb_sent' => $totalReSent, 'nb_selected' => $nbSelected)
+            ),
+            false
+        );
+
+        $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+            'lengow_log/error/mass_action_resend_success',
+            $locale,
+            array('nb_sent' => $totalReSent, 'nb_selected' => $nbSelected)
+        );
+
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => $message
+            )
+        );
+    }
 }

@@ -50,12 +50,10 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
     listeners : {
         cellclick : function(view, cell, cellIndex, record) {
             var me = this,
-                idOrder,
                 errorType = record.raw.orderProcessState == 0 ? 'import' : 'send',
                 clickedColumnName = view.panel.headerCt.getHeaderAtIndex(cellIndex).dataIndex;
             if (clickedColumnName == 'inError' && record.raw.inError) {
-                idOrder = errorType == 'send' ? record.raw.orderId : record.raw.id;
-                me.fireEvent('reSendActionGrid', idOrder, errorType, record.raw.lastActionType);
+                me.fireEvent('reSendActionGrid', record.raw.id, errorType);
             }
         }
     },
@@ -181,13 +179,13 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                 dataIndex: 'marketplaceLabel',
                 flex: 1.5
             }, {
-                header: me.snippets.column.store_name,
-                dataIndex: 'storeName',
-                flex: 1.5
-            }, {
                 header: me.snippets.column.marketplace_sku,
                 dataIndex: 'marketplaceSku',
                 flex: 2
+            }, {
+                header: me.snippets.column.store_name,
+                dataIndex: 'storeName',
+                flex: 1.5
             }, {
                 header: me.snippets.column.shopware_status,
                 dataIndex: 'orderStatus',
@@ -337,17 +335,6 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
     getToolbar: function() {
         var me = this;
 
-        // Publish button - Add mass selection to export
-        me.sendActionBtn = Ext.create('Ext.button.Button', {
-            iconCls: 'sprite-arrow-circle-225-left',
-            text: me.snippets.buttons.send_action,
-            hidden: true,
-            margins: '5 0 0 0',
-            handler: function() {
-                me.sendMassActionButtonHandler('send');
-            }
-        });
-
         // Un-publish button - Remove mass selection from export
         me.importOrderBtn = Ext.create('Ext.button.Button', {
             iconCls: 'sprite-drive-download',
@@ -356,6 +343,17 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             hidden: true,
             handler: function() {
                 me.sendMassActionButtonHandler('import');
+            }
+        });
+
+        // Publish button - Add mass selection to export
+        me.sendActionBtn = Ext.create('Ext.button.Button', {
+            iconCls: 'sprite-arrow-circle-225-left',
+            text: me.snippets.buttons.send_action,
+            hidden: true,
+            margins: '5 0 0 0',
+            handler: function() {
+                me.sendMassActionButtonHandler('send');
             }
         });
 
@@ -368,8 +366,8 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             width: '100%',
             border: false,
             items: [
-                me.sendActionBtn,
                 me.importOrderBtn,
+                me.sendActionBtn,
                 {
                     xtype: 'tbfill'
                 },
@@ -409,7 +407,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
         var me = this,
             selectionModel = me.getSelectionModel(),
             records = selectionModel.getSelection(),
-            orderIds = [],
+            lengowOrderIds = [],
             checkbox = Ext.getCmp('editAll');
 
         // Enable mask on main container while the process is not finished
@@ -418,11 +416,11 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
         // If select all products checkbox is not checked, get articles ids
         if (!checkbox.getValue()) {
             Ext.each(records, function(record) {
-                orderIds.push(record.raw['id']);
+                lengowOrderIds.push(record.raw['id']);
             });
         }
 
-        me.fireEvent('sendMassActionGrid', orderIds, type);
+        me.fireEvent('sendMassActionGrid', lengowOrderIds, type);
     }
 });
 //{/block}

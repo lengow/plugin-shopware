@@ -261,7 +261,7 @@ fr:
       mass_action_resend: "Renvoyer les commandes sélectionnées"
       mass_action_resend_check_title: "Renvoyer toutes les commandes sélectionnées"
       mass_action_resend_check_message: "Voulez-vous renvoyer toutes les commandes sélectionnées ?"
-      mass_action_waiting_message: "Restez avec nous, cela ne va pas prendre longtemps "
+      mass_action_waiting_message: "Restez avec nous, cela ne va pas prendre longtemps"
   log:
     panel:
       empty_selection: "Veuillez choisir un fichier de log..."

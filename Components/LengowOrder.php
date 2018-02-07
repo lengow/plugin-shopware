@@ -557,27 +557,56 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     }
 
     /**
-     * re-import order
+     * Re-import order
      *
      * @param \Shopware\CustomModels\Lengow\Order $lengowOrder Lengow order instance
      *
-     * @return array
+     * @return array|false
      */
     public static function reImportOrder($lengowOrder)
     {
-        $params = array(
-            'type' => 'manual',
-            'lengow_order_id' => $lengowOrder->getId(),
-            'marketplace_sku' => $lengowOrder->getMarketplaceSku(),
-            'marketplace_name' => $lengowOrder->getMarketplaceName(),
-            'delivery_address_id' => $lengowOrder->getDeliveryAddressId(),
-            'shop_id' => $lengowOrder->getShopId()
-        );
+        if ($lengowOrder->getOrderProcessState() == 0 && $lengowOrder->isInError() == 1) {
+            $params = array(
+                'type' => 'manual',
+                'lengow_order_id' => $lengowOrder->getId(),
+                'marketplace_sku' => $lengowOrder->getMarketplaceSku(),
+                'marketplace_name' => $lengowOrder->getMarketplaceName(),
+                'delivery_address_id' => $lengowOrder->getDeliveryAddressId(),
+                'shop_id' => $lengowOrder->getShopId()
+            );
 
-        $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport($params);
-        $results = $import->exec();
+            $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport($params);
+            $results = $import->exec();
+            return $results;
+        }
+        return false;
+    }
 
-        return $results;
+    /**
+     * Re-send order
+     *
+     * @param \Shopware\CustomModels\Lengow\Order $lengowOrder Lengow order instance
+     *
+     * @return boolean
+     */
+    public static function reSendOrder($lengowOrder)
+    {
+        if ($lengowOrder->getOrderProcessState() == 1 && $lengowOrder->isInError() == 1) {
+            $order = $lengowOrder->getOrder();
+            if ($order) {
+                $action = Shopware_Plugins_Backend_Lengow_Components_LengowAction::getLastActionOrderType(
+                    $order->getId()
+                );
+                if (!$action) {
+                    $orderStatusCanceled = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus(
+                        'canceled'
+                    );
+                    $action = $orderStatusCanceled == $order->getOrderStatus() ? 'cancel' : 'ship';
+                }
+                return Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, $action);
+            }
+        }
+        return false;
     }
 
     /**
