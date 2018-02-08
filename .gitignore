@@ -2,3 +2,4 @@
 Logs/*.txt
 Export/*
 !Export/index.php
+/.idea/

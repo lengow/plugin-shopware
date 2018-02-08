@@ -39,6 +39,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
     protected $entityManager;
 
     /**
+     * @var array old Lengow settings
+     */
+    protected $oldSettings = array(
+        'lengowExportVariationEnabled',
+        'lengowExportOutOfStock',
+        'lengowEnableImport',
+    );
+
+    /**
      * Construct
      */
     public function __construct()
@@ -54,7 +63,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
      */
     public function createConfig($mainForm)
     {
-        // Get dispatches and order states for settings
+        // Get tracking ids, dispatches and order states for settings
+        $trackingIds = $this->getTrackingIds();
         $dispatches = $this->getDispatches();
         $orderStates = $this->getOrderStates();
         // Main settings
@@ -109,6 +119,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'required' => true,
                 'value' => '127.0.0.1',
                 'description' => 'settings/lengow_main_settings/ip/description'
+            ),
+            'lengowTrackingId' => array(
+                'type' => 'select',
+                'label' => 'settings/lengow_main_settings/tracking/label',
+                'required' => true,
+                'editable' => false,
+                'value' => $trackingIds['default_value'],
+                'store' => $trackingIds['selection'],
+                'description' => 'settings/lengow_main_settings/tracking/description'
             )
         );
         // Auto-generate form
@@ -150,14 +169,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         $exportSettingForm->setParent($mainForm);
         // Import settings
         $importFormElements = array(
-            'lengowEnableImport' => array(
-                'type' => 'boolean',
-                'label' => 'settings/lengow_import_settings/enable_import/label',
-                'editable' => false,
-                'value' => false,
-                'required' => false,
-                'description' => 'settings/lengow_import_settings/enable_import/description'
-            ),
             'lengowImportShipMpEnabled' => array(
                 'type' => 'boolean',
                 'label' => 'settings/lengow_import_settings/ship_mp_enabled/label',
@@ -197,6 +208,17 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'label' => 'settings/lengow_import_settings/preprod_mode/label',
                 'value' => false,
                 'description' => 'settings/lengow_import_settings/preprod_mode/description'
+            ),
+            'lengowImportReportMailEnabled' => array(
+                'type' => 'boolean',
+                'label' => 'settings/lengow_import_settings/report_mail_enabled/label',
+                'value' => true
+            ),
+            'lengowImportReportMailAddress' => array(
+                'type' => 'text',
+                'label' => 'settings/lengow_import_settings/report_mail_address/label',
+                'required' => false,
+                'description' => 'settings/lengow_import_settings/report_mail_address/description'
             )
         );
         // Auto-generate form
@@ -238,10 +260,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             )
         );
         // Auto-generate form
-        $orderStatusSettingForm = $this->createSettingForm(
-            'lengow_order_status_settings',
-            $orderStatusFormElements
-        );
+        $orderStatusSettingForm = $this->createSettingForm('lengow_order_status_settings', $orderStatusFormElements);
         $orderStatusSettingForm->setParent($mainForm);
         $forms = array($mainSettingForm, $exportSettingForm, $importSettingForm, $orderStatusSettingForm);
         $mainForm->setChildren($forms);
@@ -266,6 +285,32 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             }
         }
         Shopware_Plugins_Backend_Lengow_Bootstrap::log('log/install/add_form', array('formName' => 'Lengow'));
+    }
+
+    /**
+     * Remove old settings for old plugin versions
+     */
+    public function removeOldSettings()
+    {
+        foreach ($this->oldSettings as $setting) {
+            $element = $this->entityManager->getRepository('\Shopware\Models\Config\Element')
+                ->findOneBy(array('name' => $setting));
+            if ($element) {
+                try {
+                    $this->entityManager->remove($element);
+                    $this->entityManager->flush();
+                    Shopware_Plugins_Backend_Lengow_Bootstrap::log(
+                        'log/install/delete_old_setting',
+                        array('name' => $setting)
+                    );
+                } catch (Exception $e) {
+                    Shopware_Plugins_Backend_Lengow_Bootstrap::log(
+                        'log/install/delete_old_setting_error',
+                        array('name' => $setting)
+                    );
+                }
+            }
+        }
     }
 
     /**
@@ -319,6 +364,22 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
     }
 
     /**
+     * Get all tracking ids for form
+     *
+     * @return array
+     */
+    protected function getTrackingIds()
+    {
+        return array(
+            'default_value' => 'ordernumber',
+            'selection' => array(
+                array('ordernumber', 'Product Number'),
+                array('id', 'Product Id')
+            )
+        );
+    }
+
+    /**
      * Get all dispatches for form
      *
      * @return array
@@ -356,11 +417,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             ->findBy(array('group' => 'state'));
         // Default dispatcher used to get shipping fees in export
         foreach ($orderStates as $orderState) {
-            $name = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0')
-                ? $orderState->getName()
-                : $orderState->getDescription();
             if ($orderState->getId() != -1) {
-                $selection[] = array($orderState->getId(), $name);
+                $selection[] = array($orderState->getId(), $orderState->getDescription());
             }
         }
         return array(

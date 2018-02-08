@@ -67,9 +67,10 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
                 // Import tab
                 {
                     title: me.snippets.tab.import,
-                    layout: 'border',
-                    hidden: true,
-                    id: 'lengowImportTab'
+                    id: 'lengowImportTab',
+                    xtype: 'lengow-import-container',
+                    importStore: me.importStore,
+                    layout: 'border'
                 },
                 // Log tab
                 {
@@ -100,21 +101,17 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
                     hidden: true
                 }
             ],
-
             listeners: {
                 // Listen to click on tabs
                 'beforetabchange': function(tabPanel, tab) {
                     var tabId = tab.id;
-                    if (tabId == 'lengowImportTab') {
-                        me.showImportWindow();
-                        return false; // avoid switching tab
-                    } else if (tabId == 'lengowSettingsTab') {
+                    if (tabId === 'lengowSettingsTab') {
                         // Open Shopware basic settings sub-application
                         Shopware.app.Application.addSubApplication({
                             name: 'Shopware.apps.Config'
                         });
                         return false; // avoid switching tab
-                    } else if (tabId == 'lengowLogsTab') {
+                    } else if (tabId === 'lengowLogsTab') {
                         me.showLogsWindowTab();
                         return false; // avoid switching tab
                     }
@@ -124,36 +121,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
                 }
             }
         });
-
         return me.tabPanel;
-    },
-
-
-    /**
-     * Display decrease stocks window
-     */
-    showImportWindow: function() {
-        var me = this;
-        Ext.define('LengowImportWindow', {
-            id: 'lengowImportWindow',
-            modal: true,
-            draggable: false,
-            resizable: false,
-            extend: 'Ext.window.Window',
-            title: me.snippets.tab.import,
-            items: [{
-                xtype: 'lengow-import-panel'
-            }]
-        });
-        me.importWindow = new LengowImportWindow;
-        // Issue when opening settings tab and coming back to import tab
-        // Needed to reset listeners each time we click on import tab
-        me.fireEvent('initImportPanels');
-        Ext.getCmp('importButton').on('click', function(){
-            me.fireEvent('launchImportProcess');
-        });
-
-        me.importWindow.show();
     },
 
     /**

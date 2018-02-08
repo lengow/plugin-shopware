@@ -100,8 +100,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
      * @param string $isoCode translation iso code
      * @param string $fileName file location
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
-     *
      * @return boolean
      */
     public static function loadFile($isoCode = null, $fileName = null)
@@ -115,11 +113,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
             try {
                 self::$translation = parse_ini_file($fileName, true);
             } catch (Exception $e) {
-                throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                        'Translation file could not be load : ' . $e
-                    )
-                );
+               return false;
             }
         }
         self::$translation[$isoCode] = $translation;
@@ -160,9 +154,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
                 if (preg_match('/^(([a-z\_]*\/){1,3}[a-z\_]*)(\[(.*)\]|)$/', $path . $value, $result)) {
                     if (isset($result[1])) {
                         $tKey = $result[1];
-                        if (isset($params[$key])) {
-                            $translationParam = $params[$key];
-                        }
                         $translations[$value] = $lengowTranslation->t($tKey, $translationParam, $locale);
                     }
                 }

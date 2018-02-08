@@ -83,6 +83,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static $logLife = 20;
 
     /**
+     * @var Shopware_Components_Translation Shopware translation instance
+     */
+    public static $translation;
+
+    /**
      * Get export web services links
      *
      * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
@@ -91,7 +96,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function getExportUrl($shop)
     {
-        $shopBaseUrl = self::getBaseUrl($shop);
+        $shopBaseUrl = self::getShopUrl($shop);
         return $shopBaseUrl . '/LengowController/export?shop=' . $shop->getId() . '&token=' . self::getToken($shop);
     }
 
@@ -316,7 +321,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function getShopUrl($shop)
     {
-        return self::getBaseUrl() . $shop->getBaseUrl();
+        return self::getBaseUrl($shop) . $shop->getBaseUrl();
     }
 
     /**
@@ -332,7 +337,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
         }
         $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '';
-        $host = $shop->getHost() ? $shop->getHost() : $_SERVER['SERVER_NAME'];
+        $mainHost = !is_null($shop->getMain()) ? $shop->getMain()->getHost() : $_SERVER['SERVER_NAME'];
+        $host = $shop->getHost() ? $shop->getHost() : $mainHost;
         $path = $shop->getBasePath() ? $shop->getBasePath() : '';
         $url = 'http' . $isHttps . '://' . $host . $path;
         return $url;
@@ -342,8 +348,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      * Record the date of the last import
      *
      * @param string $type (cron or manual)
-     *
-     * @return boolean
      */
     public static function updateDateImport($type)
     {
@@ -534,6 +538,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
+     * Load Lengow technical error status
+     *
+     * @return Shopware\Models\Order\Status|null
+     */
+    public static function getLengowTechnicalErrorStatus()
+    {
+        $params = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0')
+            ? array('name' => 'lengow_technical_error')
+            : array('description' => 'Technischer Fehler - Lengow');
+        $orderStatus = Shopware()->Models()->getRepository('Shopware\Models\Order\Status')->findOneBy($params);
+        return $orderStatus;
+    }
+
+    /**
      * Get Shopware order status corresponding to the current order state
      *
      * @param string $orderStateMarketplace order state marketplace
@@ -587,18 +605,37 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         }
         if ($settingName) {
             $orderStatusId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig($settingName);
-            $orderStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', (int)$orderStatusId);
-            if (!is_null($orderStatus)) {
-                return $orderStatus;
+            try {
+                $orderStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', (int)$orderStatusId);
+                if (!is_null($orderStatus)) {
+                    return $orderStatus;
+                }
+            } catch (Exception $e) {
+                return false;
             }
         }
         return false;
     }
 
     /**
+     * Get Shopware translation instance
+     *
+     * @return Shopware_Components_Translation
+     */
+    public static function getTranslationComponent()
+    {
+        if (self::$translation === null) {
+            self::$translation = new Shopware_Components_Translation();
+        }
+        return self::$translation;
+    }
+
+    /**
      * Get tax associated with a dispatch
      *
      * @param Shopware\Models\Dispatch\Dispatch $dispatch Shopware dispatch instance
+     *
+     * @throws Exception
      *
      * @return Shopware\Models\Tax\Tax
      */
@@ -635,6 +672,98 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
                 )
             );
         return $builder->getQuery()->getResult();
+    }
+
+    /**
+     * Check order error table and send mail for order not imported correctly
+     *
+     * @param boolean $logOutput see log or not
+     *
+     * @return boolean
+     */
+    public static function sendMailAlert($logOutput = false)
+    {
+        $success = true;
+        $orderErrors = Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::getOrderErrorNotSent();
+        if ($orderErrors) {
+            $subject = self::decodeLogMessage('lengow_log/mail_report/subject_report_mail');
+            $mailBody = self::getMailAlertBody($orderErrors);
+            $emails = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getReportEmailAddress();
+            foreach ($emails as $email) {
+                if (strlen($email) > 0) {
+                    if (self::sendMail($email, $subject, $mailBody)) {
+                        self::log(
+                            'MailReport',
+                            self::setLogMessage('log/mail_report/send_mail_to', array('email' => $email)),
+                            $logOutput
+                        );
+                    } else {
+                        self::log(
+                            'MailReport',
+                            self::setLogMessage('log/mail_report/unable_send_mail_to', array('email' => $email)),
+                            $logOutput
+                        );
+                        $success = false;
+                    }
+                }
+            }
+        }
+        return $success;
+    }
+
+    /**
+     * Get mail alert body and put mail attribute at true in order lengow record
+     *
+     * @param array $orderErrors order errors ready to be send
+     *
+     * @return string
+     */
+    public static function getMailAlertBody($orderErrors = array())
+    {
+        $mailBody = '';
+        if (!empty($orderErrors)) {
+            $support = self::decodeLogMessage('lengow_log/mail_report/no_error_in_report_mail');
+            $mailBody = '<h2>' . self::decodeLogMessage('lengow_log/mail_report/subject_report_mail') . '</h2><p><ul>';
+            foreach ($orderErrors as $orderError) {
+                $order = self::decodeLogMessage(
+                    'lengow_log/mail_report/order',
+                    null,
+                    array('marketplace_sku' => $orderError['marketplaceSku'])
+                );
+                $message = $orderError['message'] != '' ? self::decodeLogMessage($orderError['message']) : $support;
+                $mailBody .= '<li>' . $order . ' - ' . $message . '</li>';
+                Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::updateOrderError(
+                    $orderError['id'],
+                    array('mail' => true)
+                );
+            }
+            $mailBody .= '</ul></p>';
+        }
+        return $mailBody;
+    }
+
+    /**
+     * Send mail without template
+     *
+     * @param string $email send mail at
+     * @param string $subject subject email
+     * @param string $body body email
+     *
+     * @return boolean
+     */
+    public static function sendMail($email, $subject, $body)
+    {
+        try {
+            $mail = new \Zend_Mail();
+            $mail->setSubject($subject);
+            $mail->setBodyHtml($body);
+            $mail->setFrom(Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('mail'), 'Lengow');
+            $mail->addTo($email);
+            $mail->send();
+        } catch (\Exception $e) {
+            return false;
+        }
+        return true;
     }
 
     /**

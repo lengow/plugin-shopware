@@ -37,7 +37,7 @@ class Action extends ModelEntity
      *
      * @ORM\Column(name="order_id", type="integer", nullable=false)
      */
-    private $OrderId;
+    private $orderId;
 
     /**
      * @var \Shopware\Models\Order\Order
@@ -300,7 +300,7 @@ class Action extends ModelEntity
     /**
      * Sets the value of created at
      *
-     * @param \DateTime $createdAt $createdAt the created at
+     * @param \DateTime $createdAt created at
      *
      * @return self
      */
@@ -311,7 +311,7 @@ class Action extends ModelEntity
     }
 
     /**
-     * Gets the value of update at
+     * Gets the value of updated at
      *
      * @return \DateTime
      */
@@ -321,13 +321,13 @@ class Action extends ModelEntity
     }
 
     /**
-     * Sets the value of update at
+     * Sets the value of updated at
      *
-     * @param \DateTime $updatedAt $orderDate the created at
+     * @param \DateTime $updatedAt updated at
      *
      * @return self
      */
-    public function setUpdatedDate($updatedAt)
+    public function setUpdatedAt($updatedAt)
     {
         $this->updatedAt = $updatedAt;
         return $this;

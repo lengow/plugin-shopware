@@ -6,8 +6,24 @@
     "support_mail": "support.lengow.zendesk@lengow.com",
     "license": "proprietary",
     "link": "http://lengow.com",
-    "currentVersion": "1.2.0",
+    "currentVersion": "1.3.0",
     "changes": {
+        "1.3.0": {
+            "releasedate": "2018-02-08",
+            "line": ""
+        },
+        "1.2.3": {
+            "releasedate": "2017-12-04",
+            "line": ""
+        },
+        "1.2.2": {
+            "releasedate": "2017-11-06",
+            "line": ""
+        },
+        "1.2.1": {
+            "releasedate": "2017-09-12",
+            "line": ""
+        },
         "1.2.0": {
             "releasedate": "2017-07-26",
             "line": ""
@@ -39,6 +55,10 @@
     },
     "changelog": {
         "en": {
+            "1.3.0": "Feature: Implementation of the new Lengow order management screen; Feature: Automatic verification of actions sent to the marketplace; Feature: Automatic sending of action if the first shipment was a failure; Feature: Setting up the simple Lengow tracker; Feature: Sending a report email with order import and action upload errors; Feature: Adding a order resynchronisation button with Lengow; Feature: Adding a reimport order button and Lengow technical error status",
+            "1.2.3": "Feature: Direct shipment of actions from Shopware API; Feature: Export specific price product for a customer group; Bugfix: Get specific domain name for a sub shop; Bugfix: Improvement of the update system to avoid sql errors",
+            "1.2.2": "Feature: Translation management for catalog export; Bugfix: Fix the bug blocking the Shopware order details screen; Bugfix: Blocking unauthorized actions for a marketplace",
+            "1.2.1": "Feature: Added Lengow tab in order details; Feature: Add cancel and ship action buttons; Bugfix: Fix shop url with specific domain name; Bugfix: Change shop data for sending option",
             "1.2.0": "Feature: Added import order management; Feature: Adding action management to order; Feature: New multi-store management system; Feature: Automatic management of catalog addition",
             "1.1.0": "Feature: Add get_sync parameter for cron; Feature: Add PSR-2 coding standards; Feature: Delete out of stock and variation options for export; Feature: Add locale variable for Lengow Iframe; Feature: Add supplier field for export; Bugfix: Get images for article variations; Bugfix: Optimize Lengow Statistics; Bugfix: Add https protocol for Lengow iframe",
             "1.0.4": "Bugfix: change translations; Bugfix: replace html br by space in cleanHtml function; Bugfix: change cron url with no shop parameter; Bugfix: Optimize curl request; Bugfix: Optimize export process",

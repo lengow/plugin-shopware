@@ -17,7 +17,7 @@
 .lgw-box-link .lgw-box {
   top: 0;
   color: #555;
-  height: 300px;
+  height: 350px;
   text-decoration: none;
   transition: top 100ms ease,
   box-shadow 100ms ease;
@@ -61,7 +61,7 @@ a.lgw-box-link:hover {
 /*                    BUTTONS                    */
 /*************************************************/
 
-.lgw-container .lgw-btn {
+.lgw-container .lgw-btn, .lgw-btn-order {
   border-radius: 3px;
   padding: 10px 20px;
   margin: 15px 0;
@@ -78,7 +78,162 @@ a.lgw-box-link:hover {
 }
 
 .lgw-container .lgw-btn:hover,
-.lgw-container .lgw-btn:active {
+.lgw-container .lgw-btn:active,
+.lgw-btn-order:hover,
+.lgw-btn-order:active{
   background: #019ce2;
   color: white;
+}
+
+.lgw-btn-order {
+  margin: 0;
+}
+
+/* WHITE */
+
+.lgw-btn-white a, .custom-grid-action a {
+  background-color: #fff;
+  border:1px solid #d7d7d7;
+  color: #555;
+}
+
+.lgw-btn-white a:hover, .custom-grid-action a:hover
+.lgw-btn-white a:focus, .custom-grid-action a:focus {
+  background-color: #f7f7f7;
+  color: #00aeef;
+}
+
+/*************************************************/
+/*                    LABELS                     */
+/*************************************************/
+
+.lgw-label {
+  font-size: 11px;
+  background :#ebebeb;
+  color: #828282;
+  height: 18px;
+  line-height: 18px;
+  padding: 0 10px;
+  border-radius: 12px;
+  display: inline-block;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.lgw-label.red {
+  color: white;
+  background: #e55a4d;
+}
+
+.lgw-label-canceled {
+  background: transparent;
+  border: 1px solid #e6594d;
+  color: #e6594d;
+  line-height: 18px;
+}
+
+.lgw-label.orange {
+  color: white;
+  background: #fbb829;
+}
+
+.lgw-label.green,
+.lgw-label-shipped,
+.lgw-label-closed {
+  color: white;
+  background: #7bc27a;
+}
+
+.lgw-label.blue,
+.lgw-label-accepted,
+.lgw-label-waiting_shipment {
+  color: white;
+  background: #00b0f0;
+}
+
+.lgw-label.grey {
+  border: 1px solid #7ac279;
+  color: #7ac279;
+  background: transparent;
+  line-height: 21px;
+}
+
+/*************************************************/
+/*                    TOOLTIP                    */
+/*************************************************/
+
+.lengow_action_button_grid:hover{
+  background: #019ce2;
+}
+
+.lengow_tooltip {
+  position: relative;
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  padding-right: 15px;
+}
+
+span.lengow_tooltip:after{
+  content: '';
+  background:  url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAABAklEQVQ4jcWSsS5EURCGvxEiFBuFFdqVrE2U2l2l6NU8wSZqWZWInhfwAt5ieQM6WylYhUYkaD7NuXFc9ya7UfibyZyZ7z8ncwb+qKgrqAEsAxERzxM7qk31Qh37rbF6rHbUF7VdB6+rowx8VT+y/C3F/YKZyeAl4BpopbgNNCJiHugBd8Biau8U3Gz2gD6wCgyBnYh4z2pbwGaWb1QZzAEj4KgEA1wCD8BauuSmcgb/K3VXPVX76p7aqOjppl86qTK48qcOS/UFdZhqgyqDswy+VbvpPNReBj+mL/9lcFBaFtXPtEyF7tVW3QzaaU076kB9Kq3yudqcdKaF6crU0LT6AhpCGITI3a7YAAAAAElFTkSuQmCC');
+  background-size: cover;
+  position: absolute;
+  margin-top: -1px;
+  margin-left: 2px;
+  width: 15px;
+  height: 15px;
+  color: #FFF;
+}
+
+.lengow_tooltip:hover {
+  z-index: 1070;
+}
+
+.lengow_tooltip span {
+  display: none
+}
+
+.lengow_tooltip:hover span {
+  display: block;
+  position: absolute;
+  background-color: #000;
+  color: #FFF;
+  border-radius: 4px;
+  padding: 3px 8px;
+  text-align: center;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1.42857143;
+  max-width: 400px;
+  opacity: .9;
+}
+
+/*************************************************/
+/*                    ACTION ORDER               */
+/*************************************************/
+
+.custom-grid-action, .custom-grid-action .x-grid-cell-inner{
+  overflow: visible;
+}
+
+.lengow_action {
+  cursor: pointer;
+}
+
+.lengow_action i {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-left: 3px;
+  vertical-align: middle;
+}
+
+.lengow_import_orders_style {
+  padding: 5px;
+  display: inline-block;
+  vertical-align: top;
+  cursor: pointer;
 }

@@ -94,6 +94,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * @param string $configName name of the setting to edit/add
      * @param mixed $value value to set for the setting
      * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     *
+     * @return boolean
      */
     public static function setConfig($configName, $value, $shop = null)
     {
@@ -119,15 +121,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             $config->setValue($value)
                 ->setDateUpd(new DateTime());
             $em->persist($config);
-            $em->flush($config);
+            try {
+                $em->flush($config);
+            } catch (Exception $e) {
+                return false;
+            }
         } else {
             // If shop no shop, get default one
             if (!($shop instanceof \Shopware\Models\Shop\Shop)) {
                 $shop = self::getDefaultShop();
             }
             $lengowConf = new Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration();
-            $lengowConf->save($configName, $value, $shop->getId());
+            return $lengowConf->save($configName, $value, $shop->getId());
         }
+        return true;
     }
 
     /**
@@ -232,6 +239,28 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     }
 
     /**
+     * Get all report mails
+     *
+     * @return array
+     */
+    public static function getReportEmailAddress()
+    {
+        $reportEmailAddress = array();
+        $emails = self::getConfig('lengowImportReportMailAddress');
+        $emails = trim(str_replace(array("\r\n", ',', ' '), ';', $emails), ';');
+        $emails = explode(';', $emails);
+        foreach ($emails as $email) {
+            if (strlen($email) > 0 && (bool)preg_match('/^\S+\@\S+\.\S+$/', $email)) {
+                $reportEmailAddress[] = $email;
+            }
+        }
+        if (count($reportEmailAddress) == 0) {
+            $reportEmailAddress[] = self::getConfig('mail');
+        }
+        return $reportEmailAddress;
+    }
+
+    /**
      * Get config from db
      * Shopware < 5.0.0 compatibility
      * > 5.0.0 : Use Shopware()->Plugins()->Backend()->Lengow()->get('config_writer')->get() instead
@@ -259,16 +288,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * @param string $name new config name
      * @param mixed $value config value
      * @param integer $shopId Shopware shop id
+     *
+     * @return boolean
      */
     public function save($name, $value, $shopId = 1)
     {
-        $query = $this->getConfigValueByNameQuery($name, $shopId);
-        $result = $query->execute()->fetch(\PDO::FETCH_ASSOC);
-        if (isset($result['valueId']) && $result['valueId']) {
-            $this->update($value, $result['valueId']);
-        } else {
-            $this->insert($value, $shopId, $result['elementId']);
+        try {
+            $query = $this->getConfigValueByNameQuery($name, $shopId);
+            $result = $query->execute()->fetch(\PDO::FETCH_ASSOC);
+            if (isset($result['valueId']) && $result['valueId']) {
+                $this->update($value, $result['valueId']);
+            } else {
+                $this->insert($value, $shopId, $result['elementId']);
+            }
+        } catch (Exception $e) {
+            return false;
         }
+        return true;
     }
 
     /**
@@ -360,6 +396,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'lengowSecretToken' => array('global' => true),
             'lengowIpEnabled' => array('global' => true),
             'lengowAuthorizedIp' => array('global' => true),
+            'lengowTrackingId' => array('global' => true),
             'lengowShopToken' => array('shop' => true),
             'lengowShopActive' => array('shop' => true),
             'lengowCatalogId' => array('shop' => true),
@@ -368,12 +405,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'lengowDefaultDispatcher' => array('shop' => true),
             'lengowLastExport' => array('shop' => true),
             'lengowGlobalToken' => array('global' => true),
-            'lengowEnableImport' => array('global' => true),
             'lengowImportShipMpEnabled' => array('global' => true),
             'lengowImportStockMpEnabled' => array('global' => true),
             'lengowImportDefaultDispatcher' => array('shop' => true),
             'lengowImportDays' => array('global' => true),
             'lengowImportPreprodEnabled' => array('global' => true),
+            'lengowImportReportMailEnabled' => array('global' => true),
+            'lengowImportReportMailAddress' => array('global' => true),
             'lengowImportInProgress' => array('global' => true),
             'lengowLastImportCron' => array('global' => true),
             'lengowLastImportManual' => array('global' => true),

@@ -34,10 +34,6 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             counter: {
                 count: '{s name="export/grid/label/counter/count" namespace="backend/Lengow/translation"}{/s}',
                 total: '{s name="export/grid/label/counter/total" namespace="backend/Lengow/translation"}{/s}'
-            },
-            shop: {
-                synchronized: '{s name="export/grid/label/status/synchronized" namespace="backend/Lengow/translation"}{/s}',
-                not_synchronized: '{s name="export/grid/label/status/not_synchronized" namespace="backend/Lengow/translation"}{/s}'
             }
         },
         search: {

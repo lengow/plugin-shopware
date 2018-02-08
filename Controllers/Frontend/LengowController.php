@@ -131,16 +131,14 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                         )
                     );
                     $export->exec();
-                } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
-                    $errorMessage = $e->getMessage();
-                    $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                        $errorMessage
-                    );
+                } catch (Exception $e) {
+                    $errorMessage = '[Shopware error] "' . $e->getMessage()
+                        . '" ' . $e->getFile() . ' | ' . $e->getLine();
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                         'Export',
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                             'log/export/export_failed',
-                            array('decoded_message' => $decodedMessage)
+                            array('decoded_message' => $errorMessage)
                         ),
                         $logOutput
                     );
@@ -237,12 +235,18 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                     $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport($params);
                     $import->exec();
                 }
+                // sync actions between Lengow and Shopware
+                if (!$sync || $sync === 'action') {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkFinishAction();
+                    Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkOldAction();
+                    Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkActionNotSent();
+                }
                 // sync options between Lengow and Shopware
                 if (!$sync || $sync === 'option') {
                     Shopware_Plugins_Backend_Lengow_Components_LengowSync::setCmsOption();
                 }
                 // sync parameter is not valid
-                if ($sync && (!in_array($sync, Shopware_Plugins_Backend_Lengow_Components_LengowSync::$syncActions))) {
+                if ($sync && !in_array($sync, Shopware_Plugins_Backend_Lengow_Components_LengowSync::$syncActions)) {
                     header('HTTP/1.1 400 Bad Request');
                     die(
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(

@@ -22,6 +22,8 @@ Ext.define('Shopware.apps.Lengow', {
         'export.Container',
         'export.Grid',
         'export.Tree',
+        'import.Container',
+        'import.Grid',
         'import.Panel',
         'logs.Panel',
         'help.Panel'
@@ -29,12 +31,14 @@ Ext.define('Shopware.apps.Lengow', {
     models: [
         'Article',
         'Logs',
-        'Shops'
+        'Shops',
+        'Orders'
     ],
     stores: [
         'Article',
         'Logs',
-        'Shops'
+        'Shops',
+        'Orders'
     ],
 
     launch: function() {

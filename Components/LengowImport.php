@@ -59,6 +59,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     protected $marketplaceName = null;
 
     /**
+     * @var integer Lengow order id
+     */
+    protected $lengowOrderId = null;
+
+    /**
      * @var integer delivery address id
      */
     protected $deliveryAddressId = null;
@@ -139,6 +144,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
      * string  marketplace_sku     lengow marketplace order id to import
      * string  marketplace_name    lengow marketplace name to import
      * string  type                type of current import
+     * integer lengow_order_id     Lengow order id in Shopware
      * integer delivery_address_id Lengow delivery address id to import
      * integer shop_id             shop id for current import
      * integer days                import period
@@ -153,6 +159,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             && array_key_exists('marketplace_name', $params)
             && array_key_exists('shop_id', $params)
         ) {
+            if (isset($params['lengow_order_id'])) {
+                $this->lengowOrderId = (int)$params['lengow_order_id'];
+            }
             $this->marketplaceSku = (string)$params['marketplace_sku'];
             $this->marketplaceName = (string)$params['marketplace_name'];
             $this->limit = 1;
@@ -189,41 +198,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     public function exec()
     {
         $orderNew = 0;
+        $orderUpdate = 0;
         $orderError = 0;
         $error = array();
-        $isImportActivated = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowEnableImport'
-        );
-        // Import option enabled in plugin options
-        if (!$isImportActivated) {
-            // Required to display error in the frontend window
-            $error['error'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                'lengow_log/error/import_not_active'
-            );
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Import',
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'lengow_log/error/import_not_active'
-                ),
-                $this->logOutput
-            );
-            return $error;
-        }
+        $globalError = false;
         // clean logs
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanLog();
         if (self::isInProcess() && !$this->preprodMode && !$this->importOneOrder) {
             $globalError = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'lengow_log/error/import_in_progress'
+                'lengow_log/error/rest_time_to_import',
+                array('rest_time' => self::restTimeToImport())
             );
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log('Import', $globalError, $this->logOutput);
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Import',
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'lengow_log/error/rest_time_to_import',
-                    array('rest_time' => self::restTimeToImport())
-                ),
-                $this->logOutput
-            );
         } elseif (!self::checkCredentials()) {
             $globalError = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                 'lengow_log/error/credentials_not_valid'
@@ -331,9 +317,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     } elseif ($totalOrders <= 0) {
                         continue;
                     }
+                    if (!is_null($this->lengowOrderId)) {
+                        Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::finishOrderErrors(
+                            $this->lengowOrderId
+                        );
+                    }
                     $result = $this->importOrders($orders, $shop);
                     if (!$this->importOneOrder) {
                         $orderNew += $result['order_new'];
+                        $orderUpdate += $result['order_update'];
                         $orderError += $result['order_error'];
                     }
                 } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
@@ -343,6 +335,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                         . $e->getFile() . ' | ' . $e->getLine();
                 }
                 if (isset($errorMessage)) {
+                    if (!is_null($this->lengowOrderId)) {
+                        Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::finishOrderErrors(
+                            $this->lengowOrderId
+                        );
+                        Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::createOrderError(
+                            $this->lengowOrderId,
+                            $errorMessage
+                        );
+                    }
                     $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
                         $errorMessage
                     );
@@ -372,6 +373,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Import',
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                        'lengow_log/error/nb_order_updated',
+                        array('nb_order' => $orderUpdate)
+                    ),
+                    $this->logOutput
+                );
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                    'Import',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'lengow_log/error/nb_order_with_error',
                         array('nb_order' => $orderError)
                     ),
@@ -388,6 +397,34 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 ),
                 $this->logOutput
             );
+            // sending email in error for orders
+            if (
+                (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                    'lengowImportReportMailEnabled'
+                )
+                && !$this->preprodMode
+                && !$this->importOneOrder
+            ) {
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::sendMailAlert($this->logOutput);
+            }
+            //check if order action is finish (Ship / Cancel)
+            if (!$this->preprodMode && !$this->importOneOrder && $this->typeImport === 'manual') {
+                Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkFinishAction();
+                Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkOldAction();
+                Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkActionNotSent();
+            }
+        }
+        if ($globalError) {
+            $error[0] = $globalError;
+            if (!is_null($this->lengowOrderId)) {
+                Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::finishOrderErrors(
+                    $this->lengowOrderId
+                );
+                Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::createOrderError(
+                    $this->lengowOrderId,
+                    $globalError
+                );
+            }
         }
         if ($this->importOneOrder) {
             $result['error'] = $error;
@@ -395,6 +432,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         } else {
             return array(
                 'order_new' => $orderNew,
+                'order_update' => $orderUpdate,
                 'order_error' => $orderError,
                 'error' => $error
             );
@@ -581,6 +619,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     protected function importOrders($orders, $shop)
     {
         $orderNew = 0;
+        $orderUpdate = 0;
         $orderError = 0;
         $importFinished = false;
         foreach ($orders as $orderData) {
@@ -708,6 +747,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 if (isset($order)) {
                     if (isset($order['order_new']) && $order['order_new'] == true) {
                         $orderNew++;
+                    } elseif (isset($order['order_update']) && $order['order_update'] == true) {
+                        $orderUpdate++;
                     } elseif (isset($order['order_error']) && $order['order_error'] == true) {
                         $orderError++;
                     }
@@ -726,6 +767,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         }
         return array(
             'order_new' => $orderNew,
+            'order_update' => $orderUpdate,
             'order_error' => $orderError
         );
     }
