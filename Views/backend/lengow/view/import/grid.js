@@ -130,8 +130,8 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                         orderProcessState = record.get('orderProcessState'),
                         lastActionType = record.get('lastActionType'),
                         errorMessages = record.get('errorMessage');
-                    if (value) {
-                        var errorType = record.get('orderProcessState') == 0 ? 're_import' : 're_send';
+                    if (value && orderProcessState != 2) {
+                        var errorType = orderProcessState == 0 ? 're_import' : 're_send';
                         if (errorType == 're_import') {
                             var tootlip = me.snippets.errors.import + errorMessages;
                             return '<div class=" x-btn primary small lengow_action_button_grid">' +

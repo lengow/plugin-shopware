@@ -291,6 +291,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             case 'closed':
             case 'refused':
             case 'canceled':
+            case 'refunded':
                 return self::PROCESS_STATE_FINISH;
             default:
                 return false;
@@ -399,7 +400,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             $flushLengowOrder = true;
         }
         if ($orderProcessState == self::PROCESS_STATE_FINISH) {
+            // Finish actions and order errors if lengow order is shipped, closed, cancel or refunded
             Shopware_Plugins_Backend_Lengow_Components_LengowAction::finishAllActions($order->getId());
+            Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::finishOrderErrors(
+                $lengowOrder->getId(),
+                'send'
+            );
             if ($lengowOrder->getOrderProcessState() != $orderProcessState) {
                 $lengowOrder->setOrderProcessState($orderProcessState);
                 $flushLengowOrder = true;
