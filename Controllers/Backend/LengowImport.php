@@ -135,12 +135,10 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             $builder->orderBy($order['property'], $order['direction']);
         }
         $builder->distinct()->addOrderBy('orderLengow.orderDate', 'DESC');
-
-        $result = $builder->getQuery()->getArrayResult();
-        $totalOrders = count($result);
+        $totalOrders = count($builder->getQuery()->getArrayResult());
         $builder->setFirstResult($start)->setMaxResults($limit);
+        $result = $builder->getQuery()->getArrayResult();
         $orderErrors = $this->getOrderErrors();
-
         if ($result) {
             foreach ($result as $key => $error) {
                 $result[$key]['errorMessage'] = $orderErrors[$error['id']];
