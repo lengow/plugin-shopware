@@ -353,10 +353,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
             $params['action_type'] = $action;
             $sendAction = true;
             // check if action is already created
+            $getParams = array_merge($params, array('queued' => 'True'));
+            // array key deletion for verification in get
+            if (isset($getParams['shipping_date'])) {
+                unset($getParams['shipping_date']);
+            }
             $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
                 'get',
                 '/v3.0/orders/actions/',
-                array_merge($params, array("queued" => "True"))
+                $getParams
             );
             if (isset($result->error) && isset($result->error->message)) {
                 throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($result->error->message);
