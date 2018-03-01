@@ -234,6 +234,7 @@ de:
         not_sent: "nicht gesendet"
         action: "An Marktplatz gesendete Aktivität funktioniert nicht"
         import: "Bestellung konnte in Shopware nicht importiert werden"
+        no_error_message: "Ein nicht identifizierbarer Fehler ist aufgetreten. Bitte kontaktieren Sie unseren Support!"
     details:
       title: "Informationen zu Lengow"
       no_order_selected: "Bitte wählen Sie eine Bestellung aus um Details anzuzeigen"

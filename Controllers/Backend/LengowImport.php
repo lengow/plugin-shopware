@@ -168,21 +168,29 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             'orderError.type',
             'orderError.isFinished'
         );
-
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $builder = $em->createQueryBuilder();
         $builder->select($select)
             ->from('Shopware\CustomModels\Lengow\OrderError', 'orderError')
             ->where('orderError.isFinished = 0');
-
         $results = $builder->getQuery()->getArrayResult();
-
         if ($results) {
+            $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
             foreach ($results as $errorOrder) {
-                $errorMessages[$errorOrder['lengowOrderId']] .=
-                    '<br />' . Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                        $errorOrder['message']
+                if ($errorOrder['message'] != '') {
+                    $errorMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
+                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                            $errorOrder['message'],
+                            $locale
+                        )
                     );
+                } else {
+                    $errorMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                        'order/grid/errors/no_error_message',
+                        $locale
+                    );
+                }
+                $errorMessages[$errorOrder['lengowOrderId']] .= '<br />' . $errorMessage;
             }
         }
 

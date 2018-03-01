@@ -234,6 +234,7 @@ fr:
         not_sent: "non envoyé"
         action: "L'action envoyée à la place de marché ne fonctionne pas"
         import: "Votre commande n'a pas été importée dans Shopware"
+        no_error_message: "Erreur non identifiée, merci de contacter le support Lengow pour plus d'informations"
     details:
       title: "Informations sur Lengow"
       no_order_selected: "Cliquez sur une commande pour avoir plus de détails"
