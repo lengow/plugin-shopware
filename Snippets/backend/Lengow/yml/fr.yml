@@ -301,6 +301,7 @@ fr:
       product_is_a_parent: "l'article %{product_id} est un ID parent. Les déclinaisons de l'article sont nécessaires"
       product_not_be_found: "le produit  %{product_id} ne peut être trouvé"
       no_product_to_cart: "il n'y a pas de produit ajouté au panier"
+      country_not_found: "Aucun pays trouvé pour l'iso code %{iso_code}. Merci de l'ajouter dans votre configuration Shopware"
       no_connection_webservice: "la connexion ne se fait pas avec Lengow pour la boutique %{name_shop} (%{id_shop})"
       error_lengow_webservice: "l'API Lengow : %{error_code} - %{error_message} pour la boutique %{name_shop} (%{id_shop})"
       shopware_customer_not_saved: "ATTENTION ! Le client n'a pas pu être sauvegardé dans la table user de Shopware"

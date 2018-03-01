@@ -301,6 +301,7 @@ de:
       product_is_a_parent: "Der Artikel %{product_id} ist ein Hauptartikel. Bitte Varianten angeben"
       product_not_be_found: "Artikel %{product_id} konnte nicht gefunden werden."
       no_product_to_cart: "Es befinden sich keine Artikel im Warenkorb"
+      country_not_found: "Kein Land für ISO-Code %{iso_code} gefunden. Bitte fügen Sie es Ihrer Shopware Konfiguration hinzu"
       no_connection_webservice: "verbindung mit dem Lengow Webservice im Laden %{name_shop} (%{id_shop}) funktionierte nicht."
       error_lengow_webservice: "Lengow Webservice : %{error_code} - %{error_message} auf Lager %{name_shop} (%{id_shop})"
       shopware_customer_not_saved: "VORSICHT! Kunde konnte NICHT in der Shopware Datenbank gespeichert werden"

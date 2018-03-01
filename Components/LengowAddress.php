@@ -126,6 +126,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      * array  billing_datas  API billing datas
      * array  shipping_datas API shipping datas
      * string relay_id       carrier id relay
+     *
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
      */
     public function __construct($params = array())
     {
@@ -225,12 +227,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      *
      * @param array $addressDatas API address data
      * @param string $typeAddress address type (billing or shipping)
+     *
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
      * 
      * @return array
      */
     protected function setShopwareAddressFields($addressDatas, $typeAddress = 'billing')
     {
         $country = $this->getCountryByIso($addressDatas['common_country_iso_a2']);
+        if (is_null($country)) {
+            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'lengow_log/exception/country_not_found',
+                    array('iso_code' => $addressDatas['common_country_iso_a2'])
+                )
+            );
+        }
         $names = $this->getNames($addressDatas);
         $addressFields = $this->getAddressFields($addressDatas, $typeAddress);
         return array(

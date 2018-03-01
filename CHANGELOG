@@ -7,6 +7,7 @@ Version 1.3.1
     - Bugfix: Fixed pagination of the order page
     - Bugfix: Deleting the shipping_date parameter in the action check request
     - Bugfix: Optimizing the display of errors in the order screen
+    - Bugfix: Adding an error message when the country does not exist in order importation
 
 =============================================================
 Version 1.3.0
