@@ -1,6 +1,6 @@
 /Bootstrap.php|2ccd1846c5529076fa12b41f4ce5749b
-/plugin.json|fd7cb965b4c76b1c950f1f0252761d01
-/Snippets/backend/Lengow/translation.ini|c704c43406e80f45986309735d568c40
+/plugin.json|514fa8c3f2148991417433187074f00c
+/Snippets/backend/Lengow/translation.ini|6a9b65248954bf1c19914cc71a7c9c14
 /Bootstrap/Database.php|55e0ecee74131b67011281f306487ff0
 /Bootstrap/Form.php|7906931b2451863d31a50658fc064d9a
 /Components/LengowImportOrder.php|993398b1faaefcdabae4c0be43dc95fc
@@ -325,12 +325,12 @@
 /Views/backend/lengow/resources/img/flag/CU.png|4ba302408d9eddb58f79ef741668bf3b
 /Views/backend/lengow/resources/img/lengow-white-big.png|6e6178f2db21104a157aebb27f9a5ca2
 /Views/backend/lengow/resources/img/home-settings.png|4f7751e943137d3c10b71da358f7b1d7
-/Views/backend/lengow/resources/css/lengow-components.css|11911c2d3e15361aadf0017fd09a7c83
+/Views/backend/lengow/resources/css/lengow-components.css|63b38e8114b373c5305c513a71b525cd
 /Views/backend/lengow/resources/css/lengow-layout.css|a2a080ba4a3eee1ff4eb5e59407dde70
 /Views/backend/lengow/resources/css/lengow-pages.css|3aa069a24729c495343ab7eff11b2639
 /Views/backend/lengow/resources/lengow-template.tpl|15ab4381c4841e85cd77295f9c8e4d95
-/Views/backend/lengow/view/import/grid.js|4d1c0f282b8d944ef152de2afc07e92f
-/Views/backend/lengow/view/import/panel.js|a16cff0d6bee6cf304dae065e55c185d
+/Views/backend/lengow/view/import/grid.js|d00b9f31277cfb843f0f4cb86efd4354
+/Views/backend/lengow/view/import/panel.js|7543232b487c3ed2c1537510d2afe241
 /Views/backend/lengow/view/import/container.js|b08b11d4cfded33f778ece4743581af7
 /Views/backend/lengow/view/main/home.js|3dde7ac815b8adb0e4e418604b525efe
 /Views/backend/lengow/view/main/sync.js|e010c011ad21b600bd43d7b31bd995df

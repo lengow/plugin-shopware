@@ -223,6 +223,7 @@ fr:
       status_accepted: "Accepté"
       status_waiting_shipment: "En attente d'expédition"
       status_shipped: "Expédié"
+      status_refunded: "Remboursé"
       status_closed: "Fermé"
       status_shipped_by_mkp: "Expédié par la place de marché"
       status_canceled: "Annulé"
@@ -284,7 +285,7 @@ fr:
       credentials_not_valid: "Votre identifiant de compte, votre jeton d'accès ou votre jeton secret ne sont pas valides"
       no_catalog_for_shop: "Aucun identifiant de catalogue valide pour la boutique %{name_shop} (%{id_shop})"
       order_not_found: "Erreur Lengow : la commande ne peut être trouvée dans le flux Lengow"
-      mass_action_reimport_success: "%{nb_imported} commande(s) sur  %{nb_selected} ont été importée(s)"
+      mass_action_reimport_success: "%{nb_imported} commande(s) sur %{nb_selected} ont été importée(s)"
       mass_action_resend_success: "%{nb_sent} commande(s) sur %{nb_selected} ont été envoyée(s)"
     exception:
       marketplace_not_present: "Erreur Lengow : la place de marché %{marketplace_name} n’apparaît pas dans la liste des places de marché"

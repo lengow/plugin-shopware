@@ -120,7 +120,8 @@ a.lgw-box-link:hover {
   white-space: nowrap;
 }
 
-.lgw-label.red {
+.lgw-label.red,
+.lgw-label-refunded {
   color: white;
   background: #e55a4d;
 }

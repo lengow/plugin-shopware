@@ -43,6 +43,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
             accepted: '{s name="order/grid/status_accepted" namespace="backend/Lengow/translation"}{/s}',
             waiting_shipment: '{s name="order/grid/status_waiting_shipment" namespace="backend/Lengow/translation"}{/s}',
             shipped: '{s name="order/grid/status_shipped" namespace="backend/Lengow/translation"}{/s}',
+            refunded: '{s name="order/grid/status_refunded" namespace="backend/Lengow/translation"}{/s}',
             closed: '{s name="order/grid/status_closed" namespace="backend/Lengow/translation"}{/s}',
             canceled: '{s name="order/grid/status_canceled" namespace="backend/Lengow/translation"}{/s}'
         }

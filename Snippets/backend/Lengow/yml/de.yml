@@ -223,6 +223,7 @@ de:
       status_accepted: "Akzeptiert"
       status_waiting_shipment: "Warten auf Versand"
       status_shipped: "Versandt"
+      status_refunded: "Erstattet"
       status_closed: "Abgeschlossen"
       status_shipped_by_mkp: "Versandt durch Marktplatz"
       status_canceled: "Abgebrochen"
@@ -284,7 +285,7 @@ de:
       credentials_not_valid: "Konto-Nr., Access-Token oder Access-Token-Secret ungültig"
       no_catalog_for_shop: "Keine gültige Katalog-Nr. für den Shop %{name_shop} (%{id_shop})"
       order_not_found: "Fehler Lengow: Bestellung kann in Lengow nicht gefunden werden"
-      mass_action_reimport_success: "Insgesamt wurden %{nb_imported} Bestellungen von %{nb_selected}  importiert"
+      mass_action_reimport_success: "Insgesamt wurden %{nb_imported} Bestellungen von %{nb_selected} importiert"
       mass_action_resend_success: "Insgesamt wurden %{nb_sent} Insgesamt wurden %{nb_selected} versendet"
     exception:
       marketplace_not_present: "Lengow Fehler: %{marketplace_name} erscheint nicht in der Marketplace-Liste"
