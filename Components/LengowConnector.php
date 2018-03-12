@@ -77,11 +77,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     protected $accountId;
 
     /**
-     * @var integer user id
-     */
-    protected $userId;
-
-    /**
      * @var array lengow url for Curl timeout
      */
     protected $lengowUrls = array(
@@ -109,27 +104,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * Connection to the API
      *
-     * @param string $userToken The user token if is connected
-     *
      * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException get Curl error
      *
      * @return array|false
      */
-    public function connect($userToken = '')
+    public function connect()
     {
         $data = $this->callAction(
             '/access/get_token',
             array(
                 'access_token' => $this->accessToken,
-                'secret' => $this->secret,
-                'user_token' => $userToken
+                'secret' => $this->secret
             ),
             'POST'
         );
         if (isset($data['token'])) {
             $this->token = $data['token'];
             $this->accountId = $data['account_id'];
-            $this->userId = $data['user_id'];
             return $data;
         } else {
             return false;
