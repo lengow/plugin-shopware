@@ -9,6 +9,7 @@ Version 1.3.1
     - Bugfix: Optimizing the display of errors in the order screen
     - Bugfix: Adding an error message when the country does not exist in order importation
     - Bugfix: Deleting the indefinite index user_id in the connector
+    - Bugfix: Deleting join table s_articles_categories_ro in the export process
 
 =============================================================
 Version 1.3.0

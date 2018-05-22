@@ -489,7 +489,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             ->leftJoin('categories.details', 'details')
             ->leftJoin('details.article', 'articles')
             ->leftJoin('articles.configuratorSet', 'configurator')
-            ->innerJoin('articles.allCategories', 'allCategories')
             ->where('shop.id = :shopId')
             ->setParameter('shopId', $this->shop->getId());
         // Product ids selection
