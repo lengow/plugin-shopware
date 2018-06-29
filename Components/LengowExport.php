@@ -460,7 +460,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         }
         $attributes = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAllAttributes();
         foreach ($attributes as $attribute) {
-            $fields[] = strtolower($attribute['name']);
+            $attributeName = strtolower($attribute['name']);
+            if (!in_array($attributeName, $fields)) {
+                $fields[] = $attributeName;
+            }
         }
         return $fields;
     }
