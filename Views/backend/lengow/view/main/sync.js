@@ -33,7 +33,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
                 me.url = '//cms.lengow.rec/';
                 // me.url = '//cms.lengow.dev/';
             }
-            syncIframe.src = me.url+'?lang='+me.langIsoCode;
+            syncIframe.src = me.url+'?lang='+me.langIsoCode+'&clientType=shopware';
             syncIframe.onload = function() {
                 Ext.Ajax.request({
                     url: '{url controller="LengowSync" action="getIsSync"}',
