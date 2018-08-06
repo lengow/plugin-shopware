@@ -270,7 +270,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $this->marketplace
         )
         ) {
-            // update Lengow order with new data
             $orderProcessState = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderProcessState(
                 $this->orderStateLengow
             );
