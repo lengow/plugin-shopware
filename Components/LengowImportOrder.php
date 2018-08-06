@@ -256,12 +256,33 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             );
             return false;
         }
+        // get a record in the lengow order table
+        $lengowOrder = $this->entityManager->getRepository('Shopware\CustomModels\Lengow\Order')
+            ->findOneBy(
+                array(
+                    'marketplaceSku' => $this->marketplaceSku,
+                    'deliveryAddressId' => $this->deliveryAddressId
+                )
+            );
         // if order is canceled or new -> skip
         if (!Shopware_Plugins_Backend_Lengow_Components_LengowImport::checkState(
             $this->orderStateMarketplace,
             $this->marketplace
         )
         ) {
+            // update Lengow order with new data
+            $orderProcessState = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderProcessState(
+                $this->orderStateLengow
+            );
+            // check and complete an order not imported if it is canceled or refunded
+            $processStateFinish = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::PROCESS_STATE_FINISH;
+            if (!is_null($lengowOrder) && $orderProcessState === $processStateFinish) {
+                Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::finishOrderErrors($lengowOrder->getId());
+                $lengowOrder->setInError(false)
+                    ->setOrderLengowState($this->orderStateLengow)
+                    ->setOrderProcessState($orderProcessState);
+                Shopware()->Models()->flush($lengowOrder);
+            }
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                 'Import',
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
@@ -276,14 +297,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             );
             return false;
         }
-        // get a record in the lengow order table
-        $lengowOrder = $this->entityManager->getRepository('Shopware\CustomModels\Lengow\Order')
-            ->findOneBy(
-                array(
-                    'marketplaceSku' => $this->marketplaceSku,
-                    'deliveryAddressId' => $this->deliveryAddressId
-                )
-            );
+        // create a new record in lengow order table if not exist
         if (is_null($lengowOrder)) {
             // created a record in the lengow order table
             $lengowOrder = $this->createLengowOrder();
