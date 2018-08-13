@@ -90,9 +90,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     protected $translations;
 
     /**
-     * @var array specific attributes for the product
+     * @var array specific variations for the product
      */
-    protected $attributes;
+    protected $variations;
 
     /**
      * @var Shopware\Models\Article\Price Shopware article price instance
@@ -118,7 +118,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $this->isVariation = $type === 'child' ? true : false;
         $this->currency = $currency;
         $this->factor = $this->currency->getFactor();
-        $this->attributes = self::getArticleAttributes($this->details->getId());
+        $this->variations = self::getArticleVariations($this->details->getId());
         $this->translations = $this->getProductTranslations();
         $this->price = $this->getPrice();
     }
@@ -218,7 +218,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 return $this->product->getId();
             case 'variation':
                 $result = '';
-                foreach ($this->attributes as $key => $variation) {
+                foreach ($this->variations as $key => $variation) {
                     $result .= $key . ', ';
                 }
                 return rtrim($result, ', ');
@@ -272,9 +272,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 );
             default:
                 $result = '';
-                if (array_key_exists($name, $this->attributes) && $this->isVariation) {
+                if (array_key_exists($name, $this->variations) && $this->isVariation) {
                     $result = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
-                        $this->attributes[$name]
+                        $this->variations[$name]
                     );
                 }
                 return $result;
@@ -361,15 +361,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     }
 
     /**
-     * Get article attributes
+     * Get article variations
      *
      * @param integer $detailId Shopware article detail id
      *
      * @return array
      */
-    public static function getArticleAttributes($detailId)
+    public static function getArticleVariations($detailId)
     {
-        $attributes = array();
+        $variations = array();
         $select = array(
             'options.name AS value',
             'groups.name AS name'
@@ -383,17 +383,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             ->setParameter('detailId', $detailId);
         $result = $builder->getQuery()->getArrayResult();
         foreach ($result as $options) {
-            $attributes[strtolower($options['name'])] = $options['value'];
+            $variations[strtolower($options['name'])] = $options['value'];
         }
-        return $attributes;
+        return $variations;
     }
 
     /**
-     * Return products custom attributes
+     * Return products custom variations
      *
      * @return array
      */
-    public static function getAllAttributes()
+    public static function getAllVariations()
     {
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select(array('groups.name AS name'))
