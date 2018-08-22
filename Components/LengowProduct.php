@@ -95,6 +95,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     protected $variations;
 
     /**
+     * @var array specific attributes for the product
+     */
+    protected $attributes;
+
+    /**
      * @var Shopware\Models\Article\Price Shopware article price instance
      */
     protected $price;
@@ -119,6 +124,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $this->currency = $currency;
         $this->factor = $this->currency->getFactor();
         $this->variations = self::getArticleVariations($this->details->getId());
+        $this->attributes = self::getArticleAttributes($this->details->getId());
         $this->translations = $this->getProductTranslations();
         $this->price = $this->getPrice();
     }
@@ -277,6 +283,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                         $this->variations[$name]
                     );
                 }
+                // Get the value of a attribute
+                if (strstr($name, 'free_')) {
+                    $noPrefAttributes = str_replace("free_", '', $name);
+                    if (array_key_exists($noPrefAttributes, $this->attributes)) {
+                        $result = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
+                            $this->attributes[$noPrefAttributes]
+                        );
+                    }
+                }
                 return $result;
         }
     }
@@ -398,6 +413,51 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select(array('groups.name AS name'))
             ->from('Shopware\Models\Article\Configurator\Group', 'groups');
+        return $builder->getQuery()->getArrayResult();
+    }
+
+    /**
+     * Get article attributes
+     *
+     * @param integer $articleId Shopware article id
+     *
+     * @return array
+     */
+    public static function getArticleAttributes($articleId)
+    {
+        $tableChampsAttributes = self::getAllAttributes();
+        foreach ($tableChampsAttributes as $champ => $value) {
+            $listeChampsAttributes[] = $value['columnName'];
+        }
+        $select = implode(', ', $listeChampsAttributes);
+        $tableValuesAttibutes = array_values(Shopware()->Db()->fetchRow("
+            SELECT  $select
+            FROM    s_articles_attributes
+            WHERE   s_articles_attributes.articledetailsID = ?
+        ", array($articleId)));
+        for ($i = 0; $i < count($tableValuesAttibutes); $i++) {
+            $attributes[strtolower($tableChampsAttributes[$i][label])] = $tableValuesAttibutes[$i];
+        }
+        return $attributes;
+    }
+
+    /**
+     * Return products custom attributes
+     *
+     * @return array
+     */
+    public static function getAllAttributes()
+    {
+        $select = array(
+            'attributs.columnName',
+            'attributs.label'
+        );
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select($select)
+            ->from('Shopware\Models\Attribute\Configuration', 'attributs')
+            ->where('attributs.displayInBackend = 1')
+            ->groupBy('attributs.columnName')
+            ->orderBy('attributs.columnName', 'ASC');
         return $builder->getQuery()->getArrayResult();
     }
 

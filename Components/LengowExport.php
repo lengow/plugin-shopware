@@ -372,7 +372,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         $isFirst = true;
         // Write products in the feed when the header is ready
         foreach ($articles as $article) {
-
             $productData = array();
             // If offset specified in params
             if ($this->offset != null && $this->offset > $numberOfProducts) {
@@ -464,6 +463,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $variationName = strtolower($variation['name']);
             if (!in_array($variationName, $fields)) {
                 $fields[] = $variationName;
+            }
+        }
+        $attributes = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAllAttributes();
+        foreach ($attributes as $attribute) {
+            $attributLabel = strtolower($attribute['label']);
+            if (!in_array("free_" . $attributLabel, $fields)) {
+                $fields[] = "free_" . $attributLabel;
             }
         }
         return $fields;
