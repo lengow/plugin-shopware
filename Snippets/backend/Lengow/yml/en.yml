@@ -25,7 +25,7 @@ en:
       some_help_title: "Need some help?"
       get_in_touch: "Get in touch with Lengow."
       visit_help_center: "Visit our Help Center"
-      help_center_link: "https://en.lengow.help/help/shopware"
+      help_center_link: "https://supportlengow.zendesk.com/hc/en-us/articles/360012203311"
       configure_plugin: "for detailed information on how to configure your Shopware plugin properly"
   status:
     screen:
