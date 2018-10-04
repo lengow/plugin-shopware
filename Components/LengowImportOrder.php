@@ -1192,7 +1192,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 $variations = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getArticleVariations(
                     $articleDetail->getId()
                 );
-                foreach ($variations as qx) {
+                foreach ($variations as $variation) {
                     $detailName .= ' ' . $variation;
                 }
                 // create order detail
