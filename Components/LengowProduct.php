@@ -283,12 +283,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                         $this->variations[$name]
                     );
                 }
-                // Get the value of a attribute
+                // get the text of a free text field
                 if (strstr($name, 'free_')) {
-                    $noPrefAttributes = str_replace("free_", '', $name);
-                    if (array_key_exists($noPrefAttributes, $this->attributes)) {
+                    $noPrefAttribute = str_replace("free_", '', $name);
+                    if (array_key_exists($noPrefAttribute, $this->attributes)) {
                         $result = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
-                            $this->attributes[$noPrefAttributes]
+                            $this->attributes[$noPrefAttribute]
                         );
                     }
                 }
@@ -425,18 +425,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      */
     public static function getArticleAttributes($articleId)
     {
-        $tableChampsAttributes = self::getAllAttributes();
-        foreach ($tableChampsAttributes as $champ => $value) {
-            $listeChampsAttributes[] = $value['columnName'];
-        }
-        $select = implode(', ', $listeChampsAttributes);
-        $tableValuesAttibutes = array_values(Shopware()->Db()->fetchRow("
-            SELECT  $select
+        // get all field names of free text fields configured and display in backend
+        $tableFieldsAttributes = self::getAllAttributes();
+        // get the text of these free text fields
+        $tableValuesAttributes = Shopware()->Db()->fetchRow("
+            SELECT  *
             FROM    s_articles_attributes
             WHERE   s_articles_attributes.articledetailsID = ?
-        ", array($articleId)));
-        for ($i = 0; $i < count($tableValuesAttibutes); $i++) {
-            $attributes[strtolower($tableChampsAttributes[$i][label])] = $tableValuesAttibutes[$i];
+        ", array($articleId));
+        // match name with text of these free text fields
+        $attributes = array();
+        foreach ($tableFieldsAttributes as $fieldAttribute => $fieldAttributeText) {
+            foreach ($tableValuesAttributes as $valueAttribute => $valueAttributeText) {
+                if ($fieldAttributeText['columnName'] == $valueAttribute) {
+                    $attributes[strtolower($fieldAttributeText['label'])] = $valueAttributeText;
+                }
+            }
         }
         return $attributes;
     }
@@ -448,17 +452,35 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      */
     public static function getAllAttributes()
     {
-        $select = array(
-            'attributs.columnName',
-            'attributs.label'
-        );
-        $builder = Shopware()->Models()->createQueryBuilder();
-        $builder->select($select)
-            ->from('Shopware\Models\Attribute\Configuration', 'attributs')
-            ->where('attributs.displayInBackend = 1')
-            ->groupBy('attributs.columnName')
-            ->orderBy('attributs.columnName', 'ASC');
-        return $builder->getQuery()->getArrayResult();
+        // use "core_engine_elements" table up to 5.2 version and "attribute_configuration" table later
+        $isNewTableAttributes = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2');
+        $attributes = '';
+        if ($isNewTableAttributes)  {
+            $select = array(
+                'attributs.columnName',
+                'attributs.label'
+            );
+            $builder = Shopware()->Models()->createQueryBuilder();
+            $builder->select($select)
+                ->from('Shopware\Models\Attribute\Configuration', 'attributs')
+                ->where('attributs.displayInBackend = 1')
+                ->groupBy('attributs.columnName')
+                ->orderBy('attributs.columnName', 'ASC');
+            $attributes = $builder->getQuery()->getArrayResult();
+        } else {
+            $select = array(
+                'attributs.name as columnName',
+                'attributs.label',
+                'attributs.position'
+            );
+            $builder = Shopware()->Models()->createQueryBuilder();
+            $builder->select($select)
+                ->from('Shopware\Models\Article\Element', 'attributs')
+                ->groupBy('attributs.name')
+                ->orderBy('attributs.position', 'ASC');
+            $attributes =  $builder->getQuery()->getArrayResult();
+        }
+        return $attributes;
     }
 
     /**

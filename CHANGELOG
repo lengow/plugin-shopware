@@ -7,6 +7,7 @@ Version 1.3.1
     - Feature: Protocol change to https for API calls
     - Feature: Managing delivery_date and custom_carrier parameters for sending action
     - Feature: Check and complete an order not imported if it is canceled or refunded
+    - Feature: Adding free text fields to export
     - Bugfix: Removing of action errors when orders are completed
     - Bugfix: Fixed pagination of the order page
     - Bugfix: Deleting the shipping_date parameter in the action check request

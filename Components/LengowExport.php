@@ -467,9 +467,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         }
         $attributes = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAllAttributes();
         foreach ($attributes as $attribute) {
-            $attributLabel = strtolower($attribute['label']);
-            if (!in_array("free_" . $attributLabel, $fields)) {
-                $fields[] = "free_" . $attributLabel;
+            $attributeLabel = strtolower($attribute['label']);
+            if (!in_array("free_" . $attributeLabel, $fields)) {
+                $fields[] = "free_" . $attributeLabel;
             }
         }
         return $fields;
