@@ -1189,11 +1189,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 $articleDetail = $this->entityManager->getReference('Shopware\Models\Article\Detail', $articleDetailId);
                 // create name for a variation
                 $detailName = '';
-                $attributes = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getArticleAttributes(
+                $variations = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getArticleVariations(
                     $articleDetail->getId()
                 );
-                foreach ($attributes as $attribute) {
-                    $detailName .= ' ' . $attribute;
+                foreach ($variations as $variation) {
+                    $detailName .= ' ' . $variation;
                 }
                 // create order detail
                 $orderDetail = new Shopware\Models\Order\Detail();

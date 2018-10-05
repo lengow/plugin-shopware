@@ -458,11 +458,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         foreach (self::$defaultFields as $key => $value) {
             $fields[] = $key;
         }
+        $variations = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAllVariations();
+        foreach ($variations as $variation) {
+            $variationName = strtolower($variation['name']);
+            if (!in_array($variationName, $fields)) {
+                $fields[] = $variationName;
+            }
+        }
         $attributes = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAllAttributes();
         foreach ($attributes as $attribute) {
-            $attributeName = strtolower($attribute['name']);
-            if (!in_array($attributeName, $fields)) {
-                $fields[] = $attributeName;
+            $attributeLabel = 'free_' . strtolower($attribute['label']);
+            if (!in_array($attributeLabel, $fields)) {
+                $fields[] = $attributeLabel;
             }
         }
         return $fields;
