@@ -285,7 +285,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 }
                 // get the text of a free text field
                 if (strstr($name, 'free_')) {
-                    $noPrefAttribute = str_replace("free_", '', $name);
+                    $noPrefAttribute = str_replace('free_', '', $name);
                     if (array_key_exists($noPrefAttribute, $this->attributes)) {
                         $result = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
                             $this->attributes[$noPrefAttribute]
@@ -419,20 +419,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Get article attributes
      *
-     * @param integer $articleId Shopware article id
+     * @param integer $detailId Shopware article detail id
      *
      * @return array
      */
-    public static function getArticleAttributes($articleId)
+    public static function getArticleAttributes($detailId)
     {
         // get all field names of free text fields configured and display in backend
         $tableFieldsAttributes = self::getAllAttributes();
         // get the text of these free text fields
-        $tableValuesAttributes = Shopware()->Db()->fetchRow("
+        $tableValuesAttributes = Shopware()->Db()->fetchRow('
             SELECT  *
             FROM    s_articles_attributes
             WHERE   s_articles_attributes.articledetailsID = ?
-        ", array($articleId));
+        ', array($detailId));
         // match name with text of these free text fields
         $attributes = array();
         foreach ($tableFieldsAttributes as $fieldAttribute => $fieldAttributeText) {
@@ -454,7 +454,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         // use "core_engine_elements" table up to 5.2 version and "attribute_configuration" table later
         $isNewTableAttributes = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2');
-        $attributes = '';
         if ($isNewTableAttributes)  {
             $select = array(
                 'attributs.columnName',
