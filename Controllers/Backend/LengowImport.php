@@ -79,7 +79,6 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             'orderLengow.message as message',
             'orderLengow.extra as extra',
             'shops.name as storeName',
-            's_core_states.description as orderStatusDescription',
             's_order.number as orderShopwareSku',
             's_core_countries.name as countryName',
             's_core_countries.iso as countryIso',
@@ -87,9 +86,13 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             's_lengow_action.actionType as lastActionType'
         );
 
-        $crudCompatibility = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1');
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.5.0')) {
+            $select[] = 's_core_states.name as orderStatusDescription';
+        } else {
+            $select[] = 's_core_states.description as orderStatusDescription';
+        }
 
-        if ($crudCompatibility) {
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1')) {
             $select[] = 's_core_states.name as orderStatus';
         } else {
             $select[] = 's_order.status as orderStatus';
