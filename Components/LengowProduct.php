@@ -100,6 +100,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     protected $attributes;
 
     /**
+     * @var array specific properties for the product
+     */
+    protected $properties;
+
+    /**
      * @var Shopware\Models\Article\Price Shopware article price instance
      */
     protected $price;
@@ -125,6 +130,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $this->factor = $this->currency->getFactor();
         $this->variations = self::getArticleVariations($this->details->getId());
         $this->attributes = self::getArticleAttributes($this->details->getId());
+        $this->properties = self::getArticleProperties($this->product->getId());
         $this->translations = $this->getProductTranslations();
         $this->price = $this->getPrice();
     }
@@ -289,6 +295,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     if (array_key_exists($noPrefAttribute, $this->attributes)) {
                         $result = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
                             $this->attributes[$noPrefAttribute]
+                        );
+                    }
+                }
+                // get the text of a propertie
+                if (strstr($name, 'prop_')) {
+                    $noPrefPropertie = str_replace('prop_', '', $name);
+                    if (array_key_exists($noPrefPropertie, $this->properties)) {
+                        $result = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
+                            $this->properties[$noPrefPropertie]
                         );
                     }
                 }
@@ -480,6 +495,47 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             $attributes =  $builder->getQuery()->getArrayResult();
         }
         return $attributes;
+    }
+
+    /**
+     * Get article properties
+     *
+     * @param integer $detailId Shopware article detail id
+     *
+     * @return array
+     */
+    public static function getArticleProperties($articleId)
+    {
+        $tableProperties = Shopware()->Db()->fetchAll('
+            SELECT opt.name, val.value FROM s_filter_articles AS art
+            LEFT JOIN s_filter_values AS val ON art.valueID = val.id 
+            LEFT JOIN s_filter_options AS opt ON val.optionID = opt.id
+            WHERE art.articleID = ?
+        ', array($articleId));
+        $properties = array();
+        foreach ($tableProperties as $propertie => $propertieValue) {
+            $lowerPropertieName = strtolower($propertieValue['name']);
+            if (array_key_exists($lowerPropertieName, $properties)) {
+                $properties[$lowerPropertieName] .= ', ' . $propertieValue['value'];
+            } else {
+                $properties[$lowerPropertieName] = $propertieValue['value'];
+            }
+        }
+        return $properties;
+    }
+
+    /**
+     * Return products properties
+     *
+     * @return array
+     */
+    public static function getAllProperties()
+    {
+        $properties = Shopware()->Db()->fetchAll('
+            SELECT  name
+            FROM    s_filter_options');
+
+        return $properties;
     }
 
     /**
