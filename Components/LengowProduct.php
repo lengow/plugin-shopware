@@ -500,7 +500,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Get article properties
      *
-     * @param integer $detailId Shopware article detail id
+     * @param integer $articleId Shopware article id
      *
      * @return array
      */
@@ -513,12 +513,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             WHERE art.articleID = ?
         ', array($articleId));
         $properties = array();
-        foreach ($tableProperties as $propertie => $propertieValue) {
-            $lowerPropertieName = strtolower($propertieValue['name']);
-            if (array_key_exists($lowerPropertieName, $properties)) {
-                $properties[$lowerPropertieName] .= ', ' . $propertieValue['value'];
+        foreach ($tableProperties as $property => $propertyValue) {
+            $lowerPropertyName = strtolower($propertyValue['name']);
+            if (array_key_exists($lowerPropertyName, $properties)) {
+                $properties[$lowerPropertyName] .= ', ' . $propertyValue['value'];
             } else {
-                $properties[$lowerPropertieName] = $propertieValue['value'];
+                $properties[$lowerPropertyName] = $propertyValue['value'];
             }
         }
         return $properties;
@@ -534,7 +534,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $properties = Shopware()->Db()->fetchAll('
             SELECT  name
             FROM    s_filter_options');
-
         return $properties;
     }
 
