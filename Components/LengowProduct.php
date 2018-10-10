@@ -287,9 +287,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 if (strstr($name, 'free_')) {
                     $noPrefAttribute = str_replace('free_', '', $name);
                     if (array_key_exists($noPrefAttribute, $this->attributes)) {
-                        $result = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
-                            $this->attributes[$noPrefAttribute]
-                        );
+                        $attribute = $this->attributes[$noPrefAttribute];
+                        // get attribute translation
+                        $columnName = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2')
+                            ? '__attribute_' . $attribute['columnName']
+                            : $attribute['columnName'];
+                        $attributeValue = isset($this->translations[$columnName])
+                            ? $this->translations[$columnName]
+                            : $attribute['value'];
+                        $result = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($attributeValue);
                     }
                 }
                 return $result;
@@ -438,7 +444,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         foreach ($tableFieldsAttributes as $fieldAttribute => $fieldAttributeText) {
             foreach ($tableValuesAttributes as $valueAttribute => $valueAttributeText) {
                 if ($fieldAttributeText['columnName'] == $valueAttribute) {
-                    $attributes[strtolower($fieldAttributeText['label'])] = $valueAttributeText;
+                    $attributes[strtolower($fieldAttributeText['label'])] = array(
+                        'columnName' => $fieldAttributeText['columnName'],
+                        'value' => $valueAttributeText
+                    );
                 }
             }
         }
