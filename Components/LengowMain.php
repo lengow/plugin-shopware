@@ -88,6 +88,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static $translation;
 
     /**
+     * @var array property value translation
+     */
+    public static $propertyValueTranslations = array();
+
+    /**
      * Get export web services links
      *
      * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
@@ -628,6 +633,27 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             self::$translation = new Shopware_Components_Translation();
         }
         return self::$translation;
+    }
+
+    /**
+     * Get property value translation
+     *
+     * @param integer $propertyValueId Shopware property value id
+     * @param integer $shopId Shopware Shop Id
+     *
+     * @return string|false
+     */
+    public static function getPropertyValueTranslation($propertyValueId, $shopId)
+    {
+        if (array_key_exists($propertyValueId, self::$propertyValueTranslations)) {
+            return self::$propertyValueTranslations[$propertyValueId];
+        }
+        $translation = self::getTranslationComponent();
+        $propertyValueTranslation = $translation->read($shopId, 'propertyValue', $propertyValueId);
+        self::$propertyValueTranslations[$propertyValueId] = !empty($propertyValueTranslation)
+            ? $propertyValueTranslation['optionValue']
+            : false;
+        return self::$propertyValueTranslations[$propertyValueId];
     }
 
     /**

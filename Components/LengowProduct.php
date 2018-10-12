@@ -304,12 +304,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                         $result = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($attributeValue);
                     }
                 }
-                // get the text of a propertie
+                // get the text of a property
                 if (strstr($name, 'prop_')) {
-                    $noPrefPropertie = str_replace('prop_', '', $name);
-                    if (array_key_exists($noPrefPropertie, $this->properties)) {
+                    $noPrefProperty = str_replace('prop_', '', $name);
+                    if (array_key_exists($noPrefProperty, $this->properties)) {
                         $result = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
-                            $this->properties[$noPrefPropertie]
+                            $this->properties[$noPrefProperty]
                         );
                     }
                 }
@@ -450,9 +450,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $tableFieldsAttributes = self::getAllAttributes();
         // get the text of these free text fields
         $tableValuesAttributes = Shopware()->Db()->fetchRow('
-            SELECT  *
-            FROM    s_articles_attributes
-            WHERE   s_articles_attributes.articledetailsID = ?
+            SELECT *
+            FROM s_articles_attributes
+            WHERE s_articles_attributes.articledetailsID = ?
         ', array($detailId));
         // match name with text of these free text fields
         $attributes = array();
@@ -513,21 +513,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      *
      * @return array
      */
-    public static function getArticleProperties($articleId)
+    private function getArticleProperties($articleId)
     {
         $tableProperties = Shopware()->Db()->fetchAll('
-            SELECT opt.name, val.value FROM s_filter_articles AS art
+            SELECT opt.name, val.id, val.value FROM s_filter_articles AS art
             LEFT JOIN s_filter_values AS val ON art.valueID = val.id 
             LEFT JOIN s_filter_options AS opt ON val.optionID = opt.id
             WHERE art.articleID = ?
         ', array($articleId));
         $properties = array();
         foreach ($tableProperties as $property => $propertyValue) {
+            $translation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getPropertyValueTranslation(
+                $propertyValue['id'],
+                $this->shop->getId()
+            );
             $lowerPropertyName = strtolower($propertyValue['name']);
+            $propertyTranslation = $translation ? $translation : $propertyValue['value'];
             if (array_key_exists($lowerPropertyName, $properties)) {
-                $properties[$lowerPropertyName] .= ', ' . $propertyValue['value'];
+                $properties[$lowerPropertyName] .= ', ' . $propertyTranslation;
             } else {
-                $properties[$lowerPropertyName] = $propertyValue['value'];
+                $properties[$lowerPropertyName] = $propertyTranslation;
             }
         }
         return $properties;
@@ -541,8 +546,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     public static function getAllProperties()
     {
         $properties = Shopware()->Db()->fetchAll('
-            SELECT  name
-            FROM    s_filter_options');
+            SELECT name
+            FROM s_filter_options');
         return $properties;
     }
 
