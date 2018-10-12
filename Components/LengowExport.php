@@ -472,6 +472,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 $fields[] = $attributeLabel;
             }
         }
+        $properties = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAllProperties();
+        foreach ($properties as $property) {
+            $propertyName = 'prop_' . strtolower($property['name']);
+            if (!in_array($propertyName, $fields)) {
+                $fields[] = $propertyName;
+            }
+        }
         return $fields;
     }
 
