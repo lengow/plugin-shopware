@@ -412,13 +412,30 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
     protected function getOrderStates()
     {
         $selection = array();
+        $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
         // @var Shopware\Models\Dispatch\Dispatch[] $dispatches
         $orderStates = $this->entityManager->getRepository('Shopware\Models\Order\Status')
             ->findBy(array('group' => 'state'));
         // Default dispatcher used to get shipping fees in export
         foreach ($orderStates as $orderState) {
             if ($orderState->getId() != -1) {
-                $selection[] = array($orderState->getId(), $orderState->getDescription());
+                if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.5.0')) {
+                    // @var Shopware\Models\Snippet\Snippet $orderStateSnippet
+                    $orderStateSnippet = $this->entityManager->getRepository('Shopware\Models\Snippet\Snippet')
+                        ->findOneBy(
+                            array(
+                                'localeId' => $shop->getLocale()->getId(),
+                                'namespace' => 'backend/static/order_status',
+                                'name' => $orderState->getName()
+                            )
+                        );
+                    $orderStateDescription = $orderStateSnippet
+                        ? $orderStateSnippet->getValue()
+                        : $orderState->getName();
+                } else {
+                    $orderStateDescription = $orderState->getDescription();
+                }
+                $selection[] = array($orderState->getId(), $orderStateDescription);
             }
         }
         return array(

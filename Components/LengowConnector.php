@@ -36,15 +36,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * @var string url of the API Lengow
      */
-    // const LENGOW_API_URL = 'http://api.lengow.io:80';
-    // const LENGOW_API_URL = 'http://api.lengow.net:80';
-    const LENGOW_API_URL = 'http://api.lengow.rec:80';
+    // const LENGOW_API_URL = 'https://api.lengow.io';
+    // const LENGOW_API_URL = 'https://api.lengow.net';
+    const LENGOW_API_URL = 'http://api.lengow.rec';
     // const LENGOW_API_URL = 'http://10.100.1.82:8081';
 
     /**
      * @var string url of the SANDBOX Lengow
      */
-    const LENGOW_API_SANDBOX_URL = 'http://api.lengow.net:80';
+    const LENGOW_API_SANDBOX_URL = 'https://api.lengow.net';
 
     /**
      * @var array default options for Curl
@@ -77,11 +77,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     protected $accountId;
 
     /**
-     * @var integer user id
-     */
-    protected $userId;
-
-    /**
      * @var array lengow url for Curl timeout
      */
     protected $lengowUrls = array(
@@ -109,27 +104,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * Connection to the API
      *
-     * @param string $userToken The user token if is connected
-     *
      * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException get Curl error
      *
      * @return array|false
      */
-    public function connect($userToken = '')
+    public function connect()
     {
         $data = $this->callAction(
             '/access/get_token',
             array(
                 'access_token' => $this->accessToken,
-                'secret' => $this->secret,
-                'user_token' => $userToken
+                'secret' => $this->secret
             ),
             'POST'
         );
         if (isset($data['token'])) {
             $this->token = $data['token'];
             $this->accountId = $data['account_id'];
-            $this->userId = $data['user_id'];
             return $data;
         } else {
             return false;
@@ -336,7 +327,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         $url = self::LENGOW_API_URL . $url;
         $opts[CURLOPT_CUSTOMREQUEST] = strtoupper($type);
         $url = parse_url($url);
-        $opts[CURLOPT_PORT] = $url['port'];
+        if (isset($url['port'])) {
+            $opts[CURLOPT_PORT] = $url['port'];
+        }
         $opts[CURLOPT_HEADER] = false;
         $opts[CURLOPT_RETURNTRANSFER] = true;
         $opts[CURLOPT_VERBOSE] = false;

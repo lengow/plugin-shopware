@@ -42,6 +42,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     );
 
     /**
+     * @var array Parameters to delete for Get call
+     */
+    public static $getParamsToDelete = array(
+        'shipping_date',
+        'delivery_date',
+    );
+
+    /**
      * @var array all marketplaces allowed for an account ID
      */
     public static $marketplaces = array();
@@ -299,6 +307,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                     case 'carrier':
                     case 'carrier_name':
                     case 'shipping_method':
+                    case 'custom_carrier':
                         $carrierName = $lengowOrder->getCarrier() != ''
                             ? $lengowOrder->getCarrier()
                             : $this->matchDispatch($order->getDispatch()->getName());
@@ -311,6 +320,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                         $params[$arg] = $order->getInvoiceShipping();
                         break;
                     case 'shipping_date':
+                    case 'delivery_date':
                         $params[$arg] = date('c');
                         break;
                     default:
@@ -353,10 +363,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
             $params['action_type'] = $action;
             $sendAction = true;
             // check if action is already created
+            $getParams = array_merge($params, array('queued' => 'True'));
+            // array key deletion for GET verification
+            foreach (self::$getParamsToDelete as $param) {
+                if (isset($getParams[$param])) {
+                    unset($getParams[$param]);
+                }
+            }
             $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
                 'get',
                 '/v3.0/orders/actions/',
-                array_merge($params, array("queued" => "True"))
+                $getParams
             );
             if (isset($result->error) && isset($result->error->message)) {
                 throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($result->error->message);

@@ -458,9 +458,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         foreach (self::$defaultFields as $key => $value) {
             $fields[] = $key;
         }
+        $variations = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAllVariations();
+        foreach ($variations as $variation) {
+            $variationName = strtolower($variation['name']);
+            if (!in_array($variationName, $fields)) {
+                $fields[] = $variationName;
+            }
+        }
         $attributes = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAllAttributes();
         foreach ($attributes as $attribute) {
-            $fields[] = strtolower($attribute['name']);
+            $attributeLabel = 'free_' . strtolower($attribute['label']);
+            if (!in_array($attributeLabel, $fields)) {
+                $fields[] = $attributeLabel;
+            }
+        }
+        $properties = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAllProperties();
+        foreach ($properties as $property) {
+            $propertyName = 'prop_' . strtolower($property['name']);
+            if (!in_array($propertyName, $fields)) {
+                $fields[] = $propertyName;
+            }
         }
         return $fields;
     }
@@ -489,7 +506,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             ->leftJoin('categories.details', 'details')
             ->leftJoin('details.article', 'articles')
             ->leftJoin('articles.configuratorSet', 'configurator')
-            ->innerJoin('articles.allCategories', 'allCategories')
             ->where('shop.id = :shopId')
             ->setParameter('shopId', $this->shop->getId());
         // Product ids selection

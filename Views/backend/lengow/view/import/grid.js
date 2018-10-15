@@ -26,9 +26,10 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             accepted: '{s name="order/grid/status_accepted" namespace="backend/Lengow/translation"}{/s}',
             waiting_shipment: '{s name="order/grid/status_waiting_shipment" namespace="backend/Lengow/translation"}{/s}',
             shipped: '{s name="order/grid/status_shipped" namespace="backend/Lengow/translation"}{/s}',
+            refunded: '{s name="order/grid/status_refunded" namespace="backend/Lengow/translation"}{/s}',
             closed: '{s name="order/grid/status_closed" namespace="backend/Lengow/translation"}{/s}',
-            shipped_by_mkp: '{s name="order/grid/status_shipped_by_mkp" namespace="backend/Lengow/translation"}{/s}',
-            canceled: '{s name="order/grid/status_canceled" namespace="backend/Lengow/translation"}{/s}'
+            canceled: '{s name="order/grid/status_canceled" namespace="backend/Lengow/translation"}{/s}',
+            shipped_by_mkp: '{s name="order/grid/status_shipped_by_mkp" namespace="backend/Lengow/translation"}{/s}'
         },
         search: {
             empty: '{s name="export/grid/search/empty" namespace="backend/Lengow/translation"}{/s}'
@@ -130,8 +131,8 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                         orderProcessState = record.get('orderProcessState'),
                         lastActionType = record.get('lastActionType'),
                         errorMessages = record.get('errorMessage');
-                    if (value) {
-                        var errorType = record.get('orderProcessState') == 0 ? 're_import' : 're_send';
+                    if (value && orderProcessState != 2) {
+                        var errorType = orderProcessState == 0 ? 're_import' : 're_send';
                         if (errorType == 're_import') {
                             var tootlip = me.snippets.errors.import + errorMessages;
                             return '<div class=" x-btn primary small lengow_action_button_grid">' +

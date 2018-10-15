@@ -124,7 +124,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
             this.getActionColumn()
         ];
         return columns;
-    }, 
+    },
 
     /**
      * Create a checkbox (v4)/enabled-disabled form(v5) column form
@@ -162,6 +162,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
 
         return {
             xtype: 'actioncolumn',
+            dataIndex: name,
             header: header,
             align: 'center',
             items: items,
@@ -174,7 +175,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Grid', {
                     metadata.tdAttr = 'data-qtip="' + tooltip + '"';
                 }
 
-                return value;
+                return '';
             }
         };
     },

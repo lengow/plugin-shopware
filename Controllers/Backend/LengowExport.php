@@ -94,6 +94,8 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             $builder->andWhere('details.inStock > 0');
         } elseif ($filterBy == 'lengowProduct') {
             $builder->andWhere('attributes.lengowShop' . $shopId . 'Active = 1');
+        } elseif ($filterBy == 'activeProduct') {
+            $builder->andWhere('articles.active = 1');
         } elseif ($filterBy == 'noCategory') {
             $builder->leftJoin('articles.allCategories', 'allCategories')
                 ->andWhere('allCategories.id IS NULL');

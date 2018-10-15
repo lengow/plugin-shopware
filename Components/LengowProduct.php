@@ -90,9 +90,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     protected $translations;
 
     /**
+     * @var array specific variations for the product
+     */
+    protected $variations;
+
+    /**
      * @var array specific attributes for the product
      */
     protected $attributes;
+
+    /**
+     * @var array specific properties for the product
+     */
+    protected $properties;
 
     /**
      * @var Shopware\Models\Article\Price Shopware article price instance
@@ -118,7 +128,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $this->isVariation = $type === 'child' ? true : false;
         $this->currency = $currency;
         $this->factor = $this->currency->getFactor();
+        $this->variations = self::getArticleVariations($this->details->getId());
         $this->attributes = self::getArticleAttributes($this->details->getId());
+        $this->properties = self::getArticleProperties($this->product->getId());
         $this->translations = $this->getProductTranslations();
         $this->price = $this->getPrice();
     }
@@ -218,7 +230,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 return $this->product->getId();
             case 'variation':
                 $result = '';
-                foreach ($this->attributes as $key => $variation) {
+                foreach ($this->variations as $key => $variation) {
                     $result .= $key . ', ';
                 }
                 return rtrim($result, ', ');
@@ -272,10 +284,34 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 );
             default:
                 $result = '';
-                if (array_key_exists($name, $this->attributes) && $this->isVariation) {
+                if (array_key_exists($name, $this->variations) && $this->isVariation) {
                     $result = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
-                        $this->attributes[$name]
+                        $this->variations[$name]
                     );
+                }
+                // get the text of a free text field
+                if (strstr($name, 'free_')) {
+                    $noPrefAttribute = str_replace('free_', '', $name);
+                    if (array_key_exists($noPrefAttribute, $this->attributes)) {
+                        $attribute = $this->attributes[$noPrefAttribute];
+                        // get attribute translation
+                        $columnName = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2')
+                            ? '__attribute_' . $attribute['columnName']
+                            : $attribute['columnName'];
+                        $attributeValue = isset($this->translations[$columnName])
+                            ? $this->translations[$columnName]
+                            : $attribute['value'];
+                        $result = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($attributeValue);
+                    }
+                }
+                // get the text of a property
+                if (strstr($name, 'prop_')) {
+                    $noPrefProperty = str_replace('prop_', '', $name);
+                    if (array_key_exists($noPrefProperty, $this->properties)) {
+                        $result = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
+                            $this->properties[$noPrefProperty]
+                        );
+                    }
                 }
                 return $result;
         }
@@ -361,15 +397,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     }
 
     /**
-     * Get article attributes
+     * Get article variations
      *
      * @param integer $detailId Shopware article detail id
      *
      * @return array
      */
-    public static function getArticleAttributes($detailId)
+    public static function getArticleVariations($detailId)
     {
-        $attributes = array();
+        $variations = array();
         $select = array(
             'options.name AS value',
             'groups.name AS name'
@@ -383,7 +419,52 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             ->setParameter('detailId', $detailId);
         $result = $builder->getQuery()->getArrayResult();
         foreach ($result as $options) {
-            $attributes[strtolower($options['name'])] = $options['value'];
+            $variations[strtolower($options['name'])] = $options['value'];
+        }
+        return $variations;
+    }
+
+    /**
+     * Return products custom variations
+     *
+     * @return array
+     */
+    public static function getAllVariations()
+    {
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select(array('groups.name AS name'))
+            ->from('Shopware\Models\Article\Configurator\Group', 'groups');
+        return $builder->getQuery()->getArrayResult();
+    }
+
+    /**
+     * Get article attributes
+     *
+     * @param integer $detailId Shopware article detail id
+     *
+     * @return array
+     */
+    public static function getArticleAttributes($detailId)
+    {
+        // get all field names of free text fields configured and display in backend
+        $tableFieldsAttributes = self::getAllAttributes();
+        // get the text of these free text fields
+        $tableValuesAttributes = Shopware()->Db()->fetchRow('
+            SELECT *
+            FROM s_articles_attributes
+            WHERE s_articles_attributes.articledetailsID = ?
+        ', array($detailId));
+        // match name with text of these free text fields
+        $attributes = array();
+        foreach ($tableFieldsAttributes as $fieldAttribute => $fieldAttributeText) {
+            foreach ($tableValuesAttributes as $valueAttribute => $valueAttributeText) {
+                if ($fieldAttributeText['columnName'] == $valueAttribute) {
+                    $attributes[strtolower($fieldAttributeText['label'])] = array(
+                        'columnName' => $fieldAttributeText['columnName'],
+                        'value' => $valueAttributeText
+                    );
+                }
+            }
         }
         return $attributes;
     }
@@ -395,10 +476,79 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      */
     public static function getAllAttributes()
     {
-        $builder = Shopware()->Models()->createQueryBuilder();
-        $builder->select(array('groups.name AS name'))
-            ->from('Shopware\Models\Article\Configurator\Group', 'groups');
-        return $builder->getQuery()->getArrayResult();
+        // use "core_engine_elements" table up to 5.2 version and "attribute_configuration" table later
+        $isNewTableAttributes = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2');
+        if ($isNewTableAttributes)  {
+            $select = array(
+                'attributs.columnName',
+                'attributs.label'
+            );
+            $builder = Shopware()->Models()->createQueryBuilder();
+            $builder->select($select)
+                ->from('Shopware\Models\Attribute\Configuration', 'attributs')
+                ->where('attributs.displayInBackend = 1')
+                ->groupBy('attributs.columnName')
+                ->orderBy('attributs.columnName', 'ASC');
+            $attributes = $builder->getQuery()->getArrayResult();
+        } else {
+            $select = array(
+                'attributs.name as columnName',
+                'attributs.label',
+                'attributs.position'
+            );
+            $builder = Shopware()->Models()->createQueryBuilder();
+            $builder->select($select)
+                ->from('Shopware\Models\Article\Element', 'attributs')
+                ->groupBy('attributs.name')
+                ->orderBy('attributs.position', 'ASC');
+            $attributes =  $builder->getQuery()->getArrayResult();
+        }
+        return $attributes;
+    }
+
+    /**
+     * Get article properties
+     *
+     * @param integer $articleId Shopware article id
+     *
+     * @return array
+     */
+    private function getArticleProperties($articleId)
+    {
+        $tableProperties = Shopware()->Db()->fetchAll('
+            SELECT opt.name, val.id, val.value FROM s_filter_articles AS art
+            LEFT JOIN s_filter_values AS val ON art.valueID = val.id 
+            LEFT JOIN s_filter_options AS opt ON val.optionID = opt.id
+            WHERE art.articleID = ?
+        ', array($articleId));
+        $properties = array();
+        foreach ($tableProperties as $property => $propertyValue) {
+            $translation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getPropertyValueTranslation(
+                $propertyValue['id'],
+                $this->shop->getId()
+            );
+            $lowerPropertyName = strtolower($propertyValue['name']);
+            $propertyTranslation = $translation ? $translation : $propertyValue['value'];
+            if (array_key_exists($lowerPropertyName, $properties)) {
+                $properties[$lowerPropertyName] .= ', ' . $propertyTranslation;
+            } else {
+                $properties[$lowerPropertyName] = $propertyTranslation;
+            }
+        }
+        return $properties;
+    }
+
+    /**
+     * Return products properties
+     *
+     * @return array
+     */
+    public static function getAllProperties()
+    {
+        $properties = Shopware()->Db()->fetchAll('
+            SELECT name
+            FROM s_filter_options');
+        return $properties;
     }
 
     /**

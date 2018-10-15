@@ -120,7 +120,8 @@ a.lgw-box-link:hover {
   white-space: nowrap;
 }
 
-.lgw-label.red {
+.lgw-label.red,
+.lgw-label-refunded {
   color: white;
   background: #e55a4d;
 }
@@ -207,7 +208,7 @@ span.lengow_tooltip:after{
   font-style: normal;
   font-weight: normal;
   line-height: 1.42857143;
-  max-width: 400px;
+  max-width: 500px;
   opacity: .9;
 }
 

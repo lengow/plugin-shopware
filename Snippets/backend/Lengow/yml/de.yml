@@ -25,7 +25,7 @@ de:
       some_help_title: "Benötigen Sie Hilfe?"
       get_in_touch: "Kontaktieren Sie Lengow"
       visit_help_center: "Schauen Sie im Help Center"
-      help_center_link: "https://en.lengow.help/help/shopware"
+      help_center_link: "https://supportlengow.zendesk.com/hc/en-us/articles/360012203311"
       configure_plugin: "um detaillierte Informationen zu der korrekten Einrichtung des Shopware-Plugins zu finden"
   status:
     screen:
@@ -223,6 +223,7 @@ de:
       status_accepted: "Akzeptiert"
       status_waiting_shipment: "Warten auf Versand"
       status_shipped: "Versandt"
+      status_refunded: "Erstattet"
       status_closed: "Abgeschlossen"
       status_shipped_by_mkp: "Versandt durch Marktplatz"
       status_canceled: "Abgebrochen"
@@ -233,6 +234,7 @@ de:
         not_sent: "nicht gesendet"
         action: "An Marktplatz gesendete Aktivität funktioniert nicht"
         import: "Bestellung konnte in Shopware nicht importiert werden"
+        no_error_message: "Ein nicht identifizierbarer Fehler ist aufgetreten. Bitte kontaktieren Sie unseren Support!"
     details:
       title: "Informationen zu Lengow"
       no_order_selected: "Bitte wählen Sie eine Bestellung aus um Details anzuzeigen"
@@ -284,7 +286,7 @@ de:
       credentials_not_valid: "Konto-Nr., Access-Token oder Access-Token-Secret ungültig"
       no_catalog_for_shop: "Keine gültige Katalog-Nr. für den Shop %{name_shop} (%{id_shop})"
       order_not_found: "Fehler Lengow: Bestellung kann in Lengow nicht gefunden werden"
-      mass_action_reimport_success: "Insgesamt wurden %{nb_imported} Bestellungen von %{nb_selected}  importiert"
+      mass_action_reimport_success: "Insgesamt wurden %{nb_imported} Bestellungen von %{nb_selected} importiert"
       mass_action_resend_success: "Insgesamt wurden %{nb_sent} Insgesamt wurden %{nb_selected} versendet"
     exception:
       marketplace_not_present: "Lengow Fehler: %{marketplace_name} erscheint nicht in der Marketplace-Liste"
@@ -299,6 +301,7 @@ de:
       product_is_a_parent: "Der Artikel %{product_id} ist ein Hauptartikel. Bitte Varianten angeben"
       product_not_be_found: "Artikel %{product_id} konnte nicht gefunden werden."
       no_product_to_cart: "Es befinden sich keine Artikel im Warenkorb"
+      country_not_found: "Kein Land für ISO-Code %{iso_code} gefunden. Bitte fügen Sie es Ihrer Shopware Konfiguration hinzu"
       no_connection_webservice: "verbindung mit dem Lengow Webservice im Laden %{name_shop} (%{id_shop}) funktionierte nicht."
       error_lengow_webservice: "Lengow Webservice : %{error_code} - %{error_message} auf Lager %{name_shop} (%{id_shop})"
       shopware_customer_not_saved: "VORSICHT! Kunde konnte NICHT in der Shopware Datenbank gespeichert werden"
