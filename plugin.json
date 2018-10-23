@@ -6,8 +6,12 @@
     "support_mail": "support.lengow.zendesk@lengow.com",
     "license": "proprietary",
     "link": "http://lengow.com",
-    "currentVersion": "1.3.1",
+    "currentVersion": "1.3.2",
     "changes": {
+        "1.3.2": {
+            "releasedate": "",
+            "line": ""
+        },
         "1.3.1": {
             "releasedate": "2018-10-15",
             "line": ""
@@ -59,6 +63,7 @@
     },
     "changelog": {
         "en": {
+            "1.3.2": "Bugfix: Checks whether a product is simple or a parent for product matching",
             "1.3.1": "Feature: Adding refunded status to order filters; Feature: Adding column's sort for active product and product include in export; Feature: Protocol change to https for API calls;  Feature: Managing delivery_date and custom_carrier parameters for sending action; Feature: Check and complete an order not imported if it is canceled or refunded; Feature: Adding links to the new Lengow help center; Feature: Adding free text fields to export; Feature: Adding properties to export; Bugfix: Removing of action errors when orders are completed; Bugfix: Fixed pagination of the order page; Bugfix: Deleting the shipping_date parameter in the action check request; Bugfix: Optimizing the display of errors in the order screen; Bugfix: Adding an error message when the country does not exist in order importation; Bugfix: Deleting the indefinite index user_id in the connector; Bugfix: Deleting join table s_articles_categories_ro in the export process; Bugfix: Adding the Lengow product filter in the products export table; Bugfix: Deleting identical headers in the export stream; Bugfix: Compatibility with version 5.5 and order statuses",
             "1.3.0": "Feature: Implementation of the new Lengow order management screen; Feature: Automatic verification of actions sent to the marketplace; Feature: Automatic sending of action if the first shipment was a failure; Feature: Setting up the simple Lengow tracker; Feature: Sending a report email with order import and action upload errors; Feature: Adding a order resynchronisation button with Lengow; Feature: Adding a reimport order button and Lengow technical error status",
             "1.2.3": "Feature: Direct shipment of actions from Shopware API; Feature: Export specific price product for a customer group; Bugfix: Get specific domain name for a sub shop; Bugfix: Improvement of the update system to avoid sql errors",
