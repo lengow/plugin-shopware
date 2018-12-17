@@ -116,15 +116,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
-     * Check if Shopware current version is older than the specified one
+     * Compare Shopware current version with a specified one
      *
      * @param string $versionToCompare version to compare
+     * @param string $operator operator to compare
      *
      * @return boolean
      */
-    public static function compareVersion($versionToCompare)
+    public static function compareVersion($versionToCompare, $operator = '>=')
     {
-        return version_compare(Shopware::VERSION, $versionToCompare, ">=");
+        return version_compare(Shopware::VERSION, $versionToCompare, $operator);
     }
 
     /**
