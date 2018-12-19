@@ -1,4 +1,11 @@
 =============================================================
+Version 1.3.2
+=============================================================
+
+    - Bugfix: Checks whether a product is simple or a parent for product matching
+    - Bugfix: Removal of billing & shipping addresses on the customer for version 5.5
+
+=============================================================
 Version 1.3.1
 =============================================================
 

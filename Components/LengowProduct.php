@@ -738,15 +738,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     public static function checkIsParentProduct($articleId)
     {
         $ids = explode('_', $articleId);
-        $articleId = $ids[0];
-        $result = null;
         // Check existing parent product
-        if (count($ids) == 1) {
-            $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-            $repository = $em->getRepository('Shopware\Models\Article\Article');
-            $result = $repository->find($articleId);
+        if (count($ids) === 1) {
+            try {
+                $articleId = $ids[0];
+                $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+                $article = $em->find('Shopware\Models\Article\Article', $articleId);
+            } catch (Exception $e) {
+                $article = null;
+            }
+            if ($article && count($article->getDetails()) > 1) {
+                return true;
+            }
         }
-        return $result != null;
+        return false;
     }
 
     /**

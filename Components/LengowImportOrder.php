@@ -1014,18 +1014,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 }
             }
             // get old billing and shipping addresses objects for all versions of Shopware
-            $billingAddress = $this->lengowAddress->getCustomerAddress(false);
-            $shippingAddress = $this->lengowAddress->getCustomerAddress(false, 'shipping');
-            if ($billingAddress && $shippingAddress) {
-                $billingAddress->setCustomer($customer);
-                if (!$newSchema) {
-                    $billingAddress->setNumber($customerNumber);
+            if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.5.0', '<')) {
+                $billingAddress = $this->lengowAddress->getCustomerAddress(false);
+                $shippingAddress = $this->lengowAddress->getCustomerAddress(false, 'shipping');
+                if ($billingAddress && $shippingAddress) {
+                    $billingAddress->setCustomer($customer);
+                    if (!$newSchema) {
+                        $billingAddress->setNumber($customerNumber);
+                    }
+                    $shippingAddress->setCustomer($customer);
+                    $customer->setBilling($billingAddress);
+                    $customer->setShipping($shippingAddress);
+                } else {
+                    return false;
                 }
-                $shippingAddress->setCustomer($customer);
-                $customer->setBilling($billingAddress);
-                $customer->setShipping($shippingAddress);
-            } else {
-                return false;
             }
             // set generic data for all versions of Shopware
             $customer->setEmail($customerEmail);
