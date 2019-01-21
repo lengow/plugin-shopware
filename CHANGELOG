@@ -2,6 +2,7 @@
 Version 1.3.3
 =============================================================
 
+    - Feature: Generating a generic error message when the Lengow API is unavailable
     - Bugfix: Improved security to avoid duplicate synchronization
 
 =============================================================

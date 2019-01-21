@@ -422,12 +422,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                             $params
                         );
                     } else {
-                        throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                        if ($result !== null) {
+                            $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                                 'lengow_log/exception/action_not_created',
                                 array('error_message' => json_encode($result))
-                            )
-                        );
+                            );
+                        } else {
+                            // Generating a generic error message when the Lengow API is unavailable
+                            $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                                'lengow_log/exception/action_not_created_api'
+                            );
+                        }
+                        throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($message);
                     }
                 }
                 // Create log for call action
