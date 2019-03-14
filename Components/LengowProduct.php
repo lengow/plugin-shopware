@@ -47,12 +47,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * @var Shopware\Models\Article\Article Shopware article instance
      */
-    protected $product;
+    protected $article;
 
     /**
-     * @var Shopware\Models\Article\Detail Shopware article details instance
+     * @var Shopware\Models\Article\Detail Shopware article detail instance
      */
-    protected $details;
+    protected $detail;
 
     /**
      * @var Shopware\Models\Shop\Shop Shopware shop instance
@@ -117,26 +117,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Construct
      *
-     * @param Shopware\Models\Article\Detail $details Shopware article detail instance
+     * @param Shopware\Models\Article\Detail $detail Shopware article detail instance
      * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
      * @param string $type article type
      * @param Shopware\Models\Shop\Currency $currency Shopware currency instance
      * @param boolean $logOutput display logs or not
      */
-    public function __construct($details, $shop, $type, $currency, $logOutput)
+    public function __construct($detail, $shop, $type, $currency, $logOutput)
     {
-        $this->product = $details->getArticle();
-        $this->details = $details;
+        $this->article = $detail->getArticle();
+        $this->detail = $detail;
         $this->shop = $shop;
         $this->type = $type;
         $this->logOutput = $logOutput;
         $this->isVariation = $type === 'child' ? true : false;
         $this->currency = $currency;
         $this->factor = $this->currency->getFactor();
-        $this->variations = self::getArticleVariations($this->details->getId());
-        $this->attributes = self::getArticleAttributes($this->details->getId());
-        $this->properties = self::getArticleProperties($this->product->getId());
-        $this->translations = $this->getProductTranslations();
+        $this->variations = self::getArticleVariations($this->detail->getId());
+        $this->attributes = self::getArticleAttributes($this->detail->getId());
+        $this->properties = self::getArticleProperties($this->article->getId());
+        $this->translations = $this->getArticleTranslations();
         $this->price = $this->getPrice();
         $this->images = $this->getImages();
     }
@@ -155,45 +155,45 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         switch ($name) {
             case 'id':
                 if ($this->isVariation) {
-                    return $this->product->getId() . '_' . $this->details->getId();
+                    return $this->article->getId() . '_' . $this->detail->getId();
                 } else {
-                    return $this->product->getId();
+                    return $this->article->getId();
                 }
             case 'sku':
-                return $this->details->getNumber();
+                return $this->detail->getNumber();
             case 'sku_supplier':
-                return $this->details->getSupplierNumber();
+                return $this->detail->getSupplierNumber();
             case 'ean':
-                return $this->details->getEan();
+                return $this->detail->getEan();
             case 'name':
-                $name = isset($this->translations['name']) ? $this->translations['name'] : $this->product->getName();
+                $name = isset($this->translations['name']) ? $this->translations['name'] : $this->article->getName();
                 return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($name);
             case 'quantity':
                 if ($this->isVariation) {
-                    return $this->details->getInStock() > 0 ? $this->details->getInStock() : 0;
+                    return $this->detail->getInStock() > 0 ? $this->detail->getInStock() : 0;
                 } else {
                     return $this->getTotalStock();
                 }
             case 'category':
                 return $this->getBreadcrumb();
             case 'status':
-                return $this->details->getActive() ? 'Enabled' : 'Disabled';
+                return $this->detail->getActive() ? 'Enabled' : 'Disabled';
             case 'url':
                 $sep = '/';
-                $idCategory = 0;
-                $idProduct = $this->product->getId();
+                $categoryId = 0;
+                $articleId = $this->article->getId();
                 $shopUrl = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopUrl($this->shop);
-                $idCategoryParent = $this->shop->getCategory()->getId();
-                $categories = $this->product->getCategories();
+                $parentCategoryId = $this->shop->getCategory()->getId();
+                $categories = $this->article->getCategories();
                 foreach ($categories as $category) {
                     $pathCategory = explode("|", $category->getPath());
-                    if (in_array($idCategoryParent, $pathCategory)) {
-                        $idCategory = $category->getId();
+                    if (in_array($parentCategoryId, $pathCategory)) {
+                        $categoryId = $category->getId();
                         break;
                     }
                 }
                 return $shopUrl . $sep . 'detail' . $sep . 'index' . $sep
-                    . 'sArticle' . $sep . $idProduct . $sep . 'sCategory' . $sep . $idCategory;
+                    . 'sArticle' . $sep . $articleId . $sep . 'sCategory' . $sep . $categoryId;
             case 'price_excl_tax':
                 $price = $this->price->getPrice();
                 $discount = $this->price->getPercent();
@@ -203,7 +203,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 $price = $this->price->getPrice();
                 $discount = $this->price->getPercent();
                 $discInclTax = $price * (1 - ($discount / 100));
-                $tax = $this->product->getTax()->getTax();
+                $tax = $this->article->getTax()->getTax();
                 $priceDiscInclTax = round($discInclTax * (100 + $tax) / 100, 2);
                 return number_format($priceDiscInclTax * $this->factor, 2);
             case 'price_before_discount_excl_tax':
@@ -212,12 +212,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 return number_format($priceExclTax * $this->factor, 2);
             case 'price_before_discount_incl_tax':
                 $price = $this->price->getPrice();
-                $tax = $this->product->getTax()->getTax();
+                $tax = $this->article->getTax()->getTax();
                 $priceInclTax = round($price * (100 + $tax) / 100, 2);
                 return number_format($priceInclTax * $this->factor, 2);
             case 'discount_percent':
-                $productPrice = $this->details->getPrices();
-                return number_format($productPrice[0]->getPercent(), 2);
+                $detailPrices = $this->detail->getPrices();
+                return number_format($detailPrices[0]->getPercent(), 2);
             case 'discount_start_date':
                 return '';
             case 'discount_end_date':
@@ -231,7 +231,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             case 'type':
                 return $this->type;
             case 'parent_id':
-                return $this->product->getId();
+                return $this->article->getId();
             case 'variation':
                 $result = '';
                 foreach ($this->variations as $key => $variation) {
@@ -242,49 +242,49 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 return $this->shop->getLocale()->getLocale();
                 break;
             case 'shipping_delay':
-                return $this->details->getShippingTime();
+                return $this->detail->getShippingTime();
             case 'weight':
-                return $this->details->getWeight();
+                return $this->detail->getWeight();
             case 'height':
-                return $this->details->getHeight();
+                return $this->detail->getHeight();
             case 'width':
-                return $this->details->getWidth();
+                return $this->detail->getWidth();
             case 'length':
-                return $this->details->getLen();
+                return $this->detail->getLen();
             case 'minimal_quantity':
-                return $this->details->getMinPurchase();
+                return $this->detail->getMinPurchase();
             case 'description_short':
                 $description = isset($this->translations['description'])
                     ? $this->translations['description']
-                    : $this->product->getDescription();
+                    : $this->article->getDescription();
                 return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanHtml(
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($description)
                 );
             case 'description':
                 $descriptionLong = isset($this->translations['descriptionLong'])
                     ? $this->translations['descriptionLong']
-                    : $this->product->getDescriptionLong();
+                    : $this->article->getDescriptionLong();
                 return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanHtml(
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($descriptionLong)
                 );
             case 'description_html':
                 $descriptionLong = isset($this->translations['descriptionLong'])
                     ? $this->translations['descriptionLong']
-                    : $this->product->getDescriptionLong();
+                    : $this->article->getDescriptionLong();
                 return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($descriptionLong);
             case 'meta_title':
                 $metaTitle = isset($this->translations['metaTitle'])
                     ? $this->translations['metaTitle']
-                    : $this->product->getMetaTitle();
+                    : $this->article->getMetaTitle();
                 return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($metaTitle);
             case 'meta_keyword':
                 $keywords = isset($this->translations['keywords'])
                     ? $this->translations['keywords']
-                    : $this->product->getKeywords();
+                    : $this->article->getKeywords();
                 return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData($keywords);
             case 'supplier':
                 return Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
-                    $this->product->getSupplier()->getName()
+                    $this->article->getSupplier()->getName()
                 );
             default:
                 $result = '';
@@ -326,10 +326,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      *
      * @return array
      */
-    private function getProductTranslations()
+    private function getArticleTranslations()
     {
         $translation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getTranslationComponent();
-        return $translation->read($this->shop->getId(), 'article', $this->product->getId());
+        return $translation->read($this->shop->getId(), 'article', $this->article->getId());
     }
 
     /**
@@ -481,9 +481,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      */
     public static function getAllProperties()
     {
-        $properties = Shopware()->Db()->fetchAll('
-            SELECT name
-            FROM s_filter_options');
+        $properties = Shopware()->Db()->fetchAll('SELECT name FROM s_filter_options');
         return $properties;
     }
 
@@ -497,7 +495,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     private function getBreadcrumb()
     {
         $parentCategoryId = $this->shop->getCategory()->getId();
-        $categories = $this->product->getCategories();
+        $categories = $this->article->getCategories();
         $breadcrumb = null;
         foreach ($categories as $category) {
             $categoryPath = explode("|", $category->getPath());
@@ -526,8 +524,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     private function getPrice()
     {
         $articlePrice = '';
-        $productPrices = $this->details->getPrices();
-        foreach ($productPrices as $price) {
+        $detailPrices = $this->detail->getPrices();
+        foreach ($detailPrices as $price) {
             if ($price->getCustomerGroup() == $this->shop->getCustomerGroup()) {
                 $articlePrice = $price;
                 break;
@@ -552,10 +550,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         }
         // get variation or parent images
         if ($this->isVariation) {
-            $variationHasImage = !$this->details->getImages()->isEmpty();
-            $images = $variationHasImage ? $this->details->getImages() : $this->product->getImages();
+            $variationHasImage = !$this->detail->getImages()->isEmpty();
+            $images = $variationHasImage ? $this->detail->getImages() : $this->article->getImages();
         } else {
-            $images =  $this->product->getImages();
+            $images =  $this->article->getImages();
         }
         // get url for each image
         $isMediaManagerSupported = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0');
@@ -586,8 +584,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/export/error_media_not_found',
                     array(
-                        'detailsId' => $this->details->getNumber(),
-                        'detailsName' => $this->product->getName(),
+                        'detailId' => $this->detail->getNumber(),
+                        'articleName' => $this->article->getName(),
                         'message' => $e->getMessage()
                     )
                 ),
@@ -619,7 +617,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $shippingCost = 0;
         $articlePrice = $this->getData('price_before_discount_incl_tax');
         // If article has not been manually set with free shipping
-        if (!$this->details->getShippingFree()) {
+        if (!$this->detail->getShippingFree()) {
             $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
             $dispatchId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowDefaultDispatcher',
@@ -637,7 +635,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     $calculation = $dispatch->getCalculation();
                     switch ($calculation) {
                         case 0: // Dispatch based on weight
-                            $calculationType = $this->details->getWeight();
+                            $calculationType = $this->detail->getWeight();
                             break;
                         case 1: // Dispatch based on price
                             $calculationType = $articlePrice;
@@ -646,7 +644,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                             $calculationType = 1;
                             break;
                         case 3: // Dispatch based on calculation
-                            $calculationType = $this->details->getWeight();
+                            $calculationType = $this->detail->getWeight();
                             break;
                         default:
                             $calculationType = 0;
@@ -686,12 +684,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      */
     private function getCategoryStatus($blockedCategories)
     {
-        // @var Shopware\Models\Category\Category[] $productCategories
-        $productCategories = $this->product->getCategories();
+        // @var Shopware\Models\Category\Category[] $articleCategories
+        $articleCategories = $this->article->getCategories();
         $result = true;
-        foreach ($productCategories as $pCategory) {
+        foreach ($articleCategories as $aCategory) {
             foreach ($blockedCategories as $bCategory) {
-                if ($pCategory->getId() == $bCategory->getId()) {
+                if ($aCategory->getId() == $bCategory->getId()) {
                     $result = false;
                 } elseif (!$bCategory->isLeaf()) {
                     $result = $result && $this->getCategoryStatus($bCategory->getChildren());
@@ -711,10 +709,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $builder = $em->createQueryBuilder();
-        $builder->select(array('SUM(details.inStock)'))
-            ->from('Shopware\Models\Article\Detail', 'details')
-            ->where('details.articleId = :articleId')
-            ->setParameter('articleId', $this->product->getId());
+        $builder->select(array('SUM(detail.inStock)'))
+            ->from('Shopware\Models\Article\Detail', 'detail')
+            ->where('detail.articleId = :articleId')
+            ->setParameter('articleId', $this->article->getId());
         return $builder->getQuery()->getSingleScalarResult();
     }
 

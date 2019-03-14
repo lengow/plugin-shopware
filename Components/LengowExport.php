@@ -381,9 +381,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             if ($this->limit != null && $this->limit <= $displayedProducts) {
                 break;
             }
-            $details = $this->em->getReference('Shopware\Models\Article\Detail', $article['detailId']);
+            $detail = $this->em->getReference('Shopware\Models\Article\Detail', $article['detailId']);
             $product = new Shopware_Plugins_Backend_Lengow_Components_LengowProduct(
-                $details,
+                $detail,
                 $this->shop,
                 $article['type'],
                 $this->currency,
@@ -412,7 +412,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 );
             }
             // clean data for next product
-            unset($details, $product, $productData);
+            unset($detail, $product, $productData);
             if (function_exists('gc_collect_cycles')) {
                 gc_collect_cycles();
             }
