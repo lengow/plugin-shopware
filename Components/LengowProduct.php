@@ -110,6 +110,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     protected $price;
 
     /**
+     * @var array all product images
+     */
+    protected $images;
+
+    /**
      * Construct
      *
      * @param Shopware\Models\Article\Detail $details Shopware article detail instance
@@ -133,6 +138,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $this->properties = self::getArticleProperties($this->product->getId());
         $this->translations = $this->getProductTranslations();
         $this->price = $this->getPrice();
+        $this->images = $this->getImages();
     }
 
     /**
@@ -221,9 +227,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             case 'currency':
                 return $this->currency->getCurrency();
             case (preg_match('`image_url_([0-9]+)`', $name) ? true : false):
-                $index = explode('_', $name);
-                $index = $index[2];
-                return $this->getImagePath($index);
+                return $this->images[$name];
             case 'type':
                 return $this->type;
             case 'parent_id':
@@ -315,74 +319,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 }
                 return $result;
         }
-    }
-
-    /**
-     * Get path images for the current product
-     *
-     * @param integer $index index of the image
-     *
-     * @return string
-     */
-    private function getImagePath($index)
-    {
-        try {
-            // @var Shopware\Models\Article\Image[] $productImages
-            $images = $this->isVariation ? $this->details->getImages() : $this->product->getImages();
-            $image = $images[$index - 1];
-            if ($image != null) {
-                return $this->formatImagePath($image);
-            }
-        } catch (Exception $e) {
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Warning',
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'log/export/error_media_not_found',
-                    array(
-                        'detailsId' => $this->details->getId(),
-                        'detailsName' => $this->product->getName(),
-                        'message' => $e->getMessage()
-                    )
-                ),
-                $this->logOutput
-            );
-        }
-        return '';
-    }
-
-    /**
-     * Get format image path
-     *
-     * @param Shopware\Models\Article\Image $image Shopware article image instance
-     *
-     * @throws Exception
-     *
-     * @return string
-     */
-    private function formatImagePath($image)
-    {
-        $isMediaManagerSupported = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0');
-        $result = '';
-        $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 'https://' : 'http://';
-        $domain = $isHttps . $_SERVER['SERVER_NAME'];
-        // @var Shopware\Models\Media\Media $media
-        $media = $this->isVariation ? $image->getParent()->getMedia() : $image->getMedia();
-        if ($media != null) {
-            if ($isMediaManagerSupported) {
-                if ($media->getPath() != null) {
-                    $mediaService = Shopware()->Container()->get('shopware_media.media_service');
-                    // Get image virtual path (ie : .../media/image/0a/20/03/my-image.png)
-                    $imagePath = $mediaService->getUrl($media->getPath());
-                    $firstOccurrence = strpos($imagePath, '/media');
-                    $result = $domain . substr($imagePath, $firstOccurrence);
-                }
-            } else {
-                if ($media->getPath() != null) {
-                    $result = $domain . '/' . $media->getPath();
-                }
-            }
-        }
-        return $result;
     }
 
     /**
@@ -598,6 +534,77 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             }
         }
         return $articlePrice;
+    }
+
+    /**
+     * Get images for a product
+     *
+     * @return array
+     */
+    private function getImages()
+    {
+        $urls = array();
+        $imageUrls = array();
+        $variationHasImage = false;
+        // create image urls array
+        for ($i = 1; $i < 11; $i++) {
+            $imageUrls['image_url_' . $i] = '';
+        }
+        // get variation or parent images
+        if ($this->isVariation) {
+            $variationHasImage = !$this->details->getImages()->isEmpty();
+            $images = $variationHasImage ? $this->details->getImages() : $this->product->getImages();
+        } else {
+            $images =  $this->product->getImages();
+        }
+        // get url for each image
+        $isMediaManagerSupported = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0');
+        $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 'https://' : 'http://';
+        $domain = $isHttps . $_SERVER['SERVER_NAME'];
+        try {
+            foreach ($images as $image) {
+                $media = $variationHasImage ? $image->getParent()->getMedia() : $image->getMedia();
+                if ($media != null) {
+                    if ($isMediaManagerSupported) {
+                        if ($media->getPath() != null) {
+                            $mediaService = Shopware()->Container()->get('shopware_media.media_service');
+                            // Get image virtual path (ie : .../media/image/0a/20/03/my-image.png)
+                            $imagePath = $mediaService->getUrl($media->getPath());
+                            $firstOccurrence = strpos($imagePath, '/media');
+                            $urls[] = $domain . substr($imagePath, $firstOccurrence);
+                        }
+                    } else {
+                        if ($media->getPath() != null) {
+                            $urls[] = $domain . '/' . $media->getPath();
+                        }
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                'Warning',
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/export/error_media_not_found',
+                    array(
+                        'detailsId' => $this->details->getNumber(),
+                        'detailsName' => $this->product->getName(),
+                        'message' => $e->getMessage()
+                    )
+                ),
+                $this->logOutput
+            );
+        }
+        // Retrieves up to 10 images per product
+        $counter = 1;
+        foreach ($urls as $url) {
+            $imageUrls['image_url_' . $counter] = $url;
+            if ($counter === 10) {
+                break;
+            }
+            $counter++;
+        }
+
+        return $imageUrls;
     }
 
     /**
