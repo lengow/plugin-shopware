@@ -216,6 +216,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             );
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log('Import', $globalError, $this->logOutput);
         } else {
+            if (!$this->importOneOrder) {
+                self::setInProcess();
+                // update last import date
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::updateDateImport($this->typeImport);
+            }
             // check Lengow catalogs for order synchronisation
             if (!$this->preprodMode && !$this->importOneOrder && $this->typeImport === 'manual') {
                 Shopware_Plugins_Backend_Lengow_Components_LengowSync::syncCatalog();
@@ -237,11 +242,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     ),
                     $this->logOutput
                 );
-            }
-            if (!$this->importOneOrder) {
-                self::setInProcess();
-                // update last import date
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::updateDateImport($this->typeImport);
             }
             // get all shops for import
             /** @var Shopware\Models\Shop\Shop[] $shops */

@@ -297,6 +297,7 @@ de:
       marketplace_name_require: "marktplatzname ist erforderlich"
       arg_is_required: "Aktion nicht ausführbar: %{arg_name} ist erforderlich"
       action_not_created: "Aktion kann nicht erstellt werden: %{error_message}"
+      action_not_created_api: "Aktion kann nicht erstellt werden, da die Lengow-API nicht verfügbar ist. Bitte erneut versuchen"
       action_is_too_old: "bestellungsaktion ist zu alt. Bitte erneut versuchen"
       product_is_a_parent: "Der Artikel %{product_id} ist ein Hauptartikel. Bitte Varianten angeben"
       product_not_be_found: "Artikel %{product_id} konnte nicht gefunden werden."
