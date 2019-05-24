@@ -1,5 +1,5 @@
 =============================================================
-Version 1.3.4
+Version 1.4.0
 =============================================================
 
     - Bugfix: [export] Retrieving the default price when the customer group price is not available
