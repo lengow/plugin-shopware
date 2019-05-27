@@ -59,7 +59,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             'domain_name' => $_SERVER["SERVER_NAME"],
             'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken(),
             'type' => 'shopware',
-            'version' => Shopware::VERSION,
+            'version' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopwareVersion(),
             'plugin_version' => Shopware()->Plugins()->Backend()->Lengow()->getVersion(),
             'email' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('mail'),
             'cron_url' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getImportUrl(),
@@ -153,7 +153,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     {
         $data = array(
             'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken(),
-            'version' => Shopware::VERSION,
+            'version' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopwareVersion(),
             'plugin_version' => Shopware()->Plugins()->Backend()->Lengow()->getVersion(),
             'options' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAllValues(),
             'shops' => array()

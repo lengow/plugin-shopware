@@ -125,7 +125,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function compareVersion($versionToCompare, $operator = '>=')
     {
-        return version_compare(Shopware::VERSION, $versionToCompare, $operator);
+        return version_compare(self::getShopwareVersion(), $versionToCompare, $operator);
     }
 
     /**
@@ -238,6 +238,25 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static function getLocale()
     {
         return Shopware()->Auth()->getIdentity()->locale->getLocale();
+    }
+
+    /**
+     * Get Shopware version
+     *
+     * @return string
+     */
+    public static function getShopwareVersion()
+    {
+        $shopwareVersion = '';
+        // get release version via parameters for Shopware versions greater than 5.4
+        if (Shopware()->Container()->hasParameter('shopware.release.version')) {
+            $shopwareVersion = Shopware()->Container()->getParameter('shopware.release.version');
+        }
+        // get release version via the constant for older versions of Shopware
+        if (empty($shopwareVersion) && defined('Shopware::VERSION')) {
+            $shopwareVersion = Shopware::VERSION;
+        }
+        return $shopwareVersion;
     }
 
     /**

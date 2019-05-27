@@ -129,7 +129,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         $checklist = array();
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shopware_version'),
-            'message' => Shopware::VERSION
+            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopwareVersion()
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/plugin_version'),
