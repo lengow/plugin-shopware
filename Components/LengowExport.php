@@ -455,28 +455,52 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     private function getFields()
     {
         $fields = array();
+        // Check field name to avoid duplicates
+        $formattedFields = array();
         foreach (self::$defaultFields as $key => $value) {
             $fields[] = $key;
+            $formattedFields[] = Shopware_Plugins_Backend_Lengow_Components_LengowFeed::formatFields(
+                $key,
+                $this->format
+            );
         }
+        // Get all article variations
         $variations = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAllVariations();
         foreach ($variations as $variation) {
             $variationName = strtolower($variation['name']);
-            if (!in_array($variationName, $fields)) {
+            $formattedFeature = Shopware_Plugins_Backend_Lengow_Components_LengowFeed::formatFields(
+                $variationName,
+                $this->format
+            );
+            if (!in_array($formattedFeature, $formattedFields)) {
                 $fields[] = $variationName;
+                $formattedFields[] = $formattedFeature;
             }
         }
+        // Get all free text fields
         $attributes = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAllAttributes();
         foreach ($attributes as $attribute) {
             $attributeLabel = 'free_' . strtolower($attribute['label']);
-            if (!in_array($attributeLabel, $fields)) {
+            $formattedAttribute = Shopware_Plugins_Backend_Lengow_Components_LengowFeed::formatFields(
+                $attributeLabel,
+                $this->format
+            );
+            if (!in_array($formattedAttribute, $formattedFields)) {
                 $fields[] = $attributeLabel;
+                $formattedFields[] = $formattedAttribute;
             }
         }
+        // Get all articles properties
         $properties = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAllProperties();
         foreach ($properties as $property) {
             $propertyName = 'prop_' . strtolower($property['name']);
-            if (!in_array($propertyName, $fields)) {
+            $formattedProperty = Shopware_Plugins_Backend_Lengow_Components_LengowFeed::formatFields(
+                $propertyName,
+                $this->format
+            );
+            if (!in_array($formattedProperty, $formattedFields)) {
                 $fields[] = $propertyName;
+                $formattedFields[] = $formattedProperty;
             }
         }
         return $fields;
