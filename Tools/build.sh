@@ -50,6 +50,7 @@ FOLDER_TMP="/tmp/Backend"
 FOLDER_LOGS="/tmp/Backend/Lengow/Logs"
 FOLDER_EXPORT="/tmp/Backend/Lengow/Export"
 FOLDER_TOOLS="/tmp/Backend/Lengow/Tools"
+FOLDER_CONFIG="/tmp/Backend/Lengow/Config"
 FOLDER_TRANSLATION="/tmp/Backend/Lengow/Snippets/backend/Lengow/yml"
 
 VERT="\\033[1;32m"
@@ -97,6 +98,8 @@ remove_files $FOLDER_TMP ".gitignore"
 remove_files $FOLDER_TMP ".DS_Store"
 # Remove .idea
 remove_files $FOLDER_TMP ".idea"
+# Clean Config Folder
+remove_files $FOLDER_CONFIG "marketplaces.json"
 # Clean Log Folder
 remove_files $FOLDER_LOGS "*.txt"
 echo "- Clean logs folder : ""$VERT""DONE""$NORMAL"""

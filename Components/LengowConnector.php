@@ -72,11 +72,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     protected $token;
 
     /**
-     * @var integer account id
-     */
-    protected $accountId;
-
-    /**
      * @var array lengow url for Curl timeout
      */
     protected $lengowUrls = array(
@@ -120,7 +115,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         );
         if (isset($data['token'])) {
             $this->token = $data['token'];
-            $this->accountId = $data['account_id'];
             return $data;
         } else {
             return false;
@@ -144,9 +138,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     {
         $this->connect();
         try {
-            if (!array_key_exists('account_id', $array)) {
-                $array['account_id'] = $this->accountId;
-            }
             $data = $this->callAction($method, $array, $type, $format, $body);
         } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
             return $e->getMessage();
@@ -341,7 +332,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         $url = $url['scheme'] . '://' . $url['host'] . $url['path'];
         switch ($type) {
             case 'GET':
-                $opts[CURLOPT_URL] = $url . '?' . http_build_query($args);
+                $opts[CURLOPT_URL] = $url . (!empty($args) ? '?' . http_build_query($args) : '');
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Connector',
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(

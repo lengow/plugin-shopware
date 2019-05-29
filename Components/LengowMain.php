@@ -83,6 +83,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static $logLife = 20;
 
     /**
+     * @var string Lengow configuration folder name
+     */
+    public static $lengowConfigFolder = 'Config';
+
+    /**
      * @var Shopware_Components_Translation Shopware translation instance
      */
     public static $translation;
@@ -421,7 +426,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      *
      * @return string
      */
-    public static function getLengowFolder()
+    public static function
+    getLengowFolder()
     {
         return Shopware()->Plugins()->Backend()->Lengow()->Path();
     }

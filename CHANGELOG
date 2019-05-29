@@ -3,6 +3,7 @@ Version 1.4.0
 =============================================================
 
     - Feature: Disabling the Lengow tracker and changing the product ID
+    - Feature: Registering marketplace data in a json file
     - Bugfix: [export] Retrieving the default price when the customer group price is not available
     - Bugfix: Recovery of Shopware version with parameters for versions above 5.4
     - Bugfix: [export] Improved deletion of duplicate headers

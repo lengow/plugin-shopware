@@ -38,6 +38,7 @@ default:
       end: "## end %{type} import ##"
       preprod_mode_active: "WARNING! Pre-prod mode is activated"
       import_failed: "import failed - %{decoded_message}"
+      marketplace_update_failed: "marketplace update failed - %{decoded_message}"
       no_orders_to_process: "no product to import"
       catalog_id_already_used: "catalog ID %{catalog_id} is already used by shop %{name_shop} (%{id_shop})"
       start_for_shop: "start import in shop %{name_shop} (%{id_shop})"

@@ -34,6 +34,11 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
 {
     /**
+     * @var string marketplace file name
+     */
+    public static $marketplaceJson = 'marketplaces.json';
+
+    /**
      * @var array all valid actions
      */
     public static $validActions = array(
@@ -52,7 +57,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     /**
      * @var array all marketplaces allowed for an account ID
      */
-    public static $marketplaces = array();
+    public static $marketplaces = false;
 
     /**
      * @var mixed the current marketplace
@@ -173,12 +178,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      */
     public function loadApiMarketplace()
     {
-        if (count(self::$marketplaces) === 0) {
-            self::$marketplaces = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
-                'get',
-                '/v3.0/marketplaces'
-            );
+        if (!self::$marketplaces) {
+            self::$marketplaces = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getMarketplaces();
         }
+    }
+
+    /**
+     * Get marketplaces.json path
+     *
+     * @return string
+     */
+    public static function getFilePath()
+    {
+        $sep = DIRECTORY_SEPARATOR;
+        $folderPath = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder();
+        $configFolder = Shopware_Plugins_Backend_Lengow_Components_LengowMain::$lengowConfigFolder;
+        return $folderPath . $sep . $configFolder . $sep . self::$marketplaceJson;
     }
 
     /**
