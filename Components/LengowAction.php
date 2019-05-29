@@ -264,6 +264,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 && isset($apiActions[$action['actionId']]->errors)
             ) {
                 if ($apiActions[$action['actionId']]->queued == false) {
+                    // Order action is waiting to return from the marketplace
+                    if ($apiActions[$action['actionId']]->processed == false
+                        && empty($apiActions[$action['actionId']]->errors)
+                    ) {
+                        continue;
+                    }
                     // Finish action in lengow_action table
                     self::finishAction($action['id']);
                     $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
@@ -276,7 +282,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                         );
                         if ($lengowOrder->getOrderProcessState() != $processStateFinish) {
                             // If action is accepted -> close order and finish all order actions
-                            if ($apiActions[$action['actionId']]->processed == true) {
+                            if ($apiActions[$action['actionId']]->processed == true
+                                && empty($apiActions[$action['actionId']]->errors)
+                            ) {
                                 $lengowOrder->setOrderProcessState($processStateFinish);
                                 self::finishAllActions($lengowOrder->getOrder()->getId());
                             } else {
