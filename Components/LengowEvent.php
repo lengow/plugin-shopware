@@ -168,14 +168,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
     public static function onFrontendCheckoutPostDispatch($args)
     {
         $request = $args->getSubject()->Request();
-        if ($request->getActionName() === 'finish') {
-            $session = Shopware()->Session();
+        if ($request->getActionName() === 'finish'
+            && (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowTrackingEnable')
+        ) {
+            $sOrderVariables = Shopware()->Session()->offsetGet('sOrderVariables')->getArrayCopy();
             // Get all tracker variables
             $accountId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAccountId');
             $trackingId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowTrackingId');
-            if (!empty($session['sOrderVariables']) && $accountId > 0) {
+            if (!empty($sOrderVariables) && $accountId > 0) {
                 // Get all tracker variables
-                $sOrderVariables = $session['sOrderVariables']->getArrayCopy();
                 $payment = isset($sOrderVariables['sPayment']) ? $sOrderVariables['sPayment'] : '';
                 $articleCart = array();
                 $articles = isset($sOrderVariables['sBasket']['content'])

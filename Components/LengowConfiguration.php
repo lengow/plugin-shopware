@@ -396,6 +396,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'lengowSecretToken' => array('global' => true),
             'lengowIpEnabled' => array('global' => true),
             'lengowAuthorizedIp' => array('global' => true),
+            'lengowTrackingEnable' => array('global' => true),
             'lengowTrackingId' => array('global' => true),
             'lengowShopToken' => array('shop' => true),
             'lengowShopActive' => array('shop' => true),

@@ -60,13 +60,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
      * Accessible in Configuration/Basic Settings/Additional settings menu
      *
      * @param \Shopware\Models\Config\Form $mainForm Lengow main form
+     * @param string|false $version current plugin version installed
      */
-    public function createConfig($mainForm)
+    public function createConfig($mainForm, $version = false)
     {
         // Get tracking ids, dispatches and order states for settings
         $trackingIds = $this->getTrackingIds();
         $dispatches = $this->getDispatches();
         $orderStates = $this->getOrderStates();
+        $trackingEnable = $this->getTrackingEnable($version);
         // Main settings
         $mainSettingsElements = array(
             'lengowAccountId' => array(
@@ -120,14 +122,21 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'value' => '127.0.0.1',
                 'description' => 'settings/lengow_main_settings/ip/description'
             ),
+            'lengowTrackingEnable' => array(
+                'type' => 'boolean',
+                'label' => 'settings/lengow_main_settings/tracking_enable/label',
+                'required' => true,
+                'value' => $trackingEnable,
+                'description' => 'settings/lengow_main_settings/tracking_enable/description'
+            ),
             'lengowTrackingId' => array(
                 'type' => 'select',
-                'label' => 'settings/lengow_main_settings/tracking/label',
+                'label' => 'settings/lengow_main_settings/tracking_id/label',
                 'required' => true,
                 'editable' => false,
                 'value' => $trackingIds['default_value'],
                 'store' => $trackingIds['selection'],
-                'description' => 'settings/lengow_main_settings/tracking/description'
+                'description' => 'settings/lengow_main_settings/tracking_id/description'
             )
         );
         // Auto-generate form
@@ -444,6 +453,25 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             'canceled' => 4,
             'selection' => $selection
         );
+    }
+
+
+    /**
+     * Active Lengow tracker for versions 1.0.0 - 1.3.3
+     *
+     * @param string $version current plugin version installed
+     *
+     * @return boolean
+     */
+    protected function getTrackingEnable($version)
+    {
+        $value = false;
+        if ($version && version_compare($version, '1.4.0', '<') &&
+            !Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant()
+        ) {
+            $value = true;
+        }
+        return $value;
     }
 
     /**
