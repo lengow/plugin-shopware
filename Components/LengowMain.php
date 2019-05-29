@@ -426,8 +426,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      *
      * @return string
      */
-    public static function
-    getLengowFolder()
+    public static function getLengowFolder()
     {
         return Shopware()->Plugins()->Backend()->Lengow()->Path();
     }
