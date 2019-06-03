@@ -34,18 +34,26 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowSync
 {
     /**
-     * @var integer cache time for statistic, account status and cms options
+     * @var array cache time for statistic, account status, cms options and marketplace synchronisation
      */
-    protected static $cacheTime = 18000;
+    protected static $cacheTimes = array(
+        'cms_option' => 86400,
+        'status_account' => 86400,
+        'statistic' => 43200,
+        'marketplace' => 21600,
+    );
 
     /**
      * @var array valid sync actions
      */
     public static $syncActions = array(
         'order',
+        'cms_option',
+        'status_account',
+        'statistic',
+        'marketplace',
         'action',
         'catalog',
-        'option'
     );
 
     /**
@@ -195,7 +203,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowOptionCmsUpdate'
             );
-            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < self::$cacheTime) {
+            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < self::$cacheTimes['cms_option']) {
                 return false;
             }
         }
@@ -221,7 +229,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowAccountStatusUpdate'
             );
-            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < self::$cacheTime) {
+            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < self::$cacheTimes['status_account']) {
                 $config = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                     'lengowAccountStatus'
                 );
@@ -275,7 +283,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowOrderStatUpdate'
             );
-            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < self::$cacheTime) {
+            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < self::$cacheTimes['statistic']) {
                 $stats = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowOrderStat');
                 return json_decode($stats, true);
             }
@@ -343,7 +351,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowMarketplaceUpdate'
             );
-            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < self::$cacheTime && file_exists($filePath)) {
+            if (!is_null($updatedAt)
+                && (time() - strtotime($updatedAt)) < self::$cacheTimes['marketplace']
+                && file_exists($filePath)
+            ) {
                 // Recovering data with the marketplaces.json file
                 $marketplacesData = file_get_contents($filePath);
                 if ($marketplacesData) {

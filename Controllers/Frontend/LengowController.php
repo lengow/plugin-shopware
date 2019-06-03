@@ -198,6 +198,10 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             if ($this->Request()->getParam('get_sync') == 1) {
                 echo json_encode(Shopware_Plugins_Backend_Lengow_Components_LengowSync::getSyncData());
             } else {
+                $force = false;
+                if ($this->Request()->getParam('force')) {
+                    $force = (bool)$this->Request()->getParam('force');
+                }
                 $sync = $this->Request()->getParam('sync', false);
                 // sync catalogs id between Lengow and Shopware
                 if (!$sync || $sync === 'catalog') {
@@ -242,8 +246,20 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                     Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkActionNotSent();
                 }
                 // sync options between Lengow and Shopware
-                if (!$sync || $sync === 'option') {
-                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::setCmsOption();
+                if (!$sync || $sync === 'cms_option') {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::setCmsOption($force);
+                }
+                // sync marketplaces between Lengow and Shopware
+                if ($sync === 'marketplace') {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::getMarketplaces($force);
+                }
+                // sync status account between Lengow and Shopware
+                if ($sync === 'status_account') {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatusAccount($force);
+                }
+                // sync statistics between Lengow and Shopware
+                if ($sync === 'statistic') {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatistic($force);
                 }
                 // sync parameter is not valid
                 if ($sync && !in_array($sync, Shopware_Plugins_Backend_Lengow_Components_LengowSync::$syncActions)) {

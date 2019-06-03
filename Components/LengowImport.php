@@ -222,7 +222,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::updateDateImport($this->typeImport);
             }
             // check Lengow catalogs for order synchronisation
-            if (!$this->preprodMode && !$this->importOneOrder && $this->typeImport === 'manual') {
+            if (!$this->importOneOrder && $this->typeImport === 'manual') {
                 Shopware_Plugins_Backend_Lengow_Components_LengowSync::syncCatalog();
             }
             // start order synchronisation

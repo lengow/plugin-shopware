@@ -206,9 +206,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             'lengowImportDays' => array(
                 'type' => 'number',
                 'label' => 'settings/lengow_import_settings/import_days/label',
-                'value' => 5,
-                'minValue' => 0,
-                'maxValue' => 99,
+                'value' => 3,
+                'minValue' => 1,
+                'maxValue' => 30,
                 'editable' => false,
                 'description' => 'settings/lengow_import_settings/import_days/description'
             ),
