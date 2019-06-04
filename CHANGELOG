@@ -9,6 +9,7 @@ Version 1.4.0
     - Bugfix: Recovery of Shopware version with parameters for versions above 5.4
     - Bugfix: [export] Improved deletion of duplicate headers
     - Bugfix: [action] Management of orders waiting to return from the marketplace
+    - Bugfix: Update of the lengow_order table directly after the creation of the Shopware order
 
 =============================================================
 Version 1.3.3

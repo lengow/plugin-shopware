@@ -198,10 +198,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             if ($this->Request()->getParam('get_sync') == 1) {
                 echo json_encode(Shopware_Plugins_Backend_Lengow_Components_LengowSync::getSyncData());
             } else {
-                $force = false;
-                if ($this->Request()->getParam('force')) {
-                    $force = (bool)$this->Request()->getParam('force');
-                }
+                $force = $this->Request()->getParam('force') == 1 ? true : false;
                 $sync = $this->Request()->getParam('sync', false);
                 // sync catalogs id between Lengow and Shopware
                 if (!$sync || $sync === 'catalog') {
@@ -210,11 +207,11 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 // sync orders between Lengow and Shopware
                 if (!$sync || $sync === 'order') {
                     $params = array();
-                    if ($this->Request()->getParam('preprod_mode')) {
-                        $params['preprod_mode'] = (bool)$this->Request()->getParam('preprod_mode');
+                    if ($this->Request()->getParam('preprod_mode') != null) {
+                        $params['preprod_mode'] = $this->Request()->getParam('preprod_mode') == 1 ? true : false;
                     }
-                    if ($this->Request()->getParam('log_output')) {
-                        $params['log_output'] = (bool)$this->Request()->getParam('log_output');
+                    if ($this->Request()->getParam('log_output') != null) {
+                        $params['log_output'] = $this->Request()->getParam('log_output') == 1 ? true : false;
                     }
                     if ($this->Request()->getParam('days')) {
                         $params['days'] = (int)$this->Request()->getParam('days');

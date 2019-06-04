@@ -415,7 +415,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 );
             }
             // create a Shopware order
-            $order = $this->createOrder($customer, $articles);
+            $order = $this->createOrder($customer, $articles, $lengowOrder);
             if (!$order) {
                 throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
@@ -430,26 +430,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log/import/order_successfully_imported',
                         array('order_id' => $order->getNumber())
-                    ),
-                    $this->logOutput,
-                    $this->marketplaceSku
-                );
-                // update Lengow order with new data
-                $orderProcessState = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderProcessState(
-                    $this->orderStateLengow
-                );
-                $lengowOrder->setOrder($order)
-                    ->setOrderSku($order->getNumber())
-                    ->setOrderProcessState($orderProcessState)
-                    ->setOrderLengowState($this->orderStateLengow)
-                    ->setInError(false)
-                    ->setUpdatedAt(new DateTime())
-                    ->setExtra(json_encode($this->orderData));
-                $this->entityManager->flush($lengowOrder);
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Import',
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                        'log/import/lengow_order_updated'
                     ),
                     $this->logOutput,
                     $this->marketplaceSku
@@ -483,7 +463,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
         }
         if (isset($errorMessage)) {
-            Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::createOrderError($lengowOrder, $errorMessage);
+            if ($lengowOrder->isInError()) {
+                Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::createOrderError(
+                    $lengowOrder,
+                    $errorMessage
+                );
+            }
             $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
                 $errorMessage
             );
@@ -551,6 +536,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $this->marketplaceSku
         );
         // get a record in the lengow order table
+        /** @var Shopware\CustomModels\Lengow\Order $lengowOrder */
         $lengowOrder = $this->entityManager->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(array('order' => $order));
         $result = array('order_lengow_id' => $lengowOrder->getId());
@@ -1063,10 +1049,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
      *
      * @param Shopware\Models\Customer\Customer $customer Shopware customer instance
      * @param array $articles Shopware articles
+     * @param \Shopware\CustomModels\Lengow\Order $lengowOrder Lengow order instance
      *
      * @return Shopware\Models\Order\Order|false
      */
-    protected function createOrder($customer, $articles)
+    protected function createOrder($customer, $articles, $lengowOrder)
     {
         try {
             // get Lengow payment method
@@ -1079,6 +1066,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 'lengowImportDefaultDispatcher',
                 $this->shop
             );
+            /** @var Shopware\Models\Dispatch\Dispatch $dispatch */
             $dispatch = $this->entityManager->getReference('Shopware\Models\Dispatch\Dispatch', $dispatchId);
             $dispatchTax = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getDispatchTax($dispatch);
             $taxPercent = (float)$dispatchTax->getTax();
@@ -1132,9 +1120,30 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             );
             Shopware()->Db()->insert('s_order', $orderParams);
             // get temporary order
+            /** @var Shopware\Models\Order\Order $order */
             $order = Shopware()->Models()
                 ->getRepository('Shopware\Models\Order\Order')
                 ->findOneBy(array('number' => $orderNumber));
+            // update Lengow order with new data
+            $orderProcessState = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderProcessState(
+                $this->orderStateLengow
+            );
+            $lengowOrder->setOrder($order)
+                ->setOrderSku($order->getNumber())
+                ->setOrderProcessState($orderProcessState)
+                ->setOrderLengowState($this->orderStateLengow)
+                ->setInError(false)
+                ->setUpdatedAt(new DateTime())
+                ->setExtra(json_encode($this->orderData));
+            $this->entityManager->flush($lengowOrder);
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                'Import',
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/import/lengow_order_updated'
+                ),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
             // get and set order attributes is from lengow
             $orderAttribute = new Shopware\Models\Attribute\Order();
             $orderAttribute->setLengowIsFromLengow(true);
@@ -1310,6 +1319,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         try {
             $orderLineSaved = '';
             foreach ($articles as $articleDetailId => $articleDetailData) {
+                /** @var Shopware\Models\Article\Detail $articleDetail */
                 $articleDetail = $this->entityManager->getReference('Shopware\Models\Article\Detail', $articleDetailId);
                 // Create Lengow order line entity
                 foreach ($articleDetailData['order_line_ids'] as $orderLineId) {
