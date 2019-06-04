@@ -274,7 +274,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         $forms = array($mainSettingForm, $exportSettingForm, $importSettingForm, $orderStatusSettingForm);
         $mainForm->setChildren($forms);
         // Translate sub categories (sub-forms settings names)
-        // @var \Shopware\Models\Shop\Locale[] $locales
+        /** @var Shopware\Models\Shop\Locale[] $locales */
         $locales = $this->entityManager->getRepository('\Shopware\Models\Shop\Locale')->findAll();
         foreach ($forms as $form) {
             $formName = $form->getName();
@@ -339,7 +339,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             $form->setLabel($this->getTranslation('settings/' . $name . '/label'));
             $form->setDescription($this->getTranslation('settings/' . $name . '/description'));
         }
-        // @var Shopware\Models\Shop\Locale[] $locales
+        /** @var Shopware\Models\Shop\Locale[] $locales */
         $locales = $this->entityManager->getRepository('\Shopware\Models\Shop\Locale')->findAll();
         foreach ($elements as $key => $options) {
             $type = $options['type'];
@@ -395,7 +395,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
      */
     protected function getDispatches()
     {
-        // @var Shopware\Models\Dispatch\Dispatch[] $dispatches
+        /** @var Shopware\Models\Dispatch\Dispatch[] $dispatches */
         $dispatches = $this->entityManager->getRepository('Shopware\Models\Dispatch\Dispatch')
             ->findBy(array('type' => 0));
         $selection = array();
@@ -422,14 +422,14 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
     {
         $selection = array();
         $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
-        // @var Shopware\Models\Dispatch\Dispatch[] $dispatches
+        /** @var Shopware\Models\Order\Status[] $orderStates */
         $orderStates = $this->entityManager->getRepository('Shopware\Models\Order\Status')
             ->findBy(array('group' => 'state'));
         // Default dispatcher used to get shipping fees in export
         foreach ($orderStates as $orderState) {
             if ($orderState->getId() != -1) {
                 if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.5.0')) {
-                    // @var Shopware\Models\Snippet\Snippet $orderStateSnippet
+                    /** @var Shopware\Models\Snippet\Snippet $orderStateSnippet */
                     $orderStateSnippet = $this->entityManager->getRepository('Shopware\Models\Snippet\Snippet')
                         ->findOneBy(
                             array(

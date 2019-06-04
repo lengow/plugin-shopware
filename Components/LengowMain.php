@@ -279,7 +279,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Get list of shops (active or not)
      *
-     * @return array
+     * @return Shopware\Models\Shop\Shop[]
      */
     public static function getShops()
     {
@@ -290,7 +290,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Get Shopware active shops
      *
-     * @return array
+     * @return Shopware\Models\Shop\Shop[]
      */
     public static function getActiveShops()
     {
@@ -301,7 +301,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Get list of shops that have been activated in Lengow
      *
-     * @return array
+     * @return Shopware\Models\Shop\Shop[]
      */
     public static function getLengowActiveShops()
     {
@@ -577,6 +577,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         $params = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0')
             ? array('name' => 'lengow_technical_error')
             : array('description' => 'Technischer Fehler - Lengow');
+        /** @var Shopware\Models\Order\Status $orderStatus */
         $orderStatus = Shopware()->Models()->getRepository('Shopware\Models\Order\Status')->findOneBy($params);
         return $orderStatus;
     }

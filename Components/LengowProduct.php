@@ -486,6 +486,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 $breadcrumb = $category->getName();
                 $categoryId = (int)$category->getParentId();
                 for ($i = 0; $i < count($categoryPath) - 2; $i++) {
+                    /** @var Shopware\Models\Category\Category $category */
                     $category = Shopware()->Models()->getReference(
                         'Shopware\Models\Category\Category',
                         (int)$categoryId
@@ -638,8 +639,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 'lengowDefaultDispatcher',
                 $this->shop
             );
-            // @var Shopware\Models\Dispatch\Dispatch $dispatch
+            /** @var Shopware\Models\Dispatch\Dispatch $dispatch */
             $dispatch = $em->getReference('Shopware\Models\Dispatch\Dispatch', $dispatchId);
+            /** @var Shopware\Models\Category\Category[] $blockedCategories */
             $blockedCategories = $dispatch->getCategories();
             if ($this->getCategoryStatus($blockedCategories)) {
                 // Check that article price is in bind prices
@@ -693,13 +695,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Check if the category the article belongs is blocked for this dispatch
      *
-     * @param Shopware\Models\Category\Category $blockedCategories Shopware category instance
+     * @param Shopware\Models\Category\Category[] $blockedCategories Shopware category instance
      *
      * @return boolean
      */
     private function getCategoryStatus($blockedCategories)
     {
-        // @var Shopware\Models\Category\Category[] $articleCategories
+        /** @var Shopware\Models\Category\Category[] $articleCategories */
         $articleCategories = $this->article->getCategories();
         $result = true;
         foreach ($articleCategories as $aCategory) {
@@ -707,7 +709,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 if ($aCategory->getId() == $bCategory->getId()) {
                     $result = false;
                 } elseif (!$bCategory->isLeaf()) {
-                    $result = $result && $this->getCategoryStatus($bCategory->getChildren());
+                    /** @var Shopware\Models\Category\Category[] $categories */
+                    $categories = $bCategory->getChildren();
+                    $result = $result && $this->getCategoryStatus($categories);
                 }
             }
         }
@@ -763,6 +767,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             try {
                 $articleId = $ids[0];
                 $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+                /** @var Shopware\Models\Article\Article $article */
                 $article = $em->find('Shopware\Models\Article\Article', $articleId);
             } catch (Exception $e) {
                 $article = null;
@@ -788,6 +793,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $parentId = $ids[0];
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         try {
+            /** @var Shopware\Models\Article\Article $article */
             $article = $em->find('Shopware\Models\Article\Article', $parentId);
         } catch (Exception $e) {
             $article = null;
@@ -810,6 +816,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     'id' => $detailId,
                     'articleId' => $parentId
                 );
+                /** @var Shopware\Models\Article\Detail $variation */
                 $variation = $em->getRepository('Shopware\Models\Article\Detail')->findOneBy($criteria);
                 $result = array(
                     'id' => $variation->getId(),
@@ -833,6 +840,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $criteria = array($field => $value);
+        /** @var Shopware\Models\Article\Detail[] $result */
         $result = $em->getRepository('Shopware\Models\Article\Detail')->findBy($criteria);
         $total = count($result);
         if ($total == 1) {

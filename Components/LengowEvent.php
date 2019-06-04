@@ -116,6 +116,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
             if (Shopware_Plugins_Backend_Lengow_Components_LengowOrder::isFromLengow($data['id'])
                 && array_key_exists($data['id'], self::$orderChanged)
             ) {
+                /** @var Shopware\Models\Order\Order $order */
                 $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')
                     ->findOneBy(array('id' => $data['id']));
                 // Call Lengow API WSDL to send ship or cancel actions
@@ -146,6 +147,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
                 $orderId = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderIdByNumber($orderId);
             }
             if ($orderId && Shopware_Plugins_Backend_Lengow_Components_LengowOrder::isFromLengow((int)$orderId)) {
+                /** @var Shopware\Models\Order\Order $order */
                 $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')
                     ->findOneBy(array('id' => $orderId));
                 // Call Lengow API WSDL to send ship or cancel actions

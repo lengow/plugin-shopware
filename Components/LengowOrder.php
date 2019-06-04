@@ -73,6 +73,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             );
         $result['orderId'] = $builder->getQuery()->getOneOrNullResult();
         if (!is_null($result['orderId'])) {
+            /** @var Shopware\Models\Order\Order $order */
             $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')
                 ->findOneBy(array('id' => $result['orderId']));
             if (!is_null($order)) {
@@ -624,6 +625,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      */
     public static function cancelAndReImportOrder($order)
     {
+        /** @var Shopware\CustomModels\Lengow\Order $lengowOrder */
         $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(array('order' => $order));
         if (is_null($lengowOrder)) {
@@ -692,6 +694,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     public static function callAction($order, $action)
     {
         $success = true;
+        /** @var Shopware\CustomModels\Lengow\Order $lengowOrder */
         $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(array('order' => $order));
         if (is_null($lengowOrder)) {

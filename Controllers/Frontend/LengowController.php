@@ -82,9 +82,11 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             die(Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage('log/export/specify_shop'));
         }
         $em = Shopware()->Models();
+        /** @var Shopware\Models\Shop\Shop $shop */
         $shop = $em->getRepository('Shopware\Models\Shop\Shop')->find($shopId);
         // a shop with this name exist
         if (is_null($shop)) {
+            /** @var Shopware\Models\Shop\Shop[] $shops */
             $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
             $index = count($shops);
             $shopsIds = '[';

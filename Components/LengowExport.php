@@ -381,6 +381,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             if ($this->limit != null && $this->limit <= $displayedProducts) {
                 break;
             }
+            /** @var Shopware\Models\Article\Detail $detail */
             $detail = $this->em->getReference('Shopware\Models\Article\Detail', $article['detailId']);
             $product = new Shopware_Plugins_Backend_Lengow_Components_LengowProduct(
                 $detail,
