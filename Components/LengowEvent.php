@@ -116,6 +116,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
             if (Shopware_Plugins_Backend_Lengow_Components_LengowOrder::isFromLengow($data['id'])
                 && array_key_exists($data['id'], self::$orderChanged)
             ) {
+                /** @var Shopware\Models\Order\Order $order */
                 $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')
                     ->findOneBy(array('id' => $data['id']));
                 // Call Lengow API WSDL to send ship or cancel actions
@@ -146,6 +147,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
                 $orderId = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderIdByNumber($orderId);
             }
             if ($orderId && Shopware_Plugins_Backend_Lengow_Components_LengowOrder::isFromLengow((int)$orderId)) {
+                /** @var Shopware\Models\Order\Order $order */
                 $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')
                     ->findOneBy(array('id' => $orderId));
                 // Call Lengow API WSDL to send ship or cancel actions
@@ -168,14 +170,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
     public static function onFrontendCheckoutPostDispatch($args)
     {
         $request = $args->getSubject()->Request();
-        if ($request->getActionName() === 'finish') {
-            $session = Shopware()->Session();
+        if ($request->getActionName() === 'finish'
+            && (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowTrackingEnable')
+        ) {
+            $sOrderVariables = Shopware()->Session()->offsetGet('sOrderVariables')->getArrayCopy();
             // Get all tracker variables
             $accountId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAccountId');
             $trackingId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowTrackingId');
-            if (!empty($session['sOrderVariables']) && $accountId > 0) {
+            if (!empty($sOrderVariables) && $accountId > 0) {
                 // Get all tracker variables
-                $sOrderVariables = $session['sOrderVariables']->getArrayCopy();
                 $payment = isset($sOrderVariables['sPayment']) ? $sOrderVariables['sPayment'] : '';
                 $articleCart = array();
                 $articles = isset($sOrderVariables['sBasket']['content'])

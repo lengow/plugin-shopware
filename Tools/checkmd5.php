@@ -25,6 +25,7 @@ $filePaths = array(
     $base.'/description.html',
     $base.'/plugin.json',
     $base.'/plugin.php',
+    $base.'/Config/index.php',
     $base.'/Snippets/backend/Lengow/translation.ini',
 );
 

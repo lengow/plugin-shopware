@@ -135,7 +135,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $newVersion  = $this->getVersion();
         self::log('log/update/start', array('old_version' => $version, 'new_version' => $newVersion));
         $lengowForm = new Shopware_Plugins_Backend_Lengow_Bootstrap_Form();
-        $lengowForm->createConfig($this->Form());
+        $lengowForm->createConfig($this->Form(), $version);
         $lengowForm->removeOldSettings();
         $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
         $lengowDatabase->updateSchema();

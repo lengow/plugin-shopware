@@ -295,7 +295,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $result = array();
         // If the root is selected, return list of enabled shops
         if ($parentId == 'root') {
-            // @var Shopware\Models\Shop\Shop[] $shops
+            /** @var Shopware\Models\Shop\Shop[] $shops */
             $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
             foreach ($shops as $shop) {
                 $mainCategory = $shop->getCategory();
@@ -312,11 +312,12 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                 $shopId = $ids[0];
                 $categoryId = $ids[1];
             } else {
+                /** @var Shopware\Models\Shop\Shop $shop */
                 $shop = $em->getReference('Shopware\Models\Shop\Shop', $parentId);
                 $shopId = $shop->getId();
                 $categoryId = $shop->getCategory()->getId();
             }
-            // @var \Shopware\Models\Category\Category $category
+            /** @var Shopware\Models\Category\Category $category */
             $category = $em->getReference('Shopware\Models\Category\Category', $categoryId);
             $categories = $category->getChildren();
             foreach ($categories as $category) {
@@ -350,6 +351,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $name = $this->Request()->getParam('name');
         $status = (int)($this->Request()->getParam('status') === 'true');
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        /** @var Shopware\Models\Shop\Shop $shop */
         $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
         Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig($name, $status, $shop);
     }
@@ -366,6 +368,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $shopId = $this->Request()->getParam('id');
         $configList = $this->Request()->getParam('configList');
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        /** @var Shopware\Models\Shop\Shop $shop */
         $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
         $names = json_decode($configList);
         $result = array();
@@ -402,6 +405,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     {
         $shopId = $this->Request()->getParam('shopId');
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        /** @var Shopware\Models\Shop\Shop $shop */
         $shop = $em->getRepository('Shopware\Models\Shop\Shop')->find($shopId);
         $shopToken = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop);
         $this->View()->assign(

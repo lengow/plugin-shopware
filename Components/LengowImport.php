@@ -222,7 +222,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::updateDateImport($this->typeImport);
             }
             // check Lengow catalogs for order synchronisation
-            if (!$this->preprodMode && !$this->importOneOrder && $this->typeImport === 'manual') {
+            if (!$this->importOneOrder && $this->typeImport === 'manual') {
                 Shopware_Plugins_Backend_Lengow_Components_LengowSync::syncCatalog();
             }
             // start order synchronisation
@@ -715,6 +715,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 }
                 // Sync to lengow if no preprod_mode
                 if (!$this->preprodMode && isset($order['order_new']) && $order['order_new'] == true) {
+                    /** @var Shopware\Models\Order\Order $shopwareOrder */
                     $shopwareOrder = Shopware()->Models()->getRepository('\Shopware\Models\Order\Order')
                         ->findOneBy(array('id' => $order['order_id']));
                     $synchro = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::synchronizeOrder(

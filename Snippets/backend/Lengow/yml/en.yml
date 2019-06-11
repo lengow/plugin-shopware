@@ -95,9 +95,12 @@ en:
       ip:
         label: "Authorised IPs"
         description: "Authorise IP to get access to your export feed.\nSeparate them ' ; '"
-      tracking:
+      tracking_enable:
+        label: "Enable Lengow tracking"
+        description: "This tracker allows you to retrieve order statistics generated on your site directly in Lengow."
+      tracking_id:
         label: "Tracker Product ID"
-        description: "Select the product ID you want to send to the Lengow tracker"
+        description: "The name of the unique identifier entered in the Lengow"
     lengow_export_settings:
       label: "Export settings"
       description: "Define the settings to create your feed."

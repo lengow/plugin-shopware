@@ -264,8 +264,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 && isset($apiActions[$action['actionId']]->errors)
             ) {
                 if ($apiActions[$action['actionId']]->queued == false) {
+                    // Order action is waiting to return from the marketplace
+                    if ($apiActions[$action['actionId']]->processed == false
+                        && empty($apiActions[$action['actionId']]->errors)
+                    ) {
+                        continue;
+                    }
                     // Finish action in lengow_action table
                     self::finishAction($action['id']);
+                    /** @var Shopware\CustomModels\Lengow\Order $lengowOrder */
                     $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
                         ->findOneBy(array('orderId' => $action['orderId']));
                     if ($lengowOrder) {
@@ -276,7 +283,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                         );
                         if ($lengowOrder->getOrderProcessState() != $processStateFinish) {
                             // If action is accepted -> close order and finish all order actions
-                            if ($apiActions[$action['actionId']]->processed == true) {
+                            if ($apiActions[$action['actionId']]->processed == true
+                                && empty($apiActions[$action['actionId']]->errors)
+                            ) {
                                 $lengowOrder->setOrderProcessState($processStateFinish);
                                 self::finishAllActions($lengowOrder->getOrder()->getId());
                             } else {
@@ -361,6 +370,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
         if (count($results) > 0) {
             foreach ($results as $action) {
                 self::finishAction($action['id']);
+                /** @var Shopware\CustomModels\Lengow\Order $lengowOrder */
                 $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
                     ->findOneBy(array('orderId' => $action['orderId']));
                 if ($lengowOrder) {
@@ -434,6 +444,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
         $unsentOrders = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getUnsentOrders();
         if ($unsentOrders) {
             foreach ($unsentOrders as $idOrder => $actionType) {
+                /** @var Shopware\Models\Order\Order $order */
                 $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')->find($idOrder);
                 Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, $actionType);
             }

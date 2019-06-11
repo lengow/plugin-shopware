@@ -392,6 +392,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
     protected function getCountryByIso($countryIso)
     {
         $isoCode = strtoupper(substr(str_replace(' ', '', $countryIso), 0, 2));
+        /** @var Shopware\Models\Country\Country $country */
         $country = Shopware()->Models()
             ->getRepository('Shopware\Models\Country\Country')
             ->findOneBy(array('iso' => $isoCode));

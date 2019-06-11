@@ -47,7 +47,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         'lengowAccountStatus',
         'lengowOrderStat',
         'lengowOrderStatUpdate',
-        'lengowOptionCmsUpdate'
+        'lengowOptionCmsUpdate',
+        'lengowMarketplaceUpdate',
     );
 
     /**
@@ -145,7 +146,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     public static function getDefaultShop()
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        return $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
+        /** @var Shopware\Models\Shop\Shop $shop */
+        $shop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
+        return $shop;
     }
 
     /**
@@ -371,8 +374,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     private function insert($value, $shopId, $elementId)
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        // @var Shopware\Models\Config\Element $element
+        /** @var Shopware\Models\Config\Element $element */
         $element = $em->getReference('Shopware\Models\Config\Element', $elementId);
+        /** @var Shopware\Models\Shop\Shop $shop */
         $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
         $option = new Shopware\Models\Config\Value();
         $option->setElement($element)
@@ -396,6 +400,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'lengowSecretToken' => array('global' => true),
             'lengowIpEnabled' => array('global' => true),
             'lengowAuthorizedIp' => array('global' => true),
+            'lengowTrackingEnable' => array('global' => true),
             'lengowTrackingId' => array('global' => true),
             'lengowShopToken' => array('shop' => true),
             'lengowShopActive' => array('shop' => true),

@@ -83,6 +83,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static $logLife = 20;
 
     /**
+     * @var string Lengow configuration folder name
+     */
+    public static $lengowConfigFolder = 'Config';
+
+    /**
      * @var Shopware_Components_Translation Shopware translation instance
      */
     public static $translation;
@@ -125,7 +130,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function compareVersion($versionToCompare, $operator = '>=')
     {
-        return version_compare(Shopware::VERSION, $versionToCompare, $operator);
+        return version_compare(self::getShopwareVersion(), $versionToCompare, $operator);
     }
 
     /**
@@ -241,6 +246,25 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
+     * Get Shopware version
+     *
+     * @return string
+     */
+    public static function getShopwareVersion()
+    {
+        $shopwareVersion = '';
+        // get release version via parameters for Shopware versions greater than 5.4
+        if (Shopware()->Container()->hasParameter('shopware.release.version')) {
+            $shopwareVersion = Shopware()->Container()->getParameter('shopware.release.version');
+        }
+        // get release version via the constant for older versions of Shopware
+        if (empty($shopwareVersion) && defined('Shopware::VERSION')) {
+            $shopwareVersion = Shopware::VERSION;
+        }
+        return $shopwareVersion;
+    }
+
+    /**
      * Get the path of the plugin
      *
      * @return string
@@ -255,7 +279,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Get list of shops (active or not)
      *
-     * @return array
+     * @return Shopware\Models\Shop\Shop[]
      */
     public static function getShops()
     {
@@ -266,7 +290,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Get Shopware active shops
      *
-     * @return array
+     * @return Shopware\Models\Shop\Shop[]
      */
     public static function getActiveShops()
     {
@@ -277,7 +301,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Get list of shops that have been activated in Lengow
      *
-     * @return array
+     * @return Shopware\Models\Shop\Shop[]
      */
     public static function getLengowActiveShops()
     {
@@ -553,6 +577,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         $params = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0')
             ? array('name' => 'lengow_technical_error')
             : array('description' => 'Technischer Fehler - Lengow');
+        /** @var Shopware\Models\Order\Status $orderStatus */
         $orderStatus = Shopware()->Models()->getRepository('Shopware\Models\Order\Status')->findOneBy($params);
         return $orderStatus;
     }

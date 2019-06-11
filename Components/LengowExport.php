@@ -381,6 +381,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             if ($this->limit != null && $this->limit <= $displayedProducts) {
                 break;
             }
+            /** @var Shopware\Models\Article\Detail $detail */
             $detail = $this->em->getReference('Shopware\Models\Article\Detail', $article['detailId']);
             $product = new Shopware_Plugins_Backend_Lengow_Components_LengowProduct(
                 $detail,
@@ -455,28 +456,52 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     private function getFields()
     {
         $fields = array();
+        // Check field name to avoid duplicates
+        $formattedFields = array();
         foreach (self::$defaultFields as $key => $value) {
             $fields[] = $key;
+            $formattedFields[] = Shopware_Plugins_Backend_Lengow_Components_LengowFeed::formatFields(
+                $key,
+                $this->format
+            );
         }
+        // Get all article variations
         $variations = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAllVariations();
         foreach ($variations as $variation) {
             $variationName = strtolower($variation['name']);
-            if (!in_array($variationName, $fields)) {
+            $formattedFeature = Shopware_Plugins_Backend_Lengow_Components_LengowFeed::formatFields(
+                $variationName,
+                $this->format
+            );
+            if (!in_array($formattedFeature, $formattedFields)) {
                 $fields[] = $variationName;
+                $formattedFields[] = $formattedFeature;
             }
         }
+        // Get all free text fields
         $attributes = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAllAttributes();
         foreach ($attributes as $attribute) {
             $attributeLabel = 'free_' . strtolower($attribute['label']);
-            if (!in_array($attributeLabel, $fields)) {
+            $formattedAttribute = Shopware_Plugins_Backend_Lengow_Components_LengowFeed::formatFields(
+                $attributeLabel,
+                $this->format
+            );
+            if (!in_array($formattedAttribute, $formattedFields)) {
                 $fields[] = $attributeLabel;
+                $formattedFields[] = $formattedAttribute;
             }
         }
+        // Get all articles properties
         $properties = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::getAllProperties();
         foreach ($properties as $property) {
             $propertyName = 'prop_' . strtolower($property['name']);
-            if (!in_array($propertyName, $fields)) {
+            $formattedProperty = Shopware_Plugins_Backend_Lengow_Components_LengowFeed::formatFields(
+                $propertyName,
+                $this->format
+            );
+            if (!in_array($formattedProperty, $formattedFields)) {
                 $fields[] = $propertyName;
+                $formattedFields[] = $formattedProperty;
             }
         }
         return $fields;
@@ -492,9 +517,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         $articlesByParent = array();
         $articleToExport = array();
         $selection = array(
-            'articles.id AS parentId',
+            'article.id AS articleId',
             'configurator.id AS isParent',
             'details.id AS detailId',
+            'details.number AS detailNumber',
             'details.kind AS kind',
         );
         $builder = $this->em->createQueryBuilder();
@@ -502,10 +528,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             ->from('Shopware\Models\Shop\Shop', 'shop')
             ->leftJoin('shop.category', 'mainCategory')
             ->leftJoin('mainCategory.allArticles', 'categories')
-            ->leftJoin('categories.attribute', 'attributes')
+            ->leftJoin('categories.attribute', 'attribute')
             ->leftJoin('categories.details', 'details')
-            ->leftJoin('details.article', 'articles')
-            ->leftJoin('articles.configuratorSet', 'configurator')
+            ->leftJoin('details.article', 'article')
+            ->leftJoin('article.configuratorSet', 'configurator')
             ->where('shop.id = :shopId')
             ->setParameter('shopId', $this->shop->getId());
         // Product ids selection
@@ -513,7 +539,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $condition = '(';
             $idx = 0;
             foreach ($this->productIds as $productId) {
-                $condition .= 'articles.id = ' . $productId;
+                $condition .= 'article.id = ' . $productId;
                 if ($idx < (count($this->productIds) - 1)) {
                     $condition .= ' OR ';
                 }
@@ -524,11 +550,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         }
         // Export disabled product
         if (!$this->inactive) {
-            $builder->andWhere('articles.active = 1');
+            $builder->andWhere('article.active = 1');
         }
         // Export only Lengow products
         if ($this->selection) {
-            $builder->andWhere('attributes.lengowShop' . $this->shop->getId() . 'Active = 1');
+            $builder->andWhere('attribute.lengowShop' . $this->shop->getId() . 'Active = 1');
         }
         // Export out of stock products
         if (!$this->outOfStock) {
@@ -542,41 +568,51 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             ->orderBy('categories.id')
             ->groupBy('categories.id', 'details.id');
         $articles = $builder->getQuery()->getArrayResult();
-
         // Get parent foreach article
         foreach ($articles as $article) {
             if (is_null($article['isParent'])) {
-                $articlesByParent[$article['parentId']] = array(
+                // Get simple product
+                $articlesByParent[$article['articleId']] = array(
                     'type' => 'simple',
-                    'detailId' => $article['detailId']
+                    'articleId' => $article['articleId'],
+                    'detailId' => $article['detailId'],
+                    'detailNumber' => $article['detailNumber'],
                 );
             } else {
-                if (!array_key_exists($article['parentId'], $articlesByParent)) {
-                    $articlesByParent[$article['parentId']] = array(
+                // Get parent product and variations
+                if (!array_key_exists($article['articleId'], $articlesByParent)) {
+                    // Create parent with the first variation if not exist
+                    $articlesByParent[$article['articleId']] = array(
                         'type' => 'parent',
                         'childs' => array($article),
-                        'detailId' => $article['detailId'],
                     );
                 } else {
-                    $articlesByParent[$article['parentId']]['childs'][] = $article;
+                    // Insert variation for a specific parent
+                    $articlesByParent[$article['articleId']]['childs'][] = $article;
                 }
                 if ($article['kind'] == 1) {
-                    $articlesByParent[$article['parentId']]['detailId'] = $article['detailId'];
+                    // Get detailId and detailNumber for parent
+                    $articlesByParent[$article['articleId']]['detailId'] = $article['detailId'];
+                    $articlesByParent[$article['articleId']]['detailNumber'] = $article['detailNumber'];
                 }
             }
-
         }
-        foreach ($articlesByParent as $parentArticle) {
+        // Add articleId and detailNumber only for debug
+        foreach ($articlesByParent as $articleId => $parentArticle) {
             if ($parentArticle['type'] == 'parent') {
                 $articleToExport[] = array(
                     'type' => 'parent',
-                    'detailId' => $parentArticle['detailId']
+                    'articleId' => $articleId,
+                    'detailId' => $parentArticle['detailId'],
+                    'detailNumber' => $parentArticle['detailNumber'],
                 );
                 if ($this->variation) {
                     foreach ($parentArticle['childs'] as $child) {
                         $articleToExport[] = array(
                             'type' => 'child',
+                            'articleId' => $articleId,
                             'detailId' => $child['detailId'],
+                            'detailNumber' => $child['detailNumber'],
                         );
                     }
                 }

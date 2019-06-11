@@ -304,6 +304,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             foreach ($return['error'] as $shopId => $values) {
                 if ((int)$shopId > 0) {
                     $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+                    /** @var Shopware\Models\Shop\Shop $shop */
                     $shop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('id' => (int)$shopId));
                     $shopName = !is_null($shop) ? $shop->getName() . ' : ' :  '';
                     $error = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($values, $locale);
@@ -321,6 +322,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     {
         $orderId = $this->Request()->getParam('orderId');
         $action = $this->Request()->getParam('actionName');
+        /** @var Shopware\Models\Order\Order $order */
         $order = Shopware()->Models()->getRepository('\Shopware\Models\Order\Order')
             ->findOneBy(array('id' => $orderId));
         $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, $action);
@@ -338,6 +340,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     public function synchronizeAction()
     {
         $orderId = $this->Request()->getParam('orderId');
+        /** @var Shopware\Models\Order\Order $order */
         $order = Shopware()->Models()
             ->getRepository('\Shopware\Models\Order\Order')
             ->findOneBy(array('id' => $orderId));
@@ -356,6 +359,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     public function cancelAndReImportAction()
     {
         $orderId = $this->Request()->getParam('orderId');
+        /** @var Shopware\Models\Order\Order $order */
         $order = Shopware()->Models()
             ->getRepository('\Shopware\Models\Order\Order')
             ->findOneBy(array('id' => $orderId));
@@ -378,6 +382,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         if (!$lengowOrderId) {
             $lengowOrderId = $this->Request()->getParam('lengowOrderId');
         }
+        /** @var Shopware\CustomModels\Lengow\Order $lengowOrder */
         $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(array('id' => $lengowOrderId));
         $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::reImportOrder($lengowOrder);
@@ -399,6 +404,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         if (!$lengowOrderId) {
             $lengowOrderId = $this->Request()->getParam('lengowOrderId');
         }
+        /** @var Shopware\CustomModels\Lengow\Order $lengowOrder */
         $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(array('id' => $lengowOrderId));
         $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::reSendOrder($lengowOrder);

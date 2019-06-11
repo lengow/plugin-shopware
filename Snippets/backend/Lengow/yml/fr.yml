@@ -95,9 +95,12 @@ fr:
       ip:
         label: "IP autorisée(s)"
         description: "IP autorisée(s) à accéder à votre flux d'export.\nSéparez-les par ' ; '"
-      tracking:
+      tracking_enable:
+        label: "Activer le tracker Lengow"
+        description: "Ce tracker vous permet de récupérer les statistiques de commandes de votre site directement sur la plateforme Lengow."
+      tracking_id:
         label: "Tracker ID produit"
-        description: "Sélectionnez l'ID produit que vous souhaitez envoyer au Tracker Lengow"
+        description: "Le nom de l'identifiant unique indiqué dans Lengow"
     lengow_export_settings:
       label: "Paramètres d'export"
       description: "Définissez les paramètres pour créer votre flux."

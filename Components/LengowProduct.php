@@ -105,9 +105,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     protected $properties;
 
     /**
-     * @var Shopware\Models\Article\Price Shopware article price instance
+     * @var array all product prices
      */
-    protected $price;
+    protected $prices;
 
     /**
      * @var array all product images
@@ -137,7 +137,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $this->attributes = self::getArticleAttributes($this->detail->getId());
         $this->properties = self::getArticleProperties($this->article->getId());
         $this->translations = $this->getArticleTranslations();
-        $this->price = $this->getPrice();
+        $this->prices = $this->getPrices();
         $this->images = $this->getImages();
     }
 
@@ -195,29 +195,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 return $shopUrl . $sep . 'detail' . $sep . 'index' . $sep
                     . 'sArticle' . $sep . $articleId . $sep . 'sCategory' . $sep . $categoryId;
             case 'price_excl_tax':
-                $price = $this->price->getPrice();
-                $discount = $this->price->getPercent();
-                $discExclTax = $price * (1 - ($discount / 100));
-                return number_format($discExclTax * $this->factor, 2);
             case 'price_incl_tax':
-                $price = $this->price->getPrice();
-                $discount = $this->price->getPercent();
-                $discInclTax = $price * (1 - ($discount / 100));
-                $tax = $this->article->getTax()->getTax();
-                $priceDiscInclTax = round($discInclTax * (100 + $tax) / 100, 2);
-                return number_format($priceDiscInclTax * $this->factor, 2);
             case 'price_before_discount_excl_tax':
-                $price = $this->price->getPrice();
-                $priceExclTax = round($price, 2);
-                return number_format($priceExclTax * $this->factor, 2);
             case 'price_before_discount_incl_tax':
-                $price = $this->price->getPrice();
-                $tax = $this->article->getTax()->getTax();
-                $priceInclTax = round($price * (100 + $tax) / 100, 2);
-                return number_format($priceInclTax * $this->factor, 2);
+                return number_format($this->prices[$name] * $this->factor, 2);
             case 'discount_percent':
-                $detailPrices = $this->detail->getPrices();
-                return number_format($detailPrices[0]->getPercent(), 2);
+                return number_format($this->prices[$name], 2);
             case 'discount_start_date':
                 return '';
             case 'discount_end_date':
@@ -503,6 +486,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 $breadcrumb = $category->getName();
                 $categoryId = (int)$category->getParentId();
                 for ($i = 0; $i < count($categoryPath) - 2; $i++) {
+                    /** @var Shopware\Models\Category\Category $category */
                     $category = Shopware()->Models()->getReference(
                         'Shopware\Models\Category\Category',
                         (int)$categoryId
@@ -517,21 +501,53 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     }
 
     /**
-     * Get main price of a product
+     * Get main price of a detail
      *
      * @return Shopware\Models\Article\Price
      */
-    private function getPrice()
+    private function getDetailPrice()
     {
-        $articlePrice = '';
+        $shopArticlePrice = false;
+        $defaultArticlePrice = false;
+        $shopCustomerGroupId = $this->shop->getCustomerGroup()->getId();
         $detailPrices = $this->detail->getPrices();
         foreach ($detailPrices as $price) {
-            if ($price->getCustomerGroup() == $this->shop->getCustomerGroup()) {
-                $articlePrice = $price;
-                break;
+            if ($price->getCustomerGroup() != null) {
+                if ($price->getCustomerGroup()->getId() === $shopCustomerGroupId) {
+                    $shopArticlePrice = $price;
+                }
+                // get default article price from EK customer group
+                if ($price->getCustomerGroup()->getKey() === 'EK') {
+                    $defaultArticlePrice = $price;
+                }
             }
         }
-        return $articlePrice;
+        return $shopArticlePrice ? $shopArticlePrice : $defaultArticlePrice;
+    }
+
+    /**
+     * Get prices for a product
+     *
+     * @return array
+     */
+    private function getPrices()
+    {
+        $detailPrice = $this->getDetailPrice();
+        $tax = $this->article->getTax()->getTax();
+        // get original price before discount
+        $priceExclTax = $detailPrice->getPrice();
+        $priceInclTax = $priceExclTax * (100 + $tax) / 100;
+        // get price with discount
+        $discount = $detailPrice->getPercent();
+        $discountPriceExclTax = $priceExclTax * (1 - ($discount / 100));
+        $discountPriceInclTax = $discountPriceExclTax * (100 + $tax) / 100;
+        return array(
+            'price_excl_tax' => round($discountPriceExclTax, 2),
+            'price_incl_tax' => round($discountPriceInclTax, 2),
+            'price_before_discount_excl_tax' => round($priceExclTax, 2),
+            'price_before_discount_incl_tax' => round($priceInclTax, 2),
+            'discount_percent' => $discount,
+        );
     }
 
     /**
@@ -623,8 +639,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 'lengowDefaultDispatcher',
                 $this->shop
             );
-            // @var Shopware\Models\Dispatch\Dispatch $dispatch
+            /** @var Shopware\Models\Dispatch\Dispatch $dispatch */
             $dispatch = $em->getReference('Shopware\Models\Dispatch\Dispatch', $dispatchId);
+            /** @var Shopware\Models\Category\Category[] $blockedCategories */
             $blockedCategories = $dispatch->getCategories();
             if ($this->getCategoryStatus($blockedCategories)) {
                 // Check that article price is in bind prices
@@ -678,13 +695,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Check if the category the article belongs is blocked for this dispatch
      *
-     * @param Shopware\Models\Category\Category $blockedCategories Shopware category instance
+     * @param Shopware\Models\Category\Category[] $blockedCategories Shopware category instance
      *
      * @return boolean
      */
     private function getCategoryStatus($blockedCategories)
     {
-        // @var Shopware\Models\Category\Category[] $articleCategories
+        /** @var Shopware\Models\Category\Category[] $articleCategories */
         $articleCategories = $this->article->getCategories();
         $result = true;
         foreach ($articleCategories as $aCategory) {
@@ -692,7 +709,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 if ($aCategory->getId() == $bCategory->getId()) {
                     $result = false;
                 } elseif (!$bCategory->isLeaf()) {
-                    $result = $result && $this->getCategoryStatus($bCategory->getChildren());
+                    /** @var Shopware\Models\Category\Category[] $categories */
+                    $categories = $bCategory->getChildren();
+                    $result = $result && $this->getCategoryStatus($categories);
                 }
             }
         }
@@ -748,6 +767,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             try {
                 $articleId = $ids[0];
                 $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+                /** @var Shopware\Models\Article\Article $article */
                 $article = $em->find('Shopware\Models\Article\Article', $articleId);
             } catch (Exception $e) {
                 $article = null;
@@ -773,6 +793,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $parentId = $ids[0];
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         try {
+            /** @var Shopware\Models\Article\Article $article */
             $article = $em->find('Shopware\Models\Article\Article', $parentId);
         } catch (Exception $e) {
             $article = null;
@@ -795,6 +816,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     'id' => $detailId,
                     'articleId' => $parentId
                 );
+                /** @var Shopware\Models\Article\Detail $variation */
                 $variation = $em->getRepository('Shopware\Models\Article\Detail')->findOneBy($criteria);
                 $result = array(
                     'id' => $variation->getId(),
@@ -818,6 +840,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $criteria = array($field => $value);
+        /** @var Shopware\Models\Article\Detail[] $result */
         $result = $em->getRepository('Shopware\Models\Article\Detail')->findBy($criteria);
         $total = count($result);
         if ($total == 1) {

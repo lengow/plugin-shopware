@@ -106,7 +106,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     {
         $this->stream = $stream;
         $this->format = $format;
-        $this->shopFolder = $this->formatFields($shopName);
+        $this->shopFolder = self::formatFields($shopName, $format);
         if (!$this->stream) {
             $this->initExportFile();
         }
@@ -181,7 +181,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
             case 'csv':
                 $header = '';
                 foreach ($data as $field) {
-                    $header .= self::PROTECTION . $this->formatFields($field) . self::PROTECTION . self::CSV_SEPARATOR;
+                    $header .= self::PROTECTION . self::formatFields($field, 'csv')
+                        . self::PROTECTION . self::CSV_SEPARATOR;
                 }
                 return rtrim($header, self::CSV_SEPARATOR) . self::EOL;
             case 'xml':
@@ -214,7 +215,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
             case 'xml':
                 $content = '<product>';
                 foreach ($data as $field => $value) {
-                    $field = $this->formatFields($field);
+                    $field = self::formatFields($field, 'xml');
                     $content .= '<' . $field . '><![CDATA[' . $value . ']]></' . $field . '>' . self::EOL;
                 }
                 $content .= '</product>' . self::EOL;
@@ -223,7 +224,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
                 $content = $isFirst ? '' : ',';
                 $jsonArray = array();
                 foreach ($data as $field => $value) {
-                    $field = $this->formatFields($field);
+                    $field = self::formatFields($field, 'json');
                     $jsonArray[$field] = $value;
                 }
                 $content .= json_encode($jsonArray);
@@ -232,7 +233,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
                 $content = '  ' . self::PROTECTION . 'product' . self::PROTECTION . ':' . self::EOL;
                 $fieldMaxSize = $this->getFieldMaxSize($data);
                 foreach ($data as $field => $value) {
-                    $field = $this->formatFields($field);
+                    $field = self::formatFields($field, 'yaml');
                     $content .= '    ' . self::PROTECTION . $field . self::PROTECTION . ':';
                     $content .= $this->indentYaml($field, $fieldMaxSize) . (string)$value . self::EOL;
                 }
@@ -344,12 +345,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
      * Format field names according to the given format
      *
      * @param string $str field name
+     * @param string $format export format
      *
      * @return string
      */
-    protected function formatFields($str)
+    public static function formatFields($str, $format)
     {
-        switch ($this->format) {
+        switch ($format) {
             case 'csv':
                 return substr(
                     preg_replace(
@@ -409,7 +411,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     {
         $maxSize = 0;
         foreach ($fields as $key => $field) {
-            $field = $this->formatFields($key);
+            $field = self::formatFields($key, 'yaml');
             if (strlen($field) > $maxSize) {
                 $maxSize = strlen($field);
             }
