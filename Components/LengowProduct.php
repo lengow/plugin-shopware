@@ -575,12 +575,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $isMediaManagerSupported = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0');
         $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 'https://' : 'http://';
         $domain = $isHttps . $_SERVER['SERVER_NAME'];
-        try {
-            foreach ($images as $image) {
+        foreach ($images as $image) {
+            try {
+                /** @var Shopware\Models\Media\Media $media */
                 $media = $variationHasImage ? $image->getParent()->getMedia() : $image->getMedia();
-                if ($media != null) {
+                if ($media !== null) {
                     if ($isMediaManagerSupported) {
-                        if ($media->getPath() != null) {
+                        if ($media->getPath() !== null) {
                             $mediaService = Shopware()->Container()->get('shopware_media.media_service');
                             // Get image virtual path (ie : .../media/image/0a/20/03/my-image.png)
                             $imagePath = $mediaService->getUrl($media->getPath());
@@ -588,25 +589,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                             $urls[] = $domain . substr($imagePath, $firstOccurrence);
                         }
                     } else {
-                        if ($media->getPath() != null) {
+                        if ($media->getPath() !== null) {
                             $urls[] = $domain . '/' . $media->getPath();
                         }
                     }
                 }
+            } catch (Exception $e) {
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                    'Warning',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                        'log/export/error_media_not_found',
+                        array(
+                            'detailId' => $this->detail->getNumber(),
+                            'articleName' => $this->article->getName(),
+                            'message' => $e->getMessage(),
+                        )
+                    ),
+                    $this->logOutput
+                );
+                continue;
             }
-        } catch (Exception $e) {
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Warning',
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'log/export/error_media_not_found',
-                    array(
-                        'detailId' => $this->detail->getNumber(),
-                        'articleName' => $this->article->getName(),
-                        'message' => $e->getMessage()
-                    )
-                ),
-                $this->logOutput
-            );
         }
         // Retrieves up to 10 images per product
         $counter = 1;
