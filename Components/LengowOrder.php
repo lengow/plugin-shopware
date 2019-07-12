@@ -378,7 +378,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      * @param \Shopware\Models\Order\Order $order Shopware order instance
      * @param \Shopware\CustomModels\Lengow\Order $lengowOrder Lengow order instance
      * @param string $orderStateLengow marketplace state
-     * @param mixed $orderData order data
      * @param mixed $packageData package data
      * @param boolean $logOutput output on screen
      *
@@ -386,7 +385,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      *
      * @return string|false
      */
-    public static function updateState($order, $lengowOrder, $orderStateLengow, $orderData, $packageData, $logOutput)
+    public static function updateState($order, $lengowOrder, $orderStateLengow, $packageData, $logOutput)
     {
         $flushLengowOrder = false;
         $orderProcessState = self::getOrderProcessState($orderStateLengow);
@@ -396,18 +395,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         // Update Lengow order if necessary
         if ($lengowOrder->getOrderLengowState() != $orderStateLengow) {
             $lengowOrder->setOrderLengowState($orderStateLengow)
-                ->setCarrierTracking($trackingNumber)
-                ->setExtra(json_encode($orderData));
+                ->setCarrierTracking($trackingNumber);
             $flushLengowOrder = true;
         }
-        if ($orderProcessState == self::PROCESS_STATE_FINISH) {
+        if ($orderProcessState === self::PROCESS_STATE_FINISH) {
             // Finish actions and order errors if lengow order is shipped, closed, cancel or refunded
             Shopware_Plugins_Backend_Lengow_Components_LengowAction::finishAllActions($order->getId());
             Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::finishOrderErrors(
                 $lengowOrder->getId(),
                 'send'
             );
-            if ($lengowOrder->getOrderProcessState() != $orderProcessState) {
+            if ($lengowOrder->getOrderProcessState() !== $orderProcessState) {
                 $lengowOrder->setOrderProcessState($orderProcessState);
                 $flushLengowOrder = true;
             }
@@ -424,7 +422,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         if ($order->getOrderStatus() != $orderStatus) {
             // Change state process to shipped
             if ($order->getOrderStatus() == $waitingShipmentOrderStatus
-                && ($orderStateLengow == 'shipped' || $orderStateLengow == 'closed')
+                && ($orderStateLengow === 'shipped' || $orderStateLengow === 'closed')
             ) {
                 self::createOrderHistory($order, $shippedOrderStatus, $logOutput, $lengowOrder->getMarketplaceSku());
                 self::updateOrderStatus($order->getId(), $shippedOrderStatus->getId());
@@ -435,7 +433,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                 return 'Shipped';
             } elseif (($order->getOrderStatus() == $waitingShipmentOrderStatus
                     || $order->getOrderStatus() == $shippedOrderStatus
-                ) && ($orderStateLengow == 'canceled' || $orderStateLengow == 'refused')
+                ) && ($orderStateLengow === 'canceled' || $orderStateLengow === 'refused')
             ) {
                 $canceledOrderStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus(
                     'canceled'

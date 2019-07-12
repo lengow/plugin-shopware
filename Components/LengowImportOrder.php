@@ -559,7 +559,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 $order,
                 $lengowOrder,
                 $this->orderStateLengow,
-                $this->orderData,
                 $this->packageData,
                 $this->logOutput
             );
