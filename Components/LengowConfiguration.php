@@ -28,6 +28,8 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware\Models\Shop\Shop;
+
 /**
  * Lengow Configuration Class
  */
@@ -37,25 +39,149 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * @var array $lengowSettings specific Lengow settings in s_lengow_settings table
      */
     public static $lengowSettings = array(
-        'lengowGlobalToken',
-        'lengowShopToken',
-        'lengowLastExport',
-        'lengowImportInProgress',
-        'lengowLastImportCron',
-        'lengowLastImportManual',
-        'lengowAccountStatusUpdate',
-        'lengowAccountStatus',
-        'lengowOrderStat',
-        'lengowOrderStatUpdate',
-        'lengowOptionCmsUpdate',
-        'lengowMarketplaceUpdate',
+        'lengowGlobalToken' => array(
+            'lengow_settings' => true,
+            'global' => true,
+        ),
+        'lengowShopToken' => array(
+            'shop' => true,
+            'lengow_settings' => true,
+        ),
+        'lengowAccountId' => array(
+            'global' => true,
+        ),
+        'lengowAccessToken' => array(
+            'global' => true,
+            'secret' => true,
+        ),
+        'lengowSecretToken' => array(
+            'global' => true,
+            'secret' => true,
+        ),
+        'lengowShopActive' => array(
+            'shop' => true,
+            'type' => 'boolean',
+        ),
+        'lengowCatalogId' => array(
+            'shop' => true,
+            'update' => true,
+        ),
+        'lengowIpEnabled' => array(
+            'global' => true,
+            'type' => 'boolean',
+        ),
+        'lengowAuthorizedIp' => array(
+            'global' => true,
+        ),
+        'lengowTrackingEnable' => array(
+            'global' => true,
+            'type' => 'boolean',
+        ),
+        'lengowTrackingId' => array(
+            'global' => true,
+        ),
+        'lengowAccountStatus' => array(
+            'lengow_settings' => true,
+            'global' => true,
+            'export' => false,
+        ),
+        'lengowAccountStatusUpdate' => array(
+            'lengow_settings' => true,
+            'global' => true,
+        ),
+        'lengowOrderStat' => array(
+            'lengow_settings' => true,
+            'global' => true,
+            'export' => false,
+        ),
+        'lengowOrderStatUpdate' => array(
+            'lengow_settings' => true,
+            'global' => true,
+        ),
+        'lengowOptionCmsUpdate' => array(
+            'lengow_settings' => true,
+            'global' => true,
+        ),
+        'lengowMarketplaceUpdate' => array(
+            'lengow_settings' => true,
+            'global' => true,
+        ),
+        'lengowLastSettingUpdate'=> array(
+            'lengow_settings' => true,
+            'global' => true,
+        ),
+        'lengowExportSelectionEnabled' => array(
+            'shop' => true,
+            'type' => 'boolean',
+        ),
+        'lengowExportDisabledProduct' => array(
+            'shop' => true,
+            'type' => 'boolean',
+        ),
+        'lengowDefaultDispatcher' => array(
+            'shop' => true,
+        ),
+        'lengowLastExport' => array(
+            'lengow_settings' => true,
+            'shop' => true,
+        ),
+        'lengowImportDays' => array(
+            'global' => true,
+            'update' => true,
+        ),
+        'lengowImportDefaultDispatcher' => array(
+            'shop' => true,
+        ),
+        'lengowImportReportMailEnabled' => array(
+            'global' => true,
+            'type' => 'boolean',
+        ),
+        'lengowImportReportMailAddress' => array(
+            'global' => true,
+        ),
+        'lengowImportShipMpEnabled' => array(
+            'global' => true,
+            'type' => 'boolean',
+        ),
+        'lengowImportStockMpEnabled' => array(
+            'global' => true,
+            'type' => 'boolean',
+        ),
+        'lengowImportPreprodEnabled' => array(
+            'global' => true,
+            'type' => 'boolean',
+        ),
+        'lengowImportInProgress' => array(
+            'lengow_settings' => true,
+            'global' => true,
+        ),
+        'lengowLastImportCron' => array(
+            'lengow_settings' => true,
+            'global' => true,
+        ),
+        'lengowLastImportManual' => array(
+            'lengow_settings' => true,
+            'global' => true,
+        ),
+        'lengowIdWaitingShipment' => array(
+            'global' => true,
+        ),
+        'lengowIdShipped' => array(
+            'global' => true,
+        ),
+        'lengowIdCanceled' => array(
+            'global' => true,
+        ),
+        'lengowIdShippedByMp' => array(
+            'global' => true,
+        ),
     );
 
     /**
      * Get config from Shopware database
      *
      * @param string $configName name of the setting to get
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     * @param Shopware\Models\Shop\Shop|integer|null $shop Shopware shop instance
      *
      * @return mixed
      */
@@ -65,27 +191,30 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         // Force plugin to register custom models thanks to afterInit() method
         // Avoid issue when synchronizing account
         Shopware()->Plugins()->Backend()->Lengow();
-        // If Lengow setting
-        if (in_array($configName, self::$lengowSettings)) {
-            $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-            $criteria = array('name' => $configName);
-            if ($shop != null) {
-                $criteria['shopId'] = $shop->getId();
+        if (array_key_exists($configName, self::$lengowSettings)){
+            $setting = self::$lengowSettings[$configName];
+            // If Lengow setting
+            if (isset($setting['lengow_settings']) && $setting['lengow_settings']) {
+                $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+                $criteria = array('name' => $configName);
+                if ($shop !== null) {
+                    $criteria['shopId'] = is_integer($shop) ? $shop : $shop->getId();
+                }
+                // @var Shopware\CustomModels\Lengow\Settings $config
+                $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy($criteria);
+                if ($config !== null) {
+                    $value = $config->getValue();
+                }
+            } else {
+                // If shop no shop, get default one
+                if ($shop === null) {
+                    $shop = self::getDefaultShop();
+                }
+                $shopId = is_integer($shop) ? $shop : $shop->getId();
+                $lengowConf = new Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration();
+                $value = $lengowConf->get($configName, $shopId);
             }
-            // @var Shopware\CustomModels\Lengow\Settings $config
-            $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy($criteria);
-            if ($config != null) {
-                $value = $config->getValue();
-            }
-        } else {
-            // If shop no shop, get default one
-            if (!($shop instanceof \Shopware\Models\Shop\Shop)) {
-                $shop = self::getDefaultShop();
-            }
-            $lengowConf = new Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration();
-            $value = $lengowConf->get($configName, $shop->getId());
         }
-
         return $value;
     }
 
@@ -94,7 +223,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      *
      * @param string $configName name of the setting to edit/add
      * @param mixed $value value to set for the setting
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     * @param Shopware\Models\Shop\Shop|integer|null $shop Shopware shop instance
      *
      * @return boolean
      */
@@ -103,37 +232,44 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         // Force plugin to register custom models thanks to afterInit() method
         // Avoid issue when synchronizing account
         Shopware()->Plugins()->Backend()->Lengow();
-        // If Lengow global setting
-        if (in_array($configName, self::$lengowSettings)) {
-            $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-            $criteria = array('name' => $configName);
-            if ($shop != null) {
-                $criteria['shopId'] = $shop->getId();
+        if (array_key_exists($configName, self::$lengowSettings)) {
+            $setting = self::$lengowSettings[$configName];
+            // If Lengow global setting
+            if (isset($setting['lengow_settings']) && $setting['lengow_settings']) {
+                $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+                $criteria = array('name' => $configName);
+                if ($shop != null) {
+                    if (is_integer($shop)) {
+                        $shop = $em->getRepository('Shopware\Models\Shop\Shop')->find($shop);
+                    }
+                    $criteria['shopId'] = $shop->getId();
+                }
+                try {
+                    // @var Shopware\CustomModels\Lengow\Settings $config
+                    $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy($criteria);
+                    // If null, create a new lengow config
+                    if ($config === null) {
+                        $config = new \Shopware\CustomModels\Lengow\Settings();
+                        $config->setName($configName)
+                            ->setShop($shop)
+                            ->setDateAdd(new DateTime());
+                    }
+                    $config->setValue($value)
+                        ->setDateUpd(new DateTime());
+                    $em->persist($config);
+                    $em->flush($config);
+                } catch (Exception $e) {
+                    return false;
+                }
+            } else {
+                // If shop no shop, get default one
+                if ($shop === null) {
+                    $shop = self::getDefaultShop();
+                }
+                $shopId = is_integer($shop) ? $shop : $shop->getId();
+                $lengowConf = new Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration();
+                return $lengowConf->save($configName, $value, $shopId);
             }
-            // @var Shopware\CustomModels\Lengow\Settings $config
-            $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy($criteria);
-            // If null, create a new lengow config
-            if ($config == null) {
-                $config = new \Shopware\CustomModels\Lengow\Settings();
-                $config->setName($configName)
-                    ->setShop($shop)
-                    ->setDateAdd(new DateTime());
-            }
-            $config->setValue($value)
-                ->setDateUpd(new DateTime());
-            $em->persist($config);
-            try {
-                $em->flush($config);
-            } catch (Exception $e) {
-                return false;
-            }
-        } else {
-            // If shop no shop, get default one
-            if (!($shop instanceof \Shopware\Models\Shop\Shop)) {
-                $shop = self::getDefaultShop();
-            }
-            $lengowConf = new Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration();
-            return $lengowConf->save($configName, $value, $shop->getId());
         }
         return true;
     }
@@ -210,13 +346,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      *
      * @param array $catalogIds Lengow catalog ids
      * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     *
+     * @return boolean
      */
     public static function setCatalogIds($catalogIds, $shop)
     {
+        $valueChange = false;
         $shopCatalogIds = self::getCatalogIds($shop);
         foreach ($catalogIds as $catalogId) {
             if (!in_array($catalogId, $shopCatalogIds) && is_numeric($catalogId) && $catalogId > 0) {
                 $shopCatalogIds[] = (int)$catalogId;
+                $valueChange = true;
             }
         }
         self::setConfig(
@@ -224,21 +364,34 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             count($shopCatalogIds) > 0 ? implode(';', $shopCatalogIds) : 0,
             $shop
         );
+        return $valueChange;
+    }
+
+    /**
+     * Recovers if a shop is active or not
+     *
+     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     *
+     * @return boolean
+     */
+    public static function shopIsActive($shop = null)
+    {
+        return (bool)self::getConfig('lengowShopActive', $shop);
     }
 
     /**
      * Set active shop or not
      *
      * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     *
+     * @return boolean
      */
     public static function setActiveShop($shop)
     {
-        $active = true;
-        $shopCatalogIds = self::getCatalogIds($shop);
-        if (count($shopCatalogIds) === 0) {
-            $active = false;
-        }
-        self::setConfig('lengowShopActive', $active, $shop);
+        $shopIsActive = self::shopIsActive($shop);
+        $shopHasCatalog = count(self::getCatalogIds($shop)) > 0;
+        self::setConfig('lengowShopActive', $shopHasCatalog, $shop);
+        return $shopIsActive !== $shopHasCatalog ? true : false;
     }
 
     /**
@@ -257,7 +410,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                 $reportEmailAddress[] = $email;
             }
         }
-        if (count($reportEmailAddress) == 0) {
+        if (count($reportEmailAddress) === 0) {
             $reportEmailAddress[] = self::getConfig('mail');
         }
         return $reportEmailAddress;
@@ -387,48 +540,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     }
 
     /**
-     * Get all Lengow Keys for option synchronisation
-     *
-     * @return array
-     */
-    public static function getKeys()
-    {
-        static $keys = null;
-        $keys = array(
-            'lengowAccountId' => array('global' => true),
-            'lengowAccessToken' => array('global' => true),
-            'lengowSecretToken' => array('global' => true),
-            'lengowIpEnabled' => array('global' => true),
-            'lengowAuthorizedIp' => array('global' => true),
-            'lengowTrackingEnable' => array('global' => true),
-            'lengowTrackingId' => array('global' => true),
-            'lengowShopToken' => array('shop' => true),
-            'lengowShopActive' => array('shop' => true),
-            'lengowCatalogId' => array('shop' => true),
-            'lengowExportDisabledProduct' => array('shop' => true),
-            'lengowExportSelectionEnabled' => array('shop' => true),
-            'lengowDefaultDispatcher' => array('shop' => true),
-            'lengowLastExport' => array('shop' => true),
-            'lengowGlobalToken' => array('global' => true),
-            'lengowImportShipMpEnabled' => array('global' => true),
-            'lengowImportStockMpEnabled' => array('global' => true),
-            'lengowImportDefaultDispatcher' => array('shop' => true),
-            'lengowImportDays' => array('global' => true),
-            'lengowImportPreprodEnabled' => array('global' => true),
-            'lengowImportReportMailEnabled' => array('global' => true),
-            'lengowImportReportMailAddress' => array('global' => true),
-            'lengowImportInProgress' => array('global' => true),
-            'lengowLastImportCron' => array('global' => true),
-            'lengowLastImportManual' => array('global' => true),
-            'lengowIdWaitingShipment' => array('global' => true),
-            'lengowIdShipped' => array('global' => true),
-            'lengowIdCanceled' => array('global' => true),
-            'lengowIdShippedByMp' => array('global' => true),
-        );
-        return $keys;
-    }
-
-    /**
      * Get all values for Lengow settings (used for synchronisation)
      *
      * @param \Shopware\Models\Shop\Shop $shop Shopware shop instance
@@ -438,8 +549,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     public static function getAllValues($shop = null)
     {
         $rows = array();
-        $keys = self::getKeys();
-        foreach ($keys as $key => $value) {
+        $lengowSettings = self::$lengowSettings;
+        foreach ($lengowSettings as $key => $value) {
+            if (isset($value['export']) && !$value['export']) {
+                continue;
+            }
             if ($shop) {
                 if (isset($value['shop']) && $value['shop']) {
                     $rows[$key] = self::getConfig($key, $shop);
@@ -451,5 +565,59 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             }
         }
         return $rows;
+    }
+
+    /**
+     * Check value and create a log if necessary
+     *
+     * @param string $key name of Lengow setting
+     * @param mixed $value setting value
+     * @param Shopware\Models\Shop\Shop|integer|null $shop Shopware shop instance
+     */
+    public static function checkAndLog($key, $value, $shop = null)
+    {
+        if (array_key_exists($key, self::$lengowSettings)) {
+            $setting = self::$lengowSettings[$key];
+            $oldValue = self::getConfig($key, $shop);
+            if ($oldValue != $value) {
+                if (isset($setting['secret']) && $setting['secret']) {
+                    $value = preg_replace("/[a-zA-Z0-9]/", '*', $value);
+                    $oldValue = preg_replace("/[a-zA-Z0-9]/", '*', $oldValue);
+                } elseif (isset($setting['type']) && $setting['type'] === 'boolean') {
+                    $value = (int)$value;
+                    $oldValue = (int)$oldValue;
+                }
+                if (!is_null($shop)) {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                        'Setting',
+                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                            'log/setting/setting_change_for_shop',
+                            array(
+                                'key' => $key,
+                                'old_value' => $oldValue,
+                                'value' => $value,
+                                'shop_id' => is_integer($shop) ? $shop : $shop->getId(),
+                            )
+                        )
+                    );
+                } else {
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                        'Setting',
+                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                            'log/setting/setting_change',
+                            array(
+                                'key' => $key,
+                                'old_value' => $oldValue,
+                                'value' => $value,
+                            )
+                        )
+                    );
+                }
+                // Save last update date for a specific settings (change synchronisation interval time)
+                if (isset($setting['update']) && $setting['update']) {
+                    self::setConfig('lengowLastSettingUpdate', date('Y-m-d H:i:s'));
+                }
+            }
+        }
     }
 }

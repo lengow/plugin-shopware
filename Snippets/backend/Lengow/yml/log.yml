@@ -109,6 +109,9 @@ default:
       error_unable_to_create_file: "unable to create file %{file_name} in %{folder_name}"
     exception:
       order_insert_failed: "Error while inserting record in database - %{decoded_message}"
+    setting:
+      setting_change: "%{key} - old value %{old_value} replaced with %{value}"
+      setting_change_for_shop: "%{key} - old value %{old_value} replaced with %{value} for shop %{shop_id}"
   toolbox:
     menu:
       lengow_toolbox: "Lengow Toolbox"

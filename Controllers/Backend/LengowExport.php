@@ -353,6 +353,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         /** @var Shopware\Models\Shop\Shop $shop */
         $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
+        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::checkAndLog($name, $status, $shop);
         Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig($name, $status, $shop);
     }
 

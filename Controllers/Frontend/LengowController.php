@@ -185,6 +185,8 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
          * integer shop_id             Shop id to import
          * string  $marketplace_sku    Lengow marketplace order id to import
          * string  marketplace_name    Lengow marketplace name to import
+         * string  created_from        import of orders since
+         * string  created_to          import of orders until
          * integer delivery_address_id Lengow delivery address id to import
          * boolean preprod_mode        Activate preprod mode
          * boolean log_output          See logs (1) or not (0)
@@ -217,6 +219,12 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                     }
                     if ($this->Request()->getParam('days')) {
                         $params['days'] = (int)$this->Request()->getParam('days');
+                    }
+                    if ($this->Request()->getParam('created_from')) {
+                        $params['created_from'] = (string)$this->Request()->getParam('created_from');
+                    }
+                    if ($this->Request()->getParam('created_to')) {
+                        $params['created_to'] = (string)$this->Request()->getParam('created_to');
                     }
                     if ($this->Request()->getParam('limit')) {
                         $params['limit'] = (int)$this->Request()->getParam('limit');

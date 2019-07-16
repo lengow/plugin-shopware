@@ -258,10 +258,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shop_active'),
-            'state' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowShopActive',
-                $shop
-            )
+            'state' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::shopIsActive($shop)
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shop_catalogs_id'),

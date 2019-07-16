@@ -321,18 +321,20 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
         $repository = $this->entityManager->getRepository('Shopware\CustomModels\Lengow\Settings');
         $defaultShop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
         try {
-            foreach ($lengowSettings as $key) {
-                $setting = $repository->findOneBy(array('name' => $key));
-                // If the setting does not already exist, create it
-                if ($setting == null) {
-                    $setting = new Shopware\CustomModels\Lengow\Settings;
-                    $setting->setName($key)
-                        ->setShop($defaultShop)
-                        ->setValue(0)
-                        ->setDateAdd(new DateTime())
-                        ->setDateUpd(new DateTime());
-                    $this->entityManager->persist($setting);
-                    $this->entityManager->flush($setting);
+            foreach ($lengowSettings as $key => $lengowSetting) {
+                if (isset($lengowSetting['lengow_settings']) && $lengowSetting['lengow_settings']) {
+                    $setting = $repository->findOneBy(array('name' => $key));
+                    // If the setting does not already exist, create it
+                    if ($setting === null) {
+                        $setting = new Shopware\CustomModels\Lengow\Settings;
+                        $setting->setName($key)
+                            ->setShop($defaultShop)
+                            ->setValue(0)
+                            ->setDateAdd(new DateTime())
+                            ->setDateUpd(new DateTime());
+                        $this->entityManager->persist($setting);
+                        $this->entityManager->flush($setting);
+                    }
                 }
             }
         } catch (Exception $e) {

@@ -254,6 +254,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         );
         // Basic settings events
         $this->subscribeEvent(
+            'Enlight_Controller_Action_PreDispatch_Backend_Config',
+            'onPreDispatchBackendConfig'
+        );
+        $this->subscribeEvent(
             'Enlight_Controller_Action_PostDispatch_Backend_Config',
             'onPostDispatchBackendConfig'
         );
@@ -348,6 +352,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $ctrl = $args->getSubject();
         $view = $ctrl->View();
         $view->extendsTemplate('backend/lengow/resources/lengow-template.tpl');
+    }
+
+    /**
+     * Listen to basic settings changes. Log of Lengow settings when they were updated
+     *
+     * @param Enlight_Event_EventArgs $args Shopware Enlight Controller Action instance
+     */
+    public function onPreDispatchBackendConfig($args)
+    {
+        Shopware_Plugins_Backend_Lengow_Components_LengowEvent::onPreDispatchBackendConfig($args);
     }
 
     /**
