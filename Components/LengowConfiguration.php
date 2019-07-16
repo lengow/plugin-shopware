@@ -100,6 +100,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'lengow_settings' => true,
             'global' => true,
         ),
+        'lengowCatalogUpdate' => array(
+            'lengow_settings' => true,
+            'global' => true,
+        ),
         'lengowMarketplaceUpdate' => array(
             'lengow_settings' => true,
             'global' => true,

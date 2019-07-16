@@ -37,10 +37,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      * @var array cache time for statistic, account status, cms options and marketplace synchronisation
      */
     protected static $cacheTimes = array(
+        'catalog' => 21600,
         'cms_option' => 86400,
         'status_account' => 86400,
-        'statistic' => 43200,
-        'marketplace' => 21600,
+        'statistic' => 86400,
+        'marketplace' => 43200,
     );
 
     /**
@@ -125,12 +126,24 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
 
     /**
      * Sync Lengow catalogs for order synchronisation
+     *
+     * @param boolean $force force cache Update
+     *
+     * @return boolean
      */
-    public static function syncCatalog()
+    public static function syncCatalog($force = false)
     {
         $settingUpdated = false;
         if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant()) {
             return false;
+        }
+        if (!$force) {
+            $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowCatalogUpdate'
+            );
+            if (!is_null($updatedAt) && (time() - strtotime($updatedAt)) < self::$cacheTimes['catalog']) {
+                return false;
+            }
         }
         $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('get', '/v3.1/cms');
         if (isset($result->cms)) {
@@ -163,6 +176,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 date('Y-m-d H:i:s')
             );
         }
+        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
+            'lengowCatalogUpdate',
+            date('Y-m-d H:i:s')
+        );
+        return true;
     }
 
     /**

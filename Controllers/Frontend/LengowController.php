@@ -206,7 +206,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 $sync = $this->Request()->getParam('sync', false);
                 // sync catalogs id between Lengow and Shopware
                 if (!$sync || $sync === 'catalog') {
-                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::syncCatalog();
+                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::syncCatalog($force);
                 }
                 // sync orders between Lengow and Shopware
                 if (!$sync || $sync === 'order') {
