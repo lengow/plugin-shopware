@@ -135,11 +135,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
         $request = $args->getSubject()->Request();
         if ($request->getActionName() === 'save') {
             $data = $request->getPost();
-            if (Shopware_Plugins_Backend_Lengow_Components_LengowOrder::isFromLengow($data['id']) == 1) {
+            if (Shopware_Plugins_Backend_Lengow_Components_LengowOrder::isFromLengow($data['id'])) {
                 $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')
                     ->findOneBy(array('id' => $data['id']));
-                if ($order->getTrackingCode() != $data['trackingCode']
-                    || $order->getOrderStatus()->getId() != $data['status']
+                if ($order->getTrackingCode() !== $data['trackingCode']
+                    || $order->getOrderStatus()->getId() !== (int)$data['status']
                 ) {
                     self::$orderChanged[$order->getId()] = true;
                 }
@@ -167,9 +167,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
                 // Call Lengow API WSDL to send ship or cancel actions
                 $shippedStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('shipped');
                 $canceledStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('canceled');
-                if ($order->getOrderStatus() == $shippedStatus) {
+                if ($order->getOrderStatus()->getId() === $shippedStatus->getId()) {
                     Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, 'ship');
-                } elseif ($order->getOrderStatus() == $canceledStatus) {
+                } elseif ($order->getOrderStatus()->getId() === $canceledStatus->getId()) {
                     Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, 'cancel');
                 }
                 unset(self::$orderChanged[$data['id']]);
@@ -198,9 +198,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
                 // Call Lengow API WSDL to send ship or cancel actions
                 $shippedStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('shipped');
                 $canceledStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('canceled');
-                if ($order->getOrderStatus() == $shippedStatus) {
+                if ($order->getOrderStatus()->getId() === $shippedStatus->getId()) {
                     Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, 'ship');
-                } elseif ($order->getOrderStatus() == $canceledStatus) {
+                } elseif ($order->getOrderStatus()->getId() === $canceledStatus->getId()) {
                     Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, 'cancel');
                 }
             }

@@ -125,8 +125,8 @@ de:
         label: "Standard-Zulieferer"
         description: "Wählen Sie den Standard-Zulieferer aus, den Sie für Ihre Bestellungen verwenden wollen"
       import_days:
-        label: "Alle Bestellungen erneut importieren seit (in Tagen):"
-        description: "Verwenden Sie diese Option, wenn nicht erledigte Bestellungen angezeigt werden. Dadurch werden während der Fehlerperiode bearbeitete Bestellungen erneut importiert."
+        label: "Synchronisieren Sie alle Bestellungen, die seit aktualisiert wurden"
+        description: "Anzahl der Tage auswählen (Max. 10 Tage)"
       preprod_mode:
         label: "Vorproduktionsmodus aktivieren"
         description: "Dieser Modus zur Prüfung und Auftragsimulation verwenden. Diese Einstellung NUR auf Ihrem Pre-Production Server aktivieren"
@@ -296,7 +296,7 @@ de:
       order_line_required: "erforderliche Bestellzeile kann in der Bestellung nicht gefunden werden"
       action_not_valid: "aktion %{action} ist ungültig"
       marketplace_action_not_present: "die Marktplatzaktion %{action} ist nicht vorhanden"
-      shop_id_require: "laden-ID ist erforderlich"
+      marketplace_sku_require: "die Marktplatz-Orderreferenz ist erforderlich"
       marketplace_name_require: "marktplatzname ist erforderlich"
       arg_is_required: "Aktion nicht ausführbar: %{arg_name} ist erforderlich"
       action_not_created: "Aktion kann nicht erstellt werden: %{error_message}"

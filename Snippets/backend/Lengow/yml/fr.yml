@@ -125,8 +125,8 @@ fr:
         label: "Transporteur par défaut"
         description: "Sélectionnez le transporteur par défaut à appliquer à vos commandes."
       import_days:
-        label: "Ré-importer toutes les commandes réalisées depuis (en jours)"
-        description: "Activez cette option si vous avez des commandes en erreur en attente. Cela vous permet de réimporter les commandes passées depuis le dernier import réussi."
+        label: "Synchroniser toutes les commandes mises à jour depuis"
+        description: "Choisissez le nombre de jours (Max 10 jours)"
       preprod_mode:
         label: "Activer le mode préproduction"
         description: "Utilisez la pré-production pour tester et simuler des commandes fictives. Pour rappel, vous devez activer ces paramètres UNIQUEMENT sur votre serveur de préproduction."
@@ -296,7 +296,7 @@ fr:
       order_line_required: "numéro de la ligne de commande requis, non trouvé dans la commande"
       action_not_valid: "l'action %{action} n'est pas valide"
       marketplace_action_not_present: "l'action %{action} n'est pas présente pour cette place de marché"
-      shop_id_require: "l'ID de la boutique est requis"
+      marketplace_sku_require: "la référence commande marketplace est requise"
       marketplace_name_require: "le nom de la place de marché est requis"
       arg_is_required: "envoi d'action impossible : %{arg_name} est requis"
       action_not_created: "création d'action impossible : %{error_message}"
