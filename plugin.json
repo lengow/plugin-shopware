@@ -75,7 +75,7 @@
     },
     "changelog": {
         "en": {
-            "1.4.1": "Feature: [import] Optimization of the order recovery system; Feature: [import] Setting up a cache for synchronizing catalogs ids; Feature: [action] Refactoring and optimization of actions on orders; Bugfix: [export] Retrieving other images of a product when one is unavailable",
+            "1.4.1": "Feature: [import] Optimization of the order recovery system; Feature: [import] Setting up a cache for synchronizing catalogs ids; Feature: [action] Refactoring and optimization of actions on orders; Feature: [action] Improved carrier matching with search on carrier code and label; Bugfix: [export] Retrieving other images of a product when one is unavailable",
             "1.4.0": "Feature: Disabling the Lengow tracker and changing the product ID; Feature: Registering marketplace data in a json file; Feature: Optimization of API calls between PrestaShop and Lengow; Bugfix: [export] Retrieving the default price when the customer group price is not available; Bugfix: Recovery of Shopware version with parameters for versions above 5.4; Bugfix: [export] Improved deletion of duplicate headers; Bugfix: [action] Management of orders waiting to return from the marketplace; Bugfix: Update of the lengow_order table directly after the creation of the Shopware order",
             "1.3.3": "Feature: Generating a generic error message when the Lengow API is unavailable; Feature: [export] Recovering parent images when no image is selected for the variation; Bugfix: Improved security to avoid duplicate synchronization",
             "1.3.2": "Bugfix: Checks whether a product is simple or a parent for product matching; Bugfix: Removal of billing & shipping addresses on the customer for version 5.5",

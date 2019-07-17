@@ -520,14 +520,54 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     protected function matchDispatch($name)
     {
         if (count($this->carriers) > 0) {
-            foreach ($this->carriers as $key => $carrier) {
-                if (preg_match('`' . $key . '`i', trim($name))) {
-                    return $key;
-                } elseif (preg_match('`.*?' . $key . '.*?`i', $name)) {
+            $nameCleaned = $this->cleanString($name);
+            foreach ($this->carriers as $key => $label) {
+                $keyCleaned = $this->cleanString($key);
+                $labelCleaned = $this->cleanString($label);
+                // search on the carrier key
+                $found = $this->searchValue($keyCleaned, $nameCleaned);
+                // search on the carrier label if it is different from the key
+                if (!$found && $labelCleaned !== $keyCleaned) {
+                    $found = $this->searchValue($labelCleaned, $nameCleaned);
+                }
+                if ($found) {
                     return $key;
                 }
             }
         }
         return $name;
     }
+
+    /**
+     * Cleaning a string before search
+     *
+     * @param string $string string to clean
+     *
+     * @return string
+     */
+    private function cleanString($string)
+    {
+        $cleanFilters = array(' ', '-', '_', '.');
+        return strtolower(str_replace($cleanFilters, '',  trim($string)));
+    }
+
+    /**
+     * Strict and then approximate search for a chain
+     *
+     * @param string $pattern search pattern
+     * @param string $subject string to search
+     *
+     * @return boolean
+     */
+    private function searchValue($pattern, $subject)
+    {
+        $found = false;
+        if (preg_match('`' . $pattern . '`i', $subject)) {
+            $found = true;
+        } elseif (preg_match('`.*?' . $pattern . '.*?`i', $subject)) {
+            $found = true;
+        }
+        return $found;
+    }
+
 }
