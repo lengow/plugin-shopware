@@ -411,7 +411,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
         $names = array(
             'firstname' => trim($addressDatas['first_name']),
             'lastname' => trim($addressDatas['last_name']),
-            'fullname' => $this->cleanFullName($addressDatas['full_name'])
+            'fullname' => $this->cleanFullName($addressDatas['full_name']),
         );
         if (empty($names['firstname'])) {
             if (!empty($names['lastname'])) {

@@ -544,7 +544,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     /**
      * Get all values for Lengow settings (used for synchronisation)
      *
-     * @param \Shopware\Models\Shop\Shop $shop Shopware shop instance
+     * @param \Shopware\Models\Shop\Shop|null $shop Shopware shop instance
      *
      * @return array
      */

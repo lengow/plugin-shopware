@@ -47,7 +47,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     );
 
     /**
-     * @var array all marketplaces allowed for an account ID
+     * @var array|false all marketplaces allowed for an account ID
      */
     public static $marketplaces = false;
 

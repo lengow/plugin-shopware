@@ -51,7 +51,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         'currency',
         'log_output',
         'update_export_date',
-        'get_params'
+        'get_params',
     );
 
     /**
@@ -287,9 +287,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     {
         // Clean logs
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanLog();
-        if ($this->mode == 'size') {
+        if ($this->mode === 'size') {
             echo $this->getExportedProducts();
-        } elseif ($this->mode == 'total') {
+        } elseif ($this->mode === 'total') {
             echo $this->getTotalProducts();
         } else {
             try {
@@ -304,7 +304,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                         'log/export/start_for_shop',
                         array(
                             'name_shop' => $this->shop->getName(),
-                            'id_shop' => $this->shop->getId()
+                            'id_shop' => $this->shop->getId(),
                         )
                     ),
                     $this->logOutput
@@ -352,7 +352,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
      * Export products
      *
      * @param $articles array list of articles to export
-     * @param $fields   array list of fields
+     * @param $fields array list of fields
      *
      * @throws Exception|Shopware_Plugins_Backend_Lengow_Components_LengowException folder not writable
      */
@@ -374,11 +374,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         foreach ($articles as $article) {
             $productData = array();
             // If offset specified in params
-            if ($this->offset != null && $this->offset > $numberOfProducts) {
+            if ($this->offset !== 0 && $this->offset > $numberOfProducts) {
                 $numberOfProducts++;
                 continue;
             }
-            if ($this->limit != null && $this->limit <= $displayedProducts) {
+            if ($this->limit !== 0 && $this->limit <= $displayedProducts) {
                 break;
             }
             /** @var Shopware\Models\Article\Detail $detail */
@@ -402,7 +402,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $numberOfProducts++;
             $displayedProducts++;
             // Log each time 50 products are exported
-            if ($displayedProducts > 0 && $displayedProducts % 50 == 0) {
+            if ($displayedProducts > 0 && $displayedProducts % 50 === 0) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Export',
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
@@ -435,7 +435,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         }
         if (!$this->stream) {
             $feedUrl = $feed->getUrl();
-            if ($feedUrl && php_sapi_name() != "cli") {
+            if ($feedUrl && php_sapi_name() !== 'cli') {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Export',
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
@@ -599,7 +599,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         }
         // Add articleId and detailNumber only for debug
         foreach ($articlesByParent as $articleId => $parentArticle) {
-            if ($parentArticle['type'] == 'parent') {
+            if ($parentArticle['type'] === 'parent') {
                 $articleToExport[] = array(
                     'type' => 'parent',
                     'articleId' => $articleId,
@@ -691,6 +691,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                     break;
                 case 'shop':
                     $availableShops = array();
+                    /** @var Shopware\Models\Shop\Shop[] $shops */
                     $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findAll();
                     foreach ($shops as $shop) {
                         $availableShops[] = $shop->getId();
@@ -701,6 +702,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                     break;
                 case 'currency':
                     $availableCurrencies = array();
+                    /** @var Shopware\Models\Shop\Currency[] $currencies */
                     $currencies = $em->getRepository('Shopware\Models\Shop\Currency')->findAll();
                     foreach ($currencies as $currency) {
                         $availableCurrencies[] = $currency->getCurrency();
@@ -718,7 +720,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $params[$param] = array(
                 'authorized_values' => $authorizedValue,
                 'type' => $type,
-                'example' => $example
+                'example' => $example,
             );
         }
         return json_encode($params);

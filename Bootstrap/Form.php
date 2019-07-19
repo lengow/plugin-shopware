@@ -478,7 +478,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
      * Get translations for basic settings
      *
      * @param string $key key of the translation
-     * @param string $isoCode locale iso code (English by default)
+     * @param string|null $isoCode locale iso code (English by default)
      *
      * @return string
      */

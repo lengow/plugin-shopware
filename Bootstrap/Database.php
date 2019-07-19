@@ -392,7 +392,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                     'description' => 'Technischer Fehler - Lengow',
                     'position' => $positionMax === 24 ? 26 : $positionMax + 1,
                     'group' => 'state',
-                    'mail' => 0
+                    'mail' => 0,
                 );
                 // Compatibility with 4.3 version - the name field did not exist
                 if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0')) {

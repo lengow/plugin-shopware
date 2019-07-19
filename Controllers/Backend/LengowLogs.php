@@ -46,14 +46,14 @@ class Shopware_Controllers_Backend_LengowLogs extends Shopware_Controllers_Backe
             $dateTime = new DateTime($date);
             $result[] = array(
                 'name' => $logFile->fileName,
-                'date' => date_format($dateTime, 'd m Y')
+                'date' => date_format($dateTime, 'd m Y'),
             );
         }
         $this->View()->assign(
             array(
                 'success' => true,
                 'data' => array_reverse($result),
-                'total' => count($result)
+                'total' => count($result),
             )
         );
     }

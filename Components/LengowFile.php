@@ -57,7 +57,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
      * Construct
      *
      * @param string $folderName Lengow folder name
-     * @param string $fileName Lengow file name
+     * @param string|null $fileName Lengow file name
      * @param string $mode type of access
      *
      * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException unable to create file
@@ -73,7 +73,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
                     'log/export/error_unable_to_create_file',
                     array(
                         'file_name' => $fileName,
-                        'folder_name' => $folderName
+                        'folder_name' => $folderName,
                     )
                 )
             );
@@ -216,8 +216,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
         $folderContent = scandir($folderPath);
         $files = array();
         foreach ($folderContent as $file) {
-            if (!preg_match('/^\.[a-zA-Z\.]+$|^\.$|index\.php/', $file)) {
-                $files[] = new Shopware_Plugins_Backend_Lengow_Components_LengowFile($folder, $file);
+            try {
+                if (!preg_match('/^\.[a-zA-Z\.]+$|^\.$|index\.php/', $file)) {
+                    $files[] = new Shopware_Plugins_Backend_Lengow_Components_LengowFile($folder, $file);
+                }
+            } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
+                continue;
             }
         }
         return $files;

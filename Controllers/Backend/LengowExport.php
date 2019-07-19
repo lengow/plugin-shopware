@@ -75,7 +75,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             'details.inStock',
             'CONCAT(tax.tax, \' %\') AS vat',
             'prices.price*(100+tax.tax)/100 AS price',
-            'attributes.lengowShop' . $shopId . 'Active AS lengowActive'
+            'attributes.lengowShop' . $shopId . 'Active AS lengowActive',
         );
         $builder = $em->createQueryBuilder();
         $builder->select($select)
@@ -90,16 +90,16 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             ->andWhere('details.kind = 1')
             ->andWhere('attributes.articleDetailId = details.id');
         // Filter category
-        if ($filterBy == 'inStock') {
+        if ($filterBy === 'inStock') {
             $builder->andWhere('details.inStock > 0');
-        } elseif ($filterBy == 'lengowProduct') {
+        } elseif ($filterBy === 'lengowProduct') {
             $builder->andWhere('attributes.lengowShop' . $shopId . 'Active = 1');
-        } elseif ($filterBy == 'activeProduct') {
+        } elseif ($filterBy === 'activeProduct') {
             $builder->andWhere('articles.active = 1');
-        } elseif ($filterBy == 'noCategory') {
+        } elseif ($filterBy === 'noCategory') {
             $builder->leftJoin('articles.allCategories', 'allCategories')
                 ->andWhere('allCategories.id IS NULL');
-        } elseif ($categoryId !== 'NaN' && $categoryId != null) {
+        } elseif ($categoryId !== 'NaN' && $categoryId !== null) {
             $mainCategory = null;
             if ($isShopSelected) {
                 $mainCategory = $shop->getCategory();
@@ -130,7 +130,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             'price',
             'tax',
             'inStock',
-            'lengowActive'
+            'lengowActive',
         );
         $directions = array('ASC', 'DESC');
         if (null === $order
@@ -168,7 +168,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                 'data' => $result,
                 'total' => $totalProducts,
                 'nbProductsAvailable' => $export->getTotalProducts(),
-                'nbExportedProducts' => $export->getExportedProducts()
+                'nbExportedProducts' => $export->getExportedProducts(),
             )
         );
     }
@@ -204,7 +204,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'url' => $exportUrl
+                'url' => $exportUrl,
             )
         );
     }
@@ -228,7 +228,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         }
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         // If export all product for this shop (checkbox)
-        if ($articleIds == '') {
+        if ($articleIds === '') {
             $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
             $mainCategory = $shop->getCategory();
             $this->setLengowStatusFromCategory($mainCategory, $shopId, $active);
@@ -268,7 +268,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                 } else {
                     $attribute = $article->getAttribute();
                 }
-                if ($attribute != null) {
+                if ($attribute !== null) {
                     $column = 'setLengowShop' . $shopId . 'Active';
                     $attribute->$column($status);
                     $em->persist($attribute);
@@ -294,7 +294,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $result = array();
         // If the root is selected, return list of enabled shops
-        if ($parentId == 'root') {
+        if ($parentId === 'root') {
             /** @var Shopware\Models\Shop\Shop[] $shops */
             $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
             foreach ($shops as $shop) {
@@ -302,7 +302,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                 $result[] = array(
                     'leaf' => $mainCategory->isLeaf(),
                     'text' => $shop->getName(),
-                    'id' => $shop->getId()
+                    'id' => $shop->getId(),
                 );
             }
         } else {
@@ -324,7 +324,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                 $result[] = array(
                     'leaf' => $category->isLeaf(),
                     'text' => $category->getName(),
-                    'id' => $shopId . '_' . $category->getId() // Required to have a unique id in the tree
+                    'id' => $shopId . '_' . $category->getId(),
                 );
             }
         }
@@ -332,7 +332,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $result
+                'data' => $result,
             )
         );
     }
@@ -379,7 +379,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $result
+                'data' => $result,
             )
         );
     }
@@ -394,7 +394,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $defaultShop->getId()
+                'data' => $defaultShop->getId(),
             )
         );
     }
@@ -412,7 +412,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $shopToken
+                'data' => $shopToken,
             )
         );
     }

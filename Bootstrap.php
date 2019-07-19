@@ -64,7 +64,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'description' => $info['description'],
             'support' => $info['support_mail'],
             'link' => $info['link'],
-            'changes' => $info['changes']
+            'changes' => $info['changes'],
         );
     }
 
@@ -90,7 +90,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'action' => 'Index',
                 'active' => 1,
                 'parent' => $this->Menu()->findOneBy(array('label' => 'Einstellungen')),
-                'class' => 'lengow--icon'
+                'class' => 'lengow--icon',
             )
         );
         self::log('log/install/add_menu');
@@ -111,7 +111,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         self::log('log/install/end');
         return array(
             'success' => true,
-            'invalidateCache' => array('backend')
+            'invalidateCache' => array('backend'),
         );
     }
 
@@ -150,7 +150,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         self::log('log/update/end', array('old_version' => $version, 'new_version' => $newVersion));
         return array(
             'success' => true,
-            'invalidateCache' => array('backend')
+            'invalidateCache' => array('backend'),
         );
     }
 
@@ -192,7 +192,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                     'active' => 0,
                     'name' => 'lengow',
                     'description' => 'Lengow',
-                    'additionalDescription' => 'Default payment for Lengow orders'
+                    'additionalDescription' => 'Default payment for Lengow orders',
                 )
             );
             self::log('log/install/add_payment');

@@ -49,15 +49,15 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
             </div>
             <input type="hidden" id="lengow_ajax_link">
             <input type="hidden" id="lengow_sync_link">
-        ';
+            ';
         $this->View()->assign(
             array(
                 'success' => true,
                 'data' => array(
                     'panelHtml' => $panelHtml,
                     'isNewMerchant' => Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant(),
-                    'langIsoCode' => substr(Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale(), 0, 2)
-                )
+                    'langIsoCode' => substr(Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale(), 0, 2),
+                ),
             )
         );
     }
@@ -70,7 +70,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => Shopware_Plugins_Backend_Lengow_Components_LengowElements::getHeader()
+                'data' => Shopware_Plugins_Backend_Lengow_Components_LengowElements::getHeader(),
             )
         );
     }
@@ -84,7 +84,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => Shopware_Plugins_Backend_Lengow_Components_LengowElements::getLegals()
+                'data' => Shopware_Plugins_Backend_Lengow_Components_LengowElements::getLegals(),
             )
         );
     }

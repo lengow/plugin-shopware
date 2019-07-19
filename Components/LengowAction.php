@@ -57,7 +57,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
      * @param \Shopware\Models\Order\Order $order Shopware order instance
      * @param string $actionType action type (ship or cancel)
      * @param integer $actionId Lengow action id
-     * @param string $orderLineId Lengow order line id
+     * @param string|null $orderLineId Lengow order line id
      * @param array $params order action parameters
      *
      * @return boolean
@@ -226,7 +226,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
      * Find active actions by order id
      *
      * @param integer $orderId Shopware order id
-     * @param string $actionType action type (ship or cancel)
+     * @param string|null $actionType action type (ship or cancel)
      *
      * @return array|false
      */
@@ -258,7 +258,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
      *
      * @param integer $orderId Shopware order id
      *
-     * @return string|null
+     * @return string|false
      */
     public static function getLastActionOrderType($orderId)
     {
@@ -299,7 +299,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
      * Removes all actions for one order Shopware
      *
      * @param integer $orderId Shopware order id
-     * @param string $actionType action type (null, ship or cancel)
+     * @param string|null $actionType action type (ship or cancel)
      *
      * @return boolean
      */
@@ -458,7 +458,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
     /**
      * Remove old actions > 3 days
      *
-     * @param string $actionType action type (null, ship or cancel)
+     * @param string|null $actionType action type (ship or cancel)
      *
      * @return boolean
      */

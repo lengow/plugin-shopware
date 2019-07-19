@@ -40,9 +40,9 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
     {
         $status = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatusAccount();
         $showTabBar = false;
-        if ($status['type'] == 'free_trial' && $status['expired']) {
+        if ($status['type'] === 'free_trial' && $status['expired']) {
             $htmlContent = Shopware_Plugins_Backend_Lengow_Components_LengowElements::getEndFreeTrial();
-        } elseif ($status['type'] == 'bad_payer') {
+        } elseif ($status['type'] === 'bad_payer') {
             $htmlContent = Shopware_Plugins_Backend_Lengow_Components_LengowElements::getBadPayer();
         } else {
             $htmlContent = Shopware_Plugins_Backend_Lengow_Components_LengowElements::getDashboard();
@@ -52,7 +52,7 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
             array(
                 'success' => true,
                 'displayTabBar' => $showTabBar,
-                'data' => $htmlContent
+                'data' => $htmlContent,
             )
         );
     }

@@ -137,7 +137,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      * Check webservice access (export and import)
      *
      * @param string $token shop token
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     * @param Shopware\Models\Shop\Shop|null $shop Shopware shop instance
      *
      * @return boolean
      */
@@ -157,7 +157,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      * Check if token is correct
      *
      * @param string $token shop token
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     * @param Shopware\Models\Shop\Shop|null $shop Shopware shop instance
      *
      * @return boolean
      */
@@ -201,7 +201,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Generate token
      *
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     * @param Shopware\Models\Shop\Shop|null $shop Shopware shop instance
      *
      * @return string
      */
@@ -357,13 +357,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Get the base url of the plugin
      *
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     * @param Shopware\Models\Shop\Shop|null $shop Shopware shop instance
      *
      * @return string
      */
     public static function getBaseUrl($shop = null)
     {
-        if ($shop == null) {
+        if ($shop === null) {
             $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
         }
         $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '';
@@ -437,23 +437,29 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      * @param string $category log category
      * @param string $txt log message
      * @param boolean $logOutput output on screen
-     * @param string $marketplaceSku Lengow marketplace sku
+     * @param string|null $marketplaceSku Lengow marketplace sku
      */
     public static function log($category, $txt, $logOutput = false, $marketplaceSku = null)
     {
         $log = self::getLogInstance();
-        $log->write($category, $txt, $logOutput, $marketplaceSku);
+        if ($log) {
+            $log->write($category, $txt, $logOutput, $marketplaceSku);
+        }
     }
 
     /**
      * Get log Instance
      *
-     * @return Shopware_Plugins_Backend_Lengow_Components_LengowLog
+     * @return Shopware_Plugins_Backend_Lengow_Components_LengowLog|false
      */
     public static function getLogInstance()
     {
         if (is_null(self::$log)) {
-            self::$log = new Shopware_Plugins_Backend_Lengow_Components_LengowLog();
+            try {
+                self::$log = new Shopware_Plugins_Backend_Lengow_Components_LengowLog();
+            } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
+                return false;
+            }
         }
         return self::$log;
     }
@@ -463,13 +469,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function cleanLog()
     {
-        // @var Shopware_Plugins_Backend_Lengow_Components_LengowFile[] $logFiles
-        $logFiles = Shopware_Plugins_Backend_Lengow_Components_LengowLog::getFiles();
         $days = array();
         $days[] = 'logs-' . date('Y-m-d') . '.txt';
         for ($i = 1; $i < self::$logLife; $i++) {
             $days[] = 'logs-' . date('Y-m-d', strtotime('-' . $i . 'day')) . '.txt';
         }
+        /** @var Shopware_Plugins_Backend_Lengow_Components_LengowFile[] $logFiles */
+        $logFiles = Shopware_Plugins_Backend_Lengow_Components_LengowLog::getFiles();
         if (empty($logFiles)) {
             return;
         }
@@ -484,8 +490,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      * Decode message with params for translation
      *
      * @param string $message key to translate
-     * @param string $isoCode language translation iso code
-     * @param mixed $params array parameters to display in the translation message
+     * @param string|null $isoCode language translation iso code
+     * @param array|null $params array parameters to display in the translation message
      *
      * @return string
      */
@@ -513,13 +519,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      * Set message with params for translation
      *
      * @param string $key log key
-     * @param array $params log parameters
+     * @param array|null $params log parameters
      *
      * @return string
      */
     public static function setLogMessage($key, $params = null)
     {
-        if (is_null($params) || (is_array($params) && count($params) == 0)) {
+        if (is_null($params) || (is_array($params) && count($params) === 0)) {
             return $key;
         }
         $allParams = array();
@@ -537,6 +543,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      * @param string $name Marketplace name
      *
      * @return Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
+     *
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
      */
     public static function getMarketplaceSingleton($name)
     {
@@ -696,9 +704,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         if ($dispatch->getTaxCalculation() !== 0 ) {
             $taxId = (int)$dispatch->getTaxCalculation();
         } else {
-            $sql = "SELECT DISTINCT SQL_CALC_FOUND_ROWS sct.id 
+            $sql = 'SELECT DISTINCT SQL_CALC_FOUND_ROWS sct.id 
 	     		FROM s_core_tax as sct
-	            WHERE sct.tax = (SELECT MAX(tax) from s_core_tax)";
+	            WHERE sct.tax = (SELECT MAX(tax) from s_core_tax)';
             $taxId = (int)Shopware()->Db()->fetchOne($sql);
         }
         return Shopware()->Models()->getReference('Shopware\Models\Tax\Tax', $taxId);
@@ -720,7 +728,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             ->setParameters(
                 array(
                     'active' => 1,
-                    'name' => 'local_admins'
+                    'name' => 'local_admins',
                 )
             );
         return $builder->getQuery()->getResult();
@@ -906,7 +914,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
                 chr(29),
                 chr(28),
                 "\n",
-                "\r"
+                "\r",
             ),
             array(
                 ' ',
@@ -923,7 +931,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
                 '',
                 '',
                 '',
-                ''
+                '',
             ),
             $value
         );
@@ -1031,7 +1039,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             /* AE */
             '/[\x{00C6}]/u',
             /* OE */
-            '/[\x{0152}]/u'
+            '/[\x{0152}]/u',
         );
         // ö to oe
         // å to aa
@@ -1077,7 +1085,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             'U',
             'Z',
             'AE',
-            'OE'
+            'OE',
         );
         return preg_replace($patterns, $replacements, $str);
     }

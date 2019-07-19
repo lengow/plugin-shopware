@@ -93,7 +93,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             foreach ($shops as $shop) {
                 $shopsIds .= $shop->getId();
                 $index--;
-                $shopsIds .= ($index == 0) ? '' : ', ';
+                $shopsIds .= $index === 0 ? '' : ', ';
             }
             $shopsIds .= ']';
             header('HTTP/1.1 400 Bad Request');
@@ -103,7 +103,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                     null,
                     array(
                         'shop_id' => $shopId,
-                        'shop_ids' => $shopsIds
+                        'shop_ids' => $shopsIds,
                     )
                 )
             );
@@ -129,7 +129,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                             'selection' => $selection,
                             'log_output' => $logOutput,
                             'update_export_date' => $updateExportDate,
-                            'currency' => $currency
+                            'currency' => $currency,
                         )
                     );
                     $export->exec();

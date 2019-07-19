@@ -39,7 +39,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     const MAX_IMPORT_DAYS = 10;
 
     /**
-     * @var integer Shopware shop id
+     * @var integer|null Shopware shop id
      */
     protected $shopId = null;
 
@@ -54,22 +54,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     protected $logOutput = false;
 
     /**
-     * @var string marketplace order sku
+     * @var string|null marketplace order sku
      */
     protected $marketplaceSku = null;
 
     /**
-     * @var string marketplace name
+     * @var string|null marketplace name
      */
     protected $marketplaceName = null;
 
     /**
-     * @var integer Lengow order id
+     * @var integer|null Lengow order id
      */
     protected $lengowOrderId = null;
 
     /**
-     * @var integer delivery address id
+     * @var integer|null delivery address id
      */
     protected $deliveryAddressId = null;
 
