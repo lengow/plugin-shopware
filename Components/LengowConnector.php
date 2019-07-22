@@ -42,18 +42,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     // const LENGOW_API_URL = 'http://10.100.1.82:8081';
 
     /**
-     * @var string url of the SANDBOX Lengow
-     */
-    const LENGOW_API_SANDBOX_URL = 'https://api.lengow.net';
-
-    /**
      * @var array default options for Curl
      */
     public static $curlOpts = array(
         CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT => 10,
-        CURLOPT_USERAGENT => 'lengow-php-sdk',
+        CURLOPT_USERAGENT => 'lengow-cms-shopware',
     );
 
     /**
@@ -80,7 +75,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         '/v3.0/orders/actions/' => 15,
         '/v3.0/marketplaces' => 15,
         '/v3.0/plans' => 5,
-        '/v3.0/stats' => 3,
+        '/v3.0/stats' => 5,
         '/v3.1/cms' => 5,
     );
 
@@ -109,7 +104,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
             '/access/get_token',
             array(
                 'access_token' => $this->accessToken,
-                'secret' => $this->secret
+                'secret' => $this->secret,
             ),
             'POST'
         );
@@ -180,23 +175,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     }
 
     /**
-     * Head API call
-     *
-     * @param string $method Lengow method API call
-     * @param array $array Lengow method API parameters
-     * @param string $format return format of API
-     * @param string $body body datas for request
-     *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException get Curl error
-     *
-     * @return mixed
-     */
-    public function head($method, $array = array(), $format = 'json', $body = '')
-    {
-        return $this->call($method, $array, 'HEAD', $format, $body);
-    }
-
-    /**
      * Put API call
      *
      * @param string $method Lengow method API call
@@ -211,23 +189,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     public function put($method, $array = array(), $format = 'json', $body = '')
     {
         return $this->call($method, $array, 'PUT', $format, $body);
-    }
-
-    /**
-     * Delete API call
-     *
-     * @param string $method Lengow method API call
-     * @param array $array Lengow method API parameters
-     * @param string $format return format of API
-     * @param string $body body datas for request
-     *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException get Curl error
-     *
-     * @return mixed
-     */
-    public function delete($method, $array = array(), $format = 'json', $body = '')
-    {
-        return $this->call($method, $array, 'DELETE', $format, $body);
     }
 
     /**
@@ -252,7 +213,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      *
      * @param string $api Lengow method API call
      * @param array $args Lengow method API parameters
-     * @param string $type type of request GET|POST|PUT|HEAD|DELETE|PATCH
+     * @param string $type type of request GET|POST|PUT|PATCH
      * @param string $format return format of API
      * @param string $body body datas for request
      *
@@ -347,7 +308,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                         $opts[CURLOPT_HTTPHEADER],
                         array(
                             'Content-Type: application/json',
-                            'Content-Length: ' . strlen($body)
+                            'Content-Length: ' . strlen($body),
                         )
                     );
                 }
@@ -395,13 +356,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                 'lengow_log/exception/error_curl',
                 array(
                     'error_code' => $errorNumber,
-                    'error_message' => $errorText
+                    'error_message' => $errorText,
                 )
             );
             $errorMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                 'log/connector/error_api',
                 array(
-                    'error_code' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($errorCurl)
+                    'error_code' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($errorCurl),
                 )
             );
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log('Connector', $errorMessage);
@@ -419,7 +380,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     {
         $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
         list($accountId, $accessToken, $secretToken) = $accessIds;
-        if ($accountId != 0 && $accessToken != '0' && $secretToken != '0') {
+        if ($accountId !== 0 && $accessToken !== '0' && $secretToken !== '0') {
            return false;
         }
         return true;
@@ -437,7 +398,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         }
         $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
         list($accountId, $accessToken, $secretToken) = $accessIds;
-        if (is_null($accountId) || $accountId == 0 || !is_numeric($accountId)) {
+        if (is_null($accountId) || $accountId === 0 || !is_numeric($accountId)) {
             return false;
         }
         $connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector($accessToken, $secretToken);
@@ -471,11 +432,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         try {
             $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
             list($accountId, $accessToken, $secretToken) = $accessIds;
-            if ($accountId != 0 && $accessToken !== 0 && $secretToken !== 0) {
-                $connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector(
-                    $accessToken,
-                    $secretToken
-                );
+            if ($accountId !== 0 && $accessToken !== '0' && $secretToken !== '0') {
+                $connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector($accessToken, $secretToken);
                 $results = $connector->$type(
                     $url,
                     array_merge(array('account_id' => $accountId), $params),

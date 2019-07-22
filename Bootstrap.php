@@ -64,7 +64,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'description' => $info['description'],
             'support' => $info['support_mail'],
             'link' => $info['link'],
-            'changes' => $info['changes']
+            'changes' => $info['changes'],
         );
     }
 
@@ -90,7 +90,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                 'action' => 'Index',
                 'active' => 1,
                 'parent' => $this->Menu()->findOneBy(array('label' => 'Einstellungen')),
-                'class' => 'lengow--icon'
+                'class' => 'lengow--icon',
             )
         );
         self::log('log/install/add_menu');
@@ -111,7 +111,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         self::log('log/install/end');
         return array(
             'success' => true,
-            'invalidateCache' => array('backend')
+            'invalidateCache' => array('backend'),
         );
     }
 
@@ -150,7 +150,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         self::log('log/update/end', array('old_version' => $version, 'new_version' => $newVersion));
         return array(
             'success' => true,
-            'invalidateCache' => array('backend')
+            'invalidateCache' => array('backend'),
         );
     }
 
@@ -192,7 +192,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
                     'active' => 0,
                     'name' => 'lengow',
                     'description' => 'Lengow',
-                    'additionalDescription' => 'Default payment for Lengow orders'
+                    'additionalDescription' => 'Default payment for Lengow orders',
                 )
             );
             self::log('log/install/add_payment');
@@ -253,6 +253,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'onPostDispatchBackendIndex'
         );
         // Basic settings events
+        $this->subscribeEvent(
+            'Enlight_Controller_Action_PreDispatch_Backend_Config',
+            'onPreDispatchBackendConfig'
+        );
         $this->subscribeEvent(
             'Enlight_Controller_Action_PostDispatch_Backend_Config',
             'onPostDispatchBackendConfig'
@@ -348,6 +352,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $ctrl = $args->getSubject();
         $view = $ctrl->View();
         $view->extendsTemplate('backend/lengow/resources/lengow-template.tpl');
+    }
+
+    /**
+     * Listen to basic settings changes. Log of Lengow settings when they were updated
+     *
+     * @param Enlight_Event_EventArgs $args Shopware Enlight Controller Action instance
+     */
+    public function onPreDispatchBackendConfig($args)
+    {
+        Shopware_Plugins_Backend_Lengow_Components_LengowEvent::onPreDispatchBackendConfig($args);
     }
 
     /**

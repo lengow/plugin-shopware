@@ -48,7 +48,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
      *
      * @param string $message localization key
      * @param array $args arguments to replace word in string
-     * @param string $isoCode translation iso code
+     * @param string|null $isoCode translation iso code
      *
      * @return string
      */
@@ -97,8 +97,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
     /**
      * Load ini file
      *
-     * @param string $isoCode translation iso code
-     * @param string $fileName file location
+     * @param string|null $isoCode translation iso code
+     * @param string|null $fileName file location
      *
      * @return boolean
      */

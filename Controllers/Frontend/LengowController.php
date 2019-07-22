@@ -93,7 +93,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             foreach ($shops as $shop) {
                 $shopsIds .= $shop->getId();
                 $index--;
-                $shopsIds .= ($index == 0) ? '' : ', ';
+                $shopsIds .= $index === 0 ? '' : ', ';
             }
             $shopsIds .= ']';
             header('HTTP/1.1 400 Bad Request');
@@ -103,7 +103,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                     null,
                     array(
                         'shop_id' => $shopId,
-                        'shop_ids' => $shopsIds
+                        'shop_ids' => $shopsIds,
                     )
                 )
             );
@@ -129,7 +129,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                             'selection' => $selection,
                             'log_output' => $logOutput,
                             'update_export_date' => $updateExportDate,
-                            'currency' => $currency
+                            'currency' => $currency,
                         )
                     );
                     $export->exec();
@@ -185,6 +185,8 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
          * integer shop_id             Shop id to import
          * string  $marketplace_sku    Lengow marketplace order id to import
          * string  marketplace_name    Lengow marketplace name to import
+         * string  created_from        import of orders since
+         * string  created_to          import of orders until
          * integer delivery_address_id Lengow delivery address id to import
          * boolean preprod_mode        Activate preprod mode
          * boolean log_output          See logs (1) or not (0)
@@ -204,7 +206,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 $sync = $this->Request()->getParam('sync', false);
                 // sync catalogs id between Lengow and Shopware
                 if (!$sync || $sync === 'catalog') {
-                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::syncCatalog();
+                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::syncCatalog($force);
                 }
                 // sync orders between Lengow and Shopware
                 if (!$sync || $sync === 'order') {
@@ -217,6 +219,12 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                     }
                     if ($this->Request()->getParam('days')) {
                         $params['days'] = (int)$this->Request()->getParam('days');
+                    }
+                    if ($this->Request()->getParam('created_from')) {
+                        $params['created_from'] = (string)$this->Request()->getParam('created_from');
+                    }
+                    if ($this->Request()->getParam('created_to')) {
+                        $params['created_to'] = (string)$this->Request()->getParam('created_to');
                     }
                     if ($this->Request()->getParam('limit')) {
                         $params['limit'] = (int)$this->Request()->getParam('limit');

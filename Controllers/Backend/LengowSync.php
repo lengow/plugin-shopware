@@ -51,7 +51,7 @@ class Shopware_Controllers_Backend_LengowSync extends Shopware_Controllers_Backe
                     $this->View()->assign(
                         array(
                             'success' => true,
-                            'data' => $data
+                            'data' => $data,
                         )
                     );
                     break;

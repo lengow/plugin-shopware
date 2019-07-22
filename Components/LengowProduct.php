@@ -42,7 +42,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         'merchant_product_id',
         'marketplace_order_line_id',
         'quantity',
-        'amount'
+        'amount',
     );
     /**
      * @var Shopware\Models\Article\Article Shopware article instance
@@ -186,7 +186,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 $parentCategoryId = $this->shop->getCategory()->getId();
                 $categories = $this->article->getCategories();
                 foreach ($categories as $category) {
-                    $pathCategory = explode("|", $category->getPath());
+                    $pathCategory = explode('|', $category->getPath());
                     if (in_array($parentCategoryId, $pathCategory)) {
                         $categoryId = $category->getId();
                         break;
@@ -327,7 +327,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $variations = array();
         $select = array(
             'options.name AS value',
-            'groups.name AS name'
+            'groups.name AS name',
         );
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select($select)
@@ -380,7 +380,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 if ($fieldAttributeText['columnName'] == $valueAttribute) {
                     $attributes[strtolower($fieldAttributeText['label'])] = array(
                         'columnName' => $fieldAttributeText['columnName'],
-                        'value' => $valueAttributeText
+                        'value' => $valueAttributeText,
                     );
                 }
             }
@@ -400,7 +400,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         if ($isNewTableAttributes)  {
             $select = array(
                 'attributs.columnName',
-                'attributs.label'
+                'attributs.label',
             );
             $builder = Shopware()->Models()->createQueryBuilder();
             $builder->select($select)
@@ -413,7 +413,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             $select = array(
                 'attributs.name as columnName',
                 'attributs.label',
-                'attributs.position'
+                'attributs.position',
             );
             $builder = Shopware()->Models()->createQueryBuilder();
             $builder->select($select)
@@ -481,7 +481,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $categories = $this->article->getCategories();
         $breadcrumb = null;
         foreach ($categories as $category) {
-            $categoryPath = explode("|", $category->getPath());
+            $categoryPath = explode('|', $category->getPath());
             if (in_array($parentCategoryId, $categoryPath)) {
                 $breadcrumb = $category->getName();
                 $categoryId = (int)$category->getParentId();
@@ -503,7 +503,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Get main price of a detail
      *
-     * @return Shopware\Models\Article\Price
+     * @return Shopware\Models\Article\Price|false
      */
     private function getDetailPrice()
     {
@@ -535,10 +535,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $detailPrice = $this->getDetailPrice();
         $tax = $this->article->getTax()->getTax();
         // get original price before discount
-        $priceExclTax = $detailPrice->getPrice();
+        $priceExclTax = $detailPrice ? $detailPrice->getPrice() : 0;
         $priceInclTax = $priceExclTax * (100 + $tax) / 100;
         // get price with discount
-        $discount = $detailPrice->getPercent();
+        $discount = $detailPrice ? $detailPrice->getPercent() : 0;
         $discountPriceExclTax = $priceExclTax * (1 - ($discount / 100));
         $discountPriceInclTax = $discountPriceExclTax * (100 + $tax) / 100;
         return array(
@@ -575,12 +575,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $isMediaManagerSupported = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0');
         $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 'https://' : 'http://';
         $domain = $isHttps . $_SERVER['SERVER_NAME'];
-        try {
-            foreach ($images as $image) {
+        foreach ($images as $image) {
+            try {
+                /** @var Shopware\Models\Media\Media $media */
                 $media = $variationHasImage ? $image->getParent()->getMedia() : $image->getMedia();
-                if ($media != null) {
+                if ($media !== null) {
                     if ($isMediaManagerSupported) {
-                        if ($media->getPath() != null) {
+                        if ($media->getPath() !== null) {
                             $mediaService = Shopware()->Container()->get('shopware_media.media_service');
                             // Get image virtual path (ie : .../media/image/0a/20/03/my-image.png)
                             $imagePath = $mediaService->getUrl($media->getPath());
@@ -588,25 +589,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                             $urls[] = $domain . substr($imagePath, $firstOccurrence);
                         }
                     } else {
-                        if ($media->getPath() != null) {
+                        if ($media->getPath() !== null) {
                             $urls[] = $domain . '/' . $media->getPath();
                         }
                     }
                 }
+            } catch (Exception $e) {
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                    'Warning',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                        'log/export/error_media_not_found',
+                        array(
+                            'detailId' => $this->detail->getNumber(),
+                            'articleName' => $this->article->getName(),
+                            'message' => $e->getMessage(),
+                        )
+                    ),
+                    $this->logOutput
+                );
+                continue;
             }
-        } catch (Exception $e) {
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Warning',
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'log/export/error_media_not_found',
-                    array(
-                        'detailId' => $this->detail->getNumber(),
-                        'articleName' => $this->article->getName(),
-                        'message' => $e->getMessage()
-                    )
-                ),
-                $this->logOutput
-            );
         }
         // Retrieves up to 10 images per product
         $counter = 1;
@@ -645,8 +647,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             $blockedCategories = $dispatch->getCategories();
             if ($this->getCategoryStatus($blockedCategories)) {
                 // Check that article price is in bind prices
-                $startPrice = $dispatch->getBindPriceFrom() == null ? 0 : $dispatch->getBindPriceFrom();
-                $endPrice = $dispatch->getBindPriceTo() == null ? $articlePrice : $dispatch->getBindPriceTo();
+                $startPrice = $dispatch->getBindPriceFrom() === null ? 0 : $dispatch->getBindPriceFrom();
+                $endPrice = $dispatch->getBindPriceTo() === null ? $articlePrice : $dispatch->getBindPriceTo();
                 $calculationType = 0;
                 if ($articlePrice >= $startPrice && $articlePrice <= $endPrice) {
                     $calculation = $dispatch->getCalculation();
@@ -669,9 +671,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     }
                 }
                 // If free shipping has been set
-                if ($dispatch->getShippingFree() != null
-                    && $calculationType >= $dispatch->getShippingFree()
-                ) {
+                if ($dispatch->getShippingFree() !== null && $calculationType >= $dispatch->getShippingFree()) {
                     $shippingCost = 0;
                 } else {
                     if ($dispatch->getCostsMatrix()) {
@@ -706,7 +706,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $result = true;
         foreach ($articleCategories as $aCategory) {
             foreach ($blockedCategories as $bCategory) {
-                if ($aCategory->getId() == $bCategory->getId()) {
+                if ($aCategory->getId() === $bCategory->getId()) {
                     $result = false;
                 } elseif (!$bCategory->isLeaf()) {
                     /** @var Shopware\Models\Category\Category[] $categories */
@@ -799,7 +799,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             $article = null;
         }
         // If parent article is found
-        if ($article != null) {
+        if ($article !== null) {
             $isConfigurable = count($article->getDetails()) > 1;
             // If simple product
             if (!$isConfigurable) {
@@ -807,20 +807,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 $mainDetail = $article->getMainDetail();
                 $result = array(
                     'id' => $mainDetail->getId(),
-                    'number' => $mainDetail->getNumber()
+                    'number' => $mainDetail->getNumber(),
                 );
-            } elseif ($isConfigurable && count($ids) == 2) {
+            } elseif ($isConfigurable && count($ids) === 2) {
                 // If product is configurable and articleId contains detail reference
                 $detailId = $ids[1];
                 $criteria = array(
                     'id' => $detailId,
-                    'articleId' => $parentId
+                    'articleId' => $parentId,
                 );
                 /** @var Shopware\Models\Article\Detail $variation */
                 $variation = $em->getRepository('Shopware\Models\Article\Detail')->findOneBy($criteria);
                 $result = array(
                     'id' => $variation->getId(),
-                    'number' => $variation->getNumber()
+                    'number' => $variation->getNumber(),
                 );
             }
         }
@@ -839,14 +839,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     public static function advancedSearch($field, $value, $logOutput)
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $criteria = array($field => $value);
         /** @var Shopware\Models\Article\Detail[] $result */
-        $result = $em->getRepository('Shopware\Models\Article\Detail')->findBy($criteria);
+        $result = $em->getRepository('Shopware\Models\Article\Detail')->findBy(array($field => $value));
         $total = count($result);
-        if ($total == 1) {
+        if ($total === 1) {
             return array(
                 'id' => $result[0]->getId(),
-                'number' => $result[0]->getNumber()
+                'number' => $result[0]->getNumber(),
             );
         } elseif ($total > 1) {
             // If more than one article found, display warning
@@ -857,7 +856,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     array(
                         'total_product' => $total,
                         'searched_field' => $field,
-                        'searched_value' => $value
+                        'searched_value' => $value,
                     )
                 ),
                 $logOutput

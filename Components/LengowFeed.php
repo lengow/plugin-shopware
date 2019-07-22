@@ -69,7 +69,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     protected $format;
 
     /**
-     * @var string export shop folder
+     * @var string|null export shop folder
      */
     protected $shopFolder = null;
 
@@ -142,7 +142,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
      *
      * @param string $type data type (header, body or footer)
      * @param array $data export data
-     * @param boolean $isFirst is first product
+     * @param boolean|null $isFirst is first product
      */
     public function write($type, $data = array(), $isFirst = null)
     {
@@ -150,7 +150,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
             case 'header':
                 if ($this->stream) {
                     header($this->getHtmlHeader());
-                    if ($this->format == 'csv') {
+                    if ($this->format === 'csv') {
                         header('Content-Disposition: attachment; filename=feed.csv');
                     }
                 }
@@ -278,6 +278,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
      * Finalize export generation
      *
      * @return boolean
+     *
+     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
      */
     public function end()
     {

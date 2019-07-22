@@ -53,8 +53,8 @@ class Shopware_Controllers_Backend_LengowHelp extends Shopware_Controllers_Backe
                 'title_lengow_support',
             ),
             'dashboard/screen/' => array(
-                'help_center_link'
-            )
+                'help_center_link',
+            ),
         );
         $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
         $html = '<div class="lgw-container">
@@ -77,7 +77,7 @@ class Shopware_Controllers_Backend_LengowHelp extends Shopware_Controllers_Backe
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $html
+                'data' => $html,
             )
         );
     }

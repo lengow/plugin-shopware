@@ -144,7 +144,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrderError
                 array(
                     'lengowOrderId' => $lengowOrderId,
                     'isFinished' => false,
-                    'type' => $type
+                    'type' => $type,
                 )
             );
         $results = $builder->getQuery()->getResult();
@@ -174,7 +174,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrderError
             ->setParameters(
                 array(
                     'isFinished' => false,
-                    'mail' => false
+                    'mail' => false,
                 )
             );
         $results = $builder->getQuery()->getResult();

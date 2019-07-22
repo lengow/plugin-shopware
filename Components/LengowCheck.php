@@ -90,7 +90,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
             'help_link' => $this->locale->t('toolbox/index/curl_help_link'),
             'help_label' => $this->locale->t('toolbox/index/curl_help_label'),
             'new_tab' => true,
-            'state' => (int)self::isCurlActivated()
+            'state' => (int)self::isCurlActivated(),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/simple_xml_message'),
@@ -98,7 +98,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
             'help_link' => $this->locale->t('toolbox/index/simple_xml_help_link'),
             'help_label' => $this->locale->t('toolbox/index/simple_xml_help_label'),
             'new_tab' => true,
-            'state' => (int)self::isSimpleXMLActivated()
+            'state' => (int)self::isSimpleXMLActivated(),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/json_php_message'),
@@ -106,7 +106,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
             'help_link' => $this->locale->t('toolbox/index/json_php_help_link'),
             'help_label' => $this->locale->t('toolbox/index/json_php_help_label'),
             'new_tab' => true,
-            'state' => (int)self::isJsonActivated()
+            'state' => (int)self::isJsonActivated(),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/checksum_message'),
@@ -114,7 +114,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
             'help_link' => 'checksum.php',
             'new_tab' => false,
             'help_label' => $this->locale->t('toolbox/index/checksum_help_label'),
-            'state' => (int)self::getFileModified()
+            'state' => (int)self::getFileModified(),
         );
         return $this->getAdminContent($checklist);
     }
@@ -129,29 +129,33 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         $checklist = array();
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shopware_version'),
-            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopwareVersion()
+            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopwareVersion(),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/plugin_version'),
-            'message' => Shopware()->Plugins()->Backend()->Lengow()->getVersion()
+            'message' => Shopware()->Plugins()->Backend()->Lengow()->getVersion(),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/ip_server'),
-            'message' => $_SERVER['SERVER_ADDR']
+            'message' => $_SERVER['SERVER_ADDR'],
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/ip_enabled'),
-            'state' => (int)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowIpEnabled')
+            'state' => (int)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowIpEnabled'
+            ),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/ip_authorized'),
-            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAuthorizedIp')
+            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowAuthorizedIp'
+            ),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/preprod_disabled'),
             'state' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowImportPreprodEnabled'
-            ) ? 0 : 1
+            ) ? 0 : 1,
         );
         return $this->getAdminContent($checklist);
     }
@@ -166,8 +170,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         $pluginPath = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder();
         $fileName = $pluginPath . 'Toolbox' . DIRECTORY_SEPARATOR . 'checkmd5.csv';
         if (file_exists($fileName)) {
-            if (($file = fopen($fileName, "r")) !== false) {
-                while (($data = fgetcsv($file, 1000, "|")) !== false) {
+            if (($file = fopen($fileName, 'r')) !== false) {
+                while (($data = fgetcsv($file, 1000, '|')) !== false) {
                     $filePath = $pluginPath . $data[0];
                     $fileMd = md5_file($filePath);
                     if ($fileMd !== $data[1]) {
@@ -189,14 +193,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     public function getImportInformation()
     {
         $lastImport = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLastImport();
-        $lastImportDate = (
-        $lastImport['timestamp'] == 'none'
+        $lastImportDate = $lastImport['timestamp'] === 'none'
             ? $this->locale->t('toolbox/index/last_import_none')
-            : date('Y-m-d H:i:s', $lastImport['timestamp'])
-        );
-        if ($lastImport['type'] == 'none') {
+            : date('Y-m-d H:i:s', $lastImport['timestamp']);
+        if ($lastImport['type'] === 'none') {
             $lastImportType = $this->locale->t('toolbox/index/last_import_none');
-        } elseif ($lastImport['type'] == 'cron') {
+        } elseif ($lastImport['type'] === 'cron') {
             $lastImportType = $this->locale->t('toolbox/index/last_import_cron');
         } else {
             $lastImportType = $this->locale->t('toolbox/index/last_import_manual');
@@ -213,23 +215,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         $checklist = array();
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/global_token'),
-            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowGlobalToken')
+            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowGlobalToken'),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/url_import'),
-            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getImportUrl()
+            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getImportUrl(),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/import_in_progress'),
-            'message' => $importInProgress
+            'message' => $importInProgress,
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shop_last_import'),
-            'message' => $lastImportDate
+            'message' => $lastImportDate,
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shop_type_import'),
-            'message' => $lastImportType
+            'message' => $lastImportType,
         );
         return $this->getAdminContent($checklist);
     }
@@ -248,50 +250,47 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
             'lengowLastExport',
             $shop
         );
-        if (is_null($lastExport) || $lastExport == '' || $lastExport == 0) {
+        if (is_null($lastExport) || $lastExport === '' || $lastExport == 0) {
             $lastExport = $this->locale->t('toolbox/index/last_import_none');
         }
         $checklist = array();
         $shopDomain = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopUrl($shop);
         $checklist[] = array(
-            'header' => $shop->getName() . ' (' . $shop->getId() . ')' . ' - ' . $shopDomain
+            'header' => $shop->getName() . ' (' . $shop->getId() . ')' . ' - ' . $shopDomain,
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shop_active'),
-            'state' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowShopActive',
-                $shop
-            )
+            'state' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::shopIsActive($shop) ? 1 : 0,
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shop_catalogs_id'),
             'message' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowCatalogId',
                 $shop
-            )
+            ),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shop_product_total'),
-            'message' => $lengowExport->getTotalProducts()
+            'message' => $lengowExport->getTotalProducts(),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shop_product_exported'),
-            'message' => $lengowExport->getExportedProducts()
+            'message' => $lengowExport->getExportedProducts(),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shop_export_token'),
             'message' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowShopToken',
                 $shop
-            )
+            ),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/url_export'),
-            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getExportUrl($shop)
+            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getExportUrl($shop),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shop_last_export'),
-            'message' => $lastExport
+            'message' => $lastExport,
         );
         return $this->getAdminContent($checklist);
     }
@@ -311,8 +310,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         if (file_exists($fileName)) {
             $fileErrors = array();
             $fileDeletes = array();
-            if (($file = fopen($fileName, "r")) !== false) {
-                while (($data = fgetcsv($file, 1000, "|")) !== false) {
+            if (($file = fopen($fileName, 'r')) !== false) {
+                while (($data = fgetcsv($file, 1000, '|')) !== false) {
                     $fileCounter++;
                     $filePath = $pluginPath . $data[0];
                     if (file_exists($filePath)) {
@@ -320,13 +319,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
                         if ($fileMd !== $data[1]) {
                             $fileErrors[] = array(
                                 'title' => $filePath,
-                                'state' => 0
+                                'state' => 0,
                             );
                         }
                     } else {
                         $fileDeletes[] = array(
                             'title' => $filePath,
-                            'state' => 0
+                            'state' => 0,
                         );
                     }
                 }
@@ -335,25 +334,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
             $totalFileInError = count($fileErrors);
             $totalFileDeleted = count($fileDeletes);
             $checklist[] = array(
-                'title' => $this->locale->t(
-                    'toolbox/checksum/file_checked',
-                    array('nb_file' => $fileCounter)
-                ),
-                'state' => 1
+                'title' => $this->locale->t('toolbox/checksum/file_checked', array('nb_file' => $fileCounter)),
+                'state' => 1,
             );
             $checklist[] = array(
-                'title' => $this->locale->t(
-                    'toolbox/checksum/file_modified',
-                    array('nb_file' => count($fileErrors))
-                ),
-                'state' => (count($fileErrors) > 0 ? 0 : 1)
+                'title' => $this->locale->t('toolbox/checksum/file_modified', array('nb_file' => count($fileErrors))),
+                'state' => count($fileErrors) > 0 ? 0 : 1,
             );
             $checklist[] = array(
-                'title' => $this->locale->t(
-                    'toolbox/checksum/file_deleted',
-                    array('nb_file' => count($fileDeletes))
-                ),
-                'state' => (count($fileDeletes) > 0 ? 0 : 1)
+                'title' => $this->locale->t('toolbox/checksum/file_deleted', array('nb_file' => count($fileDeletes))),
+                'state' => count($fileDeletes) > 0 ? 0 : 1,
             );
             $html .= $this->getAdminContent($checklist);
             if ($totalFileInError > 0) {
@@ -369,7 +359,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         } else {
             $checklist[] = array(
                 'title' => $this->locale->t('toolbox/checksum/file_not_exists'),
-                'state' => 0
+                'state' => 0,
             );
             $html .= $this->getAdminContent($checklist);
         }
@@ -396,7 +386,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
             } else {
                 $out .= '<td><b>' . $check['title'] . '</b></td>';
                 if (isset($check['state'])) {
-                    if ($check['state'] == 1) {
+                    if ($check['state'] === 1) {
                         $out .= '<td align="right"><i class="fa fa-check lengow-green"></i></td>';
                     } else {
                         $out .= '<td align="right"><i class="fa fa-times lengow-red"></i></td>';
@@ -404,7 +394,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
                     if ($check['state'] === 0) {
                         if (isset($check['help']) && isset($check['help_link']) && isset($check['help_label'])) {
                             $out .= '<tr><td colspan="2"><p>' . $check['help'];
-                            if (array_key_exists('help_link', $check) && $check['help_link'] != '') {
+                            if (array_key_exists('help_link', $check) && $check['help_link'] !== '') {
                                 $newTab = $check['new_tab'] !== false ? 'target="_blank"' : '';
                                 $out .= '<br /><a ' . $newTab . ' href="'
                                     . $check['help_link'] . '">' . $check['help_label'] . '</a>';

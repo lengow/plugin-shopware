@@ -83,7 +83,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             's_core_countries.name as countryName',
             's_core_countries.iso as countryIso',
             'orderError.message as errorMessage',
-            's_lengow_action.actionType as lastActionType'
+            's_lengow_action.actionType as lastActionType',
         );
 
         if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.5.0')) {
@@ -152,7 +152,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             array(
                 'success' => true,
                 'data' => $result,
-                'total' => $totalOrders
+                'total' => $totalOrders,
             )
         );
     }
@@ -169,7 +169,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             'orderError.lengowOrderId',
             'orderError.message',
             'orderError.type',
-            'orderError.isFinished'
+            'orderError.isFinished',
         );
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $builder = $em->createQueryBuilder();
@@ -180,7 +180,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         if ($results) {
             $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
             foreach ($results as $errorOrder) {
-                if ($errorOrder['message'] != '') {
+                if ($errorOrder['message'] !== '') {
                     $errorMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
                             $errorOrder['message'],
@@ -217,7 +217,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             $data['mail_report'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
                 'order/panel/mail_report',
                 $locale,
-                array('email' => implode(", ",
+                array('email' => implode(', ',
                     Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getReportEmailAddress())
                 )
             );
@@ -231,7 +231,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $data
+                'data' => $data,
             )
         );
     }
@@ -249,7 +249,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $data
+                'data' => $data,
             )
         );
     }
@@ -329,7 +329,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $success
+                'data' => $success,
             )
         );
     }
@@ -348,7 +348,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $success
+                'data' => $success,
             )
         );
     }
@@ -367,7 +367,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $success
+                'data' => $success,
             )
         );
     }
@@ -389,7 +389,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $success
+                'data' => $success,
             )
         );
     }
@@ -411,7 +411,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $success
+                'data' => $success,
             )
         );
     }
@@ -421,18 +421,16 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
      */
     public function reImportMassAction()
     {
+        $totalReImport = 0;
         $lengowOrderIds = json_decode($this->Request()->getParam('lengowOrderIds'));
         $nbSelected = count($lengowOrderIds);
         $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
-
-        $totalReImport = 0;
         foreach ($lengowOrderIds as $lengowOrderId) {
             $result = $this->reImportAction((int)$lengowOrderId);
             if ($result && isset($result['order_new']) && $result['order_new']) {
                 $totalReImport++;
             }
         }
-
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
             'API-OrderAction',
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
@@ -441,17 +439,15 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             ),
             false
         );
-
         $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
             'lengow_log/error/mass_action_reimport_success',
             $locale,
             array('nb_imported' => $totalReImport, 'nb_selected' => $nbSelected)
         );
-
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $message
+                'data' => $message,
             )
         );
     }
@@ -461,18 +457,16 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
      */
     public function reSendMassAction()
     {
+        $totalReSent = 0;
         $lengowOrderIds = json_decode($this->Request()->getParam('lengowOrderIds'));
         $nbSelected = count($lengowOrderIds);
         $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
-
-        $totalReSent = 0;
         foreach ($lengowOrderIds as $lengowOrderId) {
             $result = $this->reSendAction((int)$lengowOrderId);
             if ($result && isset($result['order_new']) && $result['order_new']) {
                 $totalReSent++;
             }
         }
-
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
             'API-OrderAction',
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
@@ -481,17 +475,15 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             ),
             false
         );
-
         $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
             'lengow_log/error/mass_action_resend_success',
             $locale,
             array('nb_sent' => $totalReSent, 'nb_selected' => $nbSelected)
         );
-
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $message
+                'data' => $message,
             )
         );
     }
