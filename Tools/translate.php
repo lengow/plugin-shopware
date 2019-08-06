@@ -34,7 +34,7 @@ array_unshift($listFiles, 'en.yml');
 $defaultValues = array();
 
 $fp = fopen(dirname(dirname(__FILE__)) . '/Snippets/backend/Lengow/translation.ini', 'w+');
-// Get translation for each locale
+// get translation for each locale
 foreach ($locales as $key => $value) {
     $fileName = $directory . $key . '.yml';
     $ymlFile = yaml_parse_file($fileName);
@@ -46,8 +46,8 @@ foreach ($locales as $key => $value) {
     fwrite($fp, "\n");
 }
 
-// Put default locale (en) and log translations into [default] section
-// Used by Shopware when user locale is not detected
+// put default locale (en) and log translations into [default] section
+// used by Shopware when user locale is not detected
 $englishTranslation = yaml_parse_file($directory . $defaultLocale . '.yml');
 $logTranslation = yaml_parse_file($directory . $logFile . '.yml');
 $defaultTranslation = array_merge($englishTranslation, $logTranslation);

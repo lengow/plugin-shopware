@@ -172,7 +172,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public function uninstall()
     {
         self::log('log/uninstall/start');
-        // Remove custom attributes
+        // remove custom attributes
         $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
         $lengowDatabase->removeAllLengowColumns();
         $lengowDatabase->removeCustomModels();
@@ -212,47 +212,47 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     private function registerMyEvents()
     {
-        // Main controller
+        // main controller
         $this->subscribeEvent(
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_Lengow',
             'getDefaultControllerPath'
         );
-        // Home controller
+        // home controller
         $this->subscribeEvent(
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowHome',
             'onGetHomeControllerPath'
         );
-        // Export controller
+        // export controller
         $this->subscribeEvent(
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowExport',
             'onGetExportControllerPath'
         );
-        // Import controller
+        // import controller
         $this->subscribeEvent(
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowImport',
             'onGetImportControllerPath'
         );
-        // Sync controller
+        // sync controller
         $this->subscribeEvent(
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowSync',
             'onGetSyncControllerPath'
         );
-        // Log controller
+        // log controller
         $this->subscribeEvent(
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowLogs',
             'onGetLogControllerPath'
         );
-        // Help controller
+        // help controller
         $this->subscribeEvent(
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowHelp',
             'onGetHelpControllerPath'
         );
-        // Backend events
+        // backend events
         $this->subscribeEvent(
             'Enlight_Controller_Action_PostDispatch_Backend_Index',
             'onPostDispatchBackendIndex'
         );
-        // Basic settings events
+        // basic settings events
         $this->subscribeEvent(
             'Enlight_Controller_Action_PreDispatch_Backend_Config',
             'onPreDispatchBackendConfig'
@@ -269,7 +269,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Enlight_Controller_Action_PostDispatch_Backend_Order',
             'onPostDispatchBackendOrder'
         );
-        // Api events
+        // api events
         $this->subscribeEvent(
             'Enlight_Controller_Action_PostDispatch_Api_Orders',
             'onApiOrderPostDispatch'

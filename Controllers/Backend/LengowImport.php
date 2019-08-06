@@ -123,7 +123,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 's_order.id = s_lengow_action.orderId'
             );
 
-        // Search criteria
+        // search criteria
         if (isset($filters['search'])) {
             $searchFilter = '%' . $filters['search'] . '%';
             $condition = 'orderLengow.marketplaceSku LIKE :searchFilter OR ' .
@@ -294,7 +294,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 array('nb_order' => (int)$return['order_error'])
             );
         }
-        if (count($messages) == 0) {
+        if (empty($messages)) {
             $messages['no_notification'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
                 'lengow_log/error/no_notification',
                 $locale

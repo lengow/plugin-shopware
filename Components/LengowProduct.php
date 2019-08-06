@@ -202,7 +202,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             case 'discount_percent':
                 return number_format($this->prices[$name], 2);
             case 'discount_start_date':
-                return '';
             case 'discount_end_date':
                 return '';
             case 'shipping_cost':
@@ -583,7 +582,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     if ($isMediaManagerSupported) {
                         if ($media->getPath() !== null) {
                             $mediaService = Shopware()->Container()->get('shopware_media.media_service');
-                            // Get image virtual path (ie : .../media/image/0a/20/03/my-image.png)
+                            // get image virtual path (ie : .../media/image/0a/20/03/my-image.png)
                             $imagePath = $mediaService->getUrl($media->getPath());
                             $firstOccurrence = strpos($imagePath, '/media');
                             $urls[] = $domain . substr($imagePath, $firstOccurrence);
@@ -610,7 +609,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 continue;
             }
         }
-        // Retrieves up to 10 images per product
+        // retrieves up to 10 images per product
         $counter = 1;
         foreach ($urls as $url) {
             $imageUrls['image_url_' . $counter] = $url;
@@ -634,7 +633,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         $shippingCost = 0;
         $articlePrice = $this->getData('price_before_discount_incl_tax');
-        // If article has not been manually set with free shipping
+        // if article has not been manually set with free shipping
         if (!$this->detail->getShippingFree()) {
             $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
             $dispatchId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
@@ -646,23 +645,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             /** @var Shopware\Models\Category\Category[] $blockedCategories */
             $blockedCategories = $dispatch->getCategories();
             if ($this->getCategoryStatus($blockedCategories)) {
-                // Check that article price is in bind prices
+                // check that article price is in bind prices
                 $startPrice = $dispatch->getBindPriceFrom() === null ? 0 : $dispatch->getBindPriceFrom();
                 $endPrice = $dispatch->getBindPriceTo() === null ? $articlePrice : $dispatch->getBindPriceTo();
                 $calculationType = 0;
                 if ($articlePrice >= $startPrice && $articlePrice <= $endPrice) {
                     $calculation = $dispatch->getCalculation();
                     switch ($calculation) {
-                        case 0: // Dispatch based on weight
+                        case 0: // dispatch based on weight
                             $calculationType = $this->detail->getWeight();
                             break;
-                        case 1: // Dispatch based on price
+                        case 1: // dispatch based on price
                             $calculationType = $articlePrice;
                             break;
-                        case 2: // Dispatch based on quantity
+                        case 2: // dispatch based on quantity
                             $calculationType = 1;
                             break;
-                        case 3: // Dispatch based on calculation
+                        case 3: // dispatch based on calculation
                             $calculationType = $this->detail->getWeight();
                             break;
                         default:
@@ -670,7 +669,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                             break;
                     }
                 }
-                // If free shipping has been set
+                // if free shipping has been set
                 if ($dispatch->getShippingFree() !== null && $calculationType >= $dispatch->getShippingFree()) {
                     $shippingCost = 0;
                 } else {
@@ -762,7 +761,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     public static function checkIsParentProduct($articleId)
     {
         $ids = explode('_', $articleId);
-        // Check existing parent product
+        // check existing parent product
         if (count($ids) === 1) {
             try {
                 $articleId = $ids[0];
@@ -798,19 +797,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         } catch (Exception $e) {
             $article = null;
         }
-        // If parent article is found
+        // if parent article is found
         if ($article !== null) {
             $isConfigurable = count($article->getDetails()) > 1;
-            // If simple product
+            // if simple product
             if (!$isConfigurable) {
-                // Get article main detail id
+                // get article main detail id
                 $mainDetail = $article->getMainDetail();
                 $result = array(
                     'id' => $mainDetail->getId(),
                     'number' => $mainDetail->getNumber(),
                 );
             } elseif ($isConfigurable && count($ids) === 2) {
-                // If product is configurable and articleId contains detail reference
+                // if product is configurable and articleId contains detail reference
                 $detailId = $ids[1];
                 $criteria = array(
                     'id' => $detailId,
@@ -848,7 +847,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 'number' => $result[0]->getNumber(),
             );
         } elseif ($total > 1) {
-            // If more than one article found, display warning
+            // if more than one article found, display warning
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                 'Import',
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(

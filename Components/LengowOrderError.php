@@ -110,15 +110,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrderError
     public static function getOrderErrorType($type = null)
     {
         switch ($type) {
-            case 'import':
-                return self::TYPE_ERROR_IMPORT;
-                break;
             case 'send':
                 return self::TYPE_ERROR_SEND;
-                break;
+            case 'import':
             default:
                 return self::TYPE_ERROR_IMPORT;
-                break;
         }
     }
 

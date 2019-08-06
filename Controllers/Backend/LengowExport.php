@@ -89,7 +89,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             ->andWhere('prices.customerGroupKey = \'EK\'')
             ->andWhere('details.kind = 1')
             ->andWhere('attributes.articleDetailId = details.id');
-        // Filter category
+        // filter category
         if ($filterBy === 'inStock') {
             $builder->andWhere('details.inStock > 0');
         } elseif ($filterBy === 'lengowProduct') {
@@ -106,13 +106,13 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             } else {
                 $mainCategory = $em->getReference('Shopware\Models\Category\Category', $categoryId);
             }
-            // Construct where clause with selected category children
+            // construct where clause with selected category children
             $where = $this->getAllCategoriesClause($mainCategory);
             $builder->leftJoin('articles.categories', 'categories')
                 ->innerJoin('articles.allCategories', 'allCategories')
                 ->andWhere($where);
         }
-        // Search criteria
+        // search criteria
         if (isset($filters['search'])) {
             $searchFilter = '%' . $filters['search'] . '%';
             $condition = 'details.number LIKE :searchFilter OR ' .
@@ -121,7 +121,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             $builder->andWhere($condition)
                 ->setParameter('searchFilter', $searchFilter);
         }
-        // Make sure that whe don't get a cold here
+        // make sure that whe don't get a cold here
         $columns = array(
             'number',
             'name',
@@ -133,7 +133,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             'lengowActive',
         );
         $directions = array('ASC', 'DESC');
-        if (null === $order
+        if ($order === null
             || !in_array($order[0]['property'], $columns)
             || !in_array($order[0]['direction'], $directions)
         ) {
@@ -157,7 +157,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             $builder->orderBy($orderColumn, $order['direction']);
         }
         $builder->distinct()->addOrderBy('details.number');
-        // Used to get number of products available/exported
+        // used to get number of products available/exported
         $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, null);
         $totalProducts = count($builder->getQuery()->getArrayResult());
         $builder->setFirstResult($start)->setMaxResults($limit);
@@ -221,13 +221,13 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $categoriesIds = $this->Request()->getParam('categoryId');
         $active = $status == 'true' ? true : false;
         $shopId = $categoriesIds;
-        // Tree is based on shopId_categoryId (except for shops)
+        // tree is based on shopId_categoryId (except for shops)
         $articleCategory = explode('_', $categoriesIds);
         if (count($articleCategory) > 1) {
             $shopId = $articleCategory[0];
         }
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        // If export all product for this shop (checkbox)
+        // if export all product for this shop (checkbox)
         if ($articleIds === '') {
             $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
             $mainCategory = $shop->getCategory();
@@ -258,7 +258,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     private function setLengowStatusFromCategory($category, $shopId, $status)
     {
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        // If not a parent category
+        // if not a parent category
         if ($category->isLeaf()) {
             $articles = $category->getArticles();
             foreach ($articles as $article) {
@@ -293,7 +293,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $parentId = $this->Request()->getParam('id');
         $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
         $result = array();
-        // If the root is selected, return list of enabled shops
+        // if the root is selected, return list of enabled shops
         if ($parentId === 'root') {
             /** @var Shopware\Models\Shop\Shop[] $shops */
             $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
@@ -306,7 +306,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
                 );
             }
         } else {
-            // As tree requires a unique id, explode id to get the shop and the category id
+            // as tree requires a unique id, explode id to get the shop and the category id
             $ids = explode('_', $parentId);
             if (count($ids) > 1) {
                 $shopId = $ids[0];

@@ -240,14 +240,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         switch ($format) {
             case 'json':
                 return json_decode($data, true);
-            case 'csv':
-                return $data;
             case 'xml':
                 return simplexml_load_string($data);
+            case 'csv':
             case 'stream':
-                return $data;
             default:
-                return array();
+                return $data;
         }
     }
 
@@ -266,10 +264,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      */
     protected function makeRequest($type, $url, $args, $token, $body = '')
     {
-        // Define CURLE_OPERATION_TIMEDOUT for old php versions
+        // define CURLE_OPERATION_TIMEDOUT for old php versions
         defined('CURLE_OPERATION_TIMEDOUT') || define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);
         $ch = curl_init();
-        // Get default Curl options
+        // get default Curl options
         $opts = self::$curlOpts;
         // get special timeout for specific Lengow API
         if (array_key_exists($url, $this->lengowUrls)) {
@@ -332,7 +330,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                 $opts[CURLOPT_POSTFIELDS] = http_build_query($args);
                 break;
         }
-        // Execute url request
+        // execute url request
         curl_setopt_array($ch, $opts);
         $result = curl_exec($ch);
         $errorNumber = curl_errno($ch);
@@ -380,7 +378,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     {
         $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
         list($accountId, $accessToken, $secretToken) = $accessIds;
-        if ($accountId !== 0 && $accessToken !== '0' && $secretToken !== '0') {
+        if ($accountId !== '0' && $accessToken !== '0' && $secretToken !== '0') {
            return false;
         }
         return true;
@@ -398,7 +396,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         }
         $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
         list($accountId, $accessToken, $secretToken) = $accessIds;
-        if (is_null($accountId) || $accountId === 0 || !is_numeric($accountId)) {
+        if (is_null($accountId) || (int)$accountId === 0 || !is_numeric($accountId)) {
             return false;
         }
         $connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector($accessToken, $secretToken);

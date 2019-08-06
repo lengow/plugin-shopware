@@ -267,7 +267,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      * @param string $action order action (ship or cancel)
      * @param \Shopware\Models\Order\Order $order Shopware order instance
      * @param \Shopware\CustomModels\Lengow\Order $lengowOrder Lengow order instance
-     * @param string $orderLineId Lengow order line id
+     * @param string|null $orderLineId Lengow order line id
      *
      * @throws Exception|Shopware_Plugins_Backend_Lengow_Components_LengowException action not valid
      *      marketplace action not present / store id is required /marketplace name is required
@@ -437,7 +437,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     {
         $params = array();
         $actions = $this->getAction($action);
-        // Get all order informations
+        // get all order informations
         foreach ($marketplaceArguments as $arg) {
             switch ($arg) {
                 case 'tracking_number':

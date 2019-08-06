@@ -34,6 +34,11 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 {
     /**
+     * @var integer min import days for old versions
+     */
+    const MIN_IMPORT_DAYS = 1;
+
+    /**
      * @var integer max import days for old versions
      */
     const MAX_IMPORT_DAYS = 10;
@@ -184,7 +189,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             $this->limit = 1;
             $this->importOneOrder = true;
             if (array_key_exists('delivery_address_id', $params) && $params['delivery_address_id'] != '') {
-                $this->deliveryAddressId = $params['delivery_address_id'];
+                $this->deliveryAddressId = (int)$params['delivery_address_id'];
             }
         } else {
             $this->marketplaceSku = null;
@@ -428,7 +433,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             ) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::sendMailAlert($this->logOutput);
             }
-            //check if order action is finish (Ship / Cancel)
+            // check if order action is finish (Ship / Cancel)
             if (!$this->preprodMode && !$this->importOneOrder && $this->typeImport === 'manual') {
                 Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkFinishAction();
                 Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkOldAction();
@@ -633,7 +638,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     )
                 );
             }
-            // Construct array orders
+            // construct array orders
             foreach ($results->results as $order) {
                 $orders[] = $order;
             }
@@ -667,7 +672,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 $marketplaceSku .= '--' . time();
             }
             // if order contains no package
-            if (count($orderData->packages) === 0) {
+            if (empty($orderData->packages)) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Import',
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
@@ -698,7 +703,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 // check the package for re-import order
                 if ($this->importOneOrder) {
                     if (!is_null($this->deliveryAddressId)
-                        && $this->deliveryAddressId != $packageDeliveryAddressId
+                        && $this->deliveryAddressId !== $packageDeliveryAddressId
                     ) {
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                             'Import',
@@ -748,7 +753,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     unset($errorMessage);
                     continue;
                 }
-                // Sync to lengow if no preprod_mode
+                // sync to lengow if no preprod_mode
                 if (!$this->preprodMode && isset($order['order_new']) && $order['order_new']) {
                     /** @var Shopware\Models\Order\Order $shopwareOrder */
                     $shopwareOrder = Shopware()->Models()->getRepository('\Shopware\Models\Order\Order')
@@ -821,7 +826,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             // retrieval of orders created from ... until ...
             $createdFromTimestamp = strtotime($createdFrom);
             $createdToTimestamp = strtotime($createdTo) + 86399;
-            $intervalDay = (int) (($createdToTimestamp - $createdFromTimestamp) / 86400);
+            $intervalDay = (int)(($createdToTimestamp - $createdFromTimestamp) / 86400);
             if ($intervalDay > self::MAX_IMPORT_DAYS) {
                 $dateFrom = date('c', $createdFromTimestamp);
                 $dateTo = date('c', ($createdFromTimestamp + self::MAX_IMPORT_DAYS * 86400));
@@ -832,15 +837,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             $this->createdFrom = $dateFrom;
             $this->createdTo = $dateTo;
         } else {
-            // order recovery updated since ... days
-            $importDays = (int)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowImportDays'
-            );
-            // add security for older versions of the plugin
-            $importDays = $importDays > self::MAX_IMPORT_DAYS ? self::MAX_IMPORT_DAYS : $importDays;
             if ($days) {
+                $days = $days < self::MIN_IMPORT_DAYS ? self::MIN_IMPORT_DAYS : $days;
                 $importDays = $days > self::MAX_IMPORT_DAYS ? self::MAX_IMPORT_DAYS : $days;
             } else {
+                // order recovery updated since ... days
+                $importDays = (int)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                    'lengowImportDays'
+                );
+                // add security for older versions of the plugin
+                $importDays = $importDays < self::MIN_IMPORT_DAYS ? self::MIN_IMPORT_DAYS : $importDays;
+                $importDays = $importDays > self::MAX_IMPORT_DAYS ? self::MAX_IMPORT_DAYS : $importDays;
+                // adaptation of the time interval according to the last successful synchronisation
                 $lastImport = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLastImport();
                 $lastSettingUpdate = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                     'lengowLastSettingUpdate'
