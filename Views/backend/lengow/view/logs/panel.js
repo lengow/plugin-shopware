@@ -6,7 +6,7 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
 
     layout: 'fit',
 
-    // Translations
+    // translations
     snippets: {
         emptySelection: '{s name="log/panel/empty_selection" namespace="backend/Lengow/translation"}{/s}',
         button: '{s name="log/panel/button" namespace="backend/Lengow/translation"}{/s}'
@@ -49,7 +49,7 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
             store: me.store,
             listeners : {
                 select : function() {
-                    // When a record is selected, enable download button
+                    // when a record is selected, enable download button
                     Ext.getCmp('downloadButton').enable();
                 }
             }
@@ -73,23 +73,23 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
                 var selectedFile = Ext.getCmp('selectedName').getValue();
                 var url = '{url controller="LengowLogs" action="download"}';
 
-                // Create form panel. It contains a basic form that we need for the file download.
+                // create form panel. It contains a basic form that we need for the file download
                 var form = Ext.create('Ext.form.Panel', {
                     standardSubmit: true,
                     url: url,
                     method: 'POST'
                 });
 
-                // Call the submit to begin the file download.
+                // call the submit to begin the file download
                 form.submit({
-                    target: '_blank', // Avoids leaving the page.
+                    target: '_blank', // Avoids leaving the page
                     params: {
                         fileName: selectedFile
                     }
                 });
 
-                // Clean-up the form after 100 milliseconds.
-                // Once the submit is called, the browser does not care anymore with the form object.
+                // clean-up the form after 100 milliseconds
+                // once the submit is called, the browser does not care anymore with the form object
                 Ext.defer(function(){
                     form.close();
                 }, 100);

@@ -5,7 +5,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
     alias: 'widget.lengow-import-container',
     renderTo: Ext.getBody(),
 
-    // Translations
+    // translations
     snippets: {
         button: '{s name="order/panel/button_import" namespace="backend/Lengow/translation"}{/s}'
     },
@@ -94,7 +94,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
                             border: false,
                             listeners: {
                                 render: function(component){
-                                    // On click, see configuration
+                                    // on click, see configuration
                                     component.getEl().on('click', function(){
                                         Shopware.app.Application.addSubApplication({
                                             name: 'Shopware.apps.Config'
@@ -115,7 +115,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Container', {
                     html: '<span class="lgw-btn-order">' + Ext.String.format(me.snippets.button) + "</span>",
                     listeners: {
                         render: function (component) {
-                            // On click, import orders
+                            // on click, import orders
                             component.getEl().on('click', function () {
                                 me.fireEvent('launchImportProcess');
                             });

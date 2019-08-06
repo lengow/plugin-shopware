@@ -7,7 +7,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
         { ref: 'importPanel', selector: 'lengow-import-panel' }
     ],
 
-    // Translations
+    // translations
     snippets: {
         order_error: '{s name="order/panel/order_error" namespace="backend/Lengow/translation"}{/s}',
         last_import: '{s name="order/panel/last_import" namespace="backend/Lengow/translation"}{/s}',
@@ -157,7 +157,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
                     url = '{url controller=LengowImport action=reImportMass}';
                 }
 
-                // Display waiting message
+                // display waiting message
                 Ext.MessageBox.show({
                     msg: me.snippets.mass_action_waiting_message,
                     width: 300,
@@ -228,7 +228,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
      */
     onLaunchImportProcess: function () {
         var me = this;
-        // Display waiting message
+        // display waiting message
        Ext.MessageBox.show({
             msg: '{s name="order/screen/import_charge_second" namespace="backend/Lengow/translation"}{/s}',
             width:300,
@@ -243,9 +243,9 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
                 var result = Ext.decode(response.responseText),
                     data = result['data'],
                     grid = Ext.getCmp('importGrid');
-                // Update last synchronization date
+                // update last synchronization date
                 me.onInitImportPanels();
-                // Hide waiting message
+                // hide waiting message
                 Ext.MessageBox.hide();
                 grid.getStore().load();
                 grid.getView().refresh();

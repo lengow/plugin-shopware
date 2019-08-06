@@ -62,7 +62,7 @@ Ext.define('Shopware.apps.Lengow', {
     destroyOtherModuleInstances: function () {
         var me = this,  subAppId = me.$subAppId;
 
-        // Iterate over open sub-applications
+        // iterate over open sub-applications
         Ext.each(Shopware.app.Application.subApplications.items, function (subApp) {
             if (!subApp
                 || !subApp.windowManager

@@ -4,7 +4,7 @@ Ext.define('Shopware.apps.Lengow.store.Logs', {
     alias: 'store.lengow-logs',
     model: 'Shopware.apps.Lengow.model.Logs',
 
-    // Translations
+    // translations
     snippets: {
         all: '{s name="log/panel/select_all" namespace="backend/Lengow/translation"}{/s}'
     },
@@ -17,7 +17,7 @@ Ext.define('Shopware.apps.Lengow.store.Logs', {
         load: function(store){
             var me = this;
 
-            // Format to display full date (day month year)
+            // format to display full date (day month year)
             store.each(function(record) {
                 var logDate = record.get('date');
                 if (logDate !== '') {
@@ -27,7 +27,7 @@ Ext.define('Shopware.apps.Lengow.store.Logs', {
                 }
             });
 
-            // Add record to download all logs
+            // add record to download all logs
             var allLogs = { id: '', name: me.snippets.all, date: me.snippets.all};
             store.insert(0, allLogs);
         }

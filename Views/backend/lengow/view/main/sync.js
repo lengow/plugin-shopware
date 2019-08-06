@@ -18,7 +18,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
     initFrame: function() {
         var me = this;
 
-        // Loading message
+        // loading message
         Ext.getCmp('syncPanel').getEl().mask();
         var syncIframe = document.getElementById("lengow_iframe");
         if (syncIframe) {
@@ -45,12 +45,12 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
                     success: function (data) {
                         var response = Ext.decode(data.responseText).data;
                         document.getElementById("lengow_iframe").contentWindow.postMessage(response, '*');
-                        // Unmask waiting message
+                        // unmask waiting message
                         Ext.getCmp('syncPanel').getEl().unmask();
                     }
                 });
             };
-            // Show iframe content
+            // show iframe content
             syncIframe.style.display = "block";
         }
 
@@ -59,7 +59,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
         function receiveMessage(event) {
             switch (event.data.function) {
                 case 'sync':
-                    // Store lengow information into Shopware :
+                    // store lengow information into Shopware :
                     // account_id
                     // access_token
                     // secret_token
@@ -74,7 +74,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
                     });
                     break;
                 case 'sync_and_reload':
-                    // Store lengow information into Shopware and reload it
+                    // store lengow information into Shopware and reload it
                     // account_id
                     // access_token
                     // secret_token
@@ -95,7 +95,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
                     break;
                 case 'reload':
                 case 'cancel':
-                    // Reload the parent page (after sync is ok)
+                    // reload the parent page (after sync is ok)
                     Shopware.app.Application.addSubApplication({
                         name: 'Shopware.apps.Lengow'
                     });

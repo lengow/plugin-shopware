@@ -29,7 +29,7 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
             type: 'json',
             success: function(response) {
                 var data = Ext.decode(response.responseText)['data'];
-                // If not a new merchant, display Lengow plugin
+                // if not a new merchant, display Lengow plugin
                 if (!data['isNewMerchant']) {
                     me.mainWindow = me.getView('main.Home').create({
                         exportStore: Ext.create('Shopware.apps.Lengow.store.Article'),
@@ -37,7 +37,7 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                         logStore: Ext.create('Shopware.apps.Lengow.store.Logs')
                     }).show();
                 } else {
-                    // Display sync iframe
+                    // display sync iframe
                     me.mainWindow = me.getView('main.Sync').create({
                         panelHtml: data['panelHtml'],
                         isSync: false,
@@ -46,7 +46,7 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                     }).show();
                     me.mainWindow.initFrame();
                 }
-                // Show main window
+                // show main window
                 me.mainWindow.maximize();
             }
         });
@@ -70,7 +70,7 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                 } else {
                     var toolbar = Ext.getCmp('lengowMainToolbar');
                     if (toolbar !== 'undefined') {
-                        // Hide toolbar if nothing to show
+                        // hide toolbar if nothing to show
                         toolbar.hide();
                     }
                 }
@@ -83,12 +83,12 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
      * (legals, export/settings blocks on the dashboard, help link, ...)
      */
     onInitLinkListener: function() {
-        // Get Lengow links (products & settings dashboard boxes, help link, ...)
+        // get Lengow links (products & settings dashboard boxes, help link, ...)
         var tabShortcuts = Ext.query("a[id^=lengow][id$=Tab]");
-        // For each one, listen on click and trigger concerned tab
+        // for each one, listen on click and trigger concerned tab
         Ext.each(tabShortcuts, function(item) {
             item.onclick = function() {
-                // Get tab reference
+                // get tab reference
                 var tabEl = Ext.getCmp(item.id);
                 Ext.getCmp('lengowTabPanel').setActiveTab(tabEl);
             };

@@ -4,7 +4,7 @@ Ext.define('Shopware.apps.Lengow.store.Article', {
     alias: 'store.article-store',
     model: 'Shopware.apps.Lengow.model.Article',
 
-    // Define how much rows loaded with one request
+    // define how much rows loaded with one request
     pageSize: 40,
 
     /**
