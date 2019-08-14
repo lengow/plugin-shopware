@@ -311,6 +311,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     private function getArticleTranslations()
     {
         $translation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getTranslationComponent();
+        if ($this->shop->getFallback()) {
+        	return $translation->read($this->shop->getFallback()->getId(), 'article', $this->article->getId());
+        }
         return $translation->read($this->shop->getId(), 'article', $this->article->getId());
     }
 
