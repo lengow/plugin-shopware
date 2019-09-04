@@ -81,7 +81,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $builder->select($select)
             ->from('Shopware\Models\Article\Detail', 'details')
             ->join('details.article', 'articles')
-            ->join('articles.attribute', 'attributes')
+            ->join('details.attribute', 'attributes')
             ->leftJoin('articles.supplier', 'suppliers')
             ->leftJoin('details.prices', 'prices')
             ->leftJoin('articles.tax', 'tax')

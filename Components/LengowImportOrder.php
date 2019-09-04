@@ -986,16 +986,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $customerAttribute = new Shopware\Models\Attribute\Customer();
             // get new address object for Shopware version > 5.2.0
             if ($newSchema) {
-                $address = $this->lengowAddress->getCustomerAddress();
-                if ($address) {
-                    $address->setCustomer($customer);
+                $defaultAddress = $this->lengowAddress->getCustomerAddress();
+                if ($defaultAddress) {
                     $customer->setNumber($customerNumber);
-                    $customer->setSalutation($address->getSalutation());
-                    $customer->setFirstname($address->getFirstname());
-                    $customer->setLastname($address->getLastname());
-                    $customer->setDefaultBillingAddress($address);
-                    $customer->setDefaultShippingAddress($address);
-                    $this->entityManager->persist($address);
+                    $customer->setSalutation($defaultAddress->getSalutation());
+                    $customer->setFirstname($defaultAddress->getFirstname());
+                    $customer->setLastname($defaultAddress->getLastname());
                 } else {
                     return false;
                 }
@@ -1027,6 +1023,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             // update value for global customer number
             if (is_integer($customerNumber) && $customerNumber > $number->getNumber()) {
                 $number->setNumber($customerNumber);
+            }
+            // save default address for Shopware version > 5.2.0
+            if ($newSchema && isset($defaultAddress)) {
+                $defaultAddress->setCustomer($customer);
+                $customer->setDefaultBillingAddress($defaultAddress);
+                $customer->setDefaultShippingAddress($defaultAddress);
+                $this->entityManager->persist($defaultAddress);
             }
             $this->entityManager->flush();
             return $customer;

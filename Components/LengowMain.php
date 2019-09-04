@@ -664,7 +664,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static function getTranslationComponent()
     {
         if (self::$translation === null) {
-            self::$translation = new Shopware_Components_Translation();
+            if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.6', '<')) {
+                self::$translation = new Shopware_Components_Translation();
+            } else {
+                self::$translation = Shopware()->Container()->get('translation');
+            }
         }
         return self::$translation;
     }

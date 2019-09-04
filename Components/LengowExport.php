@@ -528,8 +528,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             ->from('Shopware\Models\Shop\Shop', 'shop')
             ->leftJoin('shop.category', 'mainCategory')
             ->leftJoin('mainCategory.allArticles', 'categories')
-            ->leftJoin('categories.attribute', 'attribute')
             ->leftJoin('categories.details', 'details')
+            ->leftJoin('details.attribute', 'attribute')
             ->leftJoin('details.article', 'article')
             ->leftJoin('article.configuratorSet', 'configurator')
             ->where('shop.id = :shopId')
@@ -571,7 +571,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         // get parent foreach article
         foreach ($articles as $article) {
             if (is_null($article['isParent'])) {
-                // Get simple product
+                // get simple product
                 $articlesByParent[$article['articleId']] = array(
                     'type' => 'simple',
                     'articleId' => $article['articleId'],
@@ -638,7 +638,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         $this->variation = true;
         $products = $this->getIdToExport();
         $total = count($products);
-        // Reset default values
+        // reset default values
         $this->outOfStock = $outOfStockDefaultValue;
         $this->selection = $selectionDefaultValue;
         $this->variation = $variationDefaultValue;
