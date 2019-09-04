@@ -144,7 +144,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
      */
     public static function getTranslationsFromArray($keys)
     {
-        // Get locale from session
+        // get locale from session
         $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
         $lengowTranslation = new Shopware_Plugins_Backend_Lengow_Components_LengowTranslation();
         $translations = array();

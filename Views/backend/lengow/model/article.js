@@ -4,7 +4,7 @@ Ext.define('Shopware.apps.Lengow.model.Article', {
     alias:  'model.article',
     idProperty: 'id',
 
-    // Fields displayed in the grid
+    // fields displayed in the grid
     fields: [
         { name : 'id', type: 'int' },
         { name : 'number', type: 'string' },

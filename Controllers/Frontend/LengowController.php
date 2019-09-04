@@ -58,7 +58,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
          * boolean get_params         See export parameters and authorized values in json format (1) or not (0)
          */
 
-        // Disable template for export
+        // disable template for export
         $this->view->setTemplate(null);
         // get all GET params for export
         $mode = $this->Request()->getParam('mode');
@@ -108,6 +108,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 )
             );
         }
+        // check webservices access
         if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkWebservicesAccess($token, $shop)) {
             // see all export params
             if ($this->Request()->getParam('get_params') == 1) {
@@ -183,7 +184,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
          * integer days                Import period
          * integer limit               Number of orders to import
          * integer shop_id             Shop id to import
-         * string  $marketplace_sku    Lengow marketplace order id to import
+         * string  marketplace_sku     Lengow marketplace order id to import
          * string  marketplace_name    Lengow marketplace name to import
          * string  created_from        import of orders since
          * string  created_to          import of orders until
@@ -193,10 +194,10 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
          * boolean get_sync            See synchronisation parameters in json format (1) or not (0)
          */
 
-        // Disable template for cron
+        // disable template for cron
         $this->view->setTemplate(null);
         $token = $this->Request()->getParam('token');
-        // Check Webservices Access
+        // check webservices access
         if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkWebservicesAccess($token)) {
             // get all store datas for synchronisation with Lengow
             if ($this->Request()->getParam('get_sync') == 1) {
@@ -242,7 +243,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                         $params['shop_id'] = (int)$this->Request()->getParam('shop_id');
                     }
                     $params['type'] = 'cron';
-                    // import orders
+                    // synchronise orders
                     $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport($params);
                     $import->exec();
                 }

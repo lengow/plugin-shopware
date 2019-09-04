@@ -113,7 +113,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
     {
         $allModels = $this->getCustomModels();
         foreach ($allModels as $tableName => $model) {
-            // Check that the table does not exist
+            // check that the table does not exist
             if (!self::tableExist($tableName)) {
                 try {
                     $this->schemaTool->createSchema(array($model));
@@ -183,10 +183,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
      */
     public function removeCustomModels()
     {
-        // List of models to remove when uninstalling the plugin
+        // list of models to remove when uninstalling the plugin
         $removeModels = $this->getCustomModels(true);
         foreach ($removeModels as $tableName => $model) {
-            // Check that the table does not exist
+            // check that the table does not exist
             if (self::tableExist($tableName)) {
                 $this->schemaTool->dropSchema(array($model));
                 Shopware_Plugins_Backend_Lengow_Bootstrap::log(
@@ -227,11 +227,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
     public function removeLengowColumn($shopIds)
     {
         $tableName = 's_articles_attributes';
-        // For each article attributes, remove lengow columns
+        // foreach article attributes, remove lengow columns
         foreach ($shopIds as $shopId) {
             $attributeName = 'shop' . $shopId . '_active';
             if (self::columnExists($tableName, 'lengow_' . $attributeName)) {
-                // Check Shopware\Bundle\AttributeBundle\Service\CrudService::delete compatibility
+                // check Shopware\Bundle\AttributeBundle\Service\CrudService::delete compatibility
                 if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.2')) {
                     $crudService = Shopware()->Container()->get('shopware_attribute.crud_service');
                     $crudService->delete($tableName, 'lengow_' . $attributeName);
@@ -261,7 +261,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
      */
     public function addLengowColumns($shopIds)
     {
-        // Check Shopware\Bundle\AttributeBundle\Service\CrudService::update compatibility
+        // check Shopware\Bundle\AttributeBundle\Service\CrudService::update compatibility
         $crudCompatibility = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.2');
         $tableName = 's_articles_attributes';
         foreach ($shopIds as $shopId) {
@@ -290,7 +290,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
      */
     public function addFromLengowColumns()
     {
-        // Check Shopware\Bundle\AttributeBundle\Service\CrudService::update compatibility
+        // check Shopware\Bundle\AttributeBundle\Service\CrudService::update compatibility
         $crudCompatibility = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.2');
         $tableName = 's_order_attributes';
         $attributeName = 'is_from_lengow';
@@ -324,7 +324,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
             foreach ($lengowSettings as $key => $lengowSetting) {
                 if (isset($lengowSetting['lengow_settings']) && $lengowSetting['lengow_settings']) {
                     $setting = $repository->findOneBy(array('name' => $key));
-                    // If the setting does not already exist, create it
+                    // if the setting does not already exist, create it
                     if ($setting === null) {
                         $setting = new Shopware\CustomModels\Lengow\Settings;
                         $setting->setName($key)
@@ -380,9 +380,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
         $lengowTechnicalError = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowTechnicalErrorStatus();
         if (self::tableExist('s_core_states') && is_null($lengowTechnicalError)) {
             try {
-                // Get id max for new order status - id is not auto-increment
+                // get id max for new order status - id is not auto-increment
                 $idMax = (int)Shopware()->Db()->fetchOne('SELECT MAX(id) FROM `s_core_states`');
-                // Get position max for new order status - exclude cancelled order status
+                // position max for new order status - exclude cancelled order status
                 $positionMax = (int)Shopware()->Db()->fetchOne(
                     'SELECT MAX(position) FROM `s_core_states`
                     WHERE `group` = \'state\' AND `description` != \'Abgebrochen\''
@@ -394,7 +394,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                     'group' => 'state',
                     'mail' => 0,
                 );
-                // Compatibility with 4.3 version - the name field did not exist
+                // compatibility with 4.3 version - the name field did not exist
                 if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0')) {
                     $sql = 'INSERT INTO `s_core_states` (`id`, `name`, `description`, `position`, `group`, `mail`)
                         VALUES (:id, :name , :description, :position, :group, :mail)';
@@ -403,7 +403,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                     $sql = 'INSERT INTO `s_core_states` (`id`, `description`, `position`, `group`, `mail`)
                         VALUES (:id, :description, :position, :group, :mail)';
                 }
-                // Insert lengow technical error status in database
+                // insert lengow technical error status in database
                 Shopware()->Db()->query($sql, $params);
                 Shopware_Plugins_Backend_Lengow_Bootstrap::log('log/install/add_technical_error_status');
             } catch (Exception $e) {
@@ -447,7 +447,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
      */
     public static function tableExist($tableName)
     {
-        $sql = "SHOW TABLES LIKE '" . $tableName . "'";
+        $sql = 'SHOW TABLES LIKE \'' . $tableName . '\'';
         $result = Shopware()->Db()->fetchRow($sql);
         return !empty($result);
     }
@@ -462,10 +462,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
      */
     public static function columnExists($tableName, $columnName)
     {
-        $sql = "DESCRIBE " . $tableName;
+        $sql = 'DESCRIBE ' . $tableName;
         $result = Shopware()->Db()->fetchAll($sql);
         foreach ($result as $data) {
-            if ($data['Field'] == $columnName) {
+            if ($data['Field'] === $columnName) {
                 return true;
             }
         }

@@ -5,12 +5,12 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
 
     alias: 'widget.lengow-main-home',
 
-    // Window properties
+    // window properties
     id: 'lengowMainWindow',
     border: false,
     layout: 'border',
 
-    // Translations
+    // translations
     snippets: {
         title: '{s name="title" namespace="backend/Lengow/translation"}Lengow{/s}',
         tab: {
@@ -50,13 +50,13 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
             id: 'lengowTabPanel',
             region: 'center',
             items: [
-                // Home tab
+                // home tab
                 {
                     id: 'lengowDashboardTab',
                     xtype: 'lengow-dashboard-panel',
                     layout: 'border'
                 },
-                // Export tab
+                // export tab
                 {
                     title: me.snippets.tab.export,
                     id: 'lengowExportTab',
@@ -64,7 +64,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
                     store: me.exportStore,
                     layout: 'border'
                 },
-                // Import tab
+                // import tab
                 {
                     title: me.snippets.tab.import,
                     id: 'lengowImportTab',
@@ -72,25 +72,25 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
                     importStore: me.importStore,
                     layout: 'border'
                 },
-                // Log tab
+                // log tab
                 {
                     title: me.snippets.tab.logs,
                     id: 'lengowLogsTab',
                     layout: 'border'
                 },
-                // Config tab
+                // config tab
                 {
                     title: me.snippets.tab.settings,
                     layout: 'border',
                     id: 'lengowSettingsTab'
                 },
-                // Help tab
+                // help tab
                 {
                     layout: 'border',
                     xtype: 'lengow-help-panel',
                     id: 'lengowHelpTab'
                 },
-                // Legals tab, hidden
+                // legals tab, hidden
                 {
                     layout: 'border',
                     id: 'lengowLegalsTab',
@@ -102,11 +102,11 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
                 }
             ],
             listeners: {
-                // Listen to click on tabs
+                // listen to click on tabs
                 'beforetabchange': function(tabPanel, tab) {
                     var tabId = tab.id;
                     if (tabId === 'lengowSettingsTab') {
-                        // Open Shopware basic settings sub-application
+                        // open Shopware basic settings sub-application
                         Shopware.app.Application.addSubApplication({
                             name: 'Shopware.apps.Config'
                         });

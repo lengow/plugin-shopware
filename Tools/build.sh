@@ -35,17 +35,17 @@ remove_directories(){
     echo "- Delete $FILE : ""$VERT""DONE""$NORMAL"""
 }
 
-# Check parameters
+# check parameters
 if [ -z "$1" ]; then
     echo 'Version parameter is not set'
     echo
     exit 0
 else
     VERSION="$1"
-    ARCHIVE_NAME='Lengow.'$VERSION'.zip'
+    ARCHIVE_NAME='Lengow.shopware.'$VERSION'.zip'
 fi
 
-# Variables
+# variables
 FOLDER_TMP="/tmp/Backend"
 FOLDER_LOGS="/tmp/Backend/Lengow/Logs"
 FOLDER_EXPORT="/tmp/Backend/Lengow/Export"
@@ -58,7 +58,7 @@ ROUGE="\\033[1;31m"
 NORMAL="\\033[0;39m"
 BLEU="\\033[1;36m"
 
-# Process
+# process
 echo
 echo "#####################################################"
 echo "##                                                 ##"
@@ -74,46 +74,45 @@ if [ ! -d "$FOLDER" ]; then
 	exit 0
 fi
 
-# Generate translations
+# generate translations
 php translate.php
 echo "- Generate translations : ""$VERT""DONE""$NORMAL"""
-# Create files checksum
+# create files checksum
 php checkmd5.php
 echo "- Create files checksum : ""$VERT""DONE""$NORMAL"""
-#remove TMP FOLDER
+# remove TMP FOLDER
 remove_directory $FOLDER_TMP
-#copy files
+# copy files
 cp -rRp $FOLDER $FOLDER_TMP
-# Remove .gitkeep
+# remove .gitkeep
 remove_files $FOLDER_TMP ".gitkeep"
-# Remove dod
+# remove dod
 remove_files $FOLDER_TMP "dod.md"
-# Remove Readme
+# remove Readme
 remove_files $FOLDER_TMP "README.md"
-# Remove .git
+# remove .git
 remove_files $FOLDER_TMP ".git"
-# Remove .gitignore
+# remove .gitignore
 remove_files $FOLDER_TMP ".gitignore"
-# Remove .DS_Store
+# remove .DS_Store
 remove_files $FOLDER_TMP ".DS_Store"
-# Remove .idea
+# remove .idea
 remove_files $FOLDER_TMP ".idea"
-# Clean Config Folder
+# clean Config Folder
 remove_files $FOLDER_CONFIG "marketplaces.json"
-# Clean Log Folder
+# clean Log Folder
 remove_files $FOLDER_LOGS "*.txt"
 echo "- Clean logs folder : ""$VERT""DONE""$NORMAL"""
-# Clean export folder
+# clean export folder
 remove_directories $FOLDER_EXPORT
 echo "- Clean export folder : ""$VERT""DONE""$NORMAL"""
-# Clean export folder
+# clean export folder
 remove_directory $FOLDER_TOOLS
 echo "- Remove Tools folder : ""$VERT""DONE""$NORMAL"""
-#remove TMP FOLDER_TRANSLATION
+# remove TMP FOLDER_TRANSLATION
 remove_directory $FOLDER_TRANSLATION
 echo "- Remove Translation yml folder : ""$VERT""DONE""$NORMAL"""
-
-# Make zip
+# make zip
 cd /tmp
 zip "-r" $ARCHIVE_NAME "Backend"
 echo "- Build archive : ""$VERT""DONE""$NORMAL"""

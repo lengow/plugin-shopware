@@ -58,7 +58,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
         $request = $args->getSubject()->Request();
         $controllerName = $request->getControllerName();
         $data = $request->getPost();
-        // If action is from Shopware basics settings plugin and editing shop form
+        // if action is from Shopware basics settings plugin and editing shop form
         if ($controllerName === 'Config' && in_array($data['name'], self::$lengowOptions)) {
             $lengowSettings = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::$lengowSettings;
             $elements = $data['elements'];
@@ -94,18 +94,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
     {
         $request = $args->getSubject()->Request();
         $controllerName = $request->getControllerName();
-        // Since 5.x, forms use _repositoryClass parameter to specify the repository to update
+        // since 5.x, forms use _repositoryClass parameter to specify the repository to update
         if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.0.0')) {
             $repositoryName = $request->get('_repositoryClass');
         } else {
             $repositoryName = $request->get('name');
         }
-        // If action is from Shopware basics settings plugin and editing shop form
+        // if action is from Shopware basics settings plugin and editing shop form
         if ($controllerName === 'Config' && $repositoryName === 'shop') {
             $action = $request->getActionName();
             $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
             $data = $request->getPost();
-            // If new shop, get last entity put in db
+            // if new shop, get last entity put in db
             try {
                 if ($action === 'saveValues') {
                     $shop = Shopware()->Models()
@@ -164,7 +164,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
                 /** @var Shopware\Models\Order\Order $order */
                 $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')
                     ->findOneBy(array('id' => $data['id']));
-                // Call Lengow API WSDL to send ship or cancel actions
+                // call Lengow API WSDL to send ship or cancel actions
                 $shippedStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('shipped');
                 $canceledStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('canceled');
                 if ($order->getOrderStatus()->getId() === $shippedStatus->getId()) {
@@ -195,7 +195,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
                 /** @var Shopware\Models\Order\Order $order */
                 $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')
                     ->findOneBy(array('id' => $orderId));
-                // Call Lengow API WSDL to send ship or cancel actions
+                // call Lengow API WSDL to send ship or cancel actions
                 $shippedStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('shipped');
                 $canceledStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('canceled');
                 if ($order->getOrderStatus()->getId() === $shippedStatus->getId()) {
@@ -219,11 +219,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
             && (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowTrackingEnable')
         ) {
             $sOrderVariables = Shopware()->Session()->offsetGet('sOrderVariables')->getArrayCopy();
-            // Get all tracker variables
+            // get all tracker variables
             $accountId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAccountId');
             $trackingId = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowTrackingId');
             if (!empty($sOrderVariables) && $accountId > 0) {
-                // Get all tracker variables
+                // get all tracker variables
                 $payment = isset($sOrderVariables['sPayment']) ? $sOrderVariables['sPayment'] : '';
                 $articleCart = array();
                 $articles = isset($sOrderVariables['sBasket']['content'])

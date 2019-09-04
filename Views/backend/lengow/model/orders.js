@@ -4,7 +4,7 @@ Ext.define('Shopware.apps.Lengow.model.Orders', {
 	alias: 'model.orders',
 	idProperty: 'id',
 
-	// Fields displayed in the grid
+	// fields displayed in the grid
 	fields: [
         { name : 'id', type: 'int' },
         { name : 'orderId', type: 'string' },

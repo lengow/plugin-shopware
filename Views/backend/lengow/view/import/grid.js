@@ -6,7 +6,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
 
     loadMask:true,
 
-    // Translations
+    // translations
     snippets: {
         column: {
             actions: '{s name="order/grid/column/actions" namespace="backend/Lengow/translation"}{/s}',
@@ -51,9 +51,9 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
     listeners : {
         cellclick : function(view, cell, cellIndex, record) {
             var me = this,
-                errorType = record.raw.orderProcessState == 0 ? 'import' : 'send',
+                errorType = parseInt(record.raw.orderProcessState) === 0 ? 'import' : 'send',
                 clickedColumnName = view.panel.headerCt.getHeaderAtIndex(cellIndex).dataIndex;
-            if (clickedColumnName == 'inError' && record.raw.inError) {
+            if (clickedColumnName === 'inError' && record.raw.inError) {
                 me.fireEvent('reSendActionGrid', record.raw.id, errorType);
             }
         }
@@ -99,8 +99,8 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                     me.sendActionBtn.setVisible(!status);
                     me.importOrderBtn.setVisible(!status);
 
-                    // If mass selection, display combobox to apply action on all articles
-                    if (view.selectionMode == 'MULTI') {
+                    // if mass selection, display combobox to apply action on all articles
+                    if (view.selectionMode === 'MULTI') {
                         var checkbox = Ext.getCmp('editAll');
                         if (!status) {
                             checkbox.show();
@@ -128,12 +128,12 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                 flex: 2,
                 renderer: function(value, metadata, record) {
                     var orderIdShopware = record.get('orderId'),
-                        orderProcessState = record.get('orderProcessState'),
+                        orderProcessState = parseInt(record.get('orderProcessState')),
                         lastActionType = record.get('lastActionType'),
                         errorMessages = record.get('errorMessage');
-                    if (value && orderProcessState != 2) {
-                        var errorType = orderProcessState == 0 ? 're_import' : 're_send';
-                        if (errorType == 're_import') {
+                    if (value && orderProcessState !== 2) {
+                        var errorType = orderProcessState === 0 ? 're_import' : 're_send';
+                        if (errorType === 're_import') {
                             var tootlip = me.snippets.errors.import + errorMessages;
                             return '<div class=" x-btn primary small lengow_action_button_grid">' +
                                 '<span class="lengow_action lengow_tooltip lgw_order_action_grid-js"'
@@ -147,7 +147,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                                 + '<span class="lengow_order_action">' + tootlip + '</span></span></div>';
                         }
                     } else {
-                        if (null != orderIdShopware && orderProcessState == 1) {
+                        if (null != orderIdShopware && orderProcessState === 1) {
                             if (lastActionType) {
                                 var lengowMessage = Ext.String.format(
                                     me.snippets.action_sent,
@@ -336,7 +336,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
     getToolbar: function() {
         var me = this;
 
-        // Un-publish button - Remove mass selection from export
+        // un-publish button - remove mass selection from export
         me.importOrderBtn = Ext.create('Ext.button.Button', {
             iconCls: 'sprite-drive-download',
             margins: '5 0 0 0',
@@ -347,7 +347,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             }
         });
 
-        // Publish button - Add mass selection to export
+        // publish button - add mass selection to export
         me.sendActionBtn = Ext.create('Ext.button.Button', {
             iconCls: 'sprite-arrow-circle-225-left',
             text: me.snippets.buttons.send_action,
@@ -386,15 +386,15 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
                         change: function(field, value) {
                             var store        = me.store,
                                 searchString = Ext.String.trim(value);
-                            //scroll the store to first page
+                            // scroll the store to first page
                             store.currentPage = 1;
-                            //If the search-value is empty, reset the filter
+                            // if the search-value is empty, reset the filter
                             if (searchString.length === 0 ) {
                                 store.clearFilter();
                             } else {
-                                //This won't reload the store
+                                // this won't reload the store
                                 store.filters.clear();
-                                //Loads the store with a special filter
+                                // loads the store with a special filter
                                 store.filter('search', searchString);
                             }
                         }
@@ -411,10 +411,10 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             lengowOrderIds = [],
             checkbox = Ext.getCmp('editAll');
 
-        // Enable mask on main container while the process is not finished
+        // enable mask on main container while the process is not finished
         Ext.getCmp('lengowImportTab').getEl().mask();
 
-        // If select all products checkbox is not checked, get articles ids
+        // if select all products checkbox is not checked, get articles ids
         if (!checkbox.getValue()) {
             Ext.each(records, function(record) {
                 lengowOrderIds.push(record.raw['id']);

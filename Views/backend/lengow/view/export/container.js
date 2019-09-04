@@ -93,7 +93,7 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
                     html: "<a href='#' id='downloadFeed' class='lengow_export_feed'></a>",
                     listeners: {
                         render: function(component){
-                            // On click, launch feed download
+                            // on click, launch feed download
                             component.getEl().on('click', function(){
                                 var selectedShop = Ext.getCmp('shopTree').getSelectionModel().getSelection()[0].get('id');
                                 me.fireEvent('getFeed', selectedShop);
@@ -132,9 +132,9 @@ Ext.define('Shopware.apps.Lengow.view.export.Container', {
                             Ext.getCmp('lengowWestPanel').doLayout();
                             // @see Shopware.apps.Lengow.controller.Export:onGetConfigValue
                             if (!checkbox.skipCounterUpdate) {
-                                // Change shops settings in db
+                                // change shops settings in db
                                 me.fireEvent('setConfigValue', selectedShop, id, value);
-                                // Update counter value
+                                // update counter value
                                 Ext.getCmp('exportGrid').updateCounter();
                             }
                         }

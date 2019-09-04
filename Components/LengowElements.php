@@ -173,7 +173,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
             ),
         );
         $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
-        // Get Lengow statistics
+        // get Lengow statistics
         $stats = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatistic();
         $statsHtml = '';
         if ($stats['available']) {

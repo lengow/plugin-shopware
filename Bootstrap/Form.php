@@ -64,12 +64,12 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
      */
     public function createConfig($mainForm, $version = false)
     {
-        // Get tracking ids, dispatches and order states for settings
+        // get tracking ids, dispatches and order states for settings
         $trackingIds = $this->getTrackingIds();
         $dispatches = $this->getDispatches();
         $orderStates = $this->getOrderStates();
         $trackingEnable = $this->getTrackingEnable($version);
-        // Main settings
+        // main settings
         $mainSettingsElements = array(
             'lengowAccountId' => array(
                 'type' => 'text',
@@ -139,10 +139,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'description' => 'settings/lengow_main_settings/tracking_id/description',
             ),
         );
-        // Auto-generate form
+        // auto-generate form
         $mainSettingForm = $this->createSettingForm('lengow_main_settings', $mainSettingsElements);
         $mainSettingForm->setParent($mainForm);
-        // Export settings
+        // export settings
         $exportFormElements = array(
             'lengowExportDisabledProduct' => array(
                 'type' => 'boolean',
@@ -173,10 +173,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
             ),
         );
-        // Auto-generate form
+        // auto-generate form
         $exportSettingForm = $this->createSettingForm('lengow_export_settings', $exportFormElements);
         $exportSettingForm->setParent($mainForm);
-        // Import settings
+        // import settings
         $importFormElements = array(
             'lengowImportShipMpEnabled' => array(
                 'type' => 'boolean',
@@ -230,10 +230,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'description' => 'settings/lengow_import_settings/report_mail_address/description',
             ),
         );
-        // Auto-generate form
+        // auto-generate form
         $importSettingForm = $this->createSettingForm('lengow_import_settings', $importFormElements);
         $importSettingForm->setParent($mainForm);
-        // Matching import settings
+        // matching import settings
         $orderStatusFormElements = array(
             'lengowIdWaitingShipment' => array(
                 'type' => 'select',
@@ -268,20 +268,20 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'store' => $orderStates['selection'],
             ),
         );
-        // Auto-generate form
+        // auto-generate form
         $orderStatusSettingForm = $this->createSettingForm('lengow_order_status_settings', $orderStatusFormElements);
         $orderStatusSettingForm->setParent($mainForm);
         $forms = array($mainSettingForm, $exportSettingForm, $importSettingForm, $orderStatusSettingForm);
         $mainForm->setChildren($forms);
-        // Translate sub categories (sub-forms settings names)
+        // translate sub categories (sub-forms settings names)
         /** @var Shopware\Models\Shop\Locale[] $locales */
         $locales = $this->entityManager->getRepository('\Shopware\Models\Shop\Locale')->findAll();
         foreach ($forms as $form) {
             $formName = $form->getName();
-            // Available locales in Shopware
+            // available locales in Shopware
             foreach ($locales as $locale) {
                 $isoCode = $locale->getLocale();
-                // If the locale has been translated in Lengow
+                // if the locale has been translated in Lengow
                 if (Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::containsIso($isoCode)) {
                     $formLabel = $this->getTranslation('settings/' . $formName . '/label', $isoCode);
                     $formDescription = $this->getTranslation('settings/' . $formName . '/description', $isoCode);
@@ -344,12 +344,12 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         foreach ($elements as $key => $options) {
             $type = $options['type'];
             array_shift($options);
-            // Create main element
+            // create main element
             $form->setElement($type, $key, $options);
-            // Get the form element by name
+            // get the form element by name
             $elementModel = $form->getElement($key);
             $this->entityManager->persist($elementModel);
-            // Translate fields for this form
+            // translate fields for this form
             foreach ($locales as $locale) {
                 $isoCode = $locale->getLocale();
                 if (Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::containsIso($isoCode)) {
@@ -400,7 +400,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             ->findBy(array('type' => 0));
         $selection = array();
         $defaultValue = null;
-        // Default dispatcher used to get shipping fees in export
+        // default dispatcher used to get shipping fees in export
         if (count($dispatches) > 0) {
             $defaultValue = $dispatches[0]->getId();
         }
@@ -425,7 +425,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         /** @var Shopware\Models\Order\Status[] $orderStates */
         $orderStates = $this->entityManager->getRepository('Shopware\Models\Order\Status')
             ->findBy(array('group' => 'state'));
-        // Default dispatcher used to get shipping fees in export
+        // default dispatcher used to get shipping fees in export
         foreach ($orderStates as $orderState) {
             if ($orderState->getId() != -1) {
                 if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.5.0')) {

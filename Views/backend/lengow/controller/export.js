@@ -39,11 +39,11 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
                 success: function(response) {
                     var shopToken = Ext.decode(response.responseText)['data'];
                     var url = '{url controller="LengowExport" action="export"}';
-                    // Create form panel. Contains a basic form to download the file.
+                    // create form panel. Contains a basic form to download the file.
                     var form = Ext.create('Ext.form.Panel').getForm().submit({
                         url: url,
                         method: 'POST',
-                        target: '_blank', // Avoids leaving the page
+                        target: '_blank', // avoids leaving the page
                         success: function(response, opts){
                             var url = opts.result.url;
                             window.open(
@@ -116,11 +116,11 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
             },
             success: function(response) {
                 var values = Ext.decode(response.responseText)['data'];
-                // Set shop config for checkboxes
+                // set shop config for checkboxes
                 Ext.each(configList, function(config) {
                     var status = values[config];
                     var checkbox = Ext.getCmp(config);
-                    // Avoid launching listener updateCounter function
+                    // avoid launching listener updateCounter function
                     // when checking option get from db
                     checkbox.skipCounterUpdate = true;
                     checkbox.setValue(status);
@@ -149,10 +149,10 @@ Ext.define('Shopware.apps.Lengow.controller.Export', {
                     defaultShopId = Ext.decode(response.responseText)['data'],
                     childNodes = tree.getRootNode().childNodes;
 
-                // Look for default shop in the tree
+                // look for default shop in the tree
                 Ext.each(childNodes, function(child) {
                     if (child.get('id') == defaultShopId) {
-                        // Simulate click
+                        // simulate click
                         tree.getSelectionModel().select(child);
                         tree.fireEvent('itemclick', view, child);
                         return true;

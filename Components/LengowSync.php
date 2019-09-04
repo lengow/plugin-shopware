@@ -117,7 +117,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 }
             }
         }
-        // Save last update date for a specific settings (change synchronisation interval time)
+        // save last update date for a specific settings (change synchronisation interval time)
         Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
             'lengowLastSettingUpdate',
             date('Y-m-d H:i:s')
@@ -169,7 +169,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 }
             }
         }
-        // Save last update date for a specific settings (change synchronisation interval time)
+        // save last update date for a specific settings (change synchronisation interval time)
         if ($settingUpdated) {
             Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
                 'lengowLastSettingUpdate',
@@ -378,17 +378,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 && (time() - strtotime($updatedAt)) < self::$cacheTimes['marketplace']
                 && file_exists($filePath)
             ) {
-                // Recovering data with the marketplaces.json file
+                // recovering data with the marketplaces.json file
                 $marketplacesData = file_get_contents($filePath);
                 if ($marketplacesData) {
                     return json_decode($marketplacesData);
                 }
             }
         }
-        // Recovering data with the API
+        // recovering data with the API
         $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('get', '/v3.0/marketplaces');
         if ($result && is_object($result) && !isset($result->error)) {
-            // Updated marketplaces.json file
+            // updated marketplaces.json file
             try {
                 $marketplaceFile = new Shopware_Plugins_Backend_Lengow_Components_LengowFile(
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::$lengowConfigFolder,
@@ -416,7 +416,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             }
             return $result;
         } else {
-            // If the API does not respond, use marketplaces.json if it exists
+            // if the API does not respond, use marketplaces.json if it exists
             if (file_exists($filePath)) {
                 $marketplacesData = file_get_contents($filePath);
                 if ($marketplacesData) {

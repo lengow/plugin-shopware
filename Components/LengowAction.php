@@ -179,7 +179,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                         array('error_message' => json_encode($result))
                     );
                 } else {
-                    // Generating a generic error message when the Lengow API is unavailable
+                    // generating a generic error message when the Lengow API is unavailable
                     $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'lengow_log/exception/action_not_created_api'
                     );
@@ -187,7 +187,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($message);
             }
         }
-        // Create log for call action
+        // create log for call action
         $paramList = false;
         foreach ($params as $param => $value) {
             $paramList .= !$paramList ? '"' . $param . '": ' . $value : ' -- "' . $param . '": ' . $value;
@@ -346,12 +346,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
             )
         );
         $processStateFinish = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderProcessState('closed');
-        // Get all active actions by shop
+        // get all active actions by shop
         $activeActions = self::getActiveActions();
         if (!$activeActions) {
             return true;
         }
-        // Get all actions with API for 3 days
+        // get all actions with API for 3 days
         $page = 1;
         $apiActions = array();
         do {
@@ -367,7 +367,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
             if (!is_object($results) || isset($results->error)) {
                 break;
             }
-            // Construct array actions
+            // construct array actions
             foreach ($results->results as $action) {
                 if (isset($action->id)) {
                     $apiActions[$action->id] = $action;
@@ -375,10 +375,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
             }
             $page++;
         } while ($results->next != null);
-        if (count($apiActions) === 0) {
+        if (empty($apiActions)) {
             return false;
         }
-        // Check foreach action if is complete
+        // check foreach action if is complete
         foreach ($activeActions as $action) {
             if (!isset($apiActions[$action['actionId']])) {
                 continue;
@@ -388,33 +388,33 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 && isset($apiActions[$action['actionId']]->errors)
             ) {
                 if ($apiActions[$action['actionId']]->queued == false) {
-                    // Order action is waiting to return from the marketplace
+                    // order action is waiting to return from the marketplace
                     if ($apiActions[$action['actionId']]->processed == false
                         && empty($apiActions[$action['actionId']]->errors)
                     ) {
                         continue;
                     }
-                    // Finish action in lengow_action table
+                    // finish action in lengow_action table
                     self::finishAction($action['id']);
                     /** @var Shopware\CustomModels\Lengow\Order $lengowOrder */
                     $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
                         ->findOneBy(array('orderId' => $action['orderId']));
                     if ($lengowOrder) {
-                        // Finish all order logs send
+                        // finish all order logs send
                         Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::finishOrderErrors(
                             $lengowOrder->getId(),
                             'send'
                         );
                         if ($lengowOrder->getOrderProcessState() != $processStateFinish) {
                             try {
-                                // If action is accepted -> close order and finish all order actions
+                                // if action is accepted -> close order and finish all order actions
                                 if ($apiActions[$action['actionId']]->processed == true
                                     && empty($apiActions[$action['actionId']]->errors)
                                 ) {
                                     $lengowOrder->setOrderProcessState($processStateFinish);
                                     self::finishAllActions($lengowOrder->getOrder()->getId());
                                 } else {
-                                    // If action is denied -> create order logs and finish all order actions
+                                    // if action is denied -> create order logs and finish all order actions
                                     Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::createOrderError(
                                         $lengowOrder,
                                         $apiActions[$action['actionId']]->errors,
@@ -499,7 +499,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                     ->findOneBy(array('orderId' => $action['orderId']));
                 if ($lengowOrder) {
                     if ($lengowOrder->getOrderProcessState() != $processStateFinish && !$lengowOrder->isInError()) {
-                        // If action is denied -> create order error
+                        // if action is denied -> create order error
                         $errorMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                             'lengow_log/exception/action_is_too_old'
                         );
@@ -564,7 +564,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 'log/order_action/check_action_not_sent'
             )
         );
-        // Get unsent orders
+        // get unsent orders
         $unsentOrders = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getUnsentOrders();
         if ($unsentOrders) {
             foreach ($unsentOrders as $idOrder => $actionType) {

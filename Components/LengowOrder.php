@@ -117,7 +117,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                 )
             );
         $results = $builder->getQuery()->getResult();
-        if (count($results) === 0) {
+        if (empty($results)) {
             return false;
         }
         return $results[0];
@@ -256,26 +256,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     }
 
     /**
-     * Check if a lengow order or not
-     *
-     * @param integer $orderId Shopware order id
-     *
-     * @return boolean
-     */
-    public static function orderIsFromLengow($orderId)
-    {
-        $result = Shopware()->Db()->fetchRow(
-            'SELECT * FROM s_order_attributes WHERE orderID = ?',
-            array($orderId)
-        );
-        if ($result['lengow_is_from_lengow'] == 1) {
-            return true;
-        }
-        return false;
-    }
-
-
-    /**
      * Get order process state
      *
      * @param string $state state to be matched
@@ -396,14 +376,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         $trackingNumber = count($packageData->delivery->trackings) > 0
             ? (string)$packageData->delivery->trackings[0]->number
             : null;
-        // Update Lengow order if necessary
+        // update Lengow order if necessary
         if ($lengowOrder->getOrderLengowState() !== $orderStateLengow) {
             $lengowOrder->setOrderLengowState($orderStateLengow)
                 ->setCarrierTracking($trackingNumber);
             $flushLengowOrder = true;
         }
         if ($orderProcessState === self::PROCESS_STATE_FINISH) {
-            // Finish actions and order errors if lengow order is shipped, closed, cancel or refunded
+            // finish actions and order errors if lengow order is shipped, closed, cancel or refunded
             Shopware_Plugins_Backend_Lengow_Components_LengowAction::finishAllActions($order->getId());
             Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::finishOrderErrors(
                 $lengowOrder->getId(),
@@ -426,7 +406,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         if (($orderStatus && $waitingShipmentOrderStatus && $shippedOrderStatus)
             && ($order->getOrderStatus()->getId() !== $orderStatus->getId())
         ) {
-            // Change state process to shipped
+            // change state process to shipped
             if ($order->getOrderStatus()->getId() === $waitingShipmentOrderStatus->getId()
                 && ($orderStateLengow === 'shipped' || $orderStateLengow === 'closed')
             ) {
@@ -717,7 +697,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             $lengowOrder->getMarketplaceSku()
         );
         try {
-            // Finish all order errors before API cal
+            // finish all order errors before API cal
             Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::finishOrderErrors(
                 $lengowOrder->getId(),
                 'send'
@@ -836,7 +816,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                 'marketplace' => $lengowOrder->getMarketplaceName(),
             )
         );
-        if (isset($results->count) && $results->count == 0) {
+        if (isset($results->count) && (int)$results->count === 0) {
             return false;
         }
         $orderData = $results->results[0];

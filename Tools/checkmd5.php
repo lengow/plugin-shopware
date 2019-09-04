@@ -4,7 +4,7 @@
  * Check MD5 
  */
 error_reporting(E_ALL);
-ini_set("display_errors", 1);
+ini_set('display_errors', 1);
 
 $base = dirname(dirname(__FILE__));
 $fp = fopen(dirname(dirname(__FILE__)) . '/Toolbox/checkmd5.csv', 'w+');

@@ -190,12 +190,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     public static function getConfig($configName, $shop = null)
     {
         $value = null;
-        // Force plugin to register custom models thanks to afterInit() method
-        // Avoid issue when synchronizing account
+        // force plugin to register custom models thanks to afterInit() method
+        // avoid issue when synchronizing account
         Shopware()->Plugins()->Backend()->Lengow();
         if (array_key_exists($configName, self::$lengowSettings)){
             $setting = self::$lengowSettings[$configName];
-            // If Lengow setting
+            // if Lengow setting
             if (isset($setting['lengow_settings']) && $setting['lengow_settings']) {
                 $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
                 $criteria = array('name' => $configName);
@@ -208,7 +208,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                     $value = $config->getValue();
                 }
             } else {
-                // If shop no shop, get default one
+                // if shop no shop, get default one
                 if ($shop === null) {
                     $shop = self::getDefaultShop();
                 }
@@ -231,12 +231,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      */
     public static function setConfig($configName, $value, $shop = null)
     {
-        // Force plugin to register custom models thanks to afterInit() method
-        // Avoid issue when synchronizing account
+        // force plugin to register custom models thanks to afterInit() method
+        // avoid issue when synchronizing account
         Shopware()->Plugins()->Backend()->Lengow();
         if (array_key_exists($configName, self::$lengowSettings)) {
             $setting = self::$lengowSettings[$configName];
-            // If Lengow global setting
+            // if Lengow global setting
             if (isset($setting['lengow_settings']) && $setting['lengow_settings']) {
                 $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
                 $criteria = array('name' => $configName);
@@ -264,7 +264,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                     return false;
                 }
             } else {
-                // If shop no shop, get default one
+                // if shop no shop, get default one
                 if ($shop === null) {
                     $shop = self::getDefaultShop();
                 }
@@ -296,7 +296,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      */
     public static function getAccessIds()
     {
-        $accountId = (int)self::getConfig('lengowAccountId');
+        $accountId = self::getConfig('lengowAccountId');
         $accessToken = self::getConfig('lengowAccessToken');
         $secretToken = self::getConfig('lengowSecretToken');
         return array($accountId, $accessToken, $secretToken);
@@ -412,7 +412,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                 $reportEmailAddress[] = $email;
             }
         }
-        if (count($reportEmailAddress) === 0) {
+        if (empty($reportEmailAddress)) {
             $reportEmailAddress[] = self::getConfig('mail');
         }
         return $reportEmailAddress;
@@ -615,7 +615,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                         )
                     );
                 }
-                // Save last update date for a specific settings (change synchronisation interval time)
+                // save last update date for a specific settings (change synchronisation interval time)
                 if (isset($setting['update']) && $setting['update']) {
                     self::setConfig('lengowLastSettingUpdate', date('Y-m-d H:i:s'));
                 }

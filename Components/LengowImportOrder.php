@@ -379,7 +379,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             }
             // get all Shopware articles
             $articles = $this->getArticles();
-            if (count($articles) === 0) {
+            if (empty($articles)) {
                 throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'lengow_log/exception/no_product_to_cart'
@@ -591,7 +591,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     protected function checkOrderData($lengowOrder)
     {
         $errorMessages = array();
-        if (count($this->packageData->cart) === 0) {
+        if (empty($this->packageData->cart)) {
             $errorMessages[] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                 'lengow_log/error/no_product'
             );
@@ -831,7 +831,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 $isParentProduct = Shopware_Plugins_Backend_Lengow_Components_LengowProduct::checkIsParentProduct(
                     $attributeValue
                 );
-                // If found, id does not concerns a variation but a parent
+                // if found, id does not concerns a variation but a parent
                 if ($isParentProduct) {
                     throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
@@ -929,7 +929,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             ? join(',', $this->orderData->comments)
             : (string)$this->orderData->comments;
         try {
-            // Create Lengow order entity
+            // create Lengow order entity
             $lengowOrder = new Shopware\CustomModels\Lengow\Order();
             $lengowOrder->setShopId($this->shop->getId())
                 ->setDeliveryAddressId($this->deliveryAddressId)
@@ -986,16 +986,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $customerAttribute = new Shopware\Models\Attribute\Customer();
             // get new address object for Shopware version > 5.2.0
             if ($newSchema) {
-                $address = $this->lengowAddress->getCustomerAddress();
-                if ($address) {
-                    $address->setCustomer($customer);
+                $defaultAddress = $this->lengowAddress->getCustomerAddress();
+                if ($defaultAddress) {
                     $customer->setNumber($customerNumber);
-                    $customer->setSalutation($address->getSalutation());
-                    $customer->setFirstname($address->getFirstname());
-                    $customer->setLastname($address->getLastname());
-                    $customer->setDefaultBillingAddress($address);
-                    $customer->setDefaultShippingAddress($address);
-                    $this->entityManager->persist($address);
+                    $customer->setSalutation($defaultAddress->getSalutation());
+                    $customer->setFirstname($defaultAddress->getFirstname());
+                    $customer->setLastname($defaultAddress->getLastname());
                 } else {
                     return false;
                 }
@@ -1027,6 +1023,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             // update value for global customer number
             if (is_integer($customerNumber) && $customerNumber > $number->getNumber()) {
                 $number->setNumber($customerNumber);
+            }
+            // save default address for Shopware version > 5.2.0
+            if ($newSchema && isset($defaultAddress)) {
+                $defaultAddress->setCustomer($customer);
+                $customer->setDefaultBillingAddress($defaultAddress);
+                $customer->setDefaultShippingAddress($defaultAddress);
+                $this->entityManager->persist($defaultAddress);
             }
             $this->entityManager->flush();
             return $customer;
@@ -1228,7 +1231,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 // decreases article detail stock
                 $quantity = $articleDetail->getInStock();
                 $newStock = $quantity - $articleDetailData['quantity'];
-                // Don't decrease stock -> Shopware decrease automatically
+                // don't decrease stock -> Shopware decrease automatically
                 $this->entityManager->persist($orderDetail);
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
                     'Import',
@@ -1325,7 +1328,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             foreach ($articles as $articleDetailId => $articleDetailData) {
                 /** @var Shopware\Models\Article\Detail $articleDetail */
                 $articleDetail = $this->entityManager->getReference('Shopware\Models\Article\Detail', $articleDetailId);
-                // Create Lengow order line entity
+                // create Lengow order line entity
                 foreach ($articleDetailData['order_line_ids'] as $orderLineId) {
                     $lengowOrderLine = new Shopware\CustomModels\Lengow\OrderLine();
                     $lengowOrderLine->setOrder($order)

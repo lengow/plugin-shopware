@@ -207,7 +207,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function getToken($shop = null)
     {
-        // If no shop, get global value
+        // if no shop, get global value
         if (is_null($shop)) {
             $token = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowGlobalToken');
             if ($token && strlen($token) > 0) {
@@ -308,7 +308,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         $result = array();
         $shops = self::getActiveShops();
         foreach ($shops as $shop) {
-            // Get Lengow config for this shop
+            // get Lengow config for this shop
             $enabledInLengow = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowShopActive',
                 $shop
@@ -525,7 +525,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function setLogMessage($key, $params = null)
     {
-        if (is_null($params) || (is_array($params) && count($params) === 0)) {
+        if (is_null($params) || (is_array($params) && empty($params))) {
             return $key;
         }
         $allParams = array();
@@ -664,7 +664,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static function getTranslationComponent()
     {
         if (self::$translation === null) {
-            self::$translation = new Shopware_Components_Translation();
+            if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.6', '<')) {
+                self::$translation = new Shopware_Components_Translation();
+            } else {
+                self::$translation = Shopware()->Container()->get('translation');
+            }
         }
         return self::$translation;
     }
