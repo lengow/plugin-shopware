@@ -529,8 +529,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             ->leftJoin('shop.category', 'mainCategory')
             ->leftJoin('mainCategory.allArticles', 'categories')
             ->leftJoin('categories.details', 'details')
-            ->leftJoin('details.attribute', 'attribute')
             ->leftJoin('details.article', 'article')
+            ->leftJoin('categories.mainDetail', 'mainDetail')
+            ->leftJoin('mainDetail.attribute', 'attribute')
             ->leftJoin('article.configuratorSet', 'configurator')
             ->where('shop.id = :shopId')
             ->setParameter('shopId', $this->shop->getId());
