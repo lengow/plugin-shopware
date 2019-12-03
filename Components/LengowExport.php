@@ -564,6 +564,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         // if no variation, get only parent products
         if (!$this->variation) {
             $builder->andWhere('details.kind = 1');
+        } else {
+            $builder->andWhere('details.kind <> 3');
         }
         $builder->distinct()
             ->orderBy('categories.id')
