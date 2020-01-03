@@ -5,6 +5,7 @@ Version 1.4.3
     - Feature: Adding compatibility with php 7.3
     - Bugfix: [export] Recovery of variations when product selection is enabled
     - Bugfix: [export] Adding a filter on internal type articles (kind = 3)
+    - Bugfix: [import] Adding a security on the product search between the reference and the id
 
 =============================================================
 Version 1.4.2
