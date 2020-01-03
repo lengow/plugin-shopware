@@ -437,7 +437,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     {
         $params = array();
         $actions = $this->getAction($action);
-        // get all order informations
+        // get all order data
         foreach ($marketplaceArguments as $arg) {
             switch ($arg) {
                 case 'tracking_number':
@@ -464,7 +464,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                     break;
                 default:
                     if (isset($actions['optional_args']) && in_array($arg, $actions['optional_args'])) {
-                        continue;
+                        break;
                     }
                     $defaultValue = $this->getDefaultValue((string)$arg);
                     $paramValue = $defaultValue ? $defaultValue : $arg . ' not available';

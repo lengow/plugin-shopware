@@ -6,8 +6,12 @@
     "support_mail": "support.lengow.zendesk@lengow.com",
     "license": "proprietary",
     "link": "http://lengow.com",
-    "currentVersion": "1.4.2",
+    "currentVersion": "1.4.3",
     "changes": {
+        "1.4.3": {
+            "releasedate": "2020-01-03",
+            "line": ""
+        },
         "1.4.2": {
             "releasedate": "2019-09-04",
             "line": ""
@@ -79,6 +83,7 @@
     },
     "changelog": {
         "en": {
+            "1.4.3": "Feature: Adding compatibility with php 7.3; Bugfix: [export] Recovery of variations when product selection is enabled; Bugfix: [export] Adding a filter on internal type articles (kind = 3); Bugfix: [import] Adding a security on the product search between the reference and the id",
             "1.4.2": "Feature: [export] Take fallback translations when exists; Feature: Full Compatibility for Shopware versions 5.6",
             "1.4.1": "Feature: [import] Optimization of the order recovery system; Feature: [import] Setting up a cache for synchronizing catalogs ids; Feature: [action] Refactoring and optimization of actions on orders; Feature: [action] Improved carrier matching with search on carrier code and label; Bugfix: [export] Retrieving other images of a product when one is unavailable",
             "1.4.0": "Feature: Disabling the Lengow tracker and changing the product ID; Feature: Registering marketplace data in a json file; Feature: Optimization of API calls between PrestaShop and Lengow; Bugfix: [export] Retrieving the default price when the customer group price is not available; Bugfix: Recovery of Shopware version with parameters for versions above 5.4; Bugfix: [export] Improved deletion of duplicate headers; Bugfix: [action] Management of orders waiting to return from the marketplace; Bugfix: Update of the lengow_order table directly after the creation of the Shopware order",

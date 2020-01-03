@@ -766,16 +766,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $ids = explode('_', $articleId);
         // check existing parent product
         if (count($ids) === 1) {
-            try {
-                $articleId = $ids[0];
-                $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-                /** @var Shopware\Models\Article\Article $article */
-                $article = $em->find('Shopware\Models\Article\Article', $articleId);
-            } catch (Exception $e) {
-                $article = null;
-            }
-            if ($article && count($article->getDetails()) > 1) {
-                return true;
+            $articleId = $ids[0];
+            if ($articleId !== null && preg_match('/^[0-9]*$/', $articleId) && substr($articleId, 0, 1) != 0) {
+                try {
+                    $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+                    /** @var Shopware\Models\Article\Article $article */
+                    $article = $em->find('Shopware\Models\Article\Article', $articleId);
+                } catch (Exception $e) {
+                    $article = null;
+                }
+                if ($article && count($article->getDetails()) > 1) {
+                    return true;
+                }
             }
         }
         return false;
@@ -793,37 +795,39 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $result = null;
         $ids = explode('_', $articleId);
         $parentId = $ids[0];
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        try {
-            /** @var Shopware\Models\Article\Article $article */
-            $article = $em->find('Shopware\Models\Article\Article', $parentId);
-        } catch (Exception $e) {
-            $article = null;
-        }
-        // if parent article is found
-        if ($article !== null) {
-            $isConfigurable = count($article->getDetails()) > 1;
-            // if simple product
-            if (!$isConfigurable) {
-                // get article main detail id
-                $mainDetail = $article->getMainDetail();
-                $result = array(
-                    'id' => $mainDetail->getId(),
-                    'number' => $mainDetail->getNumber(),
-                );
-            } elseif ($isConfigurable && count($ids) === 2) {
-                // if product is configurable and articleId contains detail reference
-                $detailId = $ids[1];
-                $criteria = array(
-                    'id' => $detailId,
-                    'articleId' => $parentId,
-                );
-                /** @var Shopware\Models\Article\Detail $variation */
-                $variation = $em->getRepository('Shopware\Models\Article\Detail')->findOneBy($criteria);
-                $result = array(
-                    'id' => $variation->getId(),
-                    'number' => $variation->getNumber(),
-                );
+        if ($parentId !== null && preg_match('/^[0-9]*$/', $parentId) && substr($parentId, 0, 1) != 0) {
+            $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+            try {
+                /** @var Shopware\Models\Article\Article $article */
+                $article = $em->find('Shopware\Models\Article\Article', $parentId);
+            } catch (Exception $e) {
+                $article = null;
+            }
+            // if parent article is found
+            if ($article !== null) {
+                $isConfigurable = count($article->getDetails()) > 1;
+                // if simple product
+                if (!$isConfigurable && count($ids) === 1) {
+                    // get article main detail id
+                    $mainDetail = $article->getMainDetail();
+                    $result = array(
+                        'id' => $mainDetail->getId(),
+                        'number' => $mainDetail->getNumber(),
+                    );
+                } elseif ($isConfigurable && count($ids) === 2) {
+                    // if product is configurable and articleId contains detail reference
+                    $detailId = $ids[1];
+                    $criteria = array(
+                        'id' => $detailId,
+                        'articleId' => $parentId,
+                    );
+                    /** @var Shopware\Models\Article\Detail $variation */
+                    $variation = $em->getRepository('Shopware\Models\Article\Detail')->findOneBy($criteria);
+                    $result = array(
+                        'id' => $variation->getId(),
+                        'number' => $variation->getNumber(),
+                    );
+                }
             }
         }
         return $result;
