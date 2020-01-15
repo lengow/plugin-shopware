@@ -80,7 +80,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, array());
             $data['shops'][$shop->getId()] = array(
                 'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop),
-                'shop_name' =>  $shop->getName(),
+                'shop_name' => $shop->getName(),
                 'domain_url' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopUrl($shop),
                 'feed_url' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getExportUrl($shop),
                 'total_product_number' => $export->getTotalProducts(),
@@ -128,13 +128,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      * Sync Lengow catalogs for order synchronisation
      *
      * @param boolean $force force cache Update
+     * @param boolean $logOutput see log or not
      *
      * @return boolean
      */
-    public static function syncCatalog($force = false)
+    public static function syncCatalog($force = false, $logOutput = false)
     {
         $settingUpdated = false;
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant()) {
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::isNewMerchant()) {
             return false;
         }
         if (!$force) {
@@ -145,7 +146,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 return false;
             }
         }
-        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('get', '/v3.1/cms');
+        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
+            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::GET,
+            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_CMS,
+            array(),
+            '',
+            $logOutput
+        );
         if (isset($result->cms)) {
             $cmsToken = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken();
             foreach ($result->cms as $cms) {
@@ -202,7 +209,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, array());
             $data['shops'][] = array(
                 'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop),
-                'enabled' =>  Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::shopIsActive($shop),
+                'enabled' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::shopIsActive($shop),
                 'total_product_number' => $export->getTotalProducts(),
                 'exported_product_number' => $export->getExportedProducts(),
                 'options' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAllValues($shop),
@@ -215,15 +222,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      * Set CMS options
      *
      * @param boolean $force force cache Update
+     * @param boolean $logOutput see log or no
      *
      * @return boolean
      */
-    public static function setCmsOption($force = false)
+    public static function setCmsOption($force = false, $logOutput = false)
     {
         $preprodMode = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
             'lengowImportPreprodEnabled'
         );
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant() || $preprodMode) {
+        if (Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::isNewMerchant() || $preprodMode) {
             return false;
         }
         if (!$force) {
@@ -235,7 +243,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             }
         }
         $options = json_encode(self::getOptionData());
-        Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('put', '/v3.1/cms', array(), $options);
+        Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
+            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::PUT,
+            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_CMS,
+            array(),
+            $options,
+            $logOutput
+        );
         Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
             'lengowOptionCmsUpdate',
             date('Y-m-d H:i:s')
@@ -247,10 +261,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      * Get Status Account
      *
      * @param boolean $force force cache Update
+     * @param boolean $logOutput see log or not
      *
      * @return array|false
      */
-    public static function getStatusAccount($force = false)
+    public static function getStatusAccount($force = false, $logOutput = false)
     {
         if (!$force) {
             $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
@@ -263,7 +278,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 return json_decode($config, true);
             }
         }
-        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('get', '/v3.0/plans');
+        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
+            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::GET,
+            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_PLAN,
+            array(),
+            '',
+            $logOutput
+        );
         if (isset($result->isFreeTrial)) {
             $status = array(
                 'type' => $result->isFreeTrial ? 'free_trial' : '',
@@ -297,10 +318,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      * Get Statistic
      *
      * @param boolean $force force cache Update
+     * @param boolean $logOutput see log or not
      *
      * @return array
      */
-    public static function getStatistic($force = false)
+    public static function getStatistic($force = false, $logOutput = false)
     {
         if (!$force) {
             $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
@@ -312,13 +334,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             }
         }
         $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
-            'get',
-            '/v3.0/stats',
+            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::GET,
+            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_STATISTIC,
             array(
                 'date_from' => date('c', strtotime(date('Y-m-d') . ' -10 years')),
                 'date_to' => date('c'),
                 'metrics' => 'year',
-            )
+            ),
+            '',
+            $logOutput
         );
         if (isset($result->level0)) {
             $stats = $result->level0[0];
@@ -364,10 +388,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      * Get marketplace data
      *
      * @param boolean $force force cache update
+     * @param boolean $logOutput see log or not
      *
      * @return array|false
      */
-    public static function getMarketplaces($force = false)
+    public static function getMarketplaces($force = false, $logOutput = false)
     {
         $filePath = Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace::getFilePath();
         if (!$force) {
@@ -386,7 +411,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             }
         }
         // recovering data with the API
-        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi('get', '/v3.0/marketplaces');
+        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
+            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::GET,
+            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_MARKETPLACE,
+            array(),
+            '',
+            $logOutput
+        );
         if ($result && is_object($result) && !isset($result->error)) {
             // updated marketplaces.json file
             try {
@@ -411,7 +442,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log/import/marketplace_update_failed',
                         array('decoded_message' => $decodedMessage)
-                    )
+                    ),
+                    $logOutput
                 );
             }
             return $result;

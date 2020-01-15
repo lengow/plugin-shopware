@@ -307,11 +307,9 @@ fr:
       no_product_to_cart: "il n'y a pas de produit ajouté au panier"
       country_not_found: "Aucun pays trouvé pour l'iso code %{iso_code}. Merci de l'ajouter dans votre configuration Shopware"
       no_connection_webservice: "la connexion ne se fait pas avec Lengow pour la boutique %{name_shop} (%{id_shop})"
-      error_lengow_webservice: "l'API Lengow : %{error_code} - %{error_message} pour la boutique %{name_shop} (%{id_shop})"
+      error_lengow_webservice: "l'API Lengow : %{error_code} - \"%{error_message}\" pour la boutique %{name_shop} (%{id_shop})"
       shopware_customer_not_saved: "ATTENTION ! Le client n'a pas pu être sauvegardé dans la table user de Shopware"
       shopware_order_not_saved: "ATTENTION ! La commande n'a pas pu être sauvegardée dans la table order de Shopware"
-      timeout_api: "l'API a été bloquée par un timeout"
-      error_curl: "Curl erreur %{error_code} - %{error_message}"
     mail_report:
       subject_report_mail: "Erreur de l'import Lengow"
       order: "Commande %{marketplace_sku}"

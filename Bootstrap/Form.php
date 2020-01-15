@@ -467,7 +467,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
     {
         $value = false;
         if ($version && version_compare($version, '1.4.0', '<') &&
-            !Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant()
+            !Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::isNewMerchant()
         ) {
             $value = true;
         }

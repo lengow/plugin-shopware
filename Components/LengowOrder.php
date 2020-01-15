@@ -177,7 +177,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                 )
             );
         $results = $builder->getQuery()->getResult();
-        if (count($results) > 0){
+        if (count($results) > 0) {
             return $results;
         }
         return false;
@@ -198,7 +198,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             ->where('lol.order = :order')
             ->setParameters(array('order' => $order));
         $results = $builder->getQuery()->getResult();
-        if (count($results) > 0){
+        if (count($results) > 0) {
             return $results;
         }
         return false;
@@ -471,7 +471,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                 ->setChangeDate(new \datetime());
             // get all admin user
             $users = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getAllAdminUsers();
-            if(count($users) > 0) {
+            if (count($users) > 0) {
                 $orderHistory->setUser($users[0]);
             }
             Shopware()->Models()->persist($orderHistory);
@@ -497,20 +497,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      *
      * @param \Shopware\Models\Order\Order $order Shopware order instance
      * @param Shopware_Plugins_Backend_Lengow_Components_LengowConnector|null $connector Lengow connector instance
+     * @param boolean $logOutput see log or not
      *
      * @return boolean
      */
-    public static function synchronizeOrder($order, $connector = null)
+    public static function synchronizeOrder($order, $connector = null, $logOutput = false)
     {
         $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(array('order' => $order));
-        if (is_null($lengowOrder)) {
+        if ($lengowOrder === null) {
             return false;
         }
         $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
         list($accountId, $accessToken, $secretToken) = $accessIds;
-        if (is_null($connector)) {
-            if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isValidAuth()) {
+        if ($connector === null) {
+            if (Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isValidAuth($logOutput)) {
                 $connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector($accessToken, $secretToken);
             } else {
                 return false;
@@ -524,18 +525,30 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             }
             try {
                 $result = $connector->patch(
-                    '/v3.0/orders/moi/',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_ORDER_MOI,
                     array(
                         'account_id' => $accountId,
                         'marketplace_order_id' => $lengowOrder->getMarketplaceSku(),
                         'marketplace' => $lengowOrder->getMarketplaceName(),
                         'merchant_order_id' => $shopwareIds,
-                    )
+                    ),
+                    Shopware_Plugins_Backend_Lengow_Components_LengowConnector::FORMAT_JSON,
+                    '',
+                    $logOutput
                 );
             } catch (Exception $e) {
+                $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($e->getMessage());
+                $error = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/connector/error_api',
+                    array(
+                        'error_code' => $e->getCode(),
+                        'error_message' => $message,
+                    )
+                );
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log('Connector', $error, $logOutput);
                 return false;
             }
-            if (is_null($result)
+            if ($result === null
                 || (isset($result['detail']) && $result['detail'] === 'Pas trouvé.')
                 || isset($result['error'])
             ) {
@@ -809,8 +822,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     {
         $orderLines = array();
         $results = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
-            'get',
-            '/v3.0/orders',
+            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::GET,
+            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_ORDER,
             array(
                 'marketplace_order_id' => $lengowOrder->getMarketplaceSku(),
                 'marketplace' => $lengowOrder->getMarketplaceName(),
