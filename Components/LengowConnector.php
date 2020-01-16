@@ -500,7 +500,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         if (isset($url['port'])) {
             $opts[CURLOPT_PORT] = $url['port'];
         }
-        $opts[CURLOPT_HEADER] = false;;
+        $opts[CURLOPT_HEADER] = false;
         $opts[CURLOPT_VERBOSE] = false;
         if (isset($token)) {
             $opts[CURLOPT_HTTPHEADER] = array('Authorization: ' . $token);
