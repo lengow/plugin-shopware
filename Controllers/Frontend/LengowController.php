@@ -97,7 +97,6 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             }
             $shopsIds .= ']';
             header('HTTP/1.1 400 Bad Request');
-            $message =
             die(
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
                     'log/export/shop_dont_exist',
