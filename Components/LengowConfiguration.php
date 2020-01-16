@@ -56,6 +56,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'global' => true,
             'secret' => true,
         ),
+        'lengowAuthorizationToken' => array(
+            'lengow_settings' => true,
+            'global' => true,
+            'export' => false,
+        ),
+        'lengowLastAuthorizationTokenUpdate' => array(
+            'lengow_settings' => true,
+            'global' => true,
+            'export' => false,
+        ),
         'lengowShopActive' => array(
             'shop' => true,
             'type' => 'boolean',
@@ -108,7 +118,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'lengow_settings' => true,
             'global' => true,
         ),
-        'lengowLastSettingUpdate'=> array(
+        'lengowLastSettingUpdate' => array(
             'lengow_settings' => true,
             'global' => true,
         ),
@@ -193,7 +203,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         // force plugin to register custom models thanks to afterInit() method
         // avoid issue when synchronizing account
         Shopware()->Plugins()->Backend()->Lengow();
-        if (array_key_exists($configName, self::$lengowSettings)){
+        if (array_key_exists($configName, self::$lengowSettings)) {
             $setting = self::$lengowSettings[$configName];
             // if Lengow setting
             if (isset($setting['lengow_settings']) && $setting['lengow_settings']) {
@@ -299,7 +309,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         $accountId = (int)self::getConfig('lengowAccountId');
         $accessToken = self::getConfig('lengowAccessToken');
         $secretToken = self::getConfig('lengowSecretToken');
-        return array($accountId, $accessToken, $secretToken);
+        if ($accountId !== 0 && $accessToken !== '0' && $secretToken !== '0') {
+            return array($accountId, $accessToken, $secretToken);
+        } else {
+            return array(null, null, null);
+        }
     }
 
     /**
@@ -318,6 +332,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                 self::setConfig($key, $value);
             }
         }
+    }
+
+    /**
+     * Check if new merchant
+     *
+     * @return boolean
+     */
+    public static function isNewMerchant()
+    {
+        $accessIds = self::getAccessIds();
+        list($accountId, $accessToken, $secretToken) = $accessIds;
+        if ($accountId !== 0 && $accessToken !== '0' && $secretToken !== '0') {
+            return false;
+        }
+        return true;
     }
 
     /**

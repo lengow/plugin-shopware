@@ -307,11 +307,9 @@ en:
       no_product_to_cart: "no product to be added to cart"
       country_not_found: "No country found for ISO code %{iso_code}. Please add it into your Shopware configuration"
       no_connection_webservice: "connection did not work with the Lengow webservice in shop %{name_shop} (%{id_shop})"
-      error_lengow_webservice: "Lengow webservice: %{error_code} - %{error_message} in shop %{name_shop} (%{id_shop})"
+      error_lengow_webservice: "Lengow webservice: %{error_code} - \"%{error_message}\" in shop %{name_shop} (%{id_shop})"
       shopware_customer_not_saved: "WARNING! Customer could NOT be saved in Shopware user table"
       shopware_order_not_saved: "WARNING! Order could NOT be saved in Shopware order table"
-      timeout_api: "API call has been blocked by a timeout"
-      error_curl: "Curl error %{error_code} - %{error_message}"
     mail_report:
       subject_report_mail: "Lengow imports errors"
       order: "Order %{marketplace_sku}"
