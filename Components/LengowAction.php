@@ -28,8 +28,6 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
-use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
-
 /**
  * Lengow Action Class
  */
