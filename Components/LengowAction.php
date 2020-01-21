@@ -383,19 +383,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
         if (!$activeActions) {
             return true;
         }
-        // get all actions with API for 3 days
+        // get all actions with API (max 3 days)
         $page = 1;
         $apiActions = array();
         $intervalTime = self::getIntervalTime();
-        $dateFrom = date('c', (time() - $intervalTime));
-        $dateTo = date('c');
+        $dateFrom = time() - $intervalTime;
+        $dateTo = time();
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
             'API-OrderAction',
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                 'log/order_action/connector_get_all_action',
                 array(
-                    'date_from' => date('Y-m-d H:i:s', strtotime($dateFrom)),
-                    'date_to' => date('Y-m-d H:i:s', strtotime($dateTo)),
+                    'date_from' => date('Y-m-d H:i:s', $dateFrom),
+                    'date_to' => date('Y-m-d H:i:s', $dateTo),
                 )
             ),
             $logOutput
@@ -405,8 +405,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 Shopware_Plugins_Backend_Lengow_Components_LengowConnector::GET,
                 Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_ORDER_ACTION,
                 array(
-                    'updated_from' => $dateFrom,
-                    'updated_to' => $dateTo,
+                    'updated_from' => date('c', $dateFrom),
+                    'updated_to' => date('c', $dateTo),
                     'page' => $page,
                 ),
                 '',
@@ -590,7 +590,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
     {
         $params = array(
             'state' => self::STATE_NEW,
-            'createdAt' => date('Y-m-d h:m:i', strtotime('-3 days', time())),
+            'createdAt' => date('Y-m-d h:m:i', (time() - self::MAX_INTERVAL_TIME)),
         );
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('la.id', 'la.orderId')
