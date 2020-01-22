@@ -44,6 +44,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
     const STATE_FINISH = 1;
 
     /**
+     * @var integer max interval time for action synchronisation (3 days)
+     */
+    const MAX_INTERVAL_TIME = 259200;
+
+    /**
+     * @var integer security interval time for action synchronisation (2 hours)
+     */
+    const SECURITY_INTERVAL_TIME = 7200;
+
+    /**
      * @var array Parameters to delete for Get call
      */
     public static $getParamsToDelete = array(
@@ -327,6 +337,25 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
     }
 
     /**
+     * Get interval time for action synchronisation
+     *
+     * @return integer
+     */
+    public static function getIntervalTime()
+    {
+        $intervalTime = self::MAX_INTERVAL_TIME;
+        $lastActionSynchronisation = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+            'lengowLastActionSync'
+        );
+        if ($lastActionSynchronisation) {
+            $lastIntervalTime = time() - (int)$lastActionSynchronisation;
+            $lastIntervalTime = $lastIntervalTime + self::SECURITY_INTERVAL_TIME;
+            $intervalTime = $lastIntervalTime > $intervalTime ? $intervalTime : $lastIntervalTime;
+        }
+        return $intervalTime;
+    }
+
+    /**
      * Check if active actions are finished
      *
      * @param boolean $logOutput see log or not
@@ -354,16 +383,30 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
         if (!$activeActions) {
             return true;
         }
-        // get all actions with API for 3 days
+        // get all actions with API (max 3 days)
         $page = 1;
         $apiActions = array();
+        $intervalTime = self::getIntervalTime();
+        $dateFrom = time() - $intervalTime;
+        $dateTo = time();
+        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+            'API-OrderAction',
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                'log/order_action/connector_get_all_action',
+                array(
+                    'date_from' => date('Y-m-d H:i:s', $dateFrom),
+                    'date_to' => date('Y-m-d H:i:s', $dateTo),
+                )
+            ),
+            $logOutput
+        );
         do {
             $results = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
                 Shopware_Plugins_Backend_Lengow_Components_LengowConnector::GET,
                 Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_ORDER_ACTION,
                 array(
-                    'updated_from' => date('c', strtotime(date('Y-m-d') . ' -3days')),
-                    'updated_to' => date('c'),
+                    'updated_from' => date('c', $dateFrom),
+                    'updated_to' => date('c', $dateTo),
                     'page' => $page,
                 ),
                 '',
@@ -379,7 +422,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 }
             }
             $page++;
-        } while ($results->next != null);
+        } while ($results->next !== null);
         if (empty($apiActions)) {
             return false;
         }
@@ -457,6 +500,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 }
             }
         }
+        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('lengowLastActionSync', time());
         return true;
     }
 
@@ -546,7 +590,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
     {
         $params = array(
             'state' => self::STATE_NEW,
-            'createdAt' => date('Y-m-d h:m:i', strtotime('-3 days', time())),
+            'createdAt' => date('Y-m-d h:m:i', (time() - self::MAX_INTERVAL_TIME)),
         );
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('la.id', 'la.orderId')

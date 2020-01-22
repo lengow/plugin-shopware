@@ -34,14 +34,19 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 {
     /**
-     * @var integer min import days for old versions
+     * @var integer max interval time for order synchronisation old versions (1 day)
      */
-    const MIN_IMPORT_DAYS = 1;
+    const MIN_INTERVAL_TIME = 86400;
 
     /**
-     * @var integer max import days for old versions
+     * @var integer max import days for old versions (10 days)
      */
-    const MAX_IMPORT_DAYS = 10;
+    const MAX_INTERVAL_TIME = 864000;
+
+    /**
+     * @var integer security interval time for cron synchronisation (2 hours)
+     */
+    const SECURITY_INTERVAL_TIME = 7200;
 
     /**
      * @var integer|null Shopware shop id
@@ -84,22 +89,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     protected $limit = 0;
 
     /**
-     * @var string|false imports orders updated since
+     * @var integer|false imports orders updated since (timestamp)
      */
     protected $updatedFrom = false;
 
     /**
-     * @var string|false imports orders updated until
+     * @var integer|false imports orders updated until (timestamp)
      */
     protected $updatedTo = false;
 
     /**
-     * @var string|false imports orders created since
+     * @var integer|false imports orders created since (timestamp)
      */
     protected $createdFrom = false;
 
     /**
-     * @var string|false imports orders created until
+     * @var integer|false imports orders created until (timestamp)
      */
     protected $createdTo = false;
 
@@ -176,7 +181,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
      */
     public function __construct($params = array())
     {
-        // params for re-import order
+        // get generic params for synchronisation
+        $this->preprodMode = isset($params['preprod_mode'])
+            ? (bool)$params['preprod_mode']
+            : (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                'lengowImportPreprodEnabled'
+            );
+        $this->typeImport = isset($params['type']) ? $params['type'] : 'manual';
+        $this->logOutput = isset($params['log_output']) ? (bool)$params['log_output'] : false;
+        $this->shopId = isset($params['shop_id']) ? (int)$params['shop_id'] : null;
+        // get params for synchronise one or all orders
         if (array_key_exists('marketplace_sku', $params)
             && array_key_exists('marketplace_name', $params)
             && array_key_exists('shop_id', $params)
@@ -193,23 +207,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             }
         } else {
             $this->marketplaceSku = null;
-            // recovering the time interval
-            $this->getImportPeriod(
+            // set the time interval
+            $this->setIntervalTime(
                 isset($params['days']) ? (int)$params['days'] : false,
                 isset($params['created_from']) ? $params['created_from'] : false,
                 isset($params['created_to']) ? $params['created_to'] : false
             );
             $this->limit = isset($params['limit']) ? (int)$params['limit'] : 0;
         }
-        // get other params
-        $this->preprodMode = isset($params['preprod_mode'])
-            ? (bool)$params['preprod_mode']
-            : (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowImportPreprodEnabled'
-            );
-        $this->typeImport = isset($params['type']) ? $params['type'] : 'manual';
-        $this->logOutput = isset($params['log_output']) ? (bool)$params['log_output'] : false;
-        $this->shopId = isset($params['shop_id']) ? (int)$params['shop_id'] : null;
     }
 
     /**
@@ -558,8 +563,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/import/connector_get_all_order',
                     array(
-                        'date_from' => date('Y-m-d H:i:s', strtotime($dateFrom)),
-                        'date_to' => date('Y-m-d H:i:s', strtotime($dateTo)),
+                        'date_from' => date('Y-m-d H:i:s', $dateFrom),
+                        'date_to' => date('Y-m-d H:i:s', $dateTo),
                         'catalog_id' => implode(', ', $this->shopCatalogIds),
                     )
                 ),
@@ -583,13 +588,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 } else {
                     if ($this->createdFrom && $this->createdTo) {
                         $timeParams = array(
-                            'marketplace_order_date_from' => $this->createdFrom,
-                            'marketplace_order_date_to' => $this->createdTo,
+                            'marketplace_order_date_from' => date('c', $this->createdFrom),
+                            'marketplace_order_date_to' => date('c', $this->createdTo),
                         );
                     } else {
                         $timeParams = array(
-                            'updated_from' => $this->updatedFrom,
-                            'updated_to' => $this->updatedTo,
+                            'updated_from' => date('c', $this->updatedFrom),
+                            'updated_to' => date('c', $this->updatedTo),
                         );
                     }
                     $results = $this->connector->get(
@@ -820,54 +825,51 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     }
 
     /**
-     * Get Import period
+     * Set interval time for order synchronisation
      *
      * @param integer|false $days Import period
      * @param string|false $createdFrom Import of orders since
      * @param string|false $createdTo Import of orders until
      */
-    protected function getImportPeriod($days, $createdFrom, $createdTo)
+    protected function setIntervalTime($days, $createdFrom, $createdTo)
     {
         if ($createdFrom && $createdTo) {
             // retrieval of orders created from ... until ...
             $createdFromTimestamp = strtotime($createdFrom);
             $createdToTimestamp = strtotime($createdTo) + 86399;
-            $intervalDay = (int)(($createdToTimestamp - $createdFromTimestamp) / 86400);
-            if ($intervalDay > self::MAX_IMPORT_DAYS) {
-                $dateFrom = date('c', $createdFromTimestamp);
-                $dateTo = date('c', ($createdFromTimestamp + self::MAX_IMPORT_DAYS * 86400));
-            } else {
-                $dateFrom = date('c', $createdFromTimestamp);
-                $dateTo = date('c', $createdToTimestamp);
-            }
-            $this->createdFrom = $dateFrom;
-            $this->createdTo = $dateTo;
+            $intervalTime = (int)($createdToTimestamp - $createdFromTimestamp);
+            $this->createdFrom = $createdFromTimestamp;
+            $this->createdTo = $intervalTime > self::MAX_INTERVAL_TIME
+                ? $createdFromTimestamp + self::MAX_INTERVAL_TIME
+                : $createdToTimestamp;
         } else {
             if ($days) {
-                $days = $days < self::MIN_IMPORT_DAYS ? self::MIN_IMPORT_DAYS : $days;
-                $importDays = $days > self::MAX_IMPORT_DAYS ? self::MAX_IMPORT_DAYS : $days;
+                $intervalTime = $days * 86400;
+                $intervalTime = $intervalTime > self::MAX_INTERVAL_TIME ? self::MAX_INTERVAL_TIME : $intervalTime;
             } else {
                 // order recovery updated since ... days
-                $importDays = (int)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                $importDays = (int)(int)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                     'lengowImportDays'
                 );
+                $intervalTime = $importDays * 86400;
                 // add security for older versions of the plugin
-                $importDays = $importDays < self::MIN_IMPORT_DAYS ? self::MIN_IMPORT_DAYS : $importDays;
-                $importDays = $importDays > self::MAX_IMPORT_DAYS ? self::MAX_IMPORT_DAYS : $importDays;
-                // adaptation of the time interval according to the last successful synchronisation
+                $intervalTime = $intervalTime < self::MIN_INTERVAL_TIME ? self::MIN_INTERVAL_TIME : $intervalTime;
+                $intervalTime = $intervalTime > self::MAX_INTERVAL_TIME ? self::MAX_INTERVAL_TIME : $intervalTime;
+                // get dynamic interval time for cron synchronisation
                 $lastImport = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLastImport();
                 $lastSettingUpdate = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                     'lengowLastSettingUpdate'
                 );
-                if ($lastImport['timestamp'] !== 'none' && $lastImport['timestamp'] > strtotime($lastSettingUpdate)) {
-                    $currentTimestamp = time();
-                    $intervalDay = (int)(($currentTimestamp - $lastImport['timestamp']) / 86400);
-                    $intervalDay = $intervalDay === 0 ? 1 : $intervalDay;
-                    $importDays = $intervalDay > $importDays ? $importDays : $intervalDay;
+                if ($this->typeImport !== 'manual'
+                    && $lastImport['timestamp'] !== 'none'
+                    && $lastImport['timestamp'] > strtotime($lastSettingUpdate)
+                ) {
+                    $lastIntervalTime = (time() - $lastImport['timestamp']) + self::SECURITY_INTERVAL_TIME;
+                    $intervalTime = $lastIntervalTime > $intervalTime ? $intervalTime : $lastIntervalTime;
                 }
             }
-            $this->updatedFrom = date('c', (time() - $importDays * 86400));
-            $this->updatedTo = date('c');
+            $this->updatedFrom = time() - $intervalTime;
+            $this->updatedTo = time();
         }
     }
 

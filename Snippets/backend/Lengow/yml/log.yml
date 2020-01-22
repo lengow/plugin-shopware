@@ -94,6 +94,7 @@ default:
       call_tracking: "call tracking with parameters: %{parameters}"
       action_saved: "call tracking saved in lengow_actions table"
       call_action_failed: "order action failed - %{decoded_message}"
+      connector_get_all_action: "get order actions between %{date_from} and %{date_to}"
     export:
       start: "## start export ##"
       end: "## end export ##"

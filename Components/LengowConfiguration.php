@@ -187,6 +187,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         'lengowIdShippedByMp' => array(
             'global' => true,
         ),
+        'lengowLastActionSync' => array(
+            'lengow_settings' => true,
+            'global' => true,
+        ),
     );
 
     /**
@@ -343,7 +347,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     {
         $accessIds = self::getAccessIds();
         list($accountId, $accessToken, $secretToken) = $accessIds;
-        if ($accountId !== 0 && $accessToken !== '0' && $secretToken !== '0') {
+        if ($accountId !== null && $accessToken !== null && $secretToken !== null) {
             return false;
         }
         return true;
