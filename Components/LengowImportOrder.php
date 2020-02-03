@@ -245,6 +245,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 return false;
             }
         }
+        // skip import if the order is anonymized
+        if ($this->orderData->anonymized) {
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                'Import',
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    'log/import/anonymized_order'
+                ),
+                $this->logOutput,
+                $this->marketplaceSku
+            );
+            return false;
+        }
         // checks if an external id already exists
         $orderIdShopware = $this->checkExternalIds($this->orderData->merchant_order_id);
         if ($orderIdShopware && !$this->preprodMode && !$this->isReimported) {
