@@ -422,6 +422,24 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     }
 
     /**
+     * Get date in local date
+     *
+     * @param integer $timestamp linux timestamp
+     * @param boolean $second see seconds or not
+     *
+     * @return string
+     */
+    public static function getDateInCorrectFormat($timestamp, $second = false)
+    {
+        if ($second) {
+            $format = 'l d F Y @ H:i:s';
+        } else {
+            $format = 'l d F Y @ H:i';
+        }
+        return date($format, $timestamp);
+    }
+
+    /**
      * Get Lengow folder path
      *
      * @return string

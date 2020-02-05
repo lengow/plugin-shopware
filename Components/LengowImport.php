@@ -857,12 +857,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 $intervalTime = $intervalTime > self::MAX_INTERVAL_TIME ? self::MAX_INTERVAL_TIME : $intervalTime;
                 // get dynamic interval time for cron synchronisation
                 $lastImport = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLastImport();
-                $lastSettingUpdate = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+                $lastSettingUpdate = (int)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                     'lengowLastSettingUpdate'
                 );
                 if ($this->typeImport !== 'manual'
                     && $lastImport['timestamp'] !== 'none'
-                    && $lastImport['timestamp'] > strtotime($lastSettingUpdate)
+                    && $lastImport['timestamp'] > $lastSettingUpdate
                 ) {
                     $lastIntervalTime = (time() - $lastImport['timestamp']) + self::SECURITY_INTERVAL_TIME;
                     $intervalTime = $lastIntervalTime > $intervalTime ? $intervalTime : $lastIntervalTime;
@@ -945,25 +945,5 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             return false;
         }
         return true;
-    }
-
-    /**
-     * Get last import launched manually or by the cron
-     *
-     * @return string
-     */
-    public static function getLastImport()
-    {
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $repository = $em->getRepository('Shopware\CustomModels\Lengow\Settings');
-        /** @var Shopware\CustomModels\Lengow\Settings $cron */
-        $cron = $repository->findOneBy(array('name' => 'lengowLastImportCron'));
-        /** @var Shopware\CustomModels\Lengow\Settings $manual */
-        $manual = $repository->findOneBy(array('name' => 'lengowLastImportManual'));
-        if ($cron->getDateUpd() > $manual->getDateUpd()) {
-            return $cron->getDateUpd()->format('l d F Y @ H:i');
-        } else {
-            return $manual->getDateUpd()->format('l d F Y @ H:i');
-        }
     }
 }

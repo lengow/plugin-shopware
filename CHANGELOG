@@ -4,7 +4,8 @@ Version 1.5.0
 
     - Feature: Refactoring and optimization of the connector class
     - Feature: Optimization of API calls for synchronisation of orders and actions
-    - Feature : [import] Protection of the import of anonymized orders
+    - Feature: [import] Protection of the import of anonymized orders
+    - Bugfix: Refactoring and optimization of dates with the correct locale
 
 =============================================================
 Version 1.4.3

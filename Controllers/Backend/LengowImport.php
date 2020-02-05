@@ -206,9 +206,12 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     public function getPanelContentsAction()
     {
         $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
+        $lastImport = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLastImport();
         $data['nb_order_in_error'] = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::countOrderWithError();
         $data['nb_order_to_be_sent'] = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::countOrderToBeSent();
-        $data['last_import'] = Shopware_Plugins_Backend_Lengow_Components_LengowImport::getLastImport();
+        $data['last_import'] = $lastImport['timestamp'] !== 'none'
+            ? Shopware_Plugins_Backend_Lengow_Components_LengowMain::getDateInCorrectFormat($lastImport['timestamp'])
+            : '';
         $reportMailActive = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
             'lengowImportReportMailEnabled'
         );
