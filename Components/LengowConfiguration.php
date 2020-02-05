@@ -650,7 +650,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                 }
                 // save last update date for a specific settings (change synchronisation interval time)
                 if (isset($setting['update']) && $setting['update']) {
-                    self::setConfig('lengowLastSettingUpdate', date('Y-m-d H:i:s'));
+                    self::setConfig('lengowLastSettingUpdate', time());
                 }
             }
         }

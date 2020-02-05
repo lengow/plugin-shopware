@@ -195,7 +195,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         $lastImport = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLastImport();
         $lastImportDate = $lastImport['timestamp'] === 'none'
             ? $this->locale->t('toolbox/index/last_import_none')
-            : date('Y-m-d H:i:s', $lastImport['timestamp']);
+            : Shopware_Plugins_Backend_Lengow_Components_LengowMain::getDateInCorrectFormat(
+                $lastImport['timestamp'],
+                true
+            );
         if ($lastImport['type'] === 'none') {
             $lastImportType = $this->locale->t('toolbox/index/last_import_none');
         } elseif ($lastImport['type'] === 'cron') {
@@ -246,12 +249,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     public function getInformationByStore($shop)
     {
         $lengowExport = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, array());
-        $lastExport = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
+        $lastExportDate = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
             'lengowLastExport',
             $shop
         );
-        if (is_null($lastExport) || $lastExport === '' || $lastExport == 0) {
+        if ($lastExportDate === null || $lastExportDate === '' || $lastExportDate == 0) {
             $lastExport = $this->locale->t('toolbox/index/last_import_none');
+        } else {
+            $lastExport = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getDateInCorrectFormat(
+                strtotime($lastExportDate),
+                true
+            );
         }
         $checklist = array();
         $shopDomain = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopUrl($shop);
