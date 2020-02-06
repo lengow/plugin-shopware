@@ -519,20 +519,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      */
     protected function matchDispatch($name)
     {
-        if (count($this->carriers) > 0) {
+        if (!empty($this->carriers)) {
             $nameCleaned = $this->cleanString($name);
-            foreach ($this->carriers as $key => $label) {
-                $keyCleaned = $this->cleanString($key);
-                $labelCleaned = $this->cleanString($label);
-                // search on the carrier key
-                $found = $this->searchValue($keyCleaned, $nameCleaned);
-                // search on the carrier label if it is different from the key
-                if (!$found && $labelCleaned !== $keyCleaned) {
-                    $found = $this->searchValue($labelCleaned, $nameCleaned);
-                }
-                if ($found) {
-                    return $key;
-                }
+            // strict search for a chain
+            $result = $this->searchCarrierCode($nameCleaned);
+            // approximate search for a chain
+            if (!$result) {
+                $result = $this->searchCarrierCode($nameCleaned, false);
+            }
+            if ($result) {
+                return $result;
             }
         }
         return $name;
@@ -548,26 +544,52 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     private function cleanString($string)
     {
         $cleanFilters = array(' ', '-', '_', '.');
-        return strtolower(str_replace($cleanFilters, '',  trim($string)));
+        return strtolower(str_replace($cleanFilters, '', trim($string)));
     }
 
     /**
-     * Strict and then approximate search for a chain
+     * Search carrier code in a chain
+     *
+     * @param string $nameCleaned carrier code cleaned
+     * @param boolean $strict strict search
+     *
+     * @return string|false
+     */
+    private function searchCarrierCode($nameCleaned, $strict = true)
+    {
+        $result = false;
+        foreach ($this->carriers as $key => $label) {
+            $keyCleaned = $this->cleanString($key);
+            $labelCleaned = $this->cleanString($label);
+            // search on the carrier key
+            $found = $this->searchValue($keyCleaned, $nameCleaned, $strict);
+            // search on the carrier label if it is different from the key
+            if (!$found && $labelCleaned !== $keyCleaned) {
+                $found = $this->searchValue($labelCleaned, $nameCleaned, $strict);
+            }
+            if ($found) {
+                $result = $key;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Strict or approximate search for a chain
      *
      * @param string $pattern search pattern
      * @param string $subject string to search
+     * @param boolean $strict strict search
      *
      * @return boolean
      */
-    private function searchValue($pattern, $subject)
+    private function searchValue($pattern, $subject, $strict = true)
     {
-        $found = false;
-        if (preg_match('`' . $pattern . '`i', $subject)) {
-            $found = true;
-        } elseif (preg_match('`.*?' . $pattern . '.*?`i', $subject)) {
-            $found = true;
+        if ($strict) {
+            $found = $pattern === $subject ? true : false;
+        } else {
+            $found = preg_match('`.*?' . $pattern . '.*?`i', $subject) ? true : false;
         }
         return $found;
     }
-
 }
