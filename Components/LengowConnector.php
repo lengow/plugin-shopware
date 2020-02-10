@@ -36,9 +36,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * @var string url of the API Lengow
      */
-    // const LENGOW_API_URL = 'https://api.lengow.io';
+    const LENGOW_API_URL = 'https://api.lengow.io';
     // const LENGOW_API_URL = 'https://api.lengow.net';
-    const LENGOW_API_URL = 'http://api.lengow.rec';
+    // const LENGOW_API_URL = 'http://api.lengow.rec';
     // const LENGOW_API_URL = 'http://10.100.1.82:8081';
 
     /**
@@ -215,7 +215,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                     'error_message' => $message,
                 )
             );
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log('Connector', $error, $logOutput);
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_CONNECTOR,
+                $error,
+                $logOutput
+            );
             return false;
         }
         return true;
@@ -261,7 +265,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                     'error_message' => $message,
                 )
             );
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log('Connector', $error, $logOutput);
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_CONNECTOR,
+                $error,
+                $logOutput
+            );
             return false;
         }
         return json_decode($results);
@@ -396,7 +404,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
             if ($e->getCode() === self::CODE_403) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Connector',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_CONNECTOR,
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log/connector/retry_get_token'
                     ),
@@ -541,7 +549,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                 break;
         }
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-            'Connector',
+            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_CONNECTOR,
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                 'log/connector/call_api',
                 array(

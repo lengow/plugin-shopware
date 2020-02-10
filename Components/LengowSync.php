@@ -34,27 +34,67 @@
 class Shopware_Plugins_Backend_Lengow_Components_LengowSync
 {
     /**
+     * @var string cms type
+     */
+    const CMS_TYPE = 'shopware';
+
+    /**
+     * @var string sync catalog action
+     */
+    const SYNC_CATALOG = 'catalog';
+
+    /**
+     * @var string sync cms option action
+     */
+    const SYNC_CMS_OPTION = 'cms_option';
+
+    /**
+     * @var string sync status account action
+     */
+    const SYNC_STATUS_ACCOUNT = 'status_account';
+
+    /**
+     * @var string sync statistic action
+     */
+    const SYNC_STATISTIC = 'statistic';
+
+    /**
+     * @var string sync marketplace action
+     */
+    const SYNC_MARKETPLACE = 'marketplace';
+
+    /**
+     * @var string sync order action
+     */
+    const SYNC_ORDER = 'order';
+
+    /**
+     * @var string sync action action
+     */
+    const SYNC_ACTION = 'action';
+
+    /**
      * @var array cache time for statistic, account status, cms options and marketplace synchronisation
      */
     protected static $cacheTimes = array(
-        'catalog' => 21600,
-        'cms_option' => 86400,
-        'status_account' => 86400,
-        'statistic' => 86400,
-        'marketplace' => 43200,
+        self::SYNC_CATALOG => 21600,
+        self::SYNC_CMS_OPTION => 86400,
+        self::SYNC_STATUS_ACCOUNT => 86400,
+        self::SYNC_STATISTIC => 86400,
+        self::SYNC_MARKETPLACE => 43200,
     );
 
     /**
      * @var array valid sync actions
      */
     public static $syncActions = array(
-        'order',
-        'cms_option',
-        'status_account',
-        'statistic',
-        'marketplace',
-        'action',
-        'catalog',
+        self::SYNC_ORDER,
+        self::SYNC_CMS_OPTION,
+        self::SYNC_STATUS_ACCOUNT,
+        self::SYNC_STATISTIC,
+        self::SYNC_MARKETPLACE,
+        self::SYNC_ACTION,
+        self::SYNC_CATALOG,
     );
 
     /**
@@ -67,7 +107,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
         $data = array(
             'domain_name' => $_SERVER['SERVER_NAME'],
             'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken(),
-            'type' => 'shopware',
+            'type' => self::CMS_TYPE,
             'version' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopwareVersion(),
             'plugin_version' => Shopware()->Plugins()->Backend()->Lengow()->getVersion(),
             'email' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('mail'),
@@ -139,7 +179,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowCatalogUpdate'
             );
-            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < self::$cacheTimes['catalog']) {
+            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_CATALOG]) {
                 return false;
             }
         }
@@ -232,7 +272,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowOptionCmsUpdate'
             );
-            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < self::$cacheTimes['cms_option']) {
+            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_CMS_OPTION]) {
                 return false;
             }
         }
@@ -262,7 +302,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowAccountStatusUpdate'
             );
-            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < self::$cacheTimes['status_account']) {
+            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_STATUS_ACCOUNT]) {
                 $config = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                     'lengowAccountStatus'
                 );
@@ -319,7 +359,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowOrderStatUpdate'
             );
-            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < self::$cacheTimes['statistic']) {
+            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_STATISTIC]) {
                 $stats = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowOrderStat');
                 return json_decode($stats, true);
             }
@@ -388,7 +428,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 'lengowMarketplaceUpdate'
             );
             if (!is_null($updatedAt)
-                && (time() - (int)$updatedAt) < self::$cacheTimes['marketplace']
+                && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_MARKETPLACE]
                 && file_exists($filePath)
             ) {
                 // recovering data with the marketplaces.json file
@@ -422,11 +462,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 );
             } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
                 $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                    $e->getMessage(),
-                    'en'
+                    $e->getMessage()
                 );
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Import',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log/import/marketplace_update_failed',
                         array('decoded_message' => $decodedMessage)

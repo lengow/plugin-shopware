@@ -423,7 +423,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public static function log($key, $params = array())
     {
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-            'Install',
+            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_INSTALL,
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage($key, $params)
         );
     }

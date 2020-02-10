@@ -42,8 +42,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      * @var array all valid actions
      */
     public static $validActions = array(
-        'ship',
-        'cancel',
+        Shopware_Plugins_Backend_Lengow_Components_LengowAction::TYPE_SHIP,
+        Shopware_Plugins_Backend_Lengow_Components_LengowAction::TYPE_CANCEL,
     );
 
     /**
@@ -248,12 +248,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
         if (isset($this->actions[$action])) {
             $actions = $this->actions[$action];
             if (isset($actions['args']) && is_array($actions['args'])) {
-                if (in_array('line', $actions['args'])) {
+                if (in_array(Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_LINE, $actions['args'])) {
                     return true;
                 }
             }
             if (isset($actions['optional_args']) && is_array($actions['optional_args'])) {
-                if (in_array('line', $actions['optional_args'])) {
+                if (in_array(
+                    Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_LINE,
+                    $actions['optional_args']
+                )) {
                     return true;
                 }
             }
@@ -289,11 +292,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
             $params = $this->checkAndCleanParams($action, $params);
             // complete the values with the specific values of the account
             if (!is_null($orderLineId)) {
-                $params['line'] = $orderLineId;
+                $params[Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_LINE] = $orderLineId;
             }
             $params['marketplace_order_id'] = $lengowOrder->getMarketplaceSku();
             $params['marketplace'] = $lengowOrder->getMarketplaceName();
-            $params['action_type'] = $action;
+            $params[Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_ACTION_TYPE] = $action;
             // checks whether the action is already created to not return an action
             $canSendAction = Shopware_Plugins_Backend_Lengow_Components_LengowAction::canSendAction($params, $order);
             if ($canSendAction) {
@@ -307,7 +310,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
         }
         if (isset($errorMessage)) {
             $processStateFinish = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderProcessState(
-                'closed'
+                Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_CLOSED
             );
             if ($lengowOrder->getOrderProcessState() !== $processStateFinish) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::createOrderError(
@@ -322,7 +325,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                     $doctrineError = '[Doctrine error] "' . $e->getMessage() . '" '
                         . $e->getFile() . ' | ' . $e->getLine();
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                        'Orm',
+                        Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_ORM,
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                             'log/exception/order_insert_failed',
                             array('decoded_message' => $doctrineError)
@@ -334,7 +337,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
             }
             $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($errorMessage);
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'API-OrderAction',
+                Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_ACTION,
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/order_action/call_action_failed',
                     array('decoded_message' => $decodedMessage)
@@ -440,26 +443,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
         // get all order data
         foreach ($marketplaceArguments as $arg) {
             switch ($arg) {
-                case 'tracking_number':
+                case Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_TRACKING_NUMBER:
                     $params[$arg] = $order->getTrackingCode();
                     break;
-                case 'carrier':
-                case 'carrier_name':
-                case 'shipping_method':
-                case 'custom_carrier':
+                case Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_CARRIER:
+                case Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_CARRIER_NAME:
+                case Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_SHIPPING_METHOD:
+                case Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_CUSTOM_CARRIER:
                     $carrierName = $lengowOrder->getCarrier() != ''
                         ? $lengowOrder->getCarrier()
                         : $this->matchDispatch($order->getDispatch()->getName());
                     $params[$arg] = $carrierName;
                     break;
-                case 'tracking_url':
+                case Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_TRACKING_URL:
                     $params[$arg] = $order->getDispatch()->getStatusLink();
                     break;
-                case 'shipping_price':
+                case Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_SHIPPING_PRICE:
                     $params[$arg] = $order->getInvoiceShipping();
                     break;
-                case 'shipping_date':
-                case 'delivery_date':
+                case Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_SHIPPING_DATE:
+                case Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_DELIVERY_DATE:
                     $params[$arg] = date('c');
                     break;
                 default:

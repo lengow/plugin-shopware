@@ -294,12 +294,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         } else {
             try {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Export',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_EXPORT,
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/export/start'),
                     $this->logOutput
                 );
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Export',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_EXPORT,
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log/export/start_for_shop',
                         array(
@@ -314,7 +314,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 // get products to be exported
                 $articles = $this->getIdToExport();
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Export',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_EXPORT,
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log/export/nb_product_found',
                         array('nb_product' => count($articles))
@@ -323,7 +323,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 );
                 $this->export($articles, $fields);
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Export',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_EXPORT,
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/export/end'),
                     $this->logOutput
                 );
@@ -337,7 +337,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                     $errorMessage
                 );
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Export',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_EXPORT,
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log/export/export_failed',
                         array('decoded_message' => $decodedMessage)
@@ -404,7 +404,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             // log each time 50 products are exported
             if ($displayedProducts > 0 && $displayedProducts % 50 === 0) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Export',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_EXPORT,
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log/export/count_product',
                         array('numberOfProducts' => $displayedProducts)
@@ -437,7 +437,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $feedUrl = $feed->getUrl();
             if ($feedUrl && php_sapi_name() !== 'cli') {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Export',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_EXPORT,
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log/export/your_feed_available_here',
                         array('feed_url' => $feedUrl)

@@ -381,7 +381,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function updateDateImport($type)
     {
-        if ($type === 'cron') {
+        if ($type === Shopware_Plugins_Backend_Lengow_Components_LengowImport::TYPE_CRON) {
             Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
                 'lengowLastImportCron',
                 time()
@@ -409,14 +409,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         );
         if ($timestampCron && $timestampManual) {
             if ((int)$timestampCron > (int)$timestampManual) {
-                return array('type' => 'cron', 'timestamp' => (int)$timestampCron);
+                return array(
+                    'type' => Shopware_Plugins_Backend_Lengow_Components_LengowImport::TYPE_CRON,
+                    'timestamp' => (int)$timestampCron,
+                );
             } else {
-                return array('type' => 'manual', 'timestamp' => (int)$timestampManual);
+                return array(
+                    'type' => Shopware_Plugins_Backend_Lengow_Components_LengowImport::TYPE_MANUAL,
+                    'timestamp' => (int)$timestampManual,
+                );
             }
         } elseif ($timestampCron && !$timestampManual) {
-            return array('type' => 'cron', 'timestamp' => (int)$timestampCron);
+            return array(
+                'type' => Shopware_Plugins_Backend_Lengow_Components_LengowImport::TYPE_CRON,
+                'timestamp' => (int)$timestampCron,
+            );
         } elseif ($timestampManual && !$timestampCron) {
-            return array('type' => 'manual', 'timestamp' => (int)$timestampManual);
+            return array(
+                'type' => Shopware_Plugins_Backend_Lengow_Components_LengowImport::TYPE_MANUAL,
+                'timestamp' => (int)$timestampManual,
+            );
         }
         return array('type' => 'none', 'timestamp' => 'none');
     }
@@ -621,12 +633,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     {
         if ($shipmentByMp) {
             $orderState = 'shipped_by_marketplace';
-        } elseif ($marketplace->getStateLengow($orderStateMarketplace) === 'shipped'
-            || $marketplace->getStateLengow($orderStateMarketplace) === 'closed'
+        } elseif ($marketplace->getStateLengow($orderStateMarketplace) === Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_SHIPPED
+            || $marketplace->getStateLengow($orderStateMarketplace) === Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_CLOSED
         ) {
-            $orderState = 'shipped';
+            $orderState = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_SHIPPED;
         } else {
-            $orderState = 'accepted';
+            $orderState = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_ACCEPTED;
         }
         return self::getOrderStatus($orderState);
     }
@@ -641,16 +653,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static function getOrderStatus($orderState)
     {
         switch ($orderState) {
-            case 'accepted':
-            case 'waiting_shipment':
+            case Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_ACCEPTED:
+            case Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_WAITING_SHIPMENT:
                 $settingName = 'lengowIdWaitingShipment';
                 break;
-            case 'shipped':
-            case 'closed':
+            case Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_SHIPPED:
+            case Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_CLOSED:
                 $settingName = 'lengowIdShipped';
                 break;
-            case 'refused':
-            case 'canceled':
+            case Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_REFUSED:
+            case Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_CANCELED:
                 $settingName = 'lengowIdCanceled';
                 break;
             case 'shipped_by_marketplace':
@@ -775,13 +787,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
                 if (strlen($email) > 0) {
                     if (self::sendMail($email, $subject, $mailBody)) {
                         self::log(
-                            'MailReport',
+                            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_MAIL_REPORT,
                             self::setLogMessage('log/mail_report/send_mail_to', array('email' => $email)),
                             $logOutput
                         );
                     } else {
                         self::log(
-                            'MailReport',
+                            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_MAIL_REPORT,
                             self::setLogMessage('log/mail_report/unable_send_mail_to', array('email' => $email)),
                             $logOutput
                         );

@@ -315,7 +315,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
         } catch (Exception $e) {
             $errorMessage = '[Doctrine error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Orm',
+                Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_ORM,
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/exception/order_insert_failed',
                     array('decoded_message' => $errorMessage)
@@ -370,7 +370,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
         } catch (Exception $e) {
             $errorMessage = '[Doctrine error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Orm',
+                Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_ORM,
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/exception/order_insert_failed',
                     array('decoded_message' => $errorMessage)
