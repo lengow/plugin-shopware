@@ -196,8 +196,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 $orderAction = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Action')
                     ->findOneBy(array('actionId' => $row->id));
                 if ($orderAction) {
-                    $stateNew = Shopware_Plugins_Backend_Lengow_Components_LengowAction::STATE_NEW;
-                    if ($orderAction->getState() === $stateNew) {
+                    if ($orderAction->getState() === self::STATE_NEW) {
                         $orderAction->setRetry($orderAction->getRetry() + 1)
                             ->setUpdatedAt(new DateTime());
                         Shopware()->Models()->flush($orderAction);
@@ -209,9 +208,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                         $order,
                         $params[self::ARG_ACTION_TYPE],
                         $row->id,
-                        isset($params[Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_LINE])
-                            ? $params[Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_LINE]
-                            : null,
+                        isset($params[self::ARG_LINE]) ? $params[self::ARG_LINE] : null,
                         $params
                     );
                     $sendAction = false;
@@ -242,13 +239,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 $params
             );
             if (isset($result->id)) {
-                Shopware_Plugins_Backend_Lengow_Components_LengowAction::createOrderAction(
+                self::createOrderAction(
                     $order,
                     $params[self::ARG_ACTION_TYPE],
                     $result->id,
-                    isset($params[Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_LINE])
-                        ? $params[Shopware_Plugins_Backend_Lengow_Components_LengowAction::ARG_LINE]
-                        : null,
+                    isset($params[self::ARG_LINE]) ? $params[self::ARG_LINE] : null,
                     $params
                 );
             } else {
