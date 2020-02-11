@@ -49,6 +49,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     const SECURITY_INTERVAL_TIME = 7200;
 
     /**
+     * @var string manual import type
+     */
+    const TYPE_MANUAL = 'manual';
+
+    /**
+     * @var string cron import type
+     */
+    const TYPE_CRON = 'cron';
+
+    /**
      * @var integer|null Shopware shop id
      */
     protected $shopId = null;
@@ -157,9 +167,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
      * @var array valid states lengow to create a Lengow order
      */
     public static $lengowStates = array(
-        'waiting_shipment',
-        'shipped',
-        'closed',
+        Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_WAITING_SHIPMENT,
+        Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_SHIPPED,
+        Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_CLOSED,
     );
 
     /**
@@ -187,7 +197,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             : (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                 'lengowImportPreprodEnabled'
             );
-        $this->typeImport = isset($params['type']) ? $params['type'] : 'manual';
+        $this->typeImport = isset($params['type']) ? $params['type'] : self::TYPE_MANUAL;
         $this->logOutput = isset($params['log_output']) ? (bool)$params['log_output'] : false;
         $this->shopId = isset($params['shop_id']) ? (int)$params['shop_id'] : null;
         // get params for synchronise one or all orders
@@ -237,23 +247,31 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 'lengow_log/error/rest_time_to_import',
                 array('rest_time' => self::restTimeToImport())
             );
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log('Import', $globalError, $this->logOutput);
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
+                $globalError,
+                $this->logOutput
+            );
         } elseif (!self::checkCredentials()) {
             $globalError = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                 'lengow_log/error/credentials_not_valid'
             );
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log('Import', $globalError, $this->logOutput);
+            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
+                $globalError,
+                $this->logOutput
+            );
         } else {
             if (!$this->importOneOrder) {
                 self::setInProcess();
             }
             // check Lengow catalogs for order synchronisation
-            if (!$this->importOneOrder && $this->typeImport === 'manual') {
+            if (!$this->importOneOrder && $this->typeImport === self::TYPE_MANUAL) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowSync::syncCatalog();
             }
             // start order synchronisation
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Import',
+                Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/import/start',
                     array('type' => $this->typeImport)
@@ -262,7 +280,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             );
             if ($this->preprodMode) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Import',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log/import/preprod_mode_active'
                     ),
@@ -277,7 +295,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     continue;
                 }
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Import',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log/import/start_for_shop',
                         array(
@@ -298,7 +316,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                             )
                         );
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                            'Import',
+                            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                             $errorCatalogIds,
                             $this->logOutput
                         );
@@ -310,7 +328,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     $totalOrders = count($orders);
                     if ($this->importOneOrder) {
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                            'Import',
+                            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                                 'log/import/find_one_order',
                                 array(
@@ -324,7 +342,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                         );
                     } else {
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                            'Import',
+                            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                                 'log/import/find_all_orders',
                                 array(
@@ -375,7 +393,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                         $errorMessage
                     );
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                        'Import',
+                        Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                             'log/import/import_failed',
                             array('decoded_message' => $decodedMessage)
@@ -390,7 +408,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             }
             if (!$this->importOneOrder) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Import',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'lengow_log/error/nb_order_imported',
                         array('nb_order' => $orderNew)
@@ -398,7 +416,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     $this->logOutput
                 );
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Import',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'lengow_log/error/nb_order_updated',
                         array('nb_order' => $orderUpdate)
@@ -406,7 +424,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     $this->logOutput
                 );
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Import',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'lengow_log/error/nb_order_with_error',
                         array('nb_order' => $orderError)
@@ -421,7 +439,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             // finish import process
             self::setEnd();
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Import',
+                Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/import/end',
                     array('type' => $this->typeImport)
@@ -439,7 +457,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::sendMailAlert($this->logOutput);
             }
             // check if order action is finish (Ship / Cancel)
-            if (!$this->preprodMode && !$this->importOneOrder && $this->typeImport === 'manual') {
+            if (!$this->preprodMode && !$this->importOneOrder && $this->typeImport === self::TYPE_MANUAL) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkFinishAction($this->logOutput);
                 Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkOldAction($this->logOutput);
                 Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkActionNotSent($this->logOutput);
@@ -506,7 +524,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         foreach ($catalogIds as $catalogId) {
             if (array_key_exists($catalogId, $this->catalogIds)) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Import',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log/import/catalog_id_already_used',
                         array(
@@ -545,7 +563,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         $orders = array();
         if ($this->importOneOrder) {
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Import',
+                Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/import/connector_get_order',
                     array(
@@ -559,7 +577,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             $dateFrom = $this->createdFrom ? $this->createdFrom : $this->updatedFrom;
             $dateTo = $this->createdTo ? $this->createdTo : $this->updatedTo;
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Import',
+                Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/import/connector_get_all_order',
                     array(
@@ -685,7 +703,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             // if order contains no package
             if (empty($orderData->packages)) {
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    'Import',
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                         'log/import/error_no_package'
                     ),
@@ -700,7 +718,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 // check whether the package contains a shipping address
                 if (!isset($packageData->delivery->id)) {
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                        'Import',
+                        Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                             'log/import/error_no_delivery_address'
                         ),
@@ -717,7 +735,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                         && $this->deliveryAddressId !== $packageDeliveryAddressId
                     ) {
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                            'Import',
+                            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                                 'log/import/error_wrong_package_number'
                             ),
@@ -753,7 +771,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                         $errorMessage
                     );
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                        'Import',
+                        Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                             'log/import/order_import_failed',
                             array('decoded_message' => $decodedMessage)
@@ -785,7 +803,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                         );
                     }
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                        'Import',
+                        Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
                         $synchroMessage,
                         $this->logOutput,
                         $marketplaceSku
@@ -860,7 +878,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 $lastSettingUpdate = (int)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
                     'lengowLastSettingUpdate'
                 );
-                if ($this->typeImport !== 'manual'
+                if ($this->typeImport !== self::TYPE_MANUAL
                     && $lastImport['timestamp'] !== 'none'
                     && $lastImport['timestamp'] > $lastSettingUpdate
                 ) {

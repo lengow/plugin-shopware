@@ -624,7 +624,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                 }
                 if (!is_null($shop)) {
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                        'Setting',
+                        Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_SETTING,
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                             'log/setting/setting_change_for_shop',
                             array(
@@ -637,7 +637,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                     );
                 } else {
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                        'Setting',
+                        Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_SETTING,
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                             'log/setting/setting_change',
                             array(

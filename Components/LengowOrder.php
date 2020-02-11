@@ -44,6 +44,41 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     const PROCESS_STATE_FINISH = 2;
 
     /**
+     * @var string order state accepted
+     */
+    const STATE_ACCEPTED = 'accepted';
+
+    /**
+     * @var string order state waiting_shipment
+     */
+    const STATE_WAITING_SHIPMENT = 'waiting_shipment';
+
+    /**
+     * @var string order state shipped
+     */
+    const STATE_SHIPPED = 'shipped';
+
+    /**
+     * @var string order state closed
+     */
+    const STATE_CLOSED = 'closed';
+
+    /**
+     * @var string order state refused
+     */
+    const STATE_REFUSED = 'refused';
+
+    /**
+     * @var string order state canceled
+     */
+    const STATE_CANCELED = 'canceled';
+
+    /**
+     * @var string order state refunded
+     */
+    const STATE_REFUNDED = 'refunded';
+
+    /**
      * Get Shopware order id from lengow order table
      *
      * @param string $marketplaceSku Lengow order id
@@ -265,14 +300,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     public static function getOrderProcessState($state)
     {
         switch ($state) {
-            case 'accepted':
-            case 'waiting_shipment':
+            case self::STATE_ACCEPTED:
+            case self::STATE_WAITING_SHIPMENT:
                 return self::PROCESS_STATE_IMPORT;
-            case 'shipped':
-            case 'closed':
-            case 'refused':
-            case 'canceled':
-            case 'refunded':
+            case self::STATE_SHIPPED:
+            case self::STATE_CLOSED:
+            case self::STATE_REFUSED:
+            case self::STATE_CANCELED:
+            case self::STATE_REFUNDED:
                 return self::PROCESS_STATE_FINISH;
             default:
                 return false;
@@ -322,8 +357,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             return false;
         }
         $unsentOrders = array();
-        $orderStatusShipped = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('shipped');
-        $orderStatusCanceled = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('canceled');
+        $orderStatusShipped = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus(
+            Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_SHIPPED
+        );
+        $orderStatusCanceled = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus(
+            Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_CANCELED
+        );
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select(array('lo.orderId', 'oh.orderStatusId'))
             ->from('Shopware\CustomModels\Lengow\Order', 'lo')
@@ -348,7 +387,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             foreach ($results as $result) {
                 $orderId = (int)$result['orderId'];
                 if (!Shopware_Plugins_Backend_Lengow_Components_LengowAction::getActiveActionByOrderId($orderId)) {
-                    $action = (int)$result['orderStatusId'] === $orderStatusCanceled->getId() ? 'cancel' : 'ship';
+                    $action = (int)$result['orderStatusId'] === $orderStatusCanceled->getId()
+                        ? Shopware_Plugins_Backend_Lengow_Components_LengowAction::TYPE_CANCEL
+                        : Shopware_Plugins_Backend_Lengow_Components_LengowAction::TYPE_SHIP;
                     $unsentOrders[$orderId] = $action;
                 }
             }
@@ -400,15 +441,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         }
         // get Shopware equivalent order status to Lengow API state
         $orderStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus($orderStateLengow);
-        $waitingShipmentOrderStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('accepted');
-        $shippedOrderStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus('shipped');
+        $waitingShipmentOrderStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus(
+            Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_ACCEPTED
+        );
+        $shippedOrderStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus(
+            Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_SHIPPED
+        );
         // if state is different between API and Shopware
         if (($orderStatus && $waitingShipmentOrderStatus && $shippedOrderStatus)
             && ($order->getOrderStatus()->getId() !== $orderStatus->getId())
         ) {
             // change state process to shipped
             if ($order->getOrderStatus()->getId() === $waitingShipmentOrderStatus->getId()
-                && ($orderStateLengow === 'shipped' || $orderStateLengow === 'closed')
+                && ($orderStateLengow === Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_SHIPPED
+                    || $orderStateLengow === Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_CLOSED
+                )
             ) {
                 self::createOrderHistory($order, $shippedOrderStatus, $logOutput, $lengowOrder->getMarketplaceSku());
                 self::updateOrderStatus($order->getId(), $shippedOrderStatus->getId());
@@ -419,10 +466,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                 return 'Shipped';
             } elseif (($order->getOrderStatus()->getId() === $waitingShipmentOrderStatus->getId()
                     || $order->getOrderStatus()->getId() === $shippedOrderStatus->getId()
-                ) && ($orderStateLengow === 'canceled' || $orderStateLengow === 'refused')
+                ) && ($orderStateLengow === Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_CANCELED
+                    || $orderStateLengow === Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_REFUSED
+                )
             ) {
                 $canceledOrderStatus = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus(
-                    'canceled'
+                    Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_CANCELED
                 );
                 self::createOrderHistory($order, $canceledOrderStatus, $logOutput, $lengowOrder->getMarketplaceSku());
                 self::updateOrderStatus($order->getId(), $canceledOrderStatus->getId());
@@ -479,7 +528,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         } catch (Exception $e) {
             $errorMessage = '[Doctrine error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'Orm',
+                Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_ORM,
                 Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                     'log/exception/order_insert_failed',
                     array('decoded_message' => $errorMessage)
@@ -545,7 +594,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                         'error_message' => $message,
                     )
                 );
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log('Connector', $error, $logOutput);
+                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
+                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_CONNECTOR,
+                    $error,
+                    $logOutput
+                );
                 return false;
             }
             if ($result === null
@@ -571,7 +624,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     {
         if ($lengowOrder->getOrderProcessState() === 0 && $lengowOrder->isInError()) {
             $params = array(
-                'type' => 'manual',
+                'type' => Shopware_Plugins_Backend_Lengow_Components_LengowImport::TYPE_MANUAL,
                 'lengow_order_id' => $lengowOrder->getId(),
                 'marketplace_sku' => $lengowOrder->getMarketplaceSku(),
                 'marketplace_name' => $lengowOrder->getMarketplaceName(),
@@ -603,9 +656,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                 );
                 if (!$action) {
                     $orderStatusCanceled = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getOrderStatus(
-                        'canceled'
+                        Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_CANCELED
                     );
-                    $action = $orderStatusCanceled->getId() === $order->getOrderStatus()->getId() ? 'cancel' : 'ship';
+                    $action = $orderStatusCanceled->getId() === $order->getOrderStatus()->getId()
+                        ? Shopware_Plugins_Backend_Lengow_Components_LengowAction::TYPE_CANCEL
+                        : Shopware_Plugins_Backend_Lengow_Components_LengowAction::TYPE_SHIP;
                 }
                 return Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, $action);
             }
@@ -698,7 +753,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             return false;
         }
         Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-            'API-OrderAction',
+            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_ACTION,
             Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                 'log/order_action/try_to_send_action',
                 array(

@@ -240,7 +240,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'label' => 'settings/lengow_order_status_settings/id_waiting_shipment/label',
                 'required' => true,
                 'editable' => false,
-                'value' => $orderStates['waiting_shipment'],
+                'value' => $orderStates[Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_WAITING_SHIPMENT],
                 'store' => $orderStates['selection'],
             ),
             'lengowIdShipped' => array(
@@ -248,7 +248,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'label' => 'settings/lengow_order_status_settings/id_shipped/label',
                 'required' => true,
                 'editable' => false,
-                'value' => $orderStates['shipped'],
+                'value' => $orderStates[Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_SHIPPED],
                 'store' => $orderStates['selection'],
             ),
             'lengowIdCanceled' => array(
@@ -256,7 +256,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'label' => 'settings/lengow_order_status_settings/id_canceled/label',
                 'required' => true,
                 'editable' => false,
-                'value' => $orderStates['canceled'],
+                'value' => $orderStates[Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_CANCELED],
                 'store' => $orderStates['selection'],
             ),
             'lengowIdShippedByMp' => array(
@@ -264,7 +264,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'label' => 'settings/lengow_order_status_settings/id_shipped_by_mp/label',
                 'required' => true,
                 'editable' => false,
-                'value' => $orderStates['shipped'],
+                'value' => $orderStates[Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_SHIPPED],
                 'store' => $orderStates['selection'],
             ),
         );
@@ -448,9 +448,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             }
         }
         return array(
-            'waiting_shipment' => 1,
-            'shipped' => 2,
-            'canceled' => 4,
+            Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_WAITING_SHIPMENT => 1,
+            Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_SHIPPED => 2,
+            Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_CANCELED => 4,
             'selection' => $selection,
         );
     }

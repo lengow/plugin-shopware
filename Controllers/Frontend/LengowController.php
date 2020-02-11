@@ -138,7 +138,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                     $errorMessage = '[Shopware error] "' . $e->getMessage()
                         . '" ' . $e->getFile() . ' | ' . $e->getLine();
                     Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                        'Export',
+                        Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_EXPORT,
                         Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
                             'log/export/export_failed',
                             array('decoded_message' => $errorMessage)
@@ -208,13 +208,13 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 // get sync action if exists
                 $sync = $this->Request()->getParam('sync', false);
                 // sync catalogs id between Lengow and Shopware
-                if (!$sync || $sync === 'catalog') {
+                if (!$sync || $sync === Shopware_Plugins_Backend_Lengow_Components_LengowSync::SYNC_CATALOG) {
                     Shopware_Plugins_Backend_Lengow_Components_LengowSync::syncCatalog($force, $logOutput);
                 }
                 // sync orders between Lengow and Shopware
                 if (!$sync || $sync === 'order') {
                     $params = array(
-                        'type' => 'cron',
+                        'type' => Shopware_Plugins_Backend_Lengow_Components_LengowImport::TYPE_CRON,
                         'log_output' => $logOutput
                     );
                     if ($this->Request()->getParam('preprod_mode') != null) {
@@ -255,19 +255,19 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                     Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkActionNotSent($logOutput);
                 }
                 // sync options between Lengow and Shopware
-                if (!$sync || $sync === 'cms_option') {
+                if (!$sync || $sync === Shopware_Plugins_Backend_Lengow_Components_LengowSync::SYNC_CMS_OPTION) {
                     Shopware_Plugins_Backend_Lengow_Components_LengowSync::setCmsOption($force, $logOutput);
                 }
                 // sync marketplaces between Lengow and Shopware
-                if ($sync === 'marketplace') {
+                if ($sync === Shopware_Plugins_Backend_Lengow_Components_LengowSync::SYNC_MARKETPLACE) {
                     Shopware_Plugins_Backend_Lengow_Components_LengowSync::getMarketplaces($force, $logOutput);
                 }
                 // sync status account between Lengow and Shopware
-                if ($sync === 'status_account') {
+                if ($sync === Shopware_Plugins_Backend_Lengow_Components_LengowSync::SYNC_STATUS_ACCOUNT) {
                     Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatusAccount($force, $logOutput);
                 }
                 // sync statistics between Lengow and Shopware
-                if ($sync === 'statistic') {
+                if ($sync === Shopware_Plugins_Backend_Lengow_Components_LengowSync::SYNC_STATISTIC) {
                     Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatistic($force, $logOutput);
                 }
                 // sync parameter is not valid
