@@ -220,7 +220,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             : LengowConfiguration::getConfig('lengowExportDisabledProduct', $this->shop);
         $this->mode = isset($params['mode']) ? $params['mode'] : false;
         $this->updateExportDate = isset($params['update_export_date']) ? (bool)$params['update_export_date'] : true;
-        $this->setFormat(isset($params['format']) ? $params['format'] : 'csv');
+        $this->setFormat(isset($params['format']) ? $params['format'] : LengowFeed::FORMAT_CSV);
         $this->setProductIds(isset($params['product_ids']) ? $params['product_ids'] : false);
         $this->setCurrency(isset($params['currency']) ? $params['currency'] : false);
         $this->setLogOutput(isset($params['log_output']) ? (bool)$params['log_output'] : true);
@@ -235,7 +235,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     private function setFormat($format)
     {
         $this->format = !in_array($format, LengowFeed::$availableFormats)
-            ? 'csv'
+            ? LengowFeed::FORMAT_CSV
             : $format;
     }
 
@@ -356,7 +356,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         // setup feed
         $feed = new LengowFeed($this->stream, $this->format, $this->shop->getName());
         // write header
-        $feed->write('header', $fields);
+        $feed->write(LengowFeed::HEADER, $fields);
         // used for json format
         $isFirst = true;
         // write products in the feed when the header is ready
@@ -380,7 +380,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                     $productData[$field] = $product->getData($field);
                 }
             }
-            $feed->write('body', $productData, $isFirst);
+            $feed->write(LengowFeed::BODY, $productData, $isFirst);
             $isFirst = false;
             $numberOfProducts++;
             $displayedProducts++;
@@ -639,7 +639,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 case 'format':
                     $authorizedValue = LengowFeed::$availableFormats;
                     $type = 'string';
-                    $example = 'csv';
+                    $example = LengowFeed::FORMAT_CSV;
                     break;
                 case 'offset':
                 case 'limit':
