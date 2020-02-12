@@ -28,6 +28,9 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
+
 /**
  * Lengow Translation Class
  */
@@ -105,7 +108,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
     public static function loadFile($isoCode = null, $fileName = null)
     {
         if (!$fileName) {
-            $pluginPath = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder();
+            $pluginPath = LengowMain::getLengowFolder();
             $fileName = $pluginPath . 'Snippets/backend/Lengow/translation.ini';
         }
         $translation = array();
@@ -117,7 +120,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
             }
         }
         self::$translation[$isoCode] = $translation;
-        return count($translation) > 0;
+        return !empty($translation);
     }
 
     /**
@@ -145,8 +148,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
     public static function getTranslationsFromArray($keys)
     {
         // get locale from session
-        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
-        $lengowTranslation = new Shopware_Plugins_Backend_Lengow_Components_LengowTranslation();
+        $locale = LengowMain::getLocale();
+        $lengowTranslation = new LengowTranslation();
         $translations = array();
         foreach ($keys as $path => $key) {
             foreach ($key as $value) {

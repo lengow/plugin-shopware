@@ -28,9 +28,11 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+
 require 'views/header.php';
 
-$shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops();
+$shops = LengowMain::getActiveShops();
 ?>
     <div class="container">
         <h1> <?php echo $locale->t('toolbox/menu/lengow_toolbox') ?></h1>

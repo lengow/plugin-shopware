@@ -28,6 +28,12 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
+use Shopware_Plugins_Backend_Lengow_Components_LengowSync as LengowSync;
+use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
+
 /**
  * Lengow Elements Class
  */
@@ -45,25 +51,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
      */
     public static function getHeader()
     {
-        $accountStatus = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatusAccount();
+        $accountStatus = LengowSync::getStatusAccount();
         $html = array();
-        $isPreProdActive = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowImportPreprodEnabled'
-        );
-        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
-        $preprodTranslation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-            'menu/preprod_active',
-            $locale
-        );
-        $counterTranslation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+        $isPreProdActive = LengowConfiguration::getConfig('lengowImportPreprodEnabled');
+        $locale = LengowMain::getLocale();
+        $preprodTranslation = LengowMain::decodeLogMessage('menu/preprod_active', $locale);
+        $counterTranslation = LengowMain::decodeLogMessage(
             'menu/counter',
             $locale,
             array('counter' => $accountStatus['day'])
         );
-        $upgradeTranslation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-            'menu/upgrade_account',
-            $locale
-        );
+        $upgradeTranslation = LengowMain::decodeLogMessage('menu/upgrade_account', $locale);
         if ($isPreProdActive) {
             $html['lgw-preprod-label'] = '<div id="lgw-preprod" class="adminlengowhome">'
                 . $preprodTranslation . '</div>';
@@ -85,8 +83,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
     public static function getFooter()
     {
         $keys = array('footer/' => array('legals', 'plugin_lengow', 'lengow_url'));
-        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
-        $html = '<div class="lgw-container lgw-footer-vold clear">
+        $translations = LengowTranslation::getTranslationsFromArray($keys);
+        return '<div class="lgw-container lgw-footer-vold clear">
                 <div class="lgw-content-section text-center">
                     <div id="lgw-footer">
                         <p class="pull-right">
@@ -102,7 +100,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                     </div>
                 </div>
             </div>';
-        return $html;
     }
 
     /**
@@ -124,8 +121,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                 'hosting',
             ),
         );
-        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
-        $html = '<div class="lgw-container">
+        $translations = LengowTranslation::getTranslationsFromArray($keys);
+        return '<div class="lgw-container">
             <div class="lgw-box lengow_legals_wrapper">
                 <h3>SAS Lengow</h3> ' . $translations['simplified_company'] . '<br />
                 ' . $translations['social_capital'] . '368 778 € <br />
@@ -140,7 +137,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                 +33 (0)1 75 77 16 66
             </div>
         </div>';
-        return $html;
     }
 
     /**
@@ -172,9 +168,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                 'configure_plugin',
             ),
         );
-        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
+        $translations = LengowTranslation::getTranslationsFromArray($keys);
         // get Lengow statistics
-        $stats = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatistic();
+        $stats = LengowSync::getStatistic();
         $statsHtml = '';
         if ($stats['available']) {
             $statsHtml = '
@@ -203,12 +199,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                 </div>
             ';
         }
-        $numberOrderToBeSent = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::countOrderToBeSent();
+        $numberOrderToBeSent = LengowOrder::countOrderToBeSent();
         $alertOrderToBeSent = $numberOrderToBeSent > 0
             ? ' <span class="lgw-label red">' . $numberOrderToBeSent . '</span>'
             : '';
         // get Lengow Dashboard
-        $dashboardHtml = '
+        return '
             <div id="lengow_home_wrapper">
                 <div class="lgw-container">
                     <div class="lgw-box lgw-home-header text-center">
@@ -260,9 +256,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                         </p>
                     </div>
                 </div>
-                ' . Shopware_Plugins_Backend_Lengow_Components_LengowElements::getFooter() . '
+                ' . self::getFooter() . '
             </div>';
-        return $dashboardHtml;
     }
 
     /**
@@ -283,8 +278,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                 'refresh_action',
             ),
         );
-        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
-        $endFreeTrialHtml = '
+        $translations = LengowTranslation::getTranslationsFromArray($keys);
+        return '
             <div class="lgw-container">
                 <div class="lgw-box">
                     <div class="lgw-row">
@@ -301,7 +296,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                             </div>
                             <div class="text-center">
                                 <a href="#" id="lgw-refresh" class="lgw-box-link">'
-            . $translations['refresh_action'] . '</a>
+                                    . $translations['refresh_action'] . '
+                                </a>
                             </div>
                         </div>
                         <div class="lgw-col-6">
@@ -311,8 +307,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                         </div>
                     </div>
                 </div>
-            </div>' . Shopware_Plugins_Backend_Lengow_Components_LengowElements::getFooter();
-        return $endFreeTrialHtml;
+            </div>' . self::getFooter();
     }
 
     /**
@@ -333,8 +328,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                 'refresh_action',
             ),
         );
-        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
-        $badPayerHtml = '
+        $translations = LengowTranslation::getTranslationsFromArray($keys);
+        return '
             <div class="lgw-container">
                 <div class="lgw-box">
                     <div class="lgw-row">
@@ -364,7 +359,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                     </div>
                 </div>
             </div>
-            ' . Shopware_Plugins_Backend_Lengow_Components_LengowElements::getFooter();
-        return $badPayerHtml;
+            ' . self::getFooter();
     }
 }

@@ -28,6 +28,8 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
+
 /**
  * Backend Lengow Logs Controller
  */
@@ -38,7 +40,7 @@ class Shopware_Controllers_Backend_LengowLogs extends Shopware_Controllers_Backe
      */
     public function listAction()
     {
-        $files = Shopware_Plugins_Backend_Lengow_Components_LengowLog::getFiles();
+        $files = LengowLog::getFiles();
         $result = array();
         foreach ($files as $logFile) {
             $name = $logFile->fileName;
@@ -64,6 +66,6 @@ class Shopware_Controllers_Backend_LengowLogs extends Shopware_Controllers_Backe
     public function downloadAction()
     {
         $fileName = $this->Request()->getParam('fileName');
-        Shopware_Plugins_Backend_Lengow_Components_LengowLog::download($fileName);
+        LengowLog::download($fileName);
     }
 }

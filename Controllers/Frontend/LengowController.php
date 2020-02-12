@@ -28,6 +28,15 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware\Models\Shop\Shop as ShopModel;
+use Shopware_Plugins_Backend_Lengow_Components_LengowAction as LengowAction;
+use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
+use Shopware_Plugins_Backend_Lengow_Components_LengowExport as LengowExport;
+use Shopware_Plugins_Backend_Lengow_Components_LengowImport as LengowImport;
+use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+use Shopware_Plugins_Backend_Lengow_Components_LengowSync as LengowSync;
+
 /**
  * Frontend Lengow Controller
  */
@@ -77,16 +86,16 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
         $updateExportDate = $this->Request()->getParam('update_export_date');
         $currency = $this->Request()->getParam('currency');
         // if shop name has been filled
-        if (is_null($shopId)) {
+        if ($shopId === null) {
             header('HTTP/1.1 400 Bad Request');
-            die(Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage('log/export/specify_shop'));
+            die(LengowMain::decodeLogMessage('log/export/specify_shop'));
         }
         $em = Shopware()->Models();
-        /** @var Shopware\Models\Shop\Shop $shop */
+        /** @var ShopModel $shop */
         $shop = $em->getRepository('Shopware\Models\Shop\Shop')->find($shopId);
         // a shop with this name exist
-        if (is_null($shop)) {
-            /** @var Shopware\Models\Shop\Shop[] $shops */
+        if ($shop === null) {
+            /** @var ShopModel[] $shops */
             $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
             $index = count($shops);
             $shopsIds = '[';
@@ -98,7 +107,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             $shopsIds .= ']';
             header('HTTP/1.1 400 Bad Request');
             die(
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                LengowMain::decodeLogMessage(
                     'log/export/shop_dont_exist',
                     null,
                     array(
@@ -109,13 +118,13 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             );
         }
         // check webservices access
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkWebservicesAccess($token, $shop)) {
+        if (LengowMain::checkWebservicesAccess($token, $shop)) {
             // see all export params
             if ($this->Request()->getParam('get_params') == 1) {
-                echo Shopware_Plugins_Backend_Lengow_Components_LengowExport::getExportParams();
+                echo LengowExport::getExportParams();
             } else {
                 try {
-                    $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport(
+                    $export = new LengowExport(
                         $shop,
                         array(
                             'format' => $format,
@@ -137,9 +146,9 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 } catch (Exception $e) {
                     $errorMessage = '[Shopware error] "' . $e->getMessage()
                         . '" ' . $e->getFile() . ' | ' . $e->getLine();
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                        Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_EXPORT,
-                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    LengowMain::log(
+                        LengowLog::CODE_EXPORT,
+                        LengowMain::setLogMessage(
                             'log/export/export_failed',
                             array('decoded_message' => $errorMessage)
                         ),
@@ -148,23 +157,21 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 }
             }
         } else {
-            if ((bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowIpEnabled')) {
-                $errorMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+            if ((bool)LengowConfiguration::getConfig('lengowIpEnabled')) {
+                $errorMessage = LengowMain::decodeLogMessage(
                     'log/export/unauthorised_ip',
                     null,
                     array('ip' => $_SERVER['REMOTE_ADDR'])
                 );
             } else {
                 if (strlen($token) > 0) {
-                    $errorMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                    $errorMessage = LengowMain::decodeLogMessage(
                         'log/export/unauthorised_token',
                         null,
                         array('token' => $token)
                     );
                 } else {
-                    $errorMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                        'log/export/empty_token'
-                    );
+                    $errorMessage = LengowMain::decodeLogMessage('log/export/empty_token');
                 }
             }
             header('HTTP/1.1 403 Forbidden');
@@ -198,23 +205,23 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
         $this->view->setTemplate(null);
         $token = $this->Request()->getParam('token');
         // check webservices access
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::checkWebservicesAccess($token)) {
+        if (LengowMain::checkWebservicesAccess($token)) {
             // get all store data for synchronisation with Lengow
             if ($this->Request()->getParam('get_sync') == 1) {
-                echo json_encode(Shopware_Plugins_Backend_Lengow_Components_LengowSync::getSyncData());
+                echo json_encode(LengowSync::getSyncData());
             } else {
                 $force = $this->Request()->getParam('force') == 1 ? true : false;
                 $logOutput = $this->Request()->getParam('log_output') == 1 ? true : false;
                 // get sync action if exists
                 $sync = $this->Request()->getParam('sync', false);
                 // sync catalogs id between Lengow and Shopware
-                if (!$sync || $sync === Shopware_Plugins_Backend_Lengow_Components_LengowSync::SYNC_CATALOG) {
-                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::syncCatalog($force, $logOutput);
+                if (!$sync || $sync === LengowSync::SYNC_CATALOG) {
+                    LengowSync::syncCatalog($force, $logOutput);
                 }
                 // sync orders between Lengow and Shopware
                 if (!$sync || $sync === 'order') {
                     $params = array(
-                        'type' => Shopware_Plugins_Backend_Lengow_Components_LengowImport::TYPE_CRON,
+                        'type' => LengowImport::TYPE_CRON,
                         'log_output' => $logOutput
                     );
                     if ($this->Request()->getParam('preprod_mode') != null) {
@@ -245,61 +252,53 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                         $params['shop_id'] = (int)$this->Request()->getParam('shop_id');
                     }
                     // synchronise orders
-                    $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport($params);
+                    $import = new LengowImport($params);
                     $import->exec();
                 }
                 // sync actions between Lengow and Shopware
                 if (!$sync || $sync === 'action') {
-                    Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkFinishAction($logOutput);
-                    Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkOldAction($logOutput);
-                    Shopware_Plugins_Backend_Lengow_Components_LengowAction::checkActionNotSent($logOutput);
+                    LengowAction::checkFinishAction($logOutput);
+                    LengowAction::checkOldAction($logOutput);
+                    LengowAction::checkActionNotSent($logOutput);
                 }
                 // sync options between Lengow and Shopware
-                if (!$sync || $sync === Shopware_Plugins_Backend_Lengow_Components_LengowSync::SYNC_CMS_OPTION) {
-                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::setCmsOption($force, $logOutput);
+                if (!$sync || $sync === LengowSync::SYNC_CMS_OPTION) {
+                    LengowSync::setCmsOption($force, $logOutput);
                 }
                 // sync marketplaces between Lengow and Shopware
-                if ($sync === Shopware_Plugins_Backend_Lengow_Components_LengowSync::SYNC_MARKETPLACE) {
-                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::getMarketplaces($force, $logOutput);
+                if ($sync === LengowSync::SYNC_MARKETPLACE) {
+                    LengowSync::getMarketplaces($force, $logOutput);
                 }
                 // sync status account between Lengow and Shopware
-                if ($sync === Shopware_Plugins_Backend_Lengow_Components_LengowSync::SYNC_STATUS_ACCOUNT) {
-                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatusAccount($force, $logOutput);
+                if ($sync === LengowSync::SYNC_STATUS_ACCOUNT) {
+                    LengowSync::getStatusAccount($force, $logOutput);
                 }
                 // sync statistics between Lengow and Shopware
-                if ($sync === Shopware_Plugins_Backend_Lengow_Components_LengowSync::SYNC_STATISTIC) {
-                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatistic($force, $logOutput);
+                if ($sync === LengowSync::SYNC_STATISTIC) {
+                    LengowSync::getStatistic($force, $logOutput);
                 }
                 // sync parameter is not valid
-                if ($sync && !in_array($sync, Shopware_Plugins_Backend_Lengow_Components_LengowSync::$syncActions)) {
+                if ($sync && !in_array($sync, LengowSync::$syncActions)) {
                     header('HTTP/1.1 400 Bad Request');
-                    die(
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                        'log/import/not_valid_action',
-                        null,
-                        array('action' => $sync)
-                    )
-                    );
+                    die(LengowMain::decodeLogMessage('log/import/not_valid_action', null, array('action' => $sync)));
                 }
             }
         } else {
-            if ((bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowIpEnabled')) {
-                $errorMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+            if ((bool)LengowConfiguration::getConfig('lengowIpEnabled')) {
+                $errorMessage = LengowMain::decodeLogMessage(
                     'log/export/unauthorised_ip',
                     null,
                     array('ip' => $_SERVER['REMOTE_ADDR'])
                 );
             } else {
                 if (strlen($token) > 0) {
-                    $errorMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+                    $errorMessage = LengowMain::decodeLogMessage(
                         'log/export/unauthorised_token',
                         null,
                         array('token' => $token)
                     );
                 } else {
-                    $errorMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                        'log/export/empty_token'
-                    );
+                    $errorMessage = LengowMain::decodeLogMessage('log/export/empty_token');
                 }
             }
             header('HTTP/1.1 403 Forbidden');

@@ -28,8 +28,11 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
+
 require 'views/header.php';
-$listFiles = array_reverse(Shopware_Plugins_Backend_Lengow_Components_LengowLog::getPaths());
+
+$listFiles = array_reverse(LengowLog::getPaths());
 ?>
     <div class="container">
         <h1><?php echo $locale->t('toolbox/log/log_files'); ?></h1>

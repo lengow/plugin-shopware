@@ -28,6 +28,10 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware_Plugins_Backend_Lengow_Components_LengowException as LengowException;
+use Shopware_Plugins_Backend_Lengow_Components_LengowFile as LengowFile;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+
 /**
  * Lengow Feed Class
  */
@@ -49,7 +53,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     const EOL = "\r\n";
 
     /**
-     * @var Shopware_Plugins_Backend_Lengow_Components_LengowFile Lengow File instance
+     * @var LengowFile Lengow File instance
      */
     protected $file;
 
@@ -100,7 +104,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
      * @var string $format export format
      * @var string $shopName Shopware shop name
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException unable to create folder
+     * @throws LengowException
      */
     public function __construct($stream, $format, $shopName)
     {
@@ -115,18 +119,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     /**
      * Create export file
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException unable to create folder
+     * @throws LengowException
      */
     public function initExportFile()
     {
         $sep = DIRECTORY_SEPARATOR;
         $this->exportFolder = self::$lengowExportFolder . $sep . $this->shopFolder;
-        $folderPath = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder()
-            . $sep . $this->exportFolder;
+        $folderPath = LengowMain::getLengowFolder() . $sep . $this->exportFolder;
         if (!file_exists($folderPath)) {
             if (!mkdir($folderPath)) {
-                throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                throw new LengowException(
+                    LengowMain::setLogMessage(
                         'log/export/error_unable_to_create_folder',
                         array('folder_path' => $folderPath)
                     )
@@ -134,7 +137,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
             }
         }
         $fileName = 'flux-' . time() . '.' . $this->format;
-        $this->file = new Shopware_Plugins_Backend_Lengow_Components_LengowFile($this->exportFolder, $fileName);
+        $this->file = new LengowFile($this->exportFolder, $fileName);
     }
 
     /**
@@ -281,14 +284,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
      *
      * @return boolean
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws LengowException
      */
     public function end()
     {
         $this->write('footer');
         if (!$this->stream) {
             $oldFileName = 'flux.' . $this->format;
-            $oldFile = new Shopware_Plugins_Backend_Lengow_Components_LengowFile($this->exportFolder, $oldFileName);
+            $oldFile = new LengowFile($this->exportFolder, $oldFileName);
             if ($oldFile->exists()) {
                 $oldFilePath = $oldFile->getPath();
                 $oldFile->delete();
@@ -362,11 +365,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
                     preg_replace(
                         '/[^a-zA-Z0-9_]+/',
                         '',
-                        str_replace(
-                            array(' ', '\''),
-                            '_',
-                            Shopware_Plugins_Backend_Lengow_Components_LengowMain::replaceAccentedChars($str)
-                        )
+                        str_replace(array(' ', '\''), '_', LengowMain::replaceAccentedChars($str))
                     ),
                     0,
                     58
@@ -376,11 +375,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
                     preg_replace(
                         '/[^a-zA-Z0-9_]+/',
                         '',
-                        str_replace(
-                            array(' ', '\''),
-                            '_',
-                            Shopware_Plugins_Backend_Lengow_Components_LengowMain::replaceAccentedChars($str)
-                        )
+                        str_replace(array(' ', '\''), '_', LengowMain::replaceAccentedChars($str))
                     )
                 );
         }

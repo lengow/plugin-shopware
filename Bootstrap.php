@@ -27,6 +27,15 @@
  * @license    https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware\Components\Model\ModelManager;
+use Enlight_Controller_ActionEventArgs as ActionEventArgs;
+use Enlight_Event_EventArgs as EventArgs;
+use Shopware_Plugins_Backend_Lengow_Bootstrap_Database as LengowBootstrapDatabase;
+use Shopware_Plugins_Backend_Lengow_Bootstrap_Form as LengowBootstrapForm;
+use Shopware_Plugins_Backend_Lengow_Components_LengowEvent as LengowEvent;
+use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+
 /**
  * Bootstrap Class
  */
@@ -94,10 +103,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             )
         );
         self::log('log/install/add_menu');
-        $lengowForm = new Shopware_Plugins_Backend_Lengow_Bootstrap_Form();
+        $lengowForm = new LengowBootstrapForm();
         $lengowForm->createConfig($this->Form());
         $lengowForm->removeOldSettings();
-        $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
+        $lengowDatabase = new LengowBootstrapDatabase();
         $lengowDatabase->updateSchema();
         $lengowDatabase->createCustomModels();
         $lengowDatabase->updateCustomModels();
@@ -134,10 +143,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     {
         $newVersion  = $this->getVersion();
         self::log('log/update/start', array('old_version' => $version, 'new_version' => $newVersion));
-        $lengowForm = new Shopware_Plugins_Backend_Lengow_Bootstrap_Form();
+        $lengowForm = new LengowBootstrapForm();
         $lengowForm->createConfig($this->Form(), $version);
         $lengowForm->removeOldSettings();
-        $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
+        $lengowDatabase = new LengowBootstrapDatabase();
         $lengowDatabase->updateSchema();
         $lengowDatabase->createCustomModels();
         $lengowDatabase->updateCustomModels();
@@ -157,7 +166,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     /**
      * Get Shopware entity manager
      *
-     * @return \Shopware\Components\Model\ModelManager
+     * @return ModelManager
      */
     public static function getEntityManager()
     {
@@ -173,7 +182,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     {
         self::log('log/uninstall/start');
         // remove custom attributes
-        $lengowDatabase = new Shopware_Plugins_Backend_Lengow_Bootstrap_Database();
+        $lengowDatabase = new LengowBootstrapDatabase();
         $lengowDatabase->removeAllLengowColumns();
         $lengowDatabase->removeCustomModels();
         self::log('log/uninstall/end');
@@ -185,8 +194,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     private function createLengowPayment()
     {
-        $payment = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowPayment();
-        if (is_null($payment)) {
+        $payment = LengowMain::getLengowPayment();
+        if ($payment === null) {
             $this->createPayment(
                 array(
                     'active' => 0,
@@ -344,9 +353,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     /**
      * Load Lengow icon. Triggered when Shopware backend is loaded
      *
-     * @param Enlight_Controller_ActionEventArgs $args Shopware Enlight Controller Action instance
+     * @param ActionEventArgs $args Shopware Enlight Controller Action instance
      */
-    public function onPostDispatchBackendIndex(Enlight_Controller_ActionEventArgs $args)
+    public function onPostDispatchBackendIndex(ActionEventArgs $args)
     {
         $this->registerMyTemplateDir();
         $ctrl = $args->getSubject();
@@ -357,61 +366,61 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     /**
      * Listen to basic settings changes. Log of Lengow settings when they were updated
      *
-     * @param Enlight_Event_EventArgs $args Shopware Enlight Controller Action instance
+     * @param EventArgs $args Shopware Enlight Controller Action instance
      */
-    public function onPreDispatchBackendConfig($args)
+    public function onPreDispatchBackendConfig(EventArgs $args)
     {
-        Shopware_Plugins_Backend_Lengow_Components_LengowEvent::onPreDispatchBackendConfig($args);
+        LengowEvent::onPreDispatchBackendConfig($args);
     }
 
     /**
      * Listen to basic settings changes. Add/remove lengow column from s_articles_attributes
      *
-     * @param Enlight_Event_EventArgs $args Shopware Enlight Controller Action instance
+     * @param EventArgs $args Shopware Enlight Controller Action instance
      */
-    public function onPostDispatchBackendConfig($args)
+    public function onPostDispatchBackendConfig(EventArgs $args)
     {
-        Shopware_Plugins_Backend_Lengow_Components_LengowEvent::onPostDispatchBackendConfig($args);
+        LengowEvent::onPostDispatchBackendConfig($args);
     }
 
     /**
      * Listen to order changes before save
      *
-     * @param Enlight_Event_EventArgs $args Shopware Enlight Controller Action instance
+     * @param EventArgs $args Shopware Enlight Controller Action instance
      */
-    public function onPreDispatchBackendOrder($args)
+    public function onPreDispatchBackendOrder(EventArgs $args)
     {
-        Shopware_Plugins_Backend_Lengow_Components_LengowEvent::onPreDispatchBackendOrder($args);
+        LengowEvent::onPreDispatchBackendOrder($args);
     }
 
     /**
      * Listen to order changes after save / send call action if necessary
      *
-     * @param Enlight_Event_EventArgs $args Shopware Enlight Controller Action instance
+     * @param EventArgs $args Shopware Enlight Controller Action instance
      */
-    public function onPostDispatchBackendOrder($args)
+    public function onPostDispatchBackendOrder(EventArgs $args)
     {
-        Shopware_Plugins_Backend_Lengow_Components_LengowEvent::onPostDispatchBackendOrder($args);
+        LengowEvent::onPostDispatchBackendOrder($args);
     }
 
     /**
      * Listen to api orders changes after save / send call action if necessary
      *
-     * @param Enlight_Event_EventArgs $args
+     * @param EventArgs $args
      */
-    public function onApiOrderPostDispatch(Enlight_Event_EventArgs $args)
+    public function onApiOrderPostDispatch(EventArgs $args)
     {
-        Shopware_Plugins_Backend_Lengow_Components_LengowEvent::onApiOrderPostDispatch($args);
+        LengowEvent::onApiOrderPostDispatch($args);
     }
 
     /**
      * Adding simple tracker Lengow on footer when order is confirmed
      *
-     * @param Enlight_Event_EventArgs $args
+     * @param EventArgs $args
      */
-    public function onFrontendCheckoutPostDispatch(Enlight_Event_EventArgs $args)
+    public function onFrontendCheckoutPostDispatch(EventArgs $args)
     {
-        Shopware_Plugins_Backend_Lengow_Components_LengowEvent::onFrontendCheckoutPostDispatch($args);
+        LengowEvent::onFrontendCheckoutPostDispatch($args);
     }
 
     /**
@@ -422,9 +431,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
      */
     public static function log($key, $params = array())
     {
-        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_INSTALL,
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage($key, $params)
-        );
+        LengowMain::log(LengowLog::CODE_INSTALL, LengowMain::setLogMessage($key, $params));
     }
 }

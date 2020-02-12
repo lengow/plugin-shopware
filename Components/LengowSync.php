@@ -28,6 +28,15 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
+use Shopware_Plugins_Backend_Lengow_Components_LengowConnector as LengowConnector;
+use Shopware_Plugins_Backend_Lengow_Components_LengowException as LengowException;
+use Shopware_Plugins_Backend_Lengow_Components_LengowExport as LengowExport;
+use Shopware_Plugins_Backend_Lengow_Components_LengowFile as LengowFile;
+use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace as LengowMarketplace;
+
 /**
  * Lengow Sync Class
  */
@@ -106,26 +115,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     {
         $data = array(
             'domain_name' => $_SERVER['SERVER_NAME'],
-            'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken(),
+            'token' => LengowMain::getToken(),
             'type' => self::CMS_TYPE,
-            'version' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopwareVersion(),
+            'version' => LengowMain::getShopwareVersion(),
             'plugin_version' => Shopware()->Plugins()->Backend()->Lengow()->getVersion(),
-            'email' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('mail'),
-            'cron_url' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getImportUrl(),
+            'email' => LengowConfiguration::getConfig('mail'),
+            'cron_url' => LengowMain::getImportUrl(),
             'return_url' => 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'],
             'shops' => array(),
         );
-        $activeShops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops();
+        $activeShops = LengowMain::getActiveShops();
         foreach ($activeShops as $shop) {
-            $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, array());
+            $export = new LengowExport($shop, array());
             $data['shops'][$shop->getId()] = array(
-                'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop),
+                'token' => LengowMain::getToken($shop),
                 'shop_name' => $shop->getName(),
-                'domain_url' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopUrl($shop),
-                'feed_url' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getExportUrl($shop),
+                'domain_url' => LengowMain::getShopUrl($shop),
+                'feed_url' => LengowMain::getExportUrl($shop),
                 'total_product_number' => $export->getTotalProducts(),
                 'exported_product_number' => $export->getExportedProducts(),
-                'enabled' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::shopIsActive($shop),
+                'enabled' => LengowConfiguration::shopIsActive($shop),
             );
         }
         return $data;
@@ -138,7 +147,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      */
     public static function sync($params)
     {
-        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setAccessIds(
+        LengowConfiguration::setAccessIds(
             array(
                 'lengowAccountId' => $params['account_id'],
                 'lengowAccessToken' => $params['access_token'],
@@ -147,18 +156,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
         );
         if (isset($params['shops'])) {
             foreach ($params['shops'] as $shopToken => $shopCatalogIds) {
-                $shop = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopByToken($shopToken);
+                $shop = LengowMain::getShopByToken($shopToken);
                 if ($shop) {
-                    Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setCatalogIds(
-                        $shopCatalogIds['catalog_ids'],
-                        $shop
-                    );
-                    Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setActiveShop($shop);
+                    LengowConfiguration::setCatalogIds($shopCatalogIds['catalog_ids'], $shop);
+                    LengowConfiguration::setActiveShop($shop);
                 }
             }
         }
         // save last update date for a specific settings (change synchronisation interval time)
-        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('lengowLastSettingUpdate', time());
+        LengowConfiguration::setConfig('lengowLastSettingUpdate', time());
     }
 
     /**
@@ -172,38 +178,25 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     public static function syncCatalog($force = false, $logOutput = false)
     {
         $settingUpdated = false;
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::isNewMerchant()) {
+        if (LengowConfiguration::isNewMerchant()) {
             return false;
         }
         if (!$force) {
-            $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowCatalogUpdate'
-            );
-            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_CATALOG]) {
+            $updatedAt = LengowConfiguration::getConfig('lengowCatalogUpdate');
+            if ($updatedAt !== null && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_CATALOG]) {
                 return false;
             }
         }
-        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
-            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::GET,
-            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_CMS,
-            array(),
-            '',
-            $logOutput
-        );
+        $result = LengowConnector::queryApi(LengowConnector::GET, LengowConnector::API_CMS, array(), '', $logOutput);
         if (isset($result->cms)) {
-            $cmsToken = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken();
+            $cmsToken = LengowMain::getToken();
             foreach ($result->cms as $cms) {
                 if ($cms->token === $cmsToken) {
                     foreach ($cms->shops as $cmsShop) {
-                        $shop = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopByToken($cmsShop->token);
+                        $shop = LengowMain::getShopByToken($cmsShop->token);
                         if ($shop) {
-                            $idsChange = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setCatalogIds(
-                                $cmsShop->catalog_ids,
-                                $shop
-                            );
-                            $shopChange = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setActiveShop(
-                                $shop
-                            );
+                            $idsChange = LengowConfiguration::setCatalogIds($cmsShop->catalog_ids, $shop);
+                            $shopChange = LengowConfiguration::setActiveShop($shop);
                             if (!$settingUpdated && ($idsChange || $shopChange)) {
                                 $settingUpdated = true;
                             }
@@ -215,12 +208,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
         }
         // save last update date for a specific settings (change synchronisation interval time)
         if ($settingUpdated) {
-            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-                'lengowLastSettingUpdate',
-                time()
-            );
+            LengowConfiguration::setConfig('lengowLastSettingUpdate', time());
         }
-        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('lengowCatalogUpdate', time());
+        LengowConfiguration::setConfig('lengowCatalogUpdate', time());
         return true;
     }
 
@@ -232,21 +222,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     public static function getOptionData()
     {
         $data = array(
-            'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken(),
-            'version' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopwareVersion(),
+            'token' => LengowMain::getToken(),
+            'version' => LengowMain::getShopwareVersion(),
             'plugin_version' => Shopware()->Plugins()->Backend()->Lengow()->getVersion(),
-            'options' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAllValues(),
+            'options' => LengowConfiguration::getAllValues(),
             'shops' => array(),
         );
-        $activeShops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getActiveShops();
+        $activeShops = LengowMain::getActiveShops();
         foreach ($activeShops as $shop) {
-            $export = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, array());
+            $export = new LengowExport($shop, array());
             $data['shops'][] = array(
-                'token' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getToken($shop),
-                'enabled' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::shopIsActive($shop),
+                'token' => LengowMain::getToken($shop),
+                'enabled' => LengowConfiguration::shopIsActive($shop),
                 'total_product_number' => $export->getTotalProducts(),
                 'exported_product_number' => $export->getExportedProducts(),
-                'options' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAllValues($shop),
+                'options' => LengowConfiguration::getAllValues($shop),
             );
         }
         return $data;
@@ -262,29 +252,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      */
     public static function setCmsOption($force = false, $logOutput = false)
     {
-        $preprodMode = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowImportPreprodEnabled'
-        );
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::isNewMerchant() || $preprodMode) {
+        if (LengowConfiguration::isNewMerchant()
+            || (bool)LengowConfiguration::getConfig('lengowImportPreprodEnabled')
+        ) {
             return false;
         }
         if (!$force) {
-            $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowOptionCmsUpdate'
-            );
-            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_CMS_OPTION]) {
+            $updatedAt = LengowConfiguration::getConfig('lengowOptionCmsUpdate');
+            if ($updatedAt !== null && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_CMS_OPTION]) {
                 return false;
             }
         }
         $options = json_encode(self::getOptionData());
-        Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
-            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::PUT,
-            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_CMS,
-            array(),
-            $options,
-            $logOutput
-        );
-        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('lengowOptionCmsUpdate', time());
+        LengowConnector::queryApi(LengowConnector::PUT, LengowConnector::API_CMS, array(), $options, $logOutput);
+        LengowConfiguration::setConfig('lengowOptionCmsUpdate', time());
         return true;
     }
 
@@ -299,46 +280,27 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     public static function getStatusAccount($force = false, $logOutput = false)
     {
         if (!$force) {
-            $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowAccountStatusUpdate'
-            );
-            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_STATUS_ACCOUNT]) {
-                $config = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                    'lengowAccountStatus'
-                );
+            $updatedAt = LengowConfiguration::getConfig('lengowAccountStatusUpdate');
+            if ($updatedAt !== null && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_STATUS_ACCOUNT]) {
+                $config = LengowConfiguration::getConfig('lengowAccountStatus');
                 return json_decode($config, true);
             }
         }
-        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
-            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::GET,
-            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_PLAN,
-            array(),
-            '',
-            $logOutput
-        );
+        $result = LengowConnector::queryApi(LengowConnector::GET, LengowConnector::API_PLAN, array(), '', $logOutput);
         if (isset($result->isFreeTrial)) {
             $status = array(
                 'type' => $result->isFreeTrial ? 'free_trial' : '',
                 'day' => (int)$result->leftDaysBeforeExpired < 0 ? 0 : (int)$result->leftDaysBeforeExpired,
                 'expired' => (bool)$result->isExpired,
             );
-            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-                'lengowAccountStatus',
-                json_encode($status)
+            LengowConfiguration::setConfig('lengowAccountStatus', json_encode($status)
             );
-            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-                'lengowAccountStatusUpdate',
-                time()
-            );
+            LengowConfiguration::setConfig('lengowAccountStatusUpdate', time());
             return $status;
         } else {
-            $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowAccountStatusUpdate'
-            );
+            $updatedAt = LengowConfiguration::getConfig('lengowAccountStatusUpdate');
             if ($updatedAt) {
-                $config = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                    'lengowAccountStatus'
-                );
+                $config = LengowConfiguration::getConfig('lengowAccountStatus');
                 return json_decode($config, true);
             }
         }
@@ -356,17 +318,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     public static function getStatistic($force = false, $logOutput = false)
     {
         if (!$force) {
-            $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowOrderStatUpdate'
-            );
-            if (!is_null($updatedAt) && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_STATISTIC]) {
-                $stats = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowOrderStat');
+            $updatedAt = LengowConfiguration::getConfig('lengowOrderStatUpdate');
+            if ($updatedAt !== null && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_STATISTIC]) {
+                $stats = LengowConfiguration::getConfig('lengowOrderStat');
                 return json_decode($stats, true);
             }
         }
-        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
-            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::GET,
-            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_STATISTIC,
+        $result = LengowConnector::queryApi(
+            LengowConnector::GET,
+            LengowConnector::API_STATISTIC,
             array(
                 'date_from' => date('c', strtotime(date('Y-m-d') . ' -10 years')),
                 'date_to' => date('c'),
@@ -384,14 +344,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 'available' => false,
             );
         } else {
-            $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowOrderStatUpdate'
-            );
+            $updatedAt = LengowConfiguration::getConfig('lengowOrderStatUpdate');
             if ($updatedAt) {
-                return json_decode(
-                    Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowOrderStat'),
-                    true
-                );
+                return json_decode(LengowConfiguration::getConfig('lengowOrderStat'), true);
             } else {
                 return array(
                     'total_order' => 0,
@@ -404,11 +359,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
         if ($return['total_order'] > 0 || $return['nb_order'] > 0) {
             $return['available'] = true;
         }
-        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-            'lengowOrderStat',
-            json_encode($return)
-        );
-        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('lengowOrderStatUpdate', time());
+        LengowConfiguration::setConfig('lengowOrderStat', json_encode($return));
+        LengowConfiguration::setConfig('lengowOrderStatUpdate', time());
         return $return;
     }
 
@@ -422,12 +374,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      */
     public static function getMarketplaces($force = false, $logOutput = false)
     {
-        $filePath = Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace::getFilePath();
+        $filePath = LengowMarketplace::getFilePath();
         if (!$force) {
-            $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowMarketplaceUpdate'
-            );
-            if (!is_null($updatedAt)
+            $updatedAt = LengowConfiguration::getConfig('lengowMarketplaceUpdate');
+            if ($updatedAt !== null
                 && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_MARKETPLACE]
                 && file_exists($filePath)
             ) {
@@ -439,9 +389,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             }
         }
         // recovering data with the API
-        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
-            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::GET,
-            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_MARKETPLACE,
+        $result = LengowConnector::queryApi(
+            LengowConnector::GET,
+            LengowConnector::API_MARKETPLACE,
             array(),
             '',
             $logOutput
@@ -449,24 +399,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
         if ($result && is_object($result) && !isset($result->error)) {
             // updated marketplaces.json file
             try {
-                $marketplaceFile = new Shopware_Plugins_Backend_Lengow_Components_LengowFile(
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::$lengowConfigFolder,
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace::$marketplaceJson,
+                $marketplaceFile = new LengowFile(
+                    LengowMain::$lengowConfigFolder,
+                    LengowMarketplace::$marketplaceJson,
                     'w+'
                 );
                 $marketplaceFile->write(json_encode($result));
                 $marketplaceFile->close();
-                Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-                    'lengowMarketplaceUpdate',
-                    time()
-                );
-            } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
-                $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                    $e->getMessage()
-                );
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_IMPORT,
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                LengowConfiguration::setConfig('lengowMarketplaceUpdate', time());
+            } catch (LengowException $e) {
+                $decodedMessage = LengowMain::decodeLogMessage($e->getMessage());
+                LengowMain::log(
+                    LengowLog::CODE_IMPORT,
+                    LengowMain::setLogMessage(
                         'log/import/marketplace_update_failed',
                         array('decoded_message' => $decodedMessage)
                     ),
