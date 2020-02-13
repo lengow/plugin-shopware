@@ -274,7 +274,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                 try {
                     /** @var LengowSettingsModel $config */
                     $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy($criteria);
-                    // If null, create a new lengow config
+                    // if null, create a new lengow config
                     if ($config === null) {
                         $config = new LengowSettingsModel();
                         $config->setName($configName)
