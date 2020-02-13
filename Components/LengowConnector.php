@@ -28,6 +28,13 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware_Plugins_Backend_Lengow_Components_LengowCheck as LengowCheck;
+use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
+use Shopware_Plugins_Backend_Lengow_Components_LengowConnector as LengowConnector;
+use Shopware_Plugins_Backend_Lengow_Components_LengowException as LengowException;
+use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+
 /**
  * Lengow Connector Class
  */
@@ -195,31 +202,27 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      */
     public static function isValidAuth($logOutput = false)
     {
-        if (!Shopware_Plugins_Backend_Lengow_Components_LengowCheck::isCurlActivated()) {
+        if (!LengowCheck::isCurlActivated()) {
             return false;
         }
-        $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
+        $accessIds = LengowConfiguration::getAccessIds();
         list($accountId, $accessToken, $secretToken) = $accessIds;
         if ($accountId === null || (int)$accountId === 0 || !is_numeric($accountId)) {
             return false;
         }
-        $connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector($accessToken, $secretToken);
+        $connector = new LengowConnector($accessToken, $secretToken);
         try {
             $connector->connect();
-        } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
-            $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($e->getMessage());
-            $error = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+        } catch (LengowException $e) {
+            $message = LengowMain::decodeLogMessage($e->getMessage());
+            $error = LengowMain::setLogMessage(
                 'log/connector/error_api',
                 array(
                     'error_code' => $e->getCode(),
                     'error_message' => $message,
                 )
             );
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_CONNECTOR,
-                $error,
-                $logOutput
-            );
+            LengowMain::log(LengowLog::CODE_CONNECTOR, $error, $logOutput);
             return false;
         }
         return true;
@@ -242,12 +245,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
             return false;
         }
         try {
-            $accessIds = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getAccessIds();
+            $accessIds = LengowConfiguration::getAccessIds();
             list($accountId, $accessToken, $secretToken) = $accessIds;
             if ($accountId === null) {
                 return false;
             }
-            $connector = new Shopware_Plugins_Backend_Lengow_Components_LengowConnector($accessToken, $secretToken);
+            $connector = new LengowConnector($accessToken, $secretToken);
             $type = strtolower($type);
             $results = $connector->$type(
                 $api,
@@ -256,20 +259,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                 $body,
                 $logOutput
             );
-        } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
-            $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($e->getMessage());
-            $error = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+        } catch (LengowException $e) {
+            $message = LengowMain::decodeLogMessage($e->getMessage());
+            $error = LengowMain::setLogMessage(
                 'log/connector/error_api',
                 array(
                     'error_code' => $e->getCode(),
                     'error_message' => $message,
                 )
             );
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_CONNECTOR,
-                $error,
-                $logOutput
-            );
+            LengowMain::log(LengowLog::CODE_CONNECTOR, $error, $logOutput);
             return false;
         }
         return json_decode($results);
@@ -281,14 +280,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param boolean $force Force cache Update
      * @param boolean $logOutput see log or not
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws LengowException
      */
     public function connect($force = false, $logOutput = false)
     {
-        $token = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowAuthorizationToken');
-        $updatedAt = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowLastAuthorizationTokenUpdate'
-        );
+        $token = LengowConfiguration::getConfig('lengowAuthorizationToken');
+        $updatedAt = LengowConfiguration::getConfig('lengowLastAuthorizationTokenUpdate');
         if (!$force
             && $token !== null
             && strlen($token) > 0
@@ -298,14 +295,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
             $authorizationToken = $token;
         } else {
             $authorizationToken = $this->getAuthorizationToken($logOutput);
-            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-                'lengowAuthorizationToken',
-                $authorizationToken
-            );
-            Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig(
-                'lengowLastAuthorizationTokenUpdate',
-                time()
-            );
+            LengowConfiguration::setConfig('lengowAuthorizationToken', $authorizationToken);
+            LengowConfiguration::setConfig('lengowLastAuthorizationTokenUpdate', time());
         }
         $this->token = $authorizationToken;
     }
@@ -319,7 +310,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $body body data for request
      * @param boolean $logOutput see log or not
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws LengowException
      *
      * @return mixed
      */
@@ -337,7 +328,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $body body data for request
      * @param boolean $logOutput see log or not
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws LengowException
      *
      * @return mixed
      */
@@ -355,7 +346,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $body body data for request
      * @param boolean $logOutput see log or not
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws LengowException
      *
      * @return mixed
      */
@@ -373,7 +364,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $body body data for request
      * @param boolean $logOutput see log or not
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws LengowException
      *
      * @return mixed
      */
@@ -392,7 +383,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $body body data for request
      * @param boolean $logOutput see log or not
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws LengowException
      *
      * @return mixed
      */
@@ -401,19 +392,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         try {
             $this->connect(false, $logOutput);
             $data = $this->callAction($api, $args, $type, $format, $body, $logOutput);
-        } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
+        } catch (LengowException $e) {
             if ($e->getCode() === self::CODE_403) {
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_CONNECTOR,
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                        'log/connector/retry_get_token'
-                    ),
+                LengowMain::log(
+                    LengowLog::CODE_CONNECTOR,
+                    LengowMain::setLogMessage('log/connector/retry_get_token'),
                     $logOutput
                 );
                 $this->connect(true, $logOutput);
                 $data = $this->callAction($api, $args, $type, $format, $body, $logOutput);
             } else {
-                throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($e->getMessage(), $e->getCode());
+                throw new LengowException($e->getMessage(), $e->getCode());
             }
         }
         return $data;
@@ -429,7 +418,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $body body data for request
      * @param boolean $logOutput see log or not
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws LengowException
      *
      * @return mixed
      */
@@ -444,7 +433,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      *
      * @param boolean $logOutput see log or not
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws LengowException
      *
      * @return string
      */
@@ -463,15 +452,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         );
         // return a specific error for get_token
         if (!isset($data['token'])) {
-            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/connector/token_not_return'),
-                self::CODE_500
-            );
+            throw new LengowException(LengowMain::setLogMessage('log/connector/token_not_return'), self::CODE_500);
         } elseif (strlen($data['token']) === 0) {
-            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/connector/token_is_empty'),
-                self::CODE_500
-            );
+            throw new LengowException(LengowMain::setLogMessage('log/connector/token_is_empty'), self::CODE_500);
         }
         return $data['token'];
     }
@@ -486,7 +469,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $body body data for request
      * @param boolean $logOutput see log or no
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws LengowException
      *
      * @return mixed
      */
@@ -548,9 +531,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                 $opts[CURLOPT_POSTFIELDS] = http_build_query($args);
                 break;
         }
-        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_CONNECTOR,
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+        LengowMain::log(
+            LengowLog::CODE_CONNECTOR,
+            LengowMain::setLogMessage(
                 'log/connector/call_api',
                 array(
                     'call_type' => $type,
@@ -577,7 +560,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @param string $curlError Curl error
      * @param string $curlErrorNumber Curl error number
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws LengowException
      *
      */
     private function checkReturnRequest($result, $httpCode, $curlError, $curlErrorNumber)
@@ -585,36 +568,25 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         if ($result === false) {
             // recovery of Curl errors
             if (in_array($curlErrorNumber, array(CURLE_OPERATION_TIMEDOUT, CURLE_OPERATION_TIMEOUTED))) {
-                throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/connector/timeout_api'),
-                    self::CODE_504
-                );
+                throw new LengowException(LengowMain::setLogMessage('log/connector/timeout_api'), self::CODE_504);
             } else {
-                $error = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                $error = LengowMain::setLogMessage(
                     'log/connector/error_curl',
                     array(
                         'error_code' => $curlErrorNumber,
                         'error_message' => $curlError,
                     )
                 );
-                throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($error, self::CODE_500);
+                throw new LengowException($error, self::CODE_500);
             }
         } else {
             if ($httpCode !== self::CODE_200) {
                 $result = $this->format($result);
                 // recovery of Lengow Api errors
                 if (isset($result['error'])) {
-                    throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                        $result['error']['message'],
-                        $httpCode
-                    );
+                    throw new LengowException($result['error']['message'], $httpCode);
                 } else {
-                    throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                            'log/connector/api_not_available'
-                        ),
-                        $httpCode
-                    );
+                    throw new LengowException(LengowMain::setLogMessage('log/connector/api_not_available'), $httpCode);
                 }
             }
         }

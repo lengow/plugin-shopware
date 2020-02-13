@@ -28,18 +28,24 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Doctrine\ORM\Tools\SchemaTool;
+use Shopware\Components\Model\ModelManager;
+use Shopware_Plugins_Backend_Lengow_Bootstrap as LengowBootstrap;
+use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+
 /**
  * Database Class
  */
 class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
 {
     /**
-     * @var \Shopware\Components\Model\ModelManager Shopware entity manager
+     * @var ModelManager Shopware entity manager
      */
     protected $entityManager;
 
     /**
-     * @var \Doctrine\ORM\Tools\SchemaTool Doctrine Schema Tool
+     * @var SchemaTool Doctrine Schema Tool
      */
     protected $schemaTool;
 
@@ -79,8 +85,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
      */
     public function __construct()
     {
-        $this->entityManager = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        $this->schemaTool = new Doctrine\ORM\Tools\SchemaTool($this->entityManager);
+        $this->entityManager = LengowBootstrap::getEntityManager();
+        $this->schemaTool = new SchemaTool($this->entityManager);
     }
 
     /**
@@ -117,21 +123,12 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
             if (!self::tableExist($tableName)) {
                 try {
                     $this->schemaTool->createSchema(array($model));
-                    Shopware_Plugins_Backend_Lengow_Bootstrap::log(
-                        'log/install/add_model',
-                        array('name' => $model->getName())
-                    );
+                    LengowBootstrap::log('log/install/add_model', array('name' => $model->getName()));
                 } catch (Exception $e) {
-                    Shopware_Plugins_Backend_Lengow_Bootstrap::log(
-                        'log/install/add_model_error',
-                        array('name' => $model->getName())
-                    );
+                    LengowBootstrap::log('log/install/add_model_error', array('name' => $model->getName()));
                 }
             } else {
-                Shopware_Plugins_Backend_Lengow_Bootstrap::log(
-                    'log/install/model_already_exists',
-                    array('name' => $model->getName())
-                );
+                LengowBootstrap::log('log/install/model_already_exists', array('name' => $model->getName()));
             }
         }
     }
@@ -147,10 +144,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
         foreach ($upgradeFiles as $file) {
             include $pluginPath . 'Upgrade/' . $file;
             $numberVersion = preg_replace('/update_|\.php$/', '', $file);
-            Shopware_Plugins_Backend_Lengow_Bootstrap::log(
-                'log/install/add_upgrade_version',
-                array('version' => $numberVersion)
-            );
+            LengowBootstrap::log('log/install/add_upgrade_version', array('version' => $numberVersion));
         }
         self::setInstallationStatus(false);
     }
@@ -164,7 +158,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
      */
     public function updateSchema()
     {
-        $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShops();
+        $shops = LengowMain::getShops();
         $shopIds = array();
         foreach ($shops as $shop) {
             $shopIds[] = $shop->getId();
@@ -189,10 +183,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
             // check that the table does not exist
             if (self::tableExist($tableName)) {
                 $this->schemaTool->dropSchema(array($model));
-                Shopware_Plugins_Backend_Lengow_Bootstrap::log(
-                    'log/uninstall/remove_model',
-                    array('name' => $model->getName())
-                );
+                LengowBootstrap::log('log/uninstall/remove_model', array('name' => $model->getName()));
             }
         }
     }
@@ -205,7 +196,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
     public function removeAllLengowColumns()
     {
         $shopIds = array();
-        $shops = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShops();
+        $shops = LengowMain::getShops();
         foreach ($shops as $shop) {
             $shopIds[] = $shop->getId();
         }
@@ -232,20 +223,26 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
             $attributeName = 'shop' . $shopId . '_active';
             if (self::columnExists($tableName, 'lengow_' . $attributeName)) {
                 // check Shopware\Bundle\AttributeBundle\Service\CrudService::delete compatibility
-                if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.2')) {
+                if (LengowMain::compareVersion('5.2.2')) {
                     $crudService = Shopware()->Container()->get('shopware_attribute.crud_service');
                     $crudService->delete($tableName, 'lengow_' . $attributeName);
                 } else {
                     $this->entityManager->removeAttribute($tableName, 'lengow', $attributeName);
                 }
-                Shopware_Plugins_Backend_Lengow_Bootstrap::log(
+                LengowBootstrap::log(
                     'log/uninstall/remove_column',
-                    array('column' => $attributeName, 'table' => $tableName)
+                    array(
+                        'column' => $attributeName,
+                        'table' => $tableName,
+                    )
                 );
             } else {
-                Shopware_Plugins_Backend_Lengow_Bootstrap::log(
+                LengowBootstrap::log(
                     'log/uninstall/column_not_exists',
-                    array('column_name' => $attributeName, 'table_name' => $tableName)
+                    array(
+                        'column_name' => $attributeName,
+                        'table_name' => $tableName,
+                    )
                 );
             }
         }
@@ -261,22 +258,23 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
      */
     public function addLengowColumns($shopIds)
     {
-        // check Shopware\Bundle\AttributeBundle\Service\CrudService::update compatibility
-        $crudCompatibility = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.2');
         $tableName = 's_articles_attributes';
         foreach ($shopIds as $shopId) {
             $attributeName = 'shop' . $shopId . '_active';
             if (!self::columnExists($tableName, 'lengow_' . $attributeName)) {
-                if ($crudCompatibility) {
+                if (LengowMain::compareVersion('5.2.2')) {
                     $crudService = Shopware()->Container()->get('shopware_attribute.crud_service');
                     $crudService->update($tableName, 'lengow_' . $attributeName, 'boolean');
                 } else {
                     // @legacy Shopware < 5.2
                     $this->entityManager->addAttribute($tableName, 'lengow', $attributeName, 'boolean');
                 }
-                Shopware_Plugins_Backend_Lengow_Bootstrap::log(
+                LengowBootstrap::log(
                     'log/install/add_column',
-                    array('column' => $attributeName, 'table' => $tableName)
+                    array(
+                        'column' => $attributeName,
+                        'table' => $tableName,
+                    )
                 );
             }
         }
@@ -291,7 +289,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
     public function addFromLengowColumns()
     {
         // check Shopware\Bundle\AttributeBundle\Service\CrudService::update compatibility
-        $crudCompatibility = Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.2.2');
+        $crudCompatibility = LengowMain::compareVersion('5.2.2');
         $tableName = 's_order_attributes';
         $attributeName = 'is_from_lengow';
         if (!self::columnExists($tableName, $attributeName)) {
@@ -302,7 +300,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                 // @legacy Shopware < 5.2
                 $this->entityManager->addAttribute($tableName, 'lengow', $attributeName, 'boolean');
             }
-            Shopware_Plugins_Backend_Lengow_Bootstrap::log(
+            LengowBootstrap::log(
                 'log/install/add_column',
                 array('column' => $attributeName, 'table' => $tableName)
             );
@@ -317,9 +315,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
      */
     public function setLengowSettings()
     {
-        $lengowSettings = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::$lengowSettings;
+        $lengowSettings = LengowConfiguration::$lengowSettings;
         $repository = $this->entityManager->getRepository('Shopware\CustomModels\Lengow\Settings');
-        $defaultShop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
+        $defaultShop = LengowConfiguration::getDefaultShop();
         try {
             foreach ($lengowSettings as $key => $lengowSetting) {
                 if (isset($lengowSetting['lengow_settings']) && $lengowSetting['lengow_settings']) {
@@ -356,7 +354,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                 WHERE lo.order_id IS NOT NULL AND oa.lengow_is_from_lengow IS NULL';
             $results = Shopware()->Db()->fetchAll($sql);
             try {
-                if (count($results) > 0) {
+                if (!empty($results)) {
                     foreach ($results as $result) {
                         Shopware()->Db()->exec(
                             'UPDATE s_order_attributes SET lengow_is_from_lengow = 1 WHERE id = ' . $result['id']
@@ -377,8 +375,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
      */
     public function addLengowTechnicalErrorStatus()
     {
-        $lengowTechnicalError = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowTechnicalErrorStatus();
-        if (self::tableExist('s_core_states') && is_null($lengowTechnicalError)) {
+        $lengowTechnicalError = LengowMain::getLengowTechnicalErrorStatus();
+        if (self::tableExist('s_core_states') && $lengowTechnicalError === null) {
             try {
                 // get id max for new order status - id is not auto-increment
                 $idMax = (int)Shopware()->Db()->fetchOne('SELECT MAX(id) FROM `s_core_states`');
@@ -395,7 +393,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                     'mail' => 0,
                 );
                 // compatibility with 4.3 version - the name field did not exist
-                if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1.0')) {
+                if (LengowMain::compareVersion('5.1.0')) {
                     $sql = 'INSERT INTO `s_core_states` (`id`, `name`, `description`, `position`, `group`, `mail`)
                         VALUES (:id, :name , :description, :position, :group, :mail)';
                     $params['name'] = 'lengow_technical_error';
@@ -405,10 +403,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                 }
                 // insert lengow technical error status in database
                 Shopware()->Db()->query($sql, $params);
-                Shopware_Plugins_Backend_Lengow_Bootstrap::log('log/install/add_technical_error_status');
+                LengowBootstrap::log('log/install/add_technical_error_status');
             } catch (Exception $e) {
                 $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
-                Shopware_Plugins_Backend_Lengow_Bootstrap::log(
+                LengowBootstrap::log(
                     'log/install/add_technical_error_status_error',
                     array('error_message' => $errorMessage)
                 );

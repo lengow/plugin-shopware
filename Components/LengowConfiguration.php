@@ -28,6 +28,17 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\ORM\ORMException;
+use Shopware\Models\Config\Element as ConfigElementModel;
+use Shopware\Models\Config\Value as ConfigValueModel;
+use Shopware\Models\Shop\Shop as ShopModel;
+use Shopware\CustomModels\Lengow\Settings as LengowSettingsModel;
+use Shopware_Plugins_Backend_Lengow_Bootstrap as LengowBootstrap;
+use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
+
 /**
  * Lengow Configuration Class
  */
@@ -197,7 +208,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * Get config from Shopware database
      *
      * @param string $configName name of the setting to get
-     * @param Shopware\Models\Shop\Shop|integer|null $shop Shopware shop instance
+     * @param ShopModel|integer|null $shop Shopware shop instance
      *
      * @return mixed
      */
@@ -211,12 +222,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             $setting = self::$lengowSettings[$configName];
             // if Lengow setting
             if (isset($setting['lengow_settings']) && $setting['lengow_settings']) {
-                $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+                $em = LengowBootstrap::getEntityManager();
                 $criteria = array('name' => $configName);
                 if ($shop !== null) {
                     $criteria['shopId'] = is_integer($shop) ? $shop : $shop->getId();
                 }
-                // @var Shopware\CustomModels\Lengow\Settings $config
+                // @var LengowSettingsModel $config
                 $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy($criteria);
                 if ($config !== null) {
                     $value = $config->getValue();
@@ -227,7 +238,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                     $shop = self::getDefaultShop();
                 }
                 $shopId = is_integer($shop) ? $shop : $shop->getId();
-                $lengowConf = new Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration();
+                $lengowConf = new LengowConfiguration();
                 $value = $lengowConf->get($configName, $shopId);
             }
         }
@@ -239,7 +250,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      *
      * @param string $configName name of the setting to edit/add
      * @param mixed $value value to set for the setting
-     * @param Shopware\Models\Shop\Shop|integer|null $shop Shopware shop instance
+     * @param ShopModel|integer|null $shop Shopware shop instance
      *
      * @return boolean
      */
@@ -252,7 +263,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             $setting = self::$lengowSettings[$configName];
             // if Lengow global setting
             if (isset($setting['lengow_settings']) && $setting['lengow_settings']) {
-                $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+                $em = LengowBootstrap::getEntityManager();
                 $criteria = array('name' => $configName);
                 if ($shop != null) {
                     if (is_integer($shop)) {
@@ -261,11 +272,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                     $criteria['shopId'] = $shop->getId();
                 }
                 try {
-                    // @var Shopware\CustomModels\Lengow\Settings $config
+                    /** @var LengowSettingsModel $config */
                     $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy($criteria);
-                    // If null, create a new lengow config
+                    // if null, create a new lengow config
                     if ($config === null) {
-                        $config = new \Shopware\CustomModels\Lengow\Settings();
+                        $config = new LengowSettingsModel();
                         $config->setName($configName)
                             ->setShop($shop)
                             ->setDateAdd(new DateTime());
@@ -283,7 +294,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                     $shop = self::getDefaultShop();
                 }
                 $shopId = is_integer($shop) ? $shop : $shop->getId();
-                $lengowConf = new Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration();
+                $lengowConf = new LengowConfiguration();
                 return $lengowConf->save($configName, $value, $shopId);
             }
         }
@@ -293,12 +304,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     /**
      * Get Shopware default shop
      *
-     * @return Shopware\Models\Shop\Shop
+     * @return ShopModel
      */
     public static function getDefaultShop()
     {
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        /** @var Shopware\Models\Shop\Shop $shop */
+        $em = LengowBootstrap::getEntityManager();
+        /** @var ShopModel $shop */
         $shop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('default' => 1));
         return $shop;
     }
@@ -356,7 +367,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     /**
      * Get catalog ids for a specific shop
      *
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     * @param ShopModel $shop Shopware shop instance
      *
      * @return array
      */
@@ -380,7 +391,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * Set catalog ids for a specific shop
      *
      * @param array $catalogIds Lengow catalog ids
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     * @param ShopModel $shop Shopware shop instance
      *
      * @return boolean
      */
@@ -396,7 +407,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         }
         self::setConfig(
             'lengowCatalogId',
-            count($shopCatalogIds) > 0 ? implode(';', $shopCatalogIds) : 0,
+            !empty($shopCatalogIds) ? implode(';', $shopCatalogIds) : 0,
             $shop
         );
         return $valueChange;
@@ -405,7 +416,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     /**
      * Recovers if a shop is active or not
      *
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     * @param ShopModel $shop Shopware shop instance
      *
      * @return boolean
      */
@@ -417,14 +428,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     /**
      * Set active shop or not
      *
-     * @param Shopware\Models\Shop\Shop $shop Shopware shop instance
+     * @param ShopModel $shop Shopware shop instance
      *
      * @return boolean
      */
     public static function setActiveShop($shop)
     {
         $shopIsActive = self::shopIsActive($shop);
-        $shopHasCatalog = count(self::getCatalogIds($shop)) > 0;
+        $shopHasCatalog = !empty(self::getCatalogIds($shop));
         self::setConfig('lengowShopActive', $shopHasCatalog, $shop);
         return $shopIsActive !== $shopHasCatalog ? true : false;
     }
@@ -504,11 +515,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * @param string $name config name to search
      * @param integer $shopId Shopware shop id
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder
+     * @return QueryBuilder
      */
     private function getConfigValueByNameQuery($name, $shopId = 1)
     {
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $em = LengowBootstrap::getEntityManager();
         $connection = $em->getConnection();
         $query = $connection->createQueryBuilder();
         $query->select(
@@ -539,11 +550,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * @param mixed $value new config value
      * @param integer $valueId Shopware models config value id
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     private function update($value, $valueId)
     {
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $em = LengowBootstrap::getEntityManager();
         $option = $em->getReference('Shopware\Models\Config\Value', $valueId);
         $option->setValue($value);
         $em->persist($option);
@@ -557,16 +568,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * @param integer $shopId Shopware shop id
      * @param integer $elementId Shopware models config element id
      *
-     * @throws \Doctrine\ORM\ORMException
+     * @throws ORMException
      */
     private function insert($value, $shopId, $elementId)
     {
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-        /** @var Shopware\Models\Config\Element $element */
+        $em = LengowBootstrap::getEntityManager();
+        /** @var ConfigElementModel $element */
         $element = $em->getReference('Shopware\Models\Config\Element', $elementId);
-        /** @var Shopware\Models\Shop\Shop $shop */
+        /** @var ShopModel $shop */
         $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
-        $option = new Shopware\Models\Config\Value();
+        $option = new ConfigValueModel();
         $option->setElement($element)
             ->setShop($shop)
             ->setValue($value);
@@ -577,7 +588,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     /**
      * Get all values for Lengow settings (used for synchronisation)
      *
-     * @param \Shopware\Models\Shop\Shop|null $shop Shopware shop instance
+     * @param ShopModel|null $shop Shopware shop instance
      *
      * @return array
      */
@@ -607,7 +618,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      *
      * @param string $key name of Lengow setting
      * @param mixed $value setting value
-     * @param Shopware\Models\Shop\Shop|integer|null $shop Shopware shop instance
+     * @param ShopModel|integer|null $shop Shopware shop instance
      */
     public static function checkAndLog($key, $value, $shop = null)
     {
@@ -622,10 +633,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                     $value = (int)$value;
                     $oldValue = (int)$oldValue;
                 }
-                if (!is_null($shop)) {
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                        Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_SETTING,
-                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                if ($shop !== null) {
+                    LengowMain::log(
+                        LengowLog::CODE_SETTING,
+                        LengowMain::setLogMessage(
                             'log/setting/setting_change_for_shop',
                             array(
                                 'key' => $key,
@@ -636,9 +647,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                         )
                     );
                 } else {
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                        Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_SETTING,
-                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    LengowMain::log(
+                        LengowLog::CODE_SETTING,
+                        LengowMain::setLogMessage(
                             'log/setting/setting_change',
                             array(
                                 'key' => $key,

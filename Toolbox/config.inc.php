@@ -37,12 +37,12 @@ $currentDirectory = str_replace($toolboxPath, '', dirname($_SERVER['SCRIPT_FILEN
 require_once $currentDirectory . 'autoload.php';
 
 require_once('../Bootstrap.php');
-require_once('../Components/LengowTranslation.php');
-require_once('../Components/LengowMain.php');
-require_once('../Components/LengowConfiguration.php');
 require_once('../Components/LengowCheck.php');
+require_once('../Components/LengowConfiguration.php');
 require_once('../Components/LengowFile.php');
 require_once('../Components/LengowLog.php');
+require_once('../Components/LengowMain.php');
+require_once('../Components/LengowTranslation.php');
 
 $environment = getenv('ENV') ?: getenv('REDIRECT_ENV') ?: 'production';
 

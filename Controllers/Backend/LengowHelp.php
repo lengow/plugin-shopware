@@ -28,6 +28,9 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware_Plugins_Backend_Lengow_Components_LengowElements as LengowElements;
+use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
+
 /**
  * Backend Lengow Help Controller
  */
@@ -56,7 +59,7 @@ class Shopware_Controllers_Backend_LengowHelp extends Shopware_Controllers_Backe
                 'help_center_link',
             ),
         );
-        $translations = Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::getTranslationsFromArray($keys);
+        $translations = LengowTranslation::getTranslationsFromArray($keys);
         $html = '<div class="lgw-container">
                 <div class="lgw-box lengow_help_wrapper text-center">
                     <h2>' . $translations['title'] . '</h2>
@@ -73,7 +76,7 @@ class Shopware_Controllers_Backend_LengowHelp extends Shopware_Controllers_Backe
                     </p>
                 </div>
             </div>';
-        $html .= Shopware_Plugins_Backend_Lengow_Components_LengowElements::getFooter();
+        $html .= LengowElements::getFooter();
         $this->View()->assign(
             array(
                 'success' => true,

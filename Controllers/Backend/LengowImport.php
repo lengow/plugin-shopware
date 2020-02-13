@@ -28,6 +28,16 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware\Models\Order\Order as OrderModel;
+use Shopware\Models\Shop\Shop as ShopModel;
+use Shopware\CustomModels\Lengow\Order as LengowOrderModel;
+use Shopware_Plugins_Backend_Lengow_Bootstrap as LengowBootstrap;
+use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
+use Shopware_Plugins_Backend_Lengow_Components_LengowImport as LengowImport;
+use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
+
 /**
  * Backend Lengow Import Controller
  */
@@ -51,7 +61,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             $filters[$singleFilter['property']] = $singleFilter['value'];
         }
 
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $em = LengowBootstrap::getEntityManager();
         $select = array(
             'orderLengow.id',
             'orderLengow.orderId as orderId',
@@ -86,13 +96,13 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             's_lengow_action.actionType as lastActionType',
         );
 
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.5.0')) {
+        if (LengowMain::compareVersion('5.5.0')) {
             $select[] = 's_core_states.name as orderStatusDescription';
         } else {
             $select[] = 's_core_states.description as orderStatusDescription';
         }
 
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.1')) {
+        if (LengowMain::compareVersion('5.1')) {
             $select[] = 's_core_states.name as orderStatus';
         } else {
             $select[] = 's_order.status as orderStatus';
@@ -171,27 +181,21 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             'orderError.type',
             'orderError.isFinished',
         );
-        $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $em = LengowBootstrap::getEntityManager();
         $builder = $em->createQueryBuilder();
         $builder->select($select)
             ->from('Shopware\CustomModels\Lengow\OrderError', 'orderError')
             ->where('orderError.isFinished = 0');
         $results = $builder->getQuery()->getArrayResult();
         if ($results) {
-            $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
+            $locale = LengowMain::getLocale();
             foreach ($results as $errorOrder) {
                 if ($errorOrder['message'] !== '') {
-                    $errorMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::cleanData(
-                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                            $errorOrder['message'],
-                            $locale
-                        )
+                    $errorMessage = LengowMain::cleanData(
+                        LengowMain::decodeLogMessage($errorOrder['message'], $locale)
                     );
                 } else {
-                    $errorMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                        'order/grid/errors/no_error_message',
-                        $locale
-                    );
+                    $errorMessage = LengowMain::decodeLogMessage('order/grid/errors/no_error_message', $locale);
                 }
                 $errorMessages[$errorOrder['lengowOrderId']] .= '<br />' . $errorMessage;
             }
@@ -205,30 +209,21 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
      */
     public function getPanelContentsAction()
     {
-        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
-        $lastImport = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLastImport();
-        $data['nb_order_in_error'] = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::countOrderWithError();
-        $data['nb_order_to_be_sent'] = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::countOrderToBeSent();
+        $locale = LengowMain::getLocale();
+        $lastImport = LengowMain::getLastImport();
+        $data['nb_order_in_error'] = LengowOrder::countOrderWithError();
+        $data['nb_order_to_be_sent'] = LengowOrder::countOrderToBeSent();
         $data['last_import'] = $lastImport['timestamp'] !== 'none'
-            ? Shopware_Plugins_Backend_Lengow_Components_LengowMain::getDateInCorrectFormat($lastImport['timestamp'])
+            ? LengowMain::getDateInCorrectFormat($lastImport['timestamp'])
             : '';
-        $reportMailActive = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowImportReportMailEnabled'
-        );
-
-        if ($reportMailActive) {
-            $data['mail_report'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+        if (LengowConfiguration::getConfig('lengowImportReportMailEnabled')) {
+            $data['mail_report'] = LengowMain::decodeLogMessage(
                 'order/panel/mail_report',
                 $locale,
-                array('email' => implode(', ',
-                    Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getReportEmailAddress())
-                )
+                array('email' => implode(', ', LengowConfiguration::getReportEmailAddress()))
             );
         } else {
-            $data['mail_report'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                'order/panel/no_mail_report',
-                $locale
-            );
+            $data['mail_report'] =LengowMain::decodeLogMessage('order/panel/no_mail_report', $locale);
         }
         $data['mail_report'] .= ' (<a href="#">Change this?</a>)';
         $this->View()->assign(
@@ -244,7 +239,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
      */
     public function launchImportProcessAction()
     {
-        $import = new Shopware_Plugins_Backend_Lengow_Components_LengowImport();
+        $import = new LengowImport();
         $result = $import->exec();
         $messages = $this->loadMessage($result);
         $data = array();
@@ -267,50 +262,47 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     public function loadMessage($return)
     {
         $messages = array();
-        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
+        $locale = LengowMain::getLocale();
         // if global error return this
         if (isset($return['error'][0])) {
-            $messages['error'] =  Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+            $messages['error'] = LengowMain::decodeLogMessage(
                 $return['error'][0],
                 $locale
             );
             return $messages;
         }
         if (isset($return['order_new']) && $return['order_new'] > 0) {
-            $messages['order_new'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+            $messages['order_new'] = LengowMain::decodeLogMessage(
                 'lengow_log/error/nb_order_imported',
                 $locale,
                 array('nb_order' => (int)$return['order_new'])
             );
         }
         if (isset($return['order_update']) && $return['order_update'] > 0) {
-            $messages['order_update'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+            $messages['order_update'] = LengowMain::decodeLogMessage(
                 'lengow_log/error/nb_order_updated',
                 $locale,
                 array('nb_order' => (int)$return['order_update'])
             );
         }
         if (isset($return['order_error']) && $return['order_error'] > 0) {
-            $messages['order_error'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+            $messages['order_error'] = LengowMain::decodeLogMessage(
                 'lengow_log/error/nb_order_with_error',
                 $locale,
                 array('nb_order' => (int)$return['order_error'])
             );
         }
         if (empty($messages)) {
-            $messages['no_notification'] = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                'lengow_log/error/no_notification',
-                $locale
-            );
+            $messages['no_notification'] = LengowMain::decodeLogMessage('lengow_log/error/no_notification', $locale);
         }
         if (isset($return['error'])) {
             foreach ($return['error'] as $shopId => $values) {
                 if ((int)$shopId > 0) {
-                    $em = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
-                    /** @var Shopware\Models\Shop\Shop $shop */
+                    $em = LengowBootstrap::getEntityManager();
+                    /** @var ShopModel $shop */
                     $shop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('id' => (int)$shopId));
-                    $shopName = !is_null($shop) ? $shop->getName() . ' : ' :  '';
-                    $error = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($values, $locale);
+                    $shopName = $shop !== null ? $shop->getName() . ' : ' :  '';
+                    $error = LengowMain::decodeLogMessage($values, $locale);
                     $messages[] = $shopName . $error;
                 }
             }
@@ -325,10 +317,10 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     {
         $orderId = $this->Request()->getParam('orderId');
         $action = $this->Request()->getParam('actionName');
-        /** @var Shopware\Models\Order\Order $order */
+        /** @var OrderModel $order */
         $order = Shopware()->Models()->getRepository('\Shopware\Models\Order\Order')
             ->findOneBy(array('id' => $orderId));
-        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, $action);
+        $success = LengowOrder::callAction($order, $action);
         $this->View()->assign(
             array(
                 'success' => true,
@@ -343,11 +335,11 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     public function synchronizeAction()
     {
         $orderId = $this->Request()->getParam('orderId');
-        /** @var Shopware\Models\Order\Order $order */
+        /** @var OrderModel $order */
         $order = Shopware()->Models()
             ->getRepository('\Shopware\Models\Order\Order')
             ->findOneBy(array('id' => $orderId));
-        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::synchronizeOrder($order);
+        $success = LengowOrder::synchronizeOrder($order);
         $this->View()->assign(
             array(
                 'success' => true,
@@ -362,11 +354,11 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     public function cancelAndReImportAction()
     {
         $orderId = $this->Request()->getParam('orderId');
-        /** @var Shopware\Models\Order\Order $order */
+        /** @var OrderModel $order */
         $order = Shopware()->Models()
             ->getRepository('\Shopware\Models\Order\Order')
             ->findOneBy(array('id' => $orderId));
-        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::cancelAndReImportOrder($order);
+        $success = LengowOrder::cancelAndReImportOrder($order);
         $this->View()->assign(
             array(
                 'success' => true,
@@ -385,10 +377,10 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         if (!$lengowOrderId) {
             $lengowOrderId = $this->Request()->getParam('lengowOrderId');
         }
-        /** @var Shopware\CustomModels\Lengow\Order $lengowOrder */
+        /** @var LengowOrderModel $lengowOrder */
         $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(array('id' => $lengowOrderId));
-        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::reImportOrder($lengowOrder);
+        $success = LengowOrder::reImportOrder($lengowOrder);
         $this->View()->assign(
             array(
                 'success' => true,
@@ -407,10 +399,10 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         if (!$lengowOrderId) {
             $lengowOrderId = $this->Request()->getParam('lengowOrderId');
         }
-        /** @var Shopware\CustomModels\Lengow\Order $lengowOrder */
+        /** @var LengowOrderModel $lengowOrder */
         $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(array('id' => $lengowOrderId));
-        $success = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::reSendOrder($lengowOrder);
+        $success = LengowOrder::reSendOrder($lengowOrder);
         $this->View()->assign(
             array(
                 'success' => true,
@@ -427,25 +419,31 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $totalReImport = 0;
         $lengowOrderIds = json_decode($this->Request()->getParam('lengowOrderIds'));
         $nbSelected = count($lengowOrderIds);
-        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
+        $locale = LengowMain::getLocale();
         foreach ($lengowOrderIds as $lengowOrderId) {
             $result = $this->reImportAction((int)$lengowOrderId);
             if ($result && isset($result['order_new']) && $result['order_new']) {
                 $totalReImport++;
             }
         }
-        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-            'API-OrderAction',
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+        LengowMain::log(
+            LengowLog::CODE_ACTION,
+            LengowMain::setLogMessage(
                 'lengow_log/error/mass_action_reimport_success',
-                array('nb_imported' => $totalReImport, 'nb_selected' => $nbSelected)
+                array(
+                    'nb_imported' => $totalReImport,
+                    'nb_selected' => $nbSelected,
+                )
             ),
             false
         );
-        $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+        $message = LengowMain::decodeLogMessage(
             'lengow_log/error/mass_action_reimport_success',
             $locale,
-            array('nb_imported' => $totalReImport, 'nb_selected' => $nbSelected)
+            array(
+                'nb_imported' => $totalReImport,
+                'nb_selected' => $nbSelected,
+            )
         );
         $this->View()->assign(
             array(
@@ -463,25 +461,31 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $totalReSent = 0;
         $lengowOrderIds = json_decode($this->Request()->getParam('lengowOrderIds'));
         $nbSelected = count($lengowOrderIds);
-        $locale = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale();
+        $locale = LengowMain::getLocale();
         foreach ($lengowOrderIds as $lengowOrderId) {
             $result = $this->reSendAction((int)$lengowOrderId);
             if ($result && isset($result['order_new']) && $result['order_new']) {
                 $totalReSent++;
             }
         }
-        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-            'API-OrderAction',
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+        LengowMain::log(
+            LengowLog::CODE_ACTION,
+            LengowMain::setLogMessage(
                 'lengow_log/error/mass_action_resend_success',
-                array('nb_sent' => $totalReSent, 'nb_selected' => $nbSelected)
+                array(
+                    'nb_sent' => $totalReSent,
+                    'nb_selected' => $nbSelected,
+                )
             ),
             false
         );
-        $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+        $message = LengowMain::decodeLogMessage(
             'lengow_log/error/mass_action_resend_success',
             $locale,
-            array('nb_sent' => $totalReSent, 'nb_selected' => $nbSelected)
+            array(
+                'nb_sent' => $totalReSent,
+                'nb_selected' => $nbSelected,
+            )
         );
         $this->View()->assign(
             array(

@@ -28,6 +28,17 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware\Models\Order\Order as OrderModel;
+use Shopware\CustomModels\Lengow\Action as LengowActionModel;
+use Shopware\CustomModels\Lengow\Order as LengowOrderModel;
+use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
+use Shopware_Plugins_Backend_Lengow_Components_LengowConnector as LengowConnector;
+use Shopware_Plugins_Backend_Lengow_Components_LengowException as LengowException;
+use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
+use Shopware_Plugins_Backend_Lengow_Components_LengowOrderError as LengowOrderError;
+
 /**
  * Lengow Action Class
  */
@@ -129,7 +140,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
     /**
      * Create an order action
      *
-     * @param \Shopware\Models\Order\Order $order Shopware order instance
+     * @param OrderModel $order Shopware order instance
      * @param string $actionType action type (ship or cancel)
      * @param integer $actionId Lengow action id
      * @param string|null $orderLineId Lengow order line id
@@ -140,7 +151,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
     public static function createOrderAction($order, $actionType, $actionId, $orderLineId = null, $params = array())
     {
         try {
-            $orderAction = new Shopware\CustomModels\Lengow\Action();
+            $orderAction = new LengowActionModel();
             $orderAction->setOrder($order)
                 ->setActionType($actionType)
                 ->setActionId($actionId)
@@ -150,9 +161,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 ->setCreatedAt(new DateTime());
             Shopware()->Models()->persist($orderAction);
             Shopware()->Models()->flush($orderAction);
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_ACTION,
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/order_action/action_saved'),
+            LengowMain::log(
+                LengowLog::CODE_ACTION,
+                LengowMain::setLogMessage('log/order_action/action_saved'),
                 false,
                 $params['marketplace_order_id']
             );
@@ -166,9 +177,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
      * Indicates whether an action can be created if it does not already exist
      *
      * @param array $params all available values
-     * @param \Shopware\Models\Order\Order $order Shopware order instance
+     * @param OrderModel $order Shopware order instance
      *
-     * @throws Exception|Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws Exception|LengowException
      *
      * @return boolean
      */
@@ -183,13 +194,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 unset($getParams[$param]);
             }
         }
-        $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
-            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::GET,
-            Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_ORDER_ACTION,
-            $getParams
-        );
+        $result = LengowConnector::queryApi(LengowConnector::GET, LengowConnector::API_ORDER_ACTION, $getParams);
         if (isset($result->error) && isset($result->error->message)) {
-            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($result->error->message);
+            throw new LengowException($result->error->message);
         }
         if (isset($result->count) && $result->count > 0) {
             foreach ($result->results as $row) {
@@ -222,22 +229,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
      * Send a new action on the order via the Lengow API
      *
      * @param array $params all available values
-     * @param \Shopware\Models\Order\Order $order Shopware order instance
-     * @param \Shopware\CustomModels\Lengow\Order $lengowOrder Lengow order instance
+     * @param OrderModel $order Shopware order instance
+     * @param LengowOrderModel $lengowOrder Lengow order instance
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws LengowException
      */
     public static function sendAction($params, $order, $lengowOrder)
     {
-        $preprodMode = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowImportPreprodEnabled'
-        );
-        if (!$preprodMode) {
-            $result = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
-                Shopware_Plugins_Backend_Lengow_Components_LengowConnector::POST,
-                Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_ORDER_ACTION,
-                $params
-            );
+        if (!LengowConfiguration::getConfig('lengowImportPreprodEnabled')) {
+            $result = LengowConnector::queryApi(LengowConnector::POST, LengowConnector::API_ORDER_ACTION, $params);
             if (isset($result->id)) {
                 self::createOrderAction(
                     $order,
@@ -248,17 +248,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 );
             } else {
                 if ($result !== null) {
-                    $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    $message = LengowMain::setLogMessage(
                         'lengow_log/exception/action_not_created',
                         array('error_message' => json_encode($result))
                     );
                 } else {
                     // generating a generic error message when the Lengow API is unavailable
-                    $message = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                        'lengow_log/exception/action_not_created_api'
-                    );
+                    $message = LengowMain::setLogMessage('lengow_log/exception/action_not_created_api');
                 }
-                throw new Shopware_Plugins_Backend_Lengow_Components_LengowException($message);
+                throw new LengowException($message);
             }
         }
         // create log for call action
@@ -266,12 +264,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
         foreach ($params as $param => $value) {
             $paramList .= !$paramList ? '"' . $param . '": ' . $value : ' -- "' . $param . '": ' . $value;
         }
-        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_ACTION,
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'log/order_action/call_tracking',
-                array('parameters' => $paramList)
-            ),
+        LengowMain::log(
+            LengowLog::CODE_ACTION,
+            LengowMain::setLogMessage('log/order_action/call_tracking', array('parameters' => $paramList)),
             false,
             $lengowOrder->getMarketplaceSku()
         );
@@ -290,7 +285,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
             ->where('la.state = :state')
             ->setParameters(array('state' => self::STATE_NEW));
         $results = $builder->getQuery()->getResult();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return $results;
         }
         return false;
@@ -321,7 +316,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
         }
         $builder->setParameters($params);
         $results = $builder->getQuery()->getResult();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return $results;
         }
         return false;
@@ -391,7 +386,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
         }
         $builder->setParameters($params);
         $results = $builder->getQuery()->getResult();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             foreach ($results as $result) {
                 self::finishAction($result['id']);
             }
@@ -408,9 +403,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
     public static function getIntervalTime()
     {
         $intervalTime = self::MAX_INTERVAL_TIME;
-        $lastActionSynchronisation = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowLastActionSync'
-        );
+        $lastActionSynchronisation = LengowConfiguration::getConfig('lengowLastActionSync');
         if ($lastActionSynchronisation) {
             $lastIntervalTime = time() - (int)$lastActionSynchronisation;
             $lastIntervalTime = $lastIntervalTime + self::SECURITY_INTERVAL_TIME;
@@ -428,22 +421,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
      */
     public static function checkFinishAction($logOutput = false)
     {
-        $preprodMode = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowImportPreprodEnabled'
-        );
-        if ($preprodMode) {
+        if ((bool)LengowConfiguration::getConfig('lengowImportPreprodEnabled')) {
             return false;
         }
-        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_ACTION,
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'log/order_action/check_completed_action'
-            ),
+        LengowMain::log(
+            LengowLog::CODE_ACTION,
+            LengowMain::setLogMessage('log/order_action/check_completed_action'),
             $logOutput
         );
-        $processStateFinish = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderProcessState(
-            Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_CLOSED
-        );
+        $processStateFinish = LengowOrder::getOrderProcessState(LengowOrder::STATE_CLOSED);
         // get all active actions by shop
         $activeActions = self::getActiveActions();
         if (!$activeActions) {
@@ -455,9 +441,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
         $intervalTime = self::getIntervalTime();
         $dateFrom = time() - $intervalTime;
         $dateTo = time();
-        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_ACTION,
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+        LengowMain::log(
+            LengowLog::CODE_ACTION,
+            LengowMain::setLogMessage(
                 'log/order_action/connector_get_all_action',
                 array(
                     'date_from' => date('Y-m-d H:i:s', $dateFrom),
@@ -467,9 +453,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
             $logOutput
         );
         do {
-            $results = Shopware_Plugins_Backend_Lengow_Components_LengowConnector::queryApi(
-                Shopware_Plugins_Backend_Lengow_Components_LengowConnector::GET,
-                Shopware_Plugins_Backend_Lengow_Components_LengowConnector::API_ORDER_ACTION,
+            $results = LengowConnector::queryApi(
+                LengowConnector::GET,
+                LengowConnector::API_ORDER_ACTION,
                 array(
                     'updated_from' => date('c', $dateFrom),
                     'updated_to' => date('c', $dateTo),
@@ -510,15 +496,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                     }
                     // finish action in lengow_action table
                     self::finishAction($action['id']);
-                    /** @var Shopware\CustomModels\Lengow\Order $lengowOrder */
+                    /** @var LengowOrderModel $lengowOrder */
                     $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
                         ->findOneBy(array('orderId' => $action['orderId']));
                     if ($lengowOrder) {
                         // finish all order logs send
-                        Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::finishOrderErrors(
-                            $lengowOrder->getId(),
-                            'send'
-                        );
+                        LengowOrderError::finishOrderErrors($lengowOrder->getId(), 'send');
                         if ($lengowOrder->getOrderProcessState() != $processStateFinish) {
                             try {
                                 // if action is accepted -> close order and finish all order actions
@@ -529,15 +512,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                                     self::finishAllActions($lengowOrder->getOrder()->getId());
                                 } else {
                                     // if action is denied -> create order logs and finish all order actions
-                                    Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::createOrderError(
+                                    LengowOrderError::createOrderError(
                                         $lengowOrder,
                                         $apiActions[$action['actionId']]->errors,
                                         'send'
                                     );
                                     $lengowOrder->setInError(true);
-                                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                                        Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_ACTION,
-                                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                                    LengowMain::log(
+                                        LengowLog::CODE_ACTION,
+                                        LengowMain::setLogMessage(
                                             'log/order_action/call_action_failed',
                                             array('decoded_message' => $apiActions[$action['actionId']]->errors)
                                         ),
@@ -550,9 +533,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                             } catch (Exception $e) {
                                 $doctrineError = '[Doctrine error] "' . $e->getMessage()
                                     . '" ' . $e->getFile() . ' | ' . $e->getLine();
-                                Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                                    Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_ORM,
-                                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                                LengowMain::log(
+                                    LengowLog::CODE_ORM,
+                                    LengowMain::setLogMessage(
                                         'log/exception/order_insert_failed',
                                         array('decoded_message' => $doctrineError)
                                     ),
@@ -566,7 +549,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 }
             }
         }
-        Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::setConfig('lengowLastActionSync', time());
+        LengowConfiguration::setConfig('lengowLastActionSync', time());
         return true;
     }
 
@@ -579,39 +562,28 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
      */
     public static function checkOldAction($logOutput = false)
     {
-        $preprodMode = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowImportPreprodEnabled'
-        );
-        if ($preprodMode) {
+        if ((bool)LengowConfiguration::getConfig('lengowImportPreprodEnabled')) {
             return false;
         }
-        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_ACTION,
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage('log/order_action/check_old_action'),
+        LengowMain::log(
+            LengowLog::CODE_ACTION,
+            LengowMain::setLogMessage('log/order_action/check_old_action'),
             $logOutput
         );
         // get all old order action (+ 3 days)
-        $processStateFinish = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderProcessState(
-            Shopware_Plugins_Backend_Lengow_Components_LengowOrder::STATE_CLOSED
-        );
+        $processStateFinish = LengowOrder::getOrderProcessState(LengowOrder::STATE_CLOSED);
         $actions = self::getOldActions();
         if ($actions) {
             foreach ($actions as $action) {
                 self::finishAction($action['id']);
-                /** @var Shopware\CustomModels\Lengow\Order $lengowOrder */
+                /** @var LengowOrderModel $lengowOrder */
                 $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
                     ->findOneBy(array('orderId' => $action['orderId']));
                 if ($lengowOrder) {
                     if ($lengowOrder->getOrderProcessState() != $processStateFinish && !$lengowOrder->isInError()) {
                         // if action is denied -> create order error
-                        $errorMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                            'lengow_log/exception/action_is_too_old'
-                        );
-                        Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::createOrderError(
-                            $lengowOrder,
-                            $errorMessage,
-                            'send'
-                        );
+                        $errorMessage = LengowMain::setLogMessage('lengow_log/exception/action_is_too_old');
+                        LengowOrderError::createOrderError($lengowOrder, $errorMessage, 'send');
                         try {
                             $lengowOrder->setInError(true)
                                 ->setUpdatedAt(new DateTime());
@@ -619,9 +591,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                         } catch (Exception $e) {
                             $doctrineError = '[Doctrine error] "' . $e->getMessage()
                                 . '" ' . $e->getFile() . ' | ' . $e->getLine();
-                            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                                Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_ORM,
-                                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                            LengowMain::log(
+                                LengowLog::CODE_ORM,
+                                LengowMain::setLogMessage(
                                     'log/exception/order_insert_failed',
                                     array('decoded_message' => $doctrineError)
                                 ),
@@ -629,14 +601,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                                 $lengowOrder->getMarketplaceSku()
                             );
                         }
-                        $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
-                            $errorMessage
-                        );
-                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_ACTION,
-                            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                        LengowMain::log(
+                            LengowLog::CODE_ACTION,
+                            LengowMain::setLogMessage(
                                 'log/order_action/call_action_failed',
-                                array('decoded_message' => $decodedMessage)
+                                array('decoded_message' => LengowMain::decodeLogMessage($errorMessage))
                             ),
                             false,
                             $lengowOrder->getMarketplaceSku()
@@ -679,26 +648,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
      */
     public static function checkActionNotSent($logOutput = false)
     {
-        $preprodMode = (bool)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowImportPreprodEnabled'
-        );
-        if ($preprodMode) {
+        if ((bool)LengowConfiguration::getConfig('lengowImportPreprodEnabled')) {
             return false;
         }
-        Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-            Shopware_Plugins_Backend_Lengow_Components_LengowLog::CODE_ACTION,
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                'log/order_action/check_action_not_sent'
-            ),
+        LengowMain::log(
+            LengowLog::CODE_ACTION,
+            LengowMain::setLogMessage('log/order_action/check_action_not_sent'),
             $logOutput
         );
         // get unsent orders
-        $unsentOrders = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getUnsentOrders();
+        $unsentOrders = LengowOrder::getUnsentOrders();
         if ($unsentOrders) {
             foreach ($unsentOrders as $idOrder => $actionType) {
-                /** @var Shopware\Models\Order\Order $order */
+                /** @var OrderModel $order */
                 $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')->find($idOrder);
-                Shopware_Plugins_Backend_Lengow_Components_LengowOrder::callAction($order, $actionType);
+                LengowOrder::callAction($order, $actionType);
             }
             return true;
         }
