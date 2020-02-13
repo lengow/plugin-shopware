@@ -108,15 +108,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'lengow_settings' => true,
             'global' => true,
         ),
-        'lengowOrderStat' => array(
-            'lengow_settings' => true,
-            'global' => true,
-            'export' => false,
-        ),
-        'lengowOrderStatUpdate' => array(
-            'lengow_settings' => true,
-            'global' => true,
-        ),
         'lengowOptionCmsUpdate' => array(
             'lengow_settings' => true,
             'global' => true,

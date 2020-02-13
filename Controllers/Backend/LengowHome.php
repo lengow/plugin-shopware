@@ -45,8 +45,6 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
         $showTabBar = false;
         if ($status['type'] === 'free_trial' && $status['expired']) {
             $htmlContent = LengowElements::getEndFreeTrial();
-        } elseif ($status['type'] === 'bad_payer') {
-            $htmlContent = LengowElements::getBadPayer();
         } else {
             $htmlContent = LengowElements::getDashboard();
             $showTabBar = true;

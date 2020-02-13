@@ -63,11 +63,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     const SYNC_STATUS_ACCOUNT = 'status_account';
 
     /**
-     * @var string sync statistic action
-     */
-    const SYNC_STATISTIC = 'statistic';
-
-    /**
      * @var string sync marketplace action
      */
     const SYNC_MARKETPLACE = 'marketplace';
@@ -83,13 +78,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     const SYNC_ACTION = 'action';
 
     /**
-     * @var array cache time for statistic, account status, cms options and marketplace synchronisation
+     * @var array cache time for catalog, account status, cms options and marketplace synchronisation
      */
     protected static $cacheTimes = array(
         self::SYNC_CATALOG => 21600,
         self::SYNC_CMS_OPTION => 86400,
         self::SYNC_STATUS_ACCOUNT => 86400,
-        self::SYNC_STATISTIC => 86400,
         self::SYNC_MARKETPLACE => 43200,
     );
 
@@ -100,7 +94,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
         self::SYNC_ORDER,
         self::SYNC_CMS_OPTION,
         self::SYNC_STATUS_ACCOUNT,
-        self::SYNC_STATISTIC,
         self::SYNC_MARKETPLACE,
         self::SYNC_ACTION,
         self::SYNC_CATALOG,
@@ -305,63 +298,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             }
         }
         return false;
-    }
-
-    /**
-     * Get Statistic
-     *
-     * @param boolean $force force cache Update
-     * @param boolean $logOutput see log or not
-     *
-     * @return array
-     */
-    public static function getStatistic($force = false, $logOutput = false)
-    {
-        if (!$force) {
-            $updatedAt = LengowConfiguration::getConfig('lengowOrderStatUpdate');
-            if ($updatedAt !== null && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_STATISTIC]) {
-                $stats = LengowConfiguration::getConfig('lengowOrderStat');
-                return json_decode($stats, true);
-            }
-        }
-        $result = LengowConnector::queryApi(
-            LengowConnector::GET,
-            LengowConnector::API_STATISTIC,
-            array(
-                'date_from' => date('c', strtotime(date('Y-m-d') . ' -10 years')),
-                'date_to' => date('c'),
-                'metrics' => 'year',
-            ),
-            '',
-            $logOutput
-        );
-        if (isset($result->level0)) {
-            $stats = $result->level0[0];
-            $return = array(
-                'total_order' => number_format($stats->revenue, 2, ',', ' '),
-                'nb_order' => (int)$stats->transactions,
-                'currency' => $result->currency->iso_a3,
-                'available' => false,
-            );
-        } else {
-            $updatedAt = LengowConfiguration::getConfig('lengowOrderStatUpdate');
-            if ($updatedAt) {
-                return json_decode(LengowConfiguration::getConfig('lengowOrderStat'), true);
-            } else {
-                return array(
-                    'total_order' => 0,
-                    'nb_order' => 0,
-                    'currency' => '',
-                    'available' => false,
-                );
-            }
-        }
-        if ($return['total_order'] > 0 || $return['nb_order'] > 0) {
-            $return['available'] = true;
-        }
-        LengowConfiguration::setConfig('lengowOrderStat', json_encode($return));
-        LengowConfiguration::setConfig('lengowOrderStatUpdate', time());
-        return $return;
     }
 
     /**
