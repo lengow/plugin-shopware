@@ -38,6 +38,7 @@ use Shopware\Models\Order\Status as OrderStatusModel;
 use Shopware\Models\Shop\Locale as ShopLocaleModel;
 use Shopware\Models\Snippet\Snippet as SnippetModel;
 use Shopware_Plugins_Backend_Lengow_Bootstrap as LengowBootstrap;
+use Shopware_Plugins_Backend_Lengow_Bootstrap_Database as LengowBootstrapDatabase;
 use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
 use Shopware_Plugins_Backend_Lengow_Components_LengowImport as LengowImport;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
@@ -61,6 +62,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         'lengowExportVariationEnabled',
         'lengowExportOutOfStock',
         'lengowEnableImport',
+        'lengowOrderStat',
+        'lengowOrderStatUpdate',
     );
 
     /**
@@ -320,6 +323,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         foreach ($this->oldSettings as $setting) {
             $element = $this->entityManager->getRepository('\Shopware\Models\Config\Element')
                 ->findOneBy(array('name' => $setting));
+            if ($element === null && LengowBootstrapDatabase::tableExist('s_lengow_settings')) {
+                $element = $this->entityManager->getRepository('\Shopware\CustomModels\Lengow\Settings')
+                    ->findOneBy(array('name' => $setting));
+            }
             if ($element) {
                 try {
                     $this->entityManager->remove($element);
