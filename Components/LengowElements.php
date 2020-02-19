@@ -29,6 +29,7 @@
  */
 
 use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
+use Shopware_Plugins_Backend_Lengow_Components_LengowConnector as LengowConnector;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
 use Shopware_Plugins_Backend_Lengow_Components_LengowSync as LengowSync;
@@ -51,25 +52,41 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
      */
     public static function getHeader()
     {
-        $accountStatus = LengowSync::getStatusAccount();
         $html = array();
-        $isPreProdActive = LengowConfiguration::getConfig('lengowImportPreprodEnabled');
         $locale = LengowMain::getLocale();
-        $preprodTranslation = LengowMain::decodeLogMessage('menu/preprod_active', $locale);
-        $counterTranslation = LengowMain::decodeLogMessage(
-            'menu/counter',
-            $locale,
-            array('counter' => $accountStatus['day'])
-        );
-        $upgradeTranslation = LengowMain::decodeLogMessage('menu/upgrade_account', $locale);
-        if ($isPreProdActive) {
-            $html['lgw-preprod-label'] = '<div id="lgw-preprod" class="adminlengowhome">'
-                . $preprodTranslation . '</div>';
+        $accountStatus = LengowSync::getStatusAccount();
+        $pluginData = LengowSync::getPluginData();
+        $pluginVersion = Shopware()->Plugins()->Backend()->Lengow()->getVersion();
+        if ((bool)LengowConfiguration::getConfig('lengowImportPreprodEnabled')) {
+            $preprodTranslation = LengowMain::decodeLogMessage('menu/preprod_active', $locale);
+            $html['lgw-preprod-label'] =
+                '<div id="lgw-preprod" class="adminlengowhome">'
+                    . $preprodTranslation .
+                '</div>';
         }
         if ($accountStatus['type'] === 'free_trial' && $accountStatus['expired'] !== true) {
+            $counterTranslation = LengowMain::decodeLogMessage(
+                'menu/counter',
+                $locale,
+                array('counter' => $accountStatus['day'])
+            );
+            $upgradeTranslation = LengowMain::decodeLogMessage('menu/upgrade_account', $locale);
             $html['lgw-trial-label'] =
                 '<p class="text-right" id="menucountertrial">' . $counterTranslation .
-                '<a href="http://my.lengow.io" target="_blank">' . $upgradeTranslation . '</a>
+                    '<a href="//my.' . LengowConnector::LENGOW_URL . '" target="_blank">' . $upgradeTranslation . '</a>
+                </p>';
+        }
+        if ($pluginData && version_compare($pluginVersion, $pluginData['version'], '<')) {
+            $pluginTranslation = LengowMain::decodeLogMessage(
+                'menu/new_version_available',
+                $locale,
+                array('version' => $pluginData['version'])
+            );
+            $downloadTranslation = LengowMain::decodeLogMessage('menu/download_plugin', $locale);
+            $pluginDownloadLink = '//my.' . LengowConnector::LENGOW_URL . $pluginData['download_link'];
+            $html['lgw-plugin-available-label'] =
+                '<p class="text-right" id="menupluginavailable">' . $pluginTranslation .
+                    '<a href="' . $pluginDownloadLink . '" target="_blank">' . $downloadTranslation . '</a>
                 </p>';
         }
         return $html;
@@ -84,16 +101,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
     {
         $keys = array('footer/' => array('legals', 'plugin_lengow', 'lengow_url'));
         $translations = LengowTranslation::getTranslationsFromArray($keys);
+        $pluginPreprod = LengowConnector::LENGOW_URL === 'lengow.net'
+            ? '<span class="lgw-label-preprod">preprod</span>'
+            : '';
         return '<div class="lgw-container lgw-footer-vold clear">
                 <div class="lgw-content-section text-center">
                     <div id="lgw-footer">
-                        <p class="pull-right">
+                        <p class="text-center">
                             <a href="#" id="lengowLegalsTab" class="sub-link" title="Legal">
-                            ' . $translations['legals'] . '</a> | '
+                            ' . $translations['legals'] .
+            '</a> | '
             . $translations['plugin_lengow']
-            . ' - v.' . Shopware()->Plugins()->Backend()->Lengow()->getVersion()
-            . ' | copyright © ' . date('Y') . '  <a href=' . $translations['lengow_url']
-            . ' target="_blank" class="sub-link" title="Lengow.com">
+            . ' - v.' . Shopware()->Plugins()->Backend()->Lengow()->getVersion() . ' '. $pluginPreprod
+            . ' | copyright © ' . date('Y')
+            . '  <a href=' . $translations['lengow_url'] . ' target="_blank" class="sub-link" title="Lengow.com">
                             Lengow
                             </a>
                         </p>
@@ -180,7 +201,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                     <div class="lgw-box lgw-home-header text-center">
                         <img src="' . self::$imgFolder . 'lengow-white-big.png" alt="lengow">
                         <h1>' . $translations['welcome_back'] . '</h1>
-                        <a href="http://my.lengow.io" class="lgw-btn" target="_blank">
+                        <a href="//my.' . LengowConnector::LENGOW_URL . '" class="lgw-btn" target="_blank">
                             ' . $translations['go_to_lengow'] . '
                         </a>
                     </div>
@@ -220,8 +241,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                         </p>
                         <p>
                             <a href="' . $translations['help_center_link'] . '" target="_blank">'
-                . $translations['visit_help_center'] .
-                '</a> ' . $translations['configure_plugin'] . '
+                                . $translations['visit_help_center'] .
+                            '</a> ' . $translations['configure_plugin'] . '
                         </p>
                     </div>
                 </div>
@@ -259,7 +280,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                             <p class="text-center">' . $translations['second_description_end_free_trial'] . '</p>
                             <p class="text-center">' . $translations['third_description_end_free_trial'] . '</p>
                             <div class="text-center">
-                                <a href="http://my.lengow.io/" class="lgw-btn" target="_blank">
+                                <a href="//my.' . LengowConnector::LENGOW_URL . '" class="lgw-btn" target="_blank">
                                     ' . $translations['upgrade_account_button'] . '
                                 </a>
                             </div>

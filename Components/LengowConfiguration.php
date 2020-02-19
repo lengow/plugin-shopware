@@ -124,6 +124,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'lengow_settings' => true,
             'global' => true,
         ),
+        'lengowPluginData' => array(
+            'lengow_settings' => true,
+            'global' => true,
+            'export' => false,
+        ),
+        'lengowPluginDataUpdate' => array(
+            'lengow_settings' => true,
+            'global' => true,
+            'export' => false,
+        ),
         'lengowExportSelectionEnabled' => array(
             'shop' => true,
             'type' => 'boolean',
@@ -426,7 +436,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     public static function setActiveShop($shop)
     {
         $shopIsActive = self::shopIsActive($shop);
-        $shopHasCatalog = !empty(self::getCatalogIds($shop));
+        $catalogIds = self::getCatalogIds($shop);
+        $shopHasCatalog = !empty($catalogIds);
         self::setConfig('lengowShopActive', $shopHasCatalog, $shop);
         return $shopIsActive !== $shopHasCatalog ? true : false;
     }

@@ -28,6 +28,7 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware_Plugins_Backend_Lengow_Components_LengowConnector as LengowConnector;
 use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
 use Shopware_Plugins_Backend_Lengow_Components_LengowElements as LengowElements;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
@@ -61,6 +62,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
                     'panelHtml' => $panelHtml,
                     'isNewMerchant' => LengowConfiguration::isNewMerchant(),
                     'langIsoCode' => substr(LengowMain::getLocale(), 0, 2),
+                    'lengowUrl' => LengowConnector::LENGOW_URL,
                 ),
             )
         );

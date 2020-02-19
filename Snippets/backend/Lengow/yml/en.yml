@@ -36,6 +36,8 @@ en:
     preprod_active: "Pre-production mode"
     counter: "Trial period: %{counter} day(s) left"
     upgrade_account: "Upgrade"
+    new_version_available: "A new version %{version} is available!"
+    download_plugin: "Download"
   footer:
     legals: "Legal notices"
     lengow_url: "http://www.lengow.com/"

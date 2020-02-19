@@ -273,6 +273,10 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 if ($sync === LengowSync::SYNC_STATUS_ACCOUNT) {
                     LengowSync::getStatusAccount($force, $logOutput);
                 }
+                // sync plugin data between Lengow and Shopware
+                if ($sync === LengowSync::SYNC_PLUGIN_DATA) {
+                    LengowSync::getPluginData($force, $logOutput);
+                }
                 // sync parameter is not valid
                 if ($sync && !in_array($sync, LengowSync::$syncActions)) {
                     header('HTTP/1.1 400 Bad Request');

@@ -41,7 +41,15 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
 {
     /**
-     * @var string url of the API Lengow
+     * @var string url of Lengow solution
+     */
+    // const LENGOW_URL = 'lengow.io';
+    // const LENGOW_URL = 'lengow.net';
+    const LENGOW_URL = 'rec.lengow.hom';
+    // const LENGOW_URL = 'dev.lengow.hom';
+
+    /**
+     * @var string url of the Lengow API
      */
     // const LENGOW_API_URL = 'https://api.lengow.io';
     // const LENGOW_API_URL = 'https://api.lengow.net';
@@ -82,6 +90,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @var string url of cms API
      */
     const API_CMS = '/v3.1/cms';
+
+    /**
+     * @var string url of plugin API
+     */
+    const API_PLUGIN = '/v3.0/plugins';
 
     /**
      * @var string request GET
@@ -173,6 +186,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         self::API_MARKETPLACE => 15,
         self::API_PLAN => 5,
         self::API_CMS => 5,
+        self::API_PLUGIN => 5,
     );
 
     /**
