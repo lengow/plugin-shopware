@@ -78,6 +78,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     const SYNC_ACTION = 'action';
 
     /**
+     * @var string sync plugin version action
+     */
+    const SYNC_PLUGIN_DATA = 'plugin';
+
+    /**
      * @var array cache time for catalog, account status, cms options and marketplace synchronisation
      */
     protected static $cacheTimes = array(
@@ -85,6 +90,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
         self::SYNC_CMS_OPTION => 86400,
         self::SYNC_STATUS_ACCOUNT => 86400,
         self::SYNC_MARKETPLACE => 43200,
+        self::SYNC_PLUGIN_DATA => 86400,
     );
 
     /**
@@ -97,6 +103,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
         self::SYNC_MARKETPLACE,
         self::SYNC_ACTION,
         self::SYNC_CATALOG,
+        self::SYNC_PLUGIN_DATA,
     );
 
     /**
@@ -286,15 +293,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 'day' => (int)$result->leftDaysBeforeExpired < 0 ? 0 : (int)$result->leftDaysBeforeExpired,
                 'expired' => (bool)$result->isExpired,
             );
-            LengowConfiguration::setConfig('lengowAccountStatus', json_encode($status)
-            );
+            LengowConfiguration::setConfig('lengowAccountStatus', json_encode($status));
             LengowConfiguration::setConfig('lengowAccountStatusUpdate', time());
             return $status;
         } else {
-            $updatedAt = LengowConfiguration::getConfig('lengowAccountStatusUpdate');
-            if ($updatedAt) {
-                $config = LengowConfiguration::getConfig('lengowAccountStatus');
-                return json_decode($config, true);
+            if (LengowConfiguration::getConfig('lengowAccountStatusUpdate')) {
+                return json_decode(LengowConfiguration::getConfig('lengowAccountStatus'), true);
             }
         }
         return false;
@@ -362,6 +366,56 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 if ($marketplacesData) {
                     return json_decode($marketplacesData);
                 }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get Lengow plugin data (last version and download link)
+     *
+     * @param boolean $force force cache update
+     * @param boolean $logOutput see log or not
+     *
+     * @return array|false
+     */
+    public static function getPluginData($force = false, $logOutput = false)
+    {
+        if (LengowConfiguration::isNewMerchant()) {
+            return false;
+        }
+        if (!$force) {
+            $updatedAt = LengowConfiguration::getConfig('lengowPluginDataUpdate');
+            if ($updatedAt !== null && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_PLUGIN_DATA]) {
+                return json_decode(LengowConfiguration::getConfig('lengowPluginData'), true);
+            }
+        }
+        $plugins = LengowConnector::queryApi(
+            LengowConnector::GET,
+            LengowConnector::API_PLUGIN,
+            array(),
+            '',
+            $logOutput
+        );
+        if ($plugins) {
+            $pluginData = false;
+            foreach ($plugins as $plugin) {
+                if ($plugin->type === self::CMS_TYPE) {
+                    $pluginData = array(
+                        'version' => $plugin->version,
+                        'download_link' => $plugin->archive,
+                    );
+                    break;
+                }
+            }
+            if ($pluginData) {
+                LengowConfiguration::setConfig('lengowPluginData', json_encode($pluginData));
+                LengowConfiguration::setConfig('lengowPluginDataUpdate', time());
+                return $pluginData;
+            }
+        } else {
+            if (LengowConfiguration::getConfig('lengowPluginData')) {
+                return json_decode(LengowConfiguration::getConfig('lengowPluginData'), true);
             }
         }
         return false;

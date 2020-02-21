@@ -2,24 +2,29 @@
 /*                    GLOBAL                     */
 /*************************************************/
 
-#menucountertrial {
+#menucountertrial,
+#menupluginavailable {
   padding: 0 15px;
   font-size: 15px;
   color: #464646;
 }
 
-#menucountertrial a {
+#menucountertrial a,
+#menupluginavailable a {
   display: inline-block;
   text-decoration: none;
   padding: 0 0px;
   margin-left: 5px;
-}
-
-#menucountertrial a:visited {
   color: #00aeef;
 }
 
-#menucountertrial a:hover {
+#menucountertrial a:visited,
+#menupluginavailable a:visited {
+  color: #00aeef;
+}
+
+#menucountertrial a:hover,
+#menupluginavailable a:hover {
   background: none;
   color: #00aeef;
   text-decoration: underline;

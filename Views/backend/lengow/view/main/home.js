@@ -164,6 +164,10 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
             },
             {
                 xtype: 'label',
+                id: 'lgw-plugin-available-label'
+            },
+            {
+                xtype: 'label',
                 id: 'lgw-trial-label'
             }]
         };
