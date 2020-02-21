@@ -264,7 +264,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         // get a Shopware order id in the lengow order table
         $order = LengowOrder::getOrderFromLengowOrder(
             $this->marketplaceSku,
-            (string)$this->marketplace->name,
+            $this->marketplace->name,
             $this->deliveryAddressId
         );
         // if order is already exist
@@ -303,6 +303,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             ->findOneBy(
                 array(
                     'marketplaceSku' => $this->marketplaceSku,
+                    'marketplaceName' => $this->marketplace->name,
                     'deliveryAddressId' => $this->deliveryAddressId,
                 )
             );
@@ -889,7 +890,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $lengowOrder->setShopId($this->shop->getId())
                 ->setDeliveryAddressId($this->deliveryAddressId)
                 ->setMarketplaceSku($this->marketplaceSku)
-                ->setMarketplaceName(strtolower($this->orderData->marketplace))
+                ->setMarketplaceName($this->marketplace->name)
                 ->setMarketplaceLabel($this->marketplaceLabel)
                 ->setOrderLengowState($this->orderStateLengow)
                 ->setMessage($message)
