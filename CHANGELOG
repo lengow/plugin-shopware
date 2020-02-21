@@ -8,6 +8,7 @@ Version 1.5.0
     - Feature: Display of an alert when the plugin is no longer up to date
     - Bugfix: Refactoring and optimization of dates with the correct locale
     - Bugfix: [action] Improved carrier matching with a strict then approximate search
+    - Bugfix: [import] Enhanced security for orders that change their marketplace name
 
 =============================================================
 Version 1.4.3
