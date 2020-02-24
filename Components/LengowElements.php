@@ -57,7 +57,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
         $accountStatus = LengowSync::getStatusAccount();
         $pluginData = LengowSync::getPluginData();
         $pluginVersion = Shopware()->Plugins()->Backend()->Lengow()->getVersion();
-        if ((bool)LengowConfiguration::getConfig('lengowImportDebugEnabled')) {
+        if (LengowConfiguration::debugModeIsActive()) {
             $debugTranslation = LengowMain::decodeLogMessage('menu/debug_active', $locale);
             $html['lgw-debug-label'] =
                 '<div id="lgw-debug" class="adminlengowhome">'

@@ -236,7 +236,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
      */
     public static function sendAction($params, $order, $lengowOrder)
     {
-        if (!LengowConfiguration::getConfig('lengowImportDebugEnabled')) {
+        if (!LengowConfiguration::debugModeIsActive()) {
             $result = LengowConnector::queryApi(LengowConnector::POST, LengowConnector::API_ORDER_ACTION, $params);
             if (isset($result->id)) {
                 self::createOrderAction(
@@ -421,7 +421,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
      */
     public static function checkFinishAction($logOutput = false)
     {
-        if ((bool)LengowConfiguration::getConfig('lengowImportDebugEnabled')) {
+        if (LengowConfiguration::debugModeIsActive()) {
             return false;
         }
         LengowMain::log(
@@ -562,7 +562,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
      */
     public static function checkOldAction($logOutput = false)
     {
-        if ((bool)LengowConfiguration::getConfig('lengowImportDebugEnabled')) {
+        if (LengowConfiguration::debugModeIsActive()) {
             return false;
         }
         LengowMain::log(
@@ -648,7 +648,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
      */
     public static function checkActionNotSent($logOutput = false)
     {
-        if ((bool)LengowConfiguration::getConfig('lengowImportDebugEnabled')) {
+        if (LengowConfiguration::debugModeIsActive()) {
             return false;
         }
         LengowMain::log(

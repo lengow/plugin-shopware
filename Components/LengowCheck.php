@@ -156,7 +156,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/debug_disabled'),
-            'state' => LengowConfiguration::getConfig('lengowImportDebugEnabled') ? 0 : 1,
+            'state' => LengowConfiguration::debugModeIsActive() ? 0 : 1,
         );
         return $this->getAdminContent($checklist);
     }

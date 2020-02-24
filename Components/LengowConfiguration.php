@@ -443,6 +443,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     }
 
     /**
+     * Recovers if debug mode is active or not
+     *
+     * @return boolean
+     */
+    public static function debugModeIsActive()
+    {
+        return (bool)self::getConfig('lengowImportDebugEnabled');
+    }
+
+    /**
      * Get all report mails
      *
      * @return array

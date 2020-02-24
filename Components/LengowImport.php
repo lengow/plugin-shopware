@@ -208,7 +208,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         // get generic params for synchronisation
         $this->debugMode = isset($params['debug_mode'])
             ? (bool)$params['debug_mode']
-            : (bool)LengowConfiguration::getConfig('lengowImportDebugEnabled');
+            : LengowConfiguration::debugModeIsActive();
         $this->typeImport = isset($params['type']) ? $params['type'] : self::TYPE_MANUAL;
         $this->logOutput = isset($params['log_output']) ? (bool)$params['log_output'] : false;
         $this->shopId = isset($params['shop_id']) ? (int)$params['shop_id'] : null;
