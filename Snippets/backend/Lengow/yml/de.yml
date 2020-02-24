@@ -121,7 +121,7 @@ de:
         description: "Anzahl der Tage auswählen (Max. 10 Tage)"
       debug_mode:
         label: "Debug Mode aktivieren"
-        description: "Dieser Modus zur Prüfung und Auftragsimulation verwenden. Diese Einstellung NUR auf Ihrem Pre-Production Server aktivieren\""
+        description: "Dieser Modus zur Prüfung und Auftragsimulation verwenden. Diese Einstellung NUR auf Ihrem Pre-Production Server aktivieren"
       report_mail_enabled:
         label: "Bei Problemen während des Importes der Bestellungen möchte ich benachrichtigt werden"
       report_mail_address:
