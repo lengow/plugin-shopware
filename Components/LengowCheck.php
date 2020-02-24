@@ -155,8 +155,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
             'message' => LengowConfiguration::getConfig('lengowAuthorizedIp'),
         );
         $checklist[] = array(
-            'title' => $this->locale->t('toolbox/index/preprod_disabled'),
-            'state' => LengowConfiguration::getConfig('lengowImportPreprodEnabled') ? 0 : 1,
+            'title' => $this->locale->t('toolbox/index/debug_disabled'),
+            'state' => LengowConfiguration::debugModeIsActive() ? 0 : 1,
         );
         return $this->getAdminContent($checklist);
     }

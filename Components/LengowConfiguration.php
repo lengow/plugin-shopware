@@ -171,7 +171,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'global' => true,
             'type' => 'boolean',
         ),
-        'lengowImportPreprodEnabled' => array(
+        'lengowImportDebugEnabled' => array(
             'global' => true,
             'type' => 'boolean',
         ),
@@ -440,6 +440,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         $shopHasCatalog = !empty($catalogIds);
         self::setConfig('lengowShopActive', $shopHasCatalog, $shop);
         return $shopIsActive !== $shopHasCatalog ? true : false;
+    }
+
+    /**
+     * Recovers if debug mode is active or not
+     *
+     * @return boolean
+     */
+    public static function debugModeIsActive()
+    {
+        return (bool)self::getConfig('lengowImportDebugEnabled');
     }
 
     /**

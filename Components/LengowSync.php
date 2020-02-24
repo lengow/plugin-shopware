@@ -252,9 +252,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      */
     public static function setCmsOption($force = false, $logOutput = false)
     {
-        if (LengowConfiguration::isNewMerchant()
-            || (bool)LengowConfiguration::getConfig('lengowImportPreprodEnabled')
-        ) {
+        if (LengowConfiguration::isNewMerchant() || LengowConfiguration::debugModeIsActive()) {
             return false;
         }
         if (!$force) {
