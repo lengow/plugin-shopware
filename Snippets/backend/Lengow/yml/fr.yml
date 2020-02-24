@@ -33,7 +33,7 @@ fr:
       upgrade_account_button: "Je suis prêt à souscrire !"
       refresh_action: "Actualiser mon compte"
   menu:
-    preprod_active: "Mode préproduction"
+    debug_active: "Debug Mode"
     counter: "Période d'essai : %{counter} jours restants"
     upgrade_account: "Mettre à jour"
     new_version_available: "La nouvelle version %{version} est disponible !"
@@ -119,9 +119,9 @@ fr:
       import_days:
         label: "Synchroniser toutes les commandes mises à jour depuis"
         description: "Choisissez le nombre de jours (Max 10 jours)"
-      preprod_mode:
-        label: "Activer le mode préproduction"
-        description: "Utilisez la pré-production pour tester et simuler des commandes fictives. Pour rappel, vous devez activer ces paramètres UNIQUEMENT sur votre serveur de préproduction."
+      debug_mode:
+        label: "Activer le Debug Mode"
+        description: "Utilisez le Debug Mode pour tester et simuler des commandes fictives. Pour rappel, vous devez activer ce paramètre UNIQUEMENT sur votre serveur de préproduction"
       report_mail_enabled:
         label: "Je veux être notifié en cas de problème lors de l'importation de mes commandes"
       report_mail_address:

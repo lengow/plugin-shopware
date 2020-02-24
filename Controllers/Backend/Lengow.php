@@ -69,7 +69,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
     }
 
     /**
-     * Create toolbar html content. Used to display preprod mod and trial version
+     * Create toolbar html content. Used to display debug mode and trial version
      */
     public function getToolbarContentAction()
     {

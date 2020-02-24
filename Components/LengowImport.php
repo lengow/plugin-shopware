@@ -78,9 +78,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     protected $shopId = null;
 
     /**
-     * @var boolean use preprod mode
+     * @var boolean use debug mode
      */
-    protected $preprodMode = false;
+    protected $debugMode = false;
 
     /**
      * @var boolean display log messages
@@ -201,14 +201,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
      * integer days                import period
      * integer limit               number of orders to import
      * boolean log_output          display log messages
-     * boolean preprod_mode        preprod mode
+     * boolean debug_mode          debug mode
      */
     public function __construct($params = array())
     {
         // get generic params for synchronisation
-        $this->preprodMode = isset($params['preprod_mode'])
-            ? (bool)$params['preprod_mode']
-            : (bool)LengowConfiguration::getConfig('lengowImportPreprodEnabled');
+        $this->debugMode = isset($params['debug_mode'])
+            ? (bool)$params['debug_mode']
+            : (bool)LengowConfiguration::getConfig('lengowImportDebugEnabled');
         $this->typeImport = isset($params['type']) ? $params['type'] : self::TYPE_MANUAL;
         $this->logOutput = isset($params['log_output']) ? (bool)$params['log_output'] : false;
         $this->shopId = isset($params['shop_id']) ? (int)$params['shop_id'] : null;
@@ -254,7 +254,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         $syncOk = true;
         // clean logs
         LengowMain::cleanLog();
-        if (self::isInProcess() && !$this->preprodMode && !$this->importOneOrder) {
+        if (self::isInProcess() && !$this->debugMode && !$this->importOneOrder) {
             $globalError = LengowMain::setLogMessage(
                 'lengow_log/error/rest_time_to_import',
                 array('rest_time' => self::restTimeToImport())
@@ -277,10 +277,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 LengowMain::setLogMessage('log/import/start', array('type' => $this->typeImport)),
                 $this->logOutput
             );
-            if ($this->preprodMode) {
+            if ($this->debugMode) {
                 LengowMain::log(
                     LengowLog::CODE_IMPORT,
-                    LengowMain::setLogMessage('log/import/preprod_mode_active'),
+                    LengowMain::setLogMessage('log/import/debug_mode_active'),
                     $this->logOutput
                 );
             }
@@ -419,13 +419,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             // sending email in error for orders
             if (
                 (bool)LengowConfiguration::getConfig('lengowImportReportMailEnabled')
-                && !$this->preprodMode
+                && !$this->debugMode
                 && !$this->importOneOrder
             ) {
                 LengowMain::sendMailAlert($this->logOutput);
             }
             // check if order action is finish (Ship / Cancel)
-            if (!$this->preprodMode && !$this->importOneOrder && $this->typeImport === self::TYPE_MANUAL) {
+            if (!$this->debugMode && !$this->importOneOrder && $this->typeImport === self::TYPE_MANUAL) {
                 LengowAction::checkFinishAction($this->logOutput);
                 LengowAction::checkOldAction($this->logOutput);
                 LengowAction::checkActionNotSent($this->logOutput);
@@ -656,7 +656,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             }
             $nbPackage = 0;
             $marketplaceSku = (string)$orderData->marketplace_order_id;
-            if ($this->preprodMode) {
+            if ($this->debugMode) {
                 $marketplaceSku .= '--' . time();
             }
             // if order contains no package
@@ -701,7 +701,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     $importOrder = new LengowImportOrder(
                         array(
                             'shop' => $shop,
-                            'preprod_mode' => $this->preprodMode,
+                            'debug_mode' => $this->debugMode,
                             'log_output' => $this->logOutput,
                             'marketplace_sku' => $marketplaceSku,
                             'delivery_address_id' => $packageDeliveryAddressId,
@@ -731,8 +731,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     unset($errorMessage);
                     continue;
                 }
-                // sync to lengow if no preprod_mode
-                if (!$this->preprodMode && isset($order['order_new']) && $order['order_new']) {
+                // sync to lengow if no debug_mode
+                if (!$this->debugMode && isset($order['order_new']) && $order['order_new']) {
                     /** @var OrderModel $shopwareOrder */
                     $shopwareOrder = Shopware()->Models()->getRepository('\Shopware\Models\Order\Order')
                         ->findOneBy(array('id' => $order['order_id']));

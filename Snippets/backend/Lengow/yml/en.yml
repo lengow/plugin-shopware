@@ -33,7 +33,7 @@ en:
       upgrade_account_button: "It's ok, I'm ready to upgrade!"
       refresh_action: "Refresh my account"
   menu:
-    preprod_active: "Pre-production mode"
+    debug_active: "Debug Mode"
     counter: "Trial period: %{counter} day(s) left"
     upgrade_account: "Upgrade"
     new_version_available: "A new version %{version} is available!"
@@ -119,9 +119,9 @@ en:
       import_days:
         label: "Synchronize all orders updated since"
         description: "Choose a number of days (Max 10 days)"
-      preprod_mode:
-        label: "Activate pre-production mode"
-        description: "Use pre-production mode for testing and to simulate fictitious orders. Please note that you have to activate this setting on your pre-production server ONLY"
+      debug_mode:
+        label: "Activate Debug Mode"
+        description: "Use Debug Mode for testing and to simulate fictitious orders. Please note that you have to activate this setting on your pre-production server ONLY"
       report_mail_enabled:
         label: "I would like to be notified when there are issues regarding order importation"
       report_mail_address:

@@ -146,7 +146,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
     },
 
     /**
-     * Get main window toolbar to display preprod mod and trial days left
+     * Get main window toolbar to display debug mod and trial days left
      */
     getToolbar: function() {
         return {
@@ -157,7 +157,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
             },
             items: [{
                 xtype: 'label',
-                id: 'lgw-preprod-label'
+                id: 'lgw-debug-label'
             },
             {
                 xtype: 'tbfill'

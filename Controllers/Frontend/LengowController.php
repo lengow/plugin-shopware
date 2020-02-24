@@ -196,7 +196,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
          * string  created_from        import of orders since
          * string  created_to          import of orders until
          * integer delivery_address_id Lengow delivery address id to import
-         * boolean preprod_mode        Activate preprod mode
+         * boolean debug_mode          Activate debug mode
          * boolean log_output          See logs (1) or not (0)
          * boolean get_sync            See synchronisation parameters in json format (1) or not (0)
          */
@@ -224,8 +224,8 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                         'type' => LengowImport::TYPE_CRON,
                         'log_output' => $logOutput
                     );
-                    if ($this->Request()->getParam('preprod_mode') != null) {
-                        $params['preprod_mode'] = $this->Request()->getParam('preprod_mode') == 1 ? true : false;
+                    if ($this->Request()->getParam('debug_mode') != null) {
+                        $params['debug_mode'] = $this->Request()->getParam('debug_mode') == 1 ? true : false;
                     }
                     if ($this->Request()->getParam('days')) {
                         $params['days'] = (int)$this->Request()->getParam('days');

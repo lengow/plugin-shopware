@@ -68,7 +68,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
     onSelectOrder: function(record) {
         var me = this,
             importPanel = me.getImportPanel(),
-            preprodMode = Ext.get('lgw-preprod'),
+            debugMode = Ext.get('lgw-debug'),
             message;
         // get record and load information
         if (!(record instanceof Ext.data.Model)) {
@@ -88,7 +88,7 @@ Ext.define('Shopware.apps.Lengow.controller.Import', {
         Ext.get('lgw-summary-text').update(message);
         Ext.getCmp('lgw-details-element').show();
         // show or hide action buttons
-        if(record.get('orderId') > 0 && preprodMode == null) {
+        if(record.get('orderId') > 0 && debugMode == null) {
             Ext.get('lgw-toolbar-buttons').set({ orderId: record.get('orderId') });
             Ext.getCmp('lgw-toolbar-buttons').show();
             if (record.get('orderProcessState') === 2) {

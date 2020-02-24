@@ -64,6 +64,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         'lengowEnableImport',
         'lengowOrderStat',
         'lengowOrderStatUpdate',
+        'lengowImportPreprodEnabled',
     );
 
     /**
@@ -231,11 +232,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'editable' => false,
                 'description' => 'settings/lengow_import_settings/import_days/description',
             ),
-            'lengowImportPreprodEnabled' => array(
+            'lengowImportDebugEnabled' => array(
                 'type' => 'boolean',
-                'label' => 'settings/lengow_import_settings/preprod_mode/label',
+                'label' => 'settings/lengow_import_settings/debug_mode/label',
                 'value' => false,
-                'description' => 'settings/lengow_import_settings/preprod_mode/description',
+                'description' => 'settings/lengow_import_settings/debug_mode/description',
             ),
             'lengowImportReportMailEnabled' => array(
                 'type' => 'boolean',

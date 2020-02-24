@@ -54,7 +54,7 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
     },
 
     /**
-     * Get preprod/trial translations and html before updating concerned labels created in the toolbar
+     * Get debug/trial translations and html before updating concerned labels created in the toolbar
      */
     onInitToolbar: function() {
         Ext.Ajax.request({

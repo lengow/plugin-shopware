@@ -81,9 +81,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     protected $shop;
 
     /**
-     * @var boolean use preprod mode
+     * @var boolean use debug mode
      */
-    protected $preprodMode = false;
+    protected $debugMode = false;
 
     /**
      * @var boolean display log messages
@@ -205,7 +205,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
      *
      * @param $params array optional options
      * ShopModel shop                Shopware shop instance
-     * boolean   preprod_mode        preprod mode
+     * boolean   debug_mode          debug mode
      * boolean   log_output          display log messages
      * string    marketplace_sku     order marketplace sku
      * integer   delivery_address_id order delivery address id
@@ -218,7 +218,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     public function __construct($params = array())
     {
         $this->shop = $params['shop'];
-        $this->preprodMode = $params['preprod_mode'];
+        $this->debugMode = $params['debug_mode'];
         $this->logOutput = $params['log_output'];
         $this->marketplaceSku = $params['marketplace_sku'];
         $this->deliveryAddressId = $params['delivery_address_id'];
@@ -289,7 +289,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         }
         // checks if an external id already exists
         $orderIdShopware = $this->checkExternalIds($this->orderData->merchant_order_id);
-        if ($orderIdShopware && !$this->preprodMode && !$this->isReimported) {
+        if ($orderIdShopware && !$this->debugMode && !$this->isReimported) {
             LengowMain::log(
                 LengowLog::CODE_IMPORT,
                 LengowMain::setLogMessage('log/import/external_id_exist', array('order_id' => $orderIdShopware)),

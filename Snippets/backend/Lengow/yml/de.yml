@@ -33,7 +33,7 @@ de:
       upgrade_account_button: "Einverstanden, ich bin bereit für das Upgrade"
       refresh_action: "Meinen Account aktualisieren"
   menu:
-    preprod_active: "Vorproduktionsmodus"
+    debug_active: "Debug Mode"
     counter: "Testzeitraum: %{counter} Tag(e) verbleiben"
     upgrade_account: "Upgrade"
     new_version_available: "Eine neue Version %{version} ist verfügbar!"
@@ -119,9 +119,9 @@ de:
       import_days:
         label: "Synchronisieren Sie alle Bestellungen, die seit aktualisiert wurden"
         description: "Anzahl der Tage auswählen (Max. 10 Tage)"
-      preprod_mode:
-        label: "Vorproduktionsmodus aktivieren"
-        description: "Dieser Modus zur Prüfung und Auftragsimulation verwenden. Diese Einstellung NUR auf Ihrem Pre-Production Server aktivieren"
+      debug_mode:
+        label: "Debug Mode aktivieren"
+        description: "Dieser Modus zur Prüfung und Auftragsimulation verwenden. Diese Einstellung NUR auf Ihrem Pre-Production Server aktivieren\""
       report_mail_enabled:
         label: "Bei Problemen während des Importes der Bestellungen möchte ich benachrichtigt werden"
       report_mail_address:

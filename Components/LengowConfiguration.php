@@ -171,7 +171,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'global' => true,
             'type' => 'boolean',
         ),
-        'lengowImportPreprodEnabled' => array(
+        'lengowImportDebugEnabled' => array(
             'global' => true,
             'type' => 'boolean',
         ),
