@@ -306,6 +306,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                     $this->logOutput,
                     $this->marketplaceSku
                 );
+                return false;
             }
         }
         // checks if an external id already exists
