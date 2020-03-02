@@ -126,6 +126,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     protected $firstPackage;
 
     /**
+     * @var boolean import one order var from lengow import
+     */
+    protected $importOneOrder;
+
+    /**
      * @var string marketplace order state
      */
     protected $orderStateMarketplace;
@@ -212,6 +217,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
      * mixed     order_data          order data
      * mixed     package_data        package data
      * boolean   first_package       it is the first package
+     * boolean   import_one_order    import one order
      *
      * @throws LengowException
      */
@@ -225,6 +231,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         $this->orderData = $params['order_data'];
         $this->packageData = $params['package_data'];
         $this->firstPackage = $params['first_package'];
+        $this->importOneOrder = $params['import_one_order'];
         // get marketplace and Lengow order state
         $this->marketplace = LengowMain::getMarketplaceSingleton((string)$this->orderData->marketplace);
         $this->marketplaceLabel = $this->marketplace->labelName;
@@ -277,15 +284,30 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 return false;
             }
         }
-        // skip import if the order is anonymized
-        if ($this->orderData->anonymized) {
-            LengowMain::log(
-                LengowLog::CODE_IMPORT,
-                LengowMain::setLogMessage('log/import/anonymized_order'),
-                $this->logOutput,
-                $this->marketplaceSku
-            );
-            return false;
+        if (!$this->importOneOrder) {
+            // skip import if the order is anonymized
+            if ($this->orderData->anonymized) {
+                LengowMain::log(
+                    LengowLog::CODE_IMPORT,
+                    LengowMain::setLogMessage('log/import/anonymized_order'),
+                    $this->logOutput,
+                    $this->marketplaceSku
+                );
+                return false;
+            }
+            //skip import if the order is older than 3 months
+            $dateTimeOrder = new DateTime($this->orderData->marketplace_order_date);
+            $interval = $dateTimeOrder->diff(new DateTime());
+            $monthsInterval = $interval->m + ($interval->y * 12);
+            if ($monthsInterval >= LengowImport::MONTH_INTERVAL_TIME) {
+                LengowMain::log(
+                    LengowLog::CODE_IMPORT,
+                    LengowMain::setLogMessage('log/import/old_order'),
+                    $this->logOutput,
+                    $this->marketplaceSku
+                );
+                return false;
+            }
         }
         // checks if an external id already exists
         $orderIdShopware = $this->checkExternalIds($this->orderData->merchant_order_id);
