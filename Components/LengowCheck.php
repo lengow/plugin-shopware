@@ -28,13 +28,20 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware\Models\Shop\Shop as ShopModel;
+use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
+use Shopware_Plugins_Backend_Lengow_Components_LengowExport as LengowExport;
+use Shopware_Plugins_Backend_Lengow_Components_LengowImport as LengowImport;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
+
 /**
  * Lengow Check Class
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
 {
     /**
-     * @var Shopware_Plugins_Backend_Lengow_Components_LengowTranslation Lengow translation instance
+     * @var LengowTranslation Lengow translation instance
      */
     protected $locale;
 
@@ -43,7 +50,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
      */
     public function __construct()
     {
-        $this->locale = new Shopware_Plugins_Backend_Lengow_Components_LengowTranslation();
+        $this->locale = new LengowTranslation();
     }
 
     /**
@@ -129,7 +136,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         $checklist = array();
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shopware_version'),
-            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopwareVersion(),
+            'message' => LengowMain::getShopwareVersion(),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/plugin_version'),
@@ -141,21 +148,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/ip_enabled'),
-            'state' => (int)Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowIpEnabled'
-            ),
+            'state' => (int)LengowConfiguration::getConfig('lengowIpEnabled'),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/ip_authorized'),
-            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowAuthorizedIp'
-            ),
+            'message' => LengowConfiguration::getConfig('lengowAuthorizedIp'),
         );
         $checklist[] = array(
-            'title' => $this->locale->t('toolbox/index/preprod_disabled'),
-            'state' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowImportPreprodEnabled'
-            ) ? 0 : 1,
+            'title' => $this->locale->t('toolbox/index/debug_disabled'),
+            'state' => LengowConfiguration::debugModeIsActive() ? 0 : 1,
         );
         return $this->getAdminContent($checklist);
     }
@@ -167,7 +168,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
      */
     public static function getFileModified()
     {
-        $pluginPath = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder();
+        $pluginPath = LengowMain::getLengowFolder();
         $fileName = $pluginPath . 'Toolbox' . DIRECTORY_SEPARATOR . 'checkmd5.csv';
         if (file_exists($fileName)) {
             if (($file = fopen($fileName, 'r')) !== false) {
@@ -192,22 +193,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
      */
     public function getImportInformation()
     {
-        $lastImport = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLastImport();
+        $lastImport = LengowMain::getLastImport();
         $lastImportDate = $lastImport['timestamp'] === 'none'
             ? $this->locale->t('toolbox/index/last_import_none')
-            : date('Y-m-d H:i:s', $lastImport['timestamp']);
+            : LengowMain::getDateInCorrectFormat($lastImport['timestamp'], true);
         if ($lastImport['type'] === 'none') {
             $lastImportType = $this->locale->t('toolbox/index/last_import_none');
-        } elseif ($lastImport['type'] === 'cron') {
+        } elseif ($lastImport['type'] === LengowImport::TYPE_CRON) {
             $lastImportType = $this->locale->t('toolbox/index/last_import_cron');
         } else {
             $lastImportType = $this->locale->t('toolbox/index/last_import_manual');
         }
-        if (Shopware_Plugins_Backend_Lengow_Components_LengowImport::isInProcess()) {
-            $importInProgress = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage(
+        if (LengowImport::isInProcess()) {
+            $importInProgress = LengowMain::decodeLogMessage(
                 'toolbox.index.rest_time_to_import',
                 null,
-                array('rest_time' => Shopware_Plugins_Backend_Lengow_Components_LengowImport::restTimeToImport())
+                array('rest_time' => LengowImport::restTimeToImport())
             );
         } else {
             $importInProgress = $this->locale->t('toolbox/index/no_import');
@@ -215,11 +216,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         $checklist = array();
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/global_token'),
-            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig('lengowGlobalToken'),
+            'message' => LengowConfiguration::getConfig('lengowGlobalToken'),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/url_import'),
-            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getImportUrl(),
+            'message' => LengowMain::getImportUrl(),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/import_in_progress'),
@@ -239,35 +240,31 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     /**
      * Get array of requirements and their status
      *
-     * @param \Shopware\Models\Shop\Shop $shop Shopware shop instance
+     * @param ShopModel $shop Shopware shop instance
      *
      * @return string
      */
     public function getInformationByStore($shop)
     {
-        $lengowExport = new Shopware_Plugins_Backend_Lengow_Components_LengowExport($shop, array());
-        $lastExport = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-            'lengowLastExport',
-            $shop
-        );
-        if (is_null($lastExport) || $lastExport === '' || $lastExport == 0) {
+        $lengowExport = new LengowExport($shop, array());
+        $lastExportDate = LengowConfiguration::getConfig('lengowLastExport', $shop);
+        if ($lastExportDate === null || $lastExportDate === '' || $lastExportDate == 0) {
             $lastExport = $this->locale->t('toolbox/index/last_import_none');
+        } else {
+            $lastExport = LengowMain::getDateInCorrectFormat(strtotime($lastExportDate), true);
         }
         $checklist = array();
-        $shopDomain = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getShopUrl($shop);
+        $shopDomain = LengowMain::getShopUrl($shop);
         $checklist[] = array(
             'header' => $shop->getName() . ' (' . $shop->getId() . ')' . ' - ' . $shopDomain,
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shop_active'),
-            'state' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::shopIsActive($shop) ? 1 : 0,
+            'state' => LengowConfiguration::shopIsActive($shop) ? 1 : 0,
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shop_catalogs_id'),
-            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowCatalogId',
-                $shop
-            ),
+            'message' => LengowConfiguration::getConfig('lengowCatalogId', $shop),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shop_product_total'),
@@ -279,14 +276,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shop_export_token'),
-            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getConfig(
-                'lengowShopToken',
-                $shop
-            ),
+            'message' => LengowConfiguration::getConfig('lengowShopToken', $shop),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/url_export'),
-            'message' => Shopware_Plugins_Backend_Lengow_Components_LengowMain::getExportUrl($shop),
+            'message' => LengowMain::getExportUrl($shop),
         );
         $checklist[] = array(
             'title' => $this->locale->t('toolbox/index/shop_last_export'),
@@ -303,7 +297,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
     public function checkFileMd5()
     {
         $checklist = array();
-        $pluginPath = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder();
+        $pluginPath = LengowMain::getLengowFolder();
         $fileName = $pluginPath . 'Toolbox' . DIRECTORY_SEPARATOR . 'checkmd5.csv';
         $html = '<h3><i class="fa fa-commenting"></i> ' . $this->locale->t('toolbox/checksum/summary') . '</h3>';
         $fileCounter = 0;
@@ -338,12 +332,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
                 'state' => 1,
             );
             $checklist[] = array(
-                'title' => $this->locale->t('toolbox/checksum/file_modified', array('nb_file' => count($fileErrors))),
-                'state' => count($fileErrors) > 0 ? 0 : 1,
+                'title' => $this->locale->t('toolbox/checksum/file_modified', array('nb_file' => $totalFileInError)),
+                'state' => !empty($fileErrors) ? 0 : 1,
             );
             $checklist[] = array(
-                'title' => $this->locale->t('toolbox/checksum/file_deleted', array('nb_file' => count($fileDeletes))),
-                'state' => count($fileDeletes) > 0 ? 0 : 1,
+                'title' => $this->locale->t('toolbox/checksum/file_deleted', array('nb_file' => $totalFileDeleted)),
+                'state' => !empty($fileDeletes) ? 0 : 1,
             );
             $html .= $this->getAdminContent($checklist);
             if ($totalFileInError > 0) {

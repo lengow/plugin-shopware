@@ -28,6 +28,9 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware_Plugins_Backend_Lengow_Components_LengowElements as LengowElements;
+use Shopware_Plugins_Backend_Lengow_Components_LengowSync as LengowSync;
+
 /**
  * Backend Lengow Home Controller
  */
@@ -38,14 +41,12 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
      */
     public function getHomeContentAction()
     {
-        $status = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatusAccount();
+        $status = LengowSync::getStatusAccount();
         $showTabBar = false;
         if ($status['type'] === 'free_trial' && $status['expired']) {
-            $htmlContent = Shopware_Plugins_Backend_Lengow_Components_LengowElements::getEndFreeTrial();
-        } elseif ($status['type'] === 'bad_payer') {
-            $htmlContent = Shopware_Plugins_Backend_Lengow_Components_LengowElements::getBadPayer();
+            $htmlContent = LengowElements::getEndFreeTrial();
         } else {
-            $htmlContent = Shopware_Plugins_Backend_Lengow_Components_LengowElements::getDashboard();
+            $htmlContent = LengowElements::getDashboard();
             $showTabBar = true;
         }
         $this->View()->assign(

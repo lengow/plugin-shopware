@@ -42,7 +42,8 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
                         panelHtml: data['panelHtml'],
                         isSync: false,
                         syncLink: false,
-                        langIsoCode: data['langIsoCode']
+                        langIsoCode: data['langIsoCode'],
+                        lengowUrl: data['lengowUrl']
                     }).show();
                     me.mainWindow.initFrame();
                 }
@@ -53,7 +54,7 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
     },
 
     /**
-     * Get preprod/trial translations and html before updating concerned labels created in the toolbar
+     * Get debug/trial translations and html before updating concerned labels created in the toolbar
      */
     onInitToolbar: function() {
         Ext.Ajax.request({

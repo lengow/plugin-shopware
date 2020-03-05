@@ -28,6 +28,10 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware_Plugins_Backend_Lengow_Components_LengowException as LengowException;
+use Shopware_Plugins_Backend_Lengow_Components_LengowFile as LengowFile;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+
 /**
  * Lengow Log Class
  */
@@ -35,12 +39,52 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     extends Shopware_Plugins_Backend_Lengow_Components_LengowFile
 {
     /**
+     * @var string install log code
+     */
+    const CODE_INSTALL = 'Install';
+
+    /**
+     * @var string setting log code
+     */
+    const CODE_SETTING = 'Setting';
+
+    /**
+     * @var string connector log code
+     */
+    const CODE_CONNECTOR = 'Connector';
+
+    /**
+     * @var string export log code
+     */
+    const CODE_EXPORT = 'Export';
+
+    /**
+     * @var string import log code
+     */
+    const CODE_IMPORT = 'Import';
+
+    /**
+     * @var string action log code
+     */
+    const CODE_ACTION = 'Action';
+
+    /**
+     * @var string mail report code
+     */
+    const CODE_MAIL_REPORT = 'Mail Report';
+
+    /**
+     * @var string orm code
+     */
+    const CODE_ORM = 'Orm';
+
+    /**
      * @var string name of logs folder
      */
     public static $lengowLogFolder = 'Logs';
 
     /**
-     * @var Shopware_Plugins_Backend_Lengow_Components_LengowFile Lengow file instance
+     * @var LengowFile Lengow file instance
      */
     protected $file;
 
@@ -49,7 +93,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
      *
      * @param string $fileName|null log file name
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException
+     * @throws LengowException
      */
     public function __construct($fileName = null)
     {
@@ -58,10 +102,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
         } else {
             $this->fileName = $fileName;
         }
-        $this->file = new Shopware_Plugins_Backend_Lengow_Components_LengowFile(
-            self::$lengowLogFolder,
-            $this->fileName
-        );
+        $this->file = new LengowFile(self::$lengowLogFolder, $this->fileName);
     }
 
     /**
@@ -74,7 +115,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
      */
     public function write($category, $message = '', $display = false, $marketplaceSku = null)
     {
-        $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($message);
+        $decodedMessage = LengowMain::decodeLogMessage($message);
         $log = date('Y-m-d H:i:s');
         $log .= ' - ' . (empty($category) ? '' : '[' . $category . '] ');
         $log .= '' . (empty($marketplaceSku) ? '' : 'order ' . $marketplaceSku . ': ');
@@ -129,7 +170,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
      */
     public static function getFiles()
     {
-        return Shopware_Plugins_Backend_Lengow_Components_LengowFile::getFilesFromFolder(self::$lengowLogFolder);
+        return LengowFile::getFilesFromFolder(self::$lengowLogFolder);
     }
 
     /**
@@ -140,8 +181,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     public static function download($file = null)
     {
         if ($file && preg_match('/^logs-([0-9]{4}-[0-9]{2}-[0-9]{2})\.txt$/', $file, $match)) {
-            $filename = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder() .
-                self::$lengowLogFolder . '/' . $file;
+            $filename = LengowMain::getLengowFolder() . self::$lengowLogFolder . '/' . $file;
             $handle = fopen($filename, 'r');
             $contents = fread($handle, filesize($filename));
             header('Content-type: text/plain');

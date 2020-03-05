@@ -28,13 +28,30 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware\Components\Model\ModelManager;
+use Shopware\Models\Config\Form as ConfigFormModel;
+use Shopware\Models\Config\FormTranslation as ConfigFormTranslationModel;
+use Shopware\Models\Config\Element as ConfigElementModel;
+use Shopware\Models\Config\ElementTranslation as ConfigElementTranslationModel;
+use Shopware\Models\Dispatch\Dispatch as DispatchModel;
+use Shopware\Models\Order\Status as OrderStatusModel;
+use Shopware\Models\Shop\Locale as ShopLocaleModel;
+use Shopware\Models\Snippet\Snippet as SnippetModel;
+use Shopware_Plugins_Backend_Lengow_Bootstrap as LengowBootstrap;
+use Shopware_Plugins_Backend_Lengow_Bootstrap_Database as LengowBootstrapDatabase;
+use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
+use Shopware_Plugins_Backend_Lengow_Components_LengowImport as LengowImport;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
+use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
+
 /**
  * Form Class
  */
 class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
 {
     /**
-     * @var \Shopware\Components\Model\ModelManager Shopware entity manager
+     * @var ModelManager Shopware entity manager
      */
     protected $entityManager;
 
@@ -45,6 +62,9 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         'lengowExportVariationEnabled',
         'lengowExportOutOfStock',
         'lengowEnableImport',
+        'lengowOrderStat',
+        'lengowOrderStatUpdate',
+        'lengowImportPreprodEnabled',
     );
 
     /**
@@ -52,14 +72,14 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
      */
     public function __construct()
     {
-        $this->entityManager = Shopware_Plugins_Backend_Lengow_Bootstrap::getEntityManager();
+        $this->entityManager = LengowBootstrap::getEntityManager();
     }
 
     /**
      * Create basic settings for the plugin
      * Accessible in Configuration/Basic Settings/Additional settings menu
      *
-     * @param \Shopware\Models\Config\Form $mainForm Lengow main form
+     * @param Form $mainForm Lengow main form
      * @param string|false $version current plugin version installed
      */
     public function createConfig($mainForm, $version = false)
@@ -98,7 +118,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'editable' => false,
                 'value' => 0,
                 'description' => 'settings/lengow_main_settings/enable/description',
-                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+                'scope' => ConfigElementModel::SCOPE_SHOP,
             ),
             'lengowCatalogId' => array(
                 'type' => 'text',
@@ -106,7 +126,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'required' => true,
                 'value' => 0,
                 'description' => 'settings/lengow_main_settings/catalog/description',
-                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+                'scope' => ConfigElementModel::SCOPE_SHOP,
             ),
             'lengowIpEnabled' => array(
                 'type' => 'boolean',
@@ -151,7 +171,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'editable' => false,
                 'value' => false,
                 'description' => 'settings/lengow_export_settings/disabled_products/description',
-                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+                'scope' => ConfigElementModel::SCOPE_SHOP,
             ),
             'lengowExportSelectionEnabled' => array(
                 'type' => 'boolean',
@@ -160,7 +180,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'editable' => false,
                 'value' => false,
                 'description' => 'settings/lengow_export_settings/lengow_selection/description',
-                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+                'scope' => ConfigElementModel::SCOPE_SHOP,
             ),
             'lengowDefaultDispatcher' => array(
                 'type' => 'select',
@@ -170,7 +190,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'value' => $dispatches['default_value'],
                 'store' => $dispatches['selection'],
                 'description' => 'settings/lengow_export_settings/dispatcher/description',
-                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+                'scope' => ConfigElementModel::SCOPE_SHOP,
             ),
         );
         // auto-generate form
@@ -201,22 +221,22 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'value' => $dispatches['default_value'],
                 'store' => $dispatches['selection'],
                 'description' => 'settings/lengow_import_settings/dispatcher/description',
-                'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+                'scope' => ConfigElementModel::SCOPE_SHOP,
             ),
             'lengowImportDays' => array(
                 'type' => 'number',
                 'label' => 'settings/lengow_import_settings/import_days/label',
                 'value' => 3,
-                'minValue' => 1,
-                'maxValue' => 10,
+                'minValue' => (LengowImport::MIN_INTERVAL_TIME / 86400),
+                'maxValue' => (LengowImport::MAX_INTERVAL_TIME / 86400),
                 'editable' => false,
                 'description' => 'settings/lengow_import_settings/import_days/description',
             ),
-            'lengowImportPreprodEnabled' => array(
+            'lengowImportDebugEnabled' => array(
                 'type' => 'boolean',
-                'label' => 'settings/lengow_import_settings/preprod_mode/label',
+                'label' => 'settings/lengow_import_settings/debug_mode/label',
                 'value' => false,
-                'description' => 'settings/lengow_import_settings/preprod_mode/description',
+                'description' => 'settings/lengow_import_settings/debug_mode/description',
             ),
             'lengowImportReportMailEnabled' => array(
                 'type' => 'boolean',
@@ -240,7 +260,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'label' => 'settings/lengow_order_status_settings/id_waiting_shipment/label',
                 'required' => true,
                 'editable' => false,
-                'value' => $orderStates['waiting_shipment'],
+                'value' => $orderStates[LengowOrder::STATE_WAITING_SHIPMENT],
                 'store' => $orderStates['selection'],
             ),
             'lengowIdShipped' => array(
@@ -248,7 +268,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'label' => 'settings/lengow_order_status_settings/id_shipped/label',
                 'required' => true,
                 'editable' => false,
-                'value' => $orderStates['shipped'],
+                'value' => $orderStates[LengowOrder::STATE_SHIPPED],
                 'store' => $orderStates['selection'],
             ),
             'lengowIdCanceled' => array(
@@ -256,7 +276,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'label' => 'settings/lengow_order_status_settings/id_canceled/label',
                 'required' => true,
                 'editable' => false,
-                'value' => $orderStates['canceled'],
+                'value' => $orderStates[LengowOrder::STATE_CANCELED],
                 'store' => $orderStates['selection'],
             ),
             'lengowIdShippedByMp' => array(
@@ -264,7 +284,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'label' => 'settings/lengow_order_status_settings/id_shipped_by_mp/label',
                 'required' => true,
                 'editable' => false,
-                'value' => $orderStates['shipped'],
+                'value' => $orderStates[LengowOrder::STATE_SHIPPED],
                 'store' => $orderStates['selection'],
             ),
         );
@@ -274,7 +294,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         $forms = array($mainSettingForm, $exportSettingForm, $importSettingForm, $orderStatusSettingForm);
         $mainForm->setChildren($forms);
         // translate sub categories (sub-forms settings names)
-        /** @var Shopware\Models\Shop\Locale[] $locales */
+        /** @var ShopLocaleModel[] $locales */
         $locales = $this->entityManager->getRepository('\Shopware\Models\Shop\Locale')->findAll();
         foreach ($forms as $form) {
             $formName = $form->getName();
@@ -282,10 +302,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             foreach ($locales as $locale) {
                 $isoCode = $locale->getLocale();
                 // if the locale has been translated in Lengow
-                if (Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::containsIso($isoCode)) {
+                if (LengowTranslation::containsIso($isoCode)) {
                     $formLabel = $this->getTranslation('settings/' . $formName . '/label', $isoCode);
                     $formDescription = $this->getTranslation('settings/' . $formName . '/description', $isoCode);
-                    $translationModel = new \Shopware\Models\Config\FormTranslation();
+                    $translationModel = new ConfigFormTranslationModel();
                     $translationModel->setLabel($formLabel);
                     $translationModel->setDescription($formDescription);
                     $translationModel->setLocale($locale);
@@ -293,7 +313,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 }
             }
         }
-        Shopware_Plugins_Backend_Lengow_Bootstrap::log('log/install/add_form', array('formName' => 'Lengow'));
+        LengowBootstrap::log('log/install/add_form', array('formName' => 'Lengow'));
     }
 
     /**
@@ -304,19 +324,17 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         foreach ($this->oldSettings as $setting) {
             $element = $this->entityManager->getRepository('\Shopware\Models\Config\Element')
                 ->findOneBy(array('name' => $setting));
+            if ($element === null && LengowBootstrapDatabase::tableExist('s_lengow_settings')) {
+                $element = $this->entityManager->getRepository('\Shopware\CustomModels\Lengow\Settings')
+                    ->findOneBy(array('name' => $setting));
+            }
             if ($element) {
                 try {
                     $this->entityManager->remove($element);
                     $this->entityManager->flush();
-                    Shopware_Plugins_Backend_Lengow_Bootstrap::log(
-                        'log/install/delete_old_setting',
-                        array('name' => $setting)
-                    );
+                    LengowBootstrap::log('log/install/delete_old_setting', array('name' => $setting));
                 } catch (Exception $e) {
-                    Shopware_Plugins_Backend_Lengow_Bootstrap::log(
-                        'log/install/delete_old_setting_error',
-                        array('name' => $setting)
-                    );
+                    LengowBootstrap::log('log/install/delete_old_setting_error', array('name' => $setting));
                 }
             }
         }
@@ -328,18 +346,18 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
      * @param string $name name of the form
      * @param array $elements options for this form
      *
-     * @return \Shopware\Models\Config\Form
+     * @return ConfigFormModel
      */
     protected function createSettingForm($name, $elements)
     {
         $form = $this->entityManager->getRepository('\Shopware\Models\Config\Form')->findOneBy(array('name' => $name));
-        if (is_null($form)) {
-            $form = new \Shopware\Models\Config\Form;
+        if ($form === null) {
+            $form = new ConfigFormModel();
             $form->setName($name);
             $form->setLabel($this->getTranslation('settings/' . $name . '/label'));
             $form->setDescription($this->getTranslation('settings/' . $name . '/description'));
         }
-        /** @var Shopware\Models\Shop\Locale[] $locales */
+        /** @var ShopLocaleModel[] $locales */
         $locales = $this->entityManager->getRepository('\Shopware\Models\Shop\Locale')->findAll();
         foreach ($elements as $key => $options) {
             $type = $options['type'];
@@ -352,13 +370,13 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             // translate fields for this form
             foreach ($locales as $locale) {
                 $isoCode = $locale->getLocale();
-                if (Shopware_Plugins_Backend_Lengow_Components_LengowTranslation::containsIso($isoCode)) {
+                if (LengowTranslation::containsIso($isoCode)) {
                     $label = $this->getTranslation($options['label'], $isoCode);
                     $description = $this->getTranslation($options['description'], $isoCode);
                     $translation = $this->entityManager->getRepository('\Shopware\Models\Config\ElementTranslation')
                         ->findOneBy(array('element' => $elementModel, 'locale' => $locale));
-                    if (is_null($translation)) {
-                        $translation = new \Shopware\Models\Config\ElementTranslation();
+                    if ($translation === null) {
+                        $translation = new ConfigElementTranslationModel();
                         $this->entityManager->persist($translation);
                         $elementModel->addTranslation($translation);
                     }
@@ -368,7 +386,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 }
             }
         }
-        Shopware_Plugins_Backend_Lengow_Bootstrap::log('log/install/settings', array('settingName' => $name));
+        LengowBootstrap::log('log/install/settings', array('settingName' => $name));
         return $form;
     }
 
@@ -395,13 +413,13 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
      */
     protected function getDispatches()
     {
-        /** @var Shopware\Models\Dispatch\Dispatch[] $dispatches */
+        /** @var DispatchModel[] $dispatches */
         $dispatches = $this->entityManager->getRepository('Shopware\Models\Dispatch\Dispatch')
             ->findBy(array('type' => 0));
         $selection = array();
         $defaultValue = null;
         // default dispatcher used to get shipping fees in export
-        if (count($dispatches) > 0) {
+        if (!empty($dispatches)) {
             $defaultValue = $dispatches[0]->getId();
         }
         foreach ($dispatches as $dispatch) {
@@ -421,15 +439,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
     protected function getOrderStates()
     {
         $selection = array();
-        $shop = Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration::getDefaultShop();
-        /** @var Shopware\Models\Order\Status[] $orderStates */
+        $shop = LengowConfiguration::getDefaultShop();
+        /** @var OrderStatusModel[] $orderStates */
         $orderStates = $this->entityManager->getRepository('Shopware\Models\Order\Status')
             ->findBy(array('group' => 'state'));
         // default dispatcher used to get shipping fees in export
         foreach ($orderStates as $orderState) {
             if ($orderState->getId() != -1) {
-                if (Shopware_Plugins_Backend_Lengow_Components_LengowMain::compareVersion('5.5.0')) {
-                    /** @var Shopware\Models\Snippet\Snippet $orderStateSnippet */
+                if (LengowMain::compareVersion('5.5.0')) {
+                    /** @var SnippetModel $orderStateSnippet */
                     $orderStateSnippet = $this->entityManager->getRepository('Shopware\Models\Snippet\Snippet')
                         ->findOneBy(
                             array(
@@ -448,13 +466,12 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             }
         }
         return array(
-            'waiting_shipment' => 1,
-            'shipped' => 2,
-            'canceled' => 4,
+            LengowOrder::STATE_WAITING_SHIPMENT => 1,
+            LengowOrder::STATE_SHIPPED => 2,
+            LengowOrder::STATE_CANCELED => 4,
             'selection' => $selection,
         );
     }
-
 
     /**
      * Active Lengow tracker for versions 1.0.0 - 1.3.3
@@ -466,9 +483,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
     protected function getTrackingEnable($version)
     {
         $value = false;
-        if ($version && version_compare($version, '1.4.0', '<') &&
-            !Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant()
-        ) {
+        if ($version && version_compare($version, '1.4.0', '<') && !LengowConfiguration::isNewMerchant()) {
             $value = true;
         }
         return $value;
@@ -484,7 +499,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
      */
     protected function getTranslation($key, $isoCode = null)
     {
-        $translation = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($key, $isoCode);
+        $translation = LengowMain::decodeLogMessage($key, $isoCode);
         return stripslashes($translation);
     }
 }

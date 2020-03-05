@@ -28,6 +28,10 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware_Plugins_Backend_Lengow_Components_LengowException as LengowException;
+use Shopware_Plugins_Backend_Lengow_Components_LengowFile as LengowFile;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+
 /**
  * Lengow File Class
  */
@@ -60,7 +64,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
      * @param string|null $fileName Lengow file name
      * @param string $mode type of access
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException unable to create file
+     * @throws LengowException
      */
     public function __construct($folderName, $fileName = null, $mode = 'a+')
     {
@@ -68,8 +72,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
         $this->folderName = $folderName;
         $this->instance = self::getResource($this->getPath(), $mode);
         if (!is_resource($this->instance)) {
-            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+            throw new LengowException(
+                LengowMain::setLogMessage(
                     'log/export/error_unable_to_create_file',
                     array(
                         'file_name' => $fileName,
@@ -139,8 +143,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
                 $this->link = null;
             }
             $sep = DIRECTORY_SEPARATOR;
-            $base = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getBaseUrl();
-            $lengowDir = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getPathPlugin();
+            $base = LengowMain::getBaseUrl();
+            $lengowDir = LengowMain::getPathPlugin();
             $this->link = $base . $lengowDir . $this->folderName . $sep . $this->fileName;
         }
         return $this->link;
@@ -218,9 +222,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
         foreach ($folderContent as $file) {
             try {
                 if (!preg_match('/^\.[a-zA-Z\.]+$|^\.$|index\.php/', $file)) {
-                    $files[] = new Shopware_Plugins_Backend_Lengow_Components_LengowFile($folder, $file);
+                    $files[] = new LengowFile($folder, $file);
                 }
-            } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
+            } catch (LengowException $e) {
                 continue;
             }
         }

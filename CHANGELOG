@@ -1,4 +1,18 @@
 =============================================================
+Version 1.5.0
+=============================================================
+
+    - Feature: Refactoring and optimization of the connector class
+    - Feature: Optimization of API calls for synchronisation of orders and actions
+    - Feature: [import] Protection of the import of anonymized orders
+    - Feature: [import] Protection of the import of orders older than 3 months
+    - Feature: Display of an alert when the plugin is no longer up to date
+    - Feature: Renaming from Preprod Mode to Debug Mode
+    - Bugfix: Refactoring and optimization of dates with the correct locale
+    - Bugfix: [action] Improved carrier matching with a strict then approximate search
+    - Bugfix: [import] Enhanced security for orders that change their marketplace name
+
+=============================================================
 Version 1.4.3
 =============================================================
 

@@ -28,6 +28,9 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware\CustomModels\Lengow\Order as LengowOrderModel;
+use Shopware\CustomModels\Lengow\OrderError as LengowOrderErrorModel;
+
 /**
  * Lengow Order Error Class
  */
@@ -46,7 +49,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrderError
     /**
      * Create an order error
      *
-     * @param \Shopware\CustomModels\Lengow\Order|integer $lengowOrder Lengow order instance
+     * @param LengowOrderModel|integer $lengowOrder Lengow order instance
      * @param string $message error message
      * @param string $type error type (import or send)
      *
@@ -60,7 +63,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrderError
                 $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
                     ->findOneBy(array('id' => $lengowOrder));
             }
-            $orderError = new Shopware\CustomModels\Lengow\OrderError();
+            $orderError = new LengowOrderErrorModel();
             $orderError->setLengowOrder($lengowOrder)
                 ->setMessage($message)
                 ->setType($errorType)
@@ -144,7 +147,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrderError
                 )
             );
         $results = $builder->getQuery()->getResult();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             foreach ($results as $result) {
                 self::updateOrderError((int)$result['id'], array('is_finished' => true));
             }
@@ -174,7 +177,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrderError
                 )
             );
         $results = $builder->getQuery()->getResult();
-        if (count($results) > 0) {
+        if (!empty($results)) {
             return $results;
         }
         return false;

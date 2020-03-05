@@ -28,6 +28,8 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware_Plugins_Backend_Lengow_Components_LengowSync as LengowSync;
+
 /**
  * Backend Lengow Sync Controller
  */
@@ -47,7 +49,7 @@ class Shopware_Controllers_Backend_LengowSync extends Shopware_Controllers_Backe
                 case 'get_sync_data':
                     $data = array();
                     $data['function'] = 'sync';
-                    $data['parameters'] = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getSyncData();
+                    $data['parameters'] = LengowSync::getSyncData();
                     $this->View()->assign(
                         array(
                             'success' => true,
@@ -57,11 +59,11 @@ class Shopware_Controllers_Backend_LengowSync extends Shopware_Controllers_Backe
                     break;
                 case 'sync':
                     $data = json_decode($this->Request()->getParam('data', false), true);
-                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::sync($data);
-                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatusAccount(true);
+                    LengowSync::sync($data);
+                    LengowSync::getStatusAccount(true);
                     break;
                 case 'refresh_status':
-                    Shopware_Plugins_Backend_Lengow_Components_LengowSync::getStatusAccount(true);
+                    LengowSync::getStatusAccount(true);
                     break;
             }
         } else {

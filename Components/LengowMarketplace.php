@@ -28,6 +28,16 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware\Models\Order\Order as OrderModel;
+use Shopware\CustomModels\Lengow\Order as LengowOrderModel;
+use Shopware_Plugins_Backend_Lengow_Components_LengowAction as LengowAction;
+use Shopware_Plugins_Backend_Lengow_Components_LengowException as LengowException;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
+use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
+use Shopware_Plugins_Backend_Lengow_Components_LengowOrderError as LengowOrderError;
+use Shopware_Plugins_Backend_Lengow_Components_LengowSync as LengowSync;
+
 /**
  * Lengow Marketplace Class
  */
@@ -42,8 +52,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      * @var array all valid actions
      */
     public static $validActions = array(
-        'ship',
-        'cancel',
+        LengowAction::TYPE_SHIP,
+        LengowAction::TYPE_CANCEL,
     );
 
     /**
@@ -101,15 +111,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      *
      * @param string $name name of the marketplace
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException marketplace not present
+     * @throws LengowException marketplace not present
      */
     public function __construct($name)
     {
         $this->loadApiMarketplace();
         $this->name = strtolower($name);
         if (!isset(self::$marketplaces->{$this->name})) {
-            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+            throw new LengowException(
+                LengowMain::setLogMessage(
                     'lengow_log/exception/marketplace_not_present',
                     array('marketplace_name' => $this->name)
                 )
@@ -171,7 +181,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     public function loadApiMarketplace()
     {
         if (!self::$marketplaces) {
-            self::$marketplaces = Shopware_Plugins_Backend_Lengow_Components_LengowSync::getMarketplaces();
+            self::$marketplaces = LengowSync::getMarketplaces();
         }
     }
 
@@ -183,8 +193,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     public static function getFilePath()
     {
         $sep = DIRECTORY_SEPARATOR;
-        $folderPath = Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLengowFolder();
-        $configFolder = Shopware_Plugins_Backend_Lengow_Components_LengowMain::$lengowConfigFolder;
+        $folderPath = LengowMain::getLengowFolder();
+        $configFolder = LengowMain::$lengowConfigFolder;
         return $folderPath . $sep . $configFolder . $sep . self::$marketplaceJson;
     }
 
@@ -248,12 +258,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
         if (isset($this->actions[$action])) {
             $actions = $this->actions[$action];
             if (isset($actions['args']) && is_array($actions['args'])) {
-                if (in_array('line', $actions['args'])) {
+                if (in_array(LengowAction::ARG_LINE, $actions['args'])) {
                     return true;
                 }
             }
             if (isset($actions['optional_args']) && is_array($actions['optional_args'])) {
-                if (in_array('line', $actions['optional_args'])) {
+                if (in_array(LengowAction::ARG_LINE, $actions['optional_args'])) {
                     return true;
                 }
             }
@@ -265,13 +275,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      * Call Action with marketplace
      *
      * @param string $action order action (ship or cancel)
-     * @param \Shopware\Models\Order\Order $order Shopware order instance
-     * @param \Shopware\CustomModels\Lengow\Order $lengowOrder Lengow order instance
+     * @param OrderModel $order Shopware order instance
+     * @param LengowOrderModel $lengowOrder Lengow order instance
      * @param string|null $orderLineId Lengow order line id
      *
-     * @throws Exception|Shopware_Plugins_Backend_Lengow_Components_LengowException action not valid
-     *      marketplace action not present / store id is required /marketplace name is required
-     *      argument is required / action not created
+     * @throws Exception|LengowException
      *
      * @return boolean
      */
@@ -288,42 +296,35 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
             // check required arguments and clean value for empty optionals arguments
             $params = $this->checkAndCleanParams($action, $params);
             // complete the values with the specific values of the account
-            if (!is_null($orderLineId)) {
-                $params['line'] = $orderLineId;
+            if ($orderLineId !== null) {
+                $params[LengowAction::ARG_LINE] = $orderLineId;
             }
             $params['marketplace_order_id'] = $lengowOrder->getMarketplaceSku();
             $params['marketplace'] = $lengowOrder->getMarketplaceName();
-            $params['action_type'] = $action;
+            $params[LengowAction::ARG_ACTION_TYPE] = $action;
             // checks whether the action is already created to not return an action
-            $canSendAction = Shopware_Plugins_Backend_Lengow_Components_LengowAction::canSendAction($params, $order);
+            $canSendAction = LengowAction::canSendAction($params, $order);
             if ($canSendAction) {
                 // send a new action on the order via the Lengow API
-                Shopware_Plugins_Backend_Lengow_Components_LengowAction::sendAction($params, $order, $lengowOrder);
+                LengowAction::sendAction($params, $order, $lengowOrder);
             }
-        } catch (Shopware_Plugins_Backend_Lengow_Components_LengowException $e) {
+        } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (Exception $e) {
             $errorMessage = '[Shopware error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
         }
         if (isset($errorMessage)) {
-            $processStateFinish = Shopware_Plugins_Backend_Lengow_Components_LengowOrder::getOrderProcessState(
-                'closed'
-            );
-            if ($lengowOrder->getOrderProcessState() !== $processStateFinish) {
-                Shopware_Plugins_Backend_Lengow_Components_LengowOrderError::createOrderError(
-                    $lengowOrder,
-                    $errorMessage,
-                    'send'
-                );
+            if ($lengowOrder->getOrderProcessState() !== LengowOrder::getOrderProcessState(LengowOrder::STATE_CLOSED)) {
+                LengowOrderError::createOrderError($lengowOrder, $errorMessage, 'send');
                 try {
                     $lengowOrder->setInError(true);
                     Shopware()->Models()->flush($lengowOrder);
                 } catch (Exception $e) {
                     $doctrineError = '[Doctrine error] "' . $e->getMessage() . '" '
                         . $e->getFile() . ' | ' . $e->getLine();
-                    Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                        'Orm',
-                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+                    LengowMain::log(
+                        LengowLog::CODE_ORM,
+                        LengowMain::setLogMessage(
                             'log/exception/order_insert_failed',
                             array('decoded_message' => $doctrineError)
                         ),
@@ -332,12 +333,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                     );
                 }
             }
-            $decodedMessage = Shopware_Plugins_Backend_Lengow_Components_LengowMain::decodeLogMessage($errorMessage);
-            Shopware_Plugins_Backend_Lengow_Components_LengowMain::log(
-                'API-OrderAction',
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+            LengowMain::log(
+                LengowLog::CODE_ACTION,
+                LengowMain::setLogMessage(
                     'log/order_action/call_action_failed',
-                    array('decoded_message' => $decodedMessage)
+                    array('decoded_message' => LengowMain::decodeLogMessage($errorMessage))
                 ),
                 false,
                 $lengowOrder->getMarketplaceSku()
@@ -352,22 +352,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      *
      * @param string $action Lengow order actions type (ship or cancel)
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException action not valid
-     *      marketplace action not present
+     * @throws LengowException
      */
     protected function checkAction($action)
     {
         if (!in_array($action, self::$validActions)) {
-            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'lengow_log/exception/action_not_valid',
-                    array('action' => $action)
-                )
+            throw new LengowException(
+                LengowMain::setLogMessage('lengow_log/exception/action_not_valid', array('action' => $action))
             );
         }
         if (!$this->getAction($action)) {
-            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
+            throw new LengowException(
+                LengowMain::setLogMessage(
                     'lengow_log/exception/marketplace_action_not_present',
                     array('action' => $action)
                 )
@@ -378,26 +374,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     /**
      * Check if the essential data of the order are present
      *
-     * @param \Shopware\CustomModels\Lengow\Order $lengowOrder Lengow order instance
+     * @param LengowOrderModel $lengowOrder Lengow order instance
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException marketplace sku is required
-     *      marketplace name is required
+     * @throws LengowException
      */
     protected function checkOrderData($lengowOrder)
     {
         if (strlen($lengowOrder->getMarketplaceSku()) === 0) {
-            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'lengow_log/exception/marketplace_sku_require'
-                )
-            );
+            throw new LengowException(LengowMain::setLogMessage('lengow_log/exception/marketplace_sku_require'));
         }
         if (strlen($lengowOrder->getMarketplaceName()) === 0) {
-            throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                    'lengow_log/exception/marketplace_name_require'
-                )
-            );
+            throw new LengowException(LengowMain::setLogMessage('lengow_log/exception/marketplace_name_require'));
         }
     }
 
@@ -427,8 +414,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      * Get all available values from an order
      *
      * @param string $action Lengow order actions type (ship or cancel)
-     * @param \Shopware\Models\Order\Order $order Shopware order instance
-     * @param \Shopware\CustomModels\Lengow\Order $lengowOrder Lengow order instance
+     * @param OrderModel $order Shopware order instance
+     * @param LengowOrderModel $lengowOrder Lengow order instance
      * @param array $marketplaceArguments All marketplace arguments for a specific action
      *
      * @return array
@@ -440,26 +427,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
         // get all order data
         foreach ($marketplaceArguments as $arg) {
             switch ($arg) {
-                case 'tracking_number':
+                case LengowAction::ARG_TRACKING_NUMBER:
                     $params[$arg] = $order->getTrackingCode();
                     break;
-                case 'carrier':
-                case 'carrier_name':
-                case 'shipping_method':
-                case 'custom_carrier':
+                case LengowAction::ARG_CARRIER:
+                case LengowAction::ARG_CARRIER_NAME:
+                case LengowAction::ARG_SHIPPING_METHOD:
+                case LengowAction::ARG_CUSTOM_CARRIER:
                     $carrierName = $lengowOrder->getCarrier() != ''
                         ? $lengowOrder->getCarrier()
                         : $this->matchDispatch($order->getDispatch()->getName());
                     $params[$arg] = $carrierName;
                     break;
-                case 'tracking_url':
+                case LengowAction::ARG_TRACKING_URL:
                     $params[$arg] = $order->getDispatch()->getStatusLink();
                     break;
-                case 'shipping_price':
+                case LengowAction::ARG_SHIPPING_PRICE:
                     $params[$arg] = $order->getInvoiceShipping();
                     break;
-                case 'shipping_date':
-                case 'delivery_date':
+                case LengowAction::ARG_SHIPPING_DATE:
+                case LengowAction::ARG_DELIVERY_DATE:
                     $params[$arg] = date('c');
                     break;
                 default:
@@ -481,7 +468,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      * @param string $action Lengow order actions type (ship or cancel)
      * @param array $params all available values
      *
-     * @throws Shopware_Plugins_Backend_Lengow_Components_LengowException argument is required
+     * @throws LengowException
      *
      * @return array
      */
@@ -491,11 +478,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
         if (isset($actions['args'])) {
             foreach ($actions['args'] as $arg) {
                 if (!isset($params[$arg]) || strlen($params[$arg]) === 0) {
-                    throw new Shopware_Plugins_Backend_Lengow_Components_LengowException(
-                        Shopware_Plugins_Backend_Lengow_Components_LengowMain::setLogMessage(
-                            'lengow_log/exception/arg_is_required',
-                            array('arg_name' => $arg)
-                        )
+                    throw new LengowException(
+                        LengowMain::setLogMessage('lengow_log/exception/arg_is_required', array('arg_name' => $arg))
                     );
                 }
             }
@@ -519,20 +503,16 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      */
     protected function matchDispatch($name)
     {
-        if (count($this->carriers) > 0) {
+        if (!empty($this->carriers)) {
             $nameCleaned = $this->cleanString($name);
-            foreach ($this->carriers as $key => $label) {
-                $keyCleaned = $this->cleanString($key);
-                $labelCleaned = $this->cleanString($label);
-                // search on the carrier key
-                $found = $this->searchValue($keyCleaned, $nameCleaned);
-                // search on the carrier label if it is different from the key
-                if (!$found && $labelCleaned !== $keyCleaned) {
-                    $found = $this->searchValue($labelCleaned, $nameCleaned);
-                }
-                if ($found) {
-                    return $key;
-                }
+            // strict search for a chain
+            $result = $this->searchCarrierCode($nameCleaned);
+            // approximate search for a chain
+            if (!$result) {
+                $result = $this->searchCarrierCode($nameCleaned, false);
+            }
+            if ($result) {
+                return $result;
             }
         }
         return $name;
@@ -548,26 +528,52 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     private function cleanString($string)
     {
         $cleanFilters = array(' ', '-', '_', '.');
-        return strtolower(str_replace($cleanFilters, '',  trim($string)));
+        return strtolower(str_replace($cleanFilters, '', trim($string)));
     }
 
     /**
-     * Strict and then approximate search for a chain
+     * Search carrier code in a chain
+     *
+     * @param string $nameCleaned carrier code cleaned
+     * @param boolean $strict strict search
+     *
+     * @return string|false
+     */
+    private function searchCarrierCode($nameCleaned, $strict = true)
+    {
+        $result = false;
+        foreach ($this->carriers as $key => $label) {
+            $keyCleaned = $this->cleanString($key);
+            $labelCleaned = $this->cleanString($label);
+            // search on the carrier key
+            $found = $this->searchValue($keyCleaned, $nameCleaned, $strict);
+            // search on the carrier label if it is different from the key
+            if (!$found && $labelCleaned !== $keyCleaned) {
+                $found = $this->searchValue($labelCleaned, $nameCleaned, $strict);
+            }
+            if ($found) {
+                $result = $key;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Strict or approximate search for a chain
      *
      * @param string $pattern search pattern
      * @param string $subject string to search
+     * @param boolean $strict strict search
      *
      * @return boolean
      */
-    private function searchValue($pattern, $subject)
+    private function searchValue($pattern, $subject, $strict = true)
     {
-        $found = false;
-        if (preg_match('`' . $pattern . '`i', $subject)) {
-            $found = true;
-        } elseif (preg_match('`.*?' . $pattern . '.*?`i', $subject)) {
-            $found = true;
+        if ($strict) {
+            $found = $pattern === $subject ? true : false;
+        } else {
+            $found = preg_match('`.*?' . $pattern . '.*?`i', $subject) ? true : false;
         }
         return $found;
     }
-
 }

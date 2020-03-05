@@ -18,10 +18,6 @@ fr:
       orders_text: "Gérer vos commandes directement sur votre tableau de bord Shopware"
       settings_title: "Paramètres"
       settings_text: "Configurer les paramètres principaux de votre plugin Shopware"
-      partner_business: "Lengow, partenaire de votre activité e-commerce"
-      stat_turnover: "Chiffre d'affaires"
-      stat_nb_orders: "Commandes"
-      stat_more_stats: "Plus de statistiques ?"
       some_help_title: "Besoin d'aide ?"
       get_in_touch: "Prenez contact avec les équipes Lengow."
       visit_help_center: "Visitez notre Help Center"
@@ -34,18 +30,14 @@ fr:
       first_description_end_free_trial: "Vos 15 jours d'essai gratuit sur la plateforme Lengow sont maintenant terminés. Nous espérons qu'ils ont été bénéfiques à votre activité e-commerce."
       second_description_end_free_trial: "Votre compte va être désactivé jusqu'à ce que vous souscriviez à un abonnement sur la plateforme Lengow. Toutes les diffusions en cours ainsi que les importations vont être momentanément stoppées."
       third_description_end_free_trial: "Votre compte d'essai sera supprimé 30 jours après expiration. Pour conserver l'intégralité des paramètres que vous avez défini, pensez à souscrire dès maintenant !"
-      subtitle_bad_payer: "Votre compte est temporairement fermé."
-      first_description_bad_payer: "Nous sommes désolé mais nous devons temporairement limiter l'accès à votre compte car le paiement automatique de votre abonnement n'a pu se faire."
-      second_description_bad_payer: "La publication de vos catalogues est aussi suspendue. Nous vous recommandons de prendre contact avec nous rapidement par mail"
-      phone_bad_payer: "ou par téléphone au +33 (0)2 85 52 64 15."
-      third_description_bad_payer: "Nous espérons vous revoir très rapidement parmi nous."
-      facturation_button: "Voir mes informations de facturation"
       upgrade_account_button: "Je suis prêt à souscrire !"
       refresh_action: "Actualiser mon compte"
   menu:
-    preprod_active: "Mode préproduction"
+    debug_active: "Debug Mode"
     counter: "Période d'essai : %{counter} jours restants"
     upgrade_account: "Mettre à jour"
+    new_version_available: "La nouvelle version %{version} est disponible !"
+    download_plugin: "Télécharger"
   footer:
     legals: "Mentions légales"
     lengow_url: "http://www.lengow.com/fr/"
@@ -127,9 +119,9 @@ fr:
       import_days:
         label: "Synchroniser toutes les commandes mises à jour depuis"
         description: "Choisissez le nombre de jours (Max 10 jours)"
-      preprod_mode:
-        label: "Activer le mode préproduction"
-        description: "Utilisez la pré-production pour tester et simuler des commandes fictives. Pour rappel, vous devez activer ces paramètres UNIQUEMENT sur votre serveur de préproduction."
+      debug_mode:
+        label: "Activer le Debug Mode"
+        description: "Utilisez le Debug Mode pour tester et simuler des commandes fictives. Pour rappel, vous devez activer ce paramètre UNIQUEMENT sur votre serveur de préproduction"
       report_mail_enabled:
         label: "Je veux être notifié en cas de problème lors de l'importation de mes commandes"
       report_mail_address:
@@ -307,11 +299,9 @@ fr:
       no_product_to_cart: "il n'y a pas de produit ajouté au panier"
       country_not_found: "Aucun pays trouvé pour l'iso code %{iso_code}. Merci de l'ajouter dans votre configuration Shopware"
       no_connection_webservice: "la connexion ne se fait pas avec Lengow pour la boutique %{name_shop} (%{id_shop})"
-      error_lengow_webservice: "l'API Lengow : %{error_code} - %{error_message} pour la boutique %{name_shop} (%{id_shop})"
+      error_lengow_webservice: "l'API Lengow : %{error_code} - \"%{error_message}\" pour la boutique %{name_shop} (%{id_shop})"
       shopware_customer_not_saved: "ATTENTION ! Le client n'a pas pu être sauvegardé dans la table user de Shopware"
       shopware_order_not_saved: "ATTENTION ! La commande n'a pas pu être sauvegardée dans la table order de Shopware"
-      timeout_api: "l'API a été bloquée par un timeout"
-      error_curl: "Curl erreur %{error_code} - %{error_message}"
     mail_report:
       subject_report_mail: "Erreur de l'import Lengow"
       order: "Commande %{marketplace_sku}"

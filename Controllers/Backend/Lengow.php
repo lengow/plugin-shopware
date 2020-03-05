@@ -28,6 +28,11 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware_Plugins_Backend_Lengow_Components_LengowConnector as LengowConnector;
+use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
+use Shopware_Plugins_Backend_Lengow_Components_LengowElements as LengowElements;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+
 /**
  * Backend Lengow Controller
  */
@@ -55,22 +60,23 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
                 'success' => true,
                 'data' => array(
                     'panelHtml' => $panelHtml,
-                    'isNewMerchant' => Shopware_Plugins_Backend_Lengow_Components_LengowConnector::isNewMerchant(),
-                    'langIsoCode' => substr(Shopware_Plugins_Backend_Lengow_Components_LengowMain::getLocale(), 0, 2),
+                    'isNewMerchant' => LengowConfiguration::isNewMerchant(),
+                    'langIsoCode' => substr(LengowMain::getLocale(), 0, 2),
+                    'lengowUrl' => LengowConnector::LENGOW_URL,
                 ),
             )
         );
     }
 
     /**
-     * Create toolbar html content. Used to display preprod mod and trial version
+     * Create toolbar html content. Used to display debug mode and trial version
      */
     public function getToolbarContentAction()
     {
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => Shopware_Plugins_Backend_Lengow_Components_LengowElements::getHeader(),
+                'data' => LengowElements::getHeader(),
             )
         );
     }
@@ -84,7 +90,7 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => Shopware_Plugins_Backend_Lengow_Components_LengowElements::getLegals(),
+                'data' => LengowElements::getLegals(),
             )
         );
     }
