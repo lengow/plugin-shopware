@@ -132,6 +132,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     const CODE_200 = 200;
 
     /**
+     * @var string success create code
+     */
+    const CODE_201 = 201;
+
+    /**
      * @var string forbidden access code
      */
     const CODE_403 = 403;
@@ -145,6 +150,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      * @var string timeout server code
      */
     const CODE_504 = 504;
+
+    /**
+     * @var array success HTTP codes for request
+     */
+    protected $successCodes = array(
+        self::CODE_200,
+        self::CODE_201,
+    );
 
     /**
      * @var integer Authorization token lifetime
@@ -588,7 +601,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
                 throw new LengowException($error, self::CODE_500);
             }
         } else {
-            if ($httpCode !== self::CODE_200) {
+            if (!in_array($httpCode, $this->successCodes)) {
                 $result = $this->format($result);
                 // recovery of Lengow Api errors
                 if (isset($result['error'])) {
