@@ -247,7 +247,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                     $params
                 );
             } else {
-                if ($result !== null) {
+                if ($result && $result !== null) {
                     $message = LengowMain::setLogMessage(
                         'lengow_log/exception/action_not_created',
                         array('error_message' => json_encode($result))
