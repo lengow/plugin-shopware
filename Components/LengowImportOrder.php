@@ -161,6 +161,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     protected $orderItems;
 
     /**
+     * @var array order types (is_express, is_prime...)
+     */
+    protected $orderTypes;
+
+    /**
      * @var array order articles
      */
     protected $articles;
@@ -354,6 +359,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             );
             return false;
         }
+        // load order types data
+        $this->loadOrderTypesData();
         // create a new record in lengow order table if not exist
         if ($lengowOrder === null) {
             // created a record in the lengow order table
@@ -674,6 +681,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     }
 
     /**
+     * Get order types data and update Lengow order record
+     */
+    protected function loadOrderTypesData()
+    {
+        $orderTypes = array();
+        if ($this->orderData->order_types !== null && !empty($this->orderData->order_types)) {
+            foreach ($this->orderData->order_types as $orderType) {
+                $orderTypes[$orderType->type] = $orderType->label;
+                if ($orderType->type === LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE) {
+                    $this->shippedByMp = true;
+                }
+            }
+        }
+        $this->orderTypes = $orderTypes;
+    }
+
+    /**
      * Get order amount
      *
      * @return float
@@ -722,16 +746,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
      */
     protected function loadTrackingData()
     {
-        $trackings = $this->packageData->delivery->trackings;
-        if (!empty($trackings)) {
-            $tracking = $trackings[0];
+        $tracks = $this->packageData->delivery->trackings;
+        if (!empty($tracks)) {
+            $tracking = $tracks[0];
             $this->carrierName = $tracking->carrier !== null ? (string)$tracking->carrier : null;
             $this->carrierMethod = $tracking->method !== null ? (string)$tracking->method : null;
             $this->trackingNumber = $tracking->number !== null ? (string)$tracking->number : null;
             $this->relayId = $tracking->relay->id !== null ? (string)$tracking->relay->id : null;
-            if ($tracking->is_delivered_by_marketplace !== null && $tracking->is_delivered_by_marketplace) {
-                $this->shippedByMp = true;
-            }
         }
     }
 
@@ -915,6 +936,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 ->setMarketplaceName($this->marketplace->name)
                 ->setMarketplaceLabel($this->marketplaceLabel)
                 ->setOrderLengowState($this->orderStateLengow)
+                ->setOrderTypes(json_encode($this->orderTypes))
                 ->setMessage($message)
                 ->setOrderDate(new DateTime(date('Y-m-d H:i:s', strtotime($orderDate))))
                 ->setCreatedAt(new DateTime())

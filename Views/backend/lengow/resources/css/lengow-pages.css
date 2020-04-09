@@ -87,8 +87,8 @@
 }
 
 body.lgw-home-iframe button {
-  margin: 15px auto!important;
-  display: block!important;
+  margin: 15px auto !important;
+  display: block !important;
   font-size: inherit;
 }
 
@@ -130,7 +130,7 @@ body.lgw-home-iframe .lgw-content-section p {
 .lengow_shop_status_label {
   color: #555;
   margin-top: 5px;
-  font: 400 12px/1.42857 "Open Sans",Helvetica,Arial,sans-serif;
+  font: 400 12px/1.42857 "Open Sans", Helvetica, Arial, sans-serif;
 }
 
 .lengow_shop_status_label span {
@@ -138,7 +138,7 @@ body.lgw-home-iframe .lgw-content-section p {
 }
 
 .lengow_shop_status_label a {
-  color:#555;
+  color: #555;
   text-decoration: underline;
 }
 
@@ -230,4 +230,22 @@ body.lgw-home-iframe .lgw-content-section p {
 #lgw-synchronize-order,
 #lgw-reimport-order {
   padding: 2px 5px;
+}
+
+span.lengow_action {
+  color: #fff;
+  font-weight: bold;
+  padding-right: 15px;
+}
+
+span.lengow_action:after {
+  content: '';
+  background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAABAklEQVQ4jcWSsS5EURCGvxEiFBuFFdqVrE2U2l2l6NU8wSZqWZWInhfwAt5ieQM6WylYhUYkaD7NuXFc9ya7UfibyZyZ7z8ncwb+qKgrqAEsAxERzxM7qk31Qh37rbF6rHbUF7VdB6+rowx8VT+y/C3F/YKZyeAl4BpopbgNNCJiHugBd8Biau8U3Gz2gD6wCgyBnYh4z2pbwGaWb1QZzAEj4KgEA1wCD8BauuSmcgb/K3VXPVX76p7aqOjppl86qTK48qcOS/UFdZhqgyqDswy+VbvpPNReBj+mL/9lcFBaFtXPtEyF7tVW3QzaaU076kB9Kq3yudqcdKaF6crU0LT6AhpCGITI3a7YAAAAAElFTkSuQmCC');
+  background-size: cover;
+  position: absolute;
+  margin-top: -1px;
+  margin-left: 2px;
+  width: 15px;
+  height: 15px;
+  color: #FFF;
 }
