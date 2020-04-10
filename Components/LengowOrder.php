@@ -95,6 +95,31 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     const STATE_REFUNDED = 'refunded';
 
     /**
+     * @var string order type prime
+     */
+    const TYPE_PRIME = 'is_prime';
+
+    /**
+     * @var string order type express
+     */
+    const TYPE_EXPRESS = 'is_express';
+
+    /**
+     * @var string order type business
+     */
+    const TYPE_BUSINESS = 'is_business';
+
+    /**
+     * @var string order type delivered by marketplace
+     */
+    const TYPE_DELIVERED_BY_MARKETPLACE = 'is_delivered_by_marketplace';
+
+    /**
+     * @var string label fulfillment for old orders without order type
+     */
+    const LABEL_FULFILLMENT = 'Fulfillment';
+
+    /**
      * Get Shopware order id from lengow order table
      *
      * @param string $marketplaceSku Lengow order id
@@ -726,6 +751,57 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             return false;
         }
         return true;
+    }
+
+    /**
+     * Check if order is express
+     *
+     * @param LengowOrderModel $lengowOrder Lengow order instance
+     *
+     * @return boolean
+     */
+    public static function isExpress($lengowOrder)
+    {
+        $orderTypes = (string)$lengowOrder->getOrderTypes();
+        $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : array();
+        if (isset($orderTypes[self::TYPE_EXPRESS]) || isset($orderTypes[self::TYPE_PRIME])) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if order is B2B
+     *
+     * @param LengowOrderModel $lengowOrder Lengow order instance
+     *
+     * @return boolean
+     */
+    public static function isBusiness($lengowOrder)
+    {
+        $orderTypes = (string)$lengowOrder->getOrderTypes();
+        $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : array();
+        if (isset($orderTypes[self::TYPE_BUSINESS])) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if order is delivered by marketplace
+     *
+     * @param LengowOrderModel $lengowOrder Lengow order instance
+     *
+     * @return boolean
+     */
+    public static function isDeliveredByMarketplace($lengowOrder)
+    {
+        $orderTypes = (string)$lengowOrder->getOrderTypes();
+        $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : array();
+        if (isset($orderTypes[self::TYPE_DELIVERED_BY_MARKETPLACE]) || $lengowOrder->isSentByMarketplace()) {
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -25,7 +25,9 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
             carrier_method: '{s name="order/details/carrier_method" namespace="backend/Lengow/translation"}{/s}',
             carrier_tracking: '{s name="order/details/carrier_tracking" namespace="backend/Lengow/translation"}{/s}',
             carrier_id_relay: '{s name="order/details/carrier_id_relay" namespace="backend/Lengow/translation"}{/s}',
-            sent_by_mkp: '{s name="order/details/sent_by_mkp" namespace="backend/Lengow/translation"}{/s}',
+            is_express: '{s name="order/details/is_express" namespace="backend/Lengow/translation"}{/s}',
+            is_delivered_by_marketplace: '{s name="order/details/is_delivered_by_marketplace" namespace="backend/Lengow/translation"}{/s}',
+            is_business: '{s name="order/details/is_business" namespace="backend/Lengow/translation"}{/s}',
             order_date: '{s name="order/grid/column/order_date" namespace="backend/Lengow/translation"}{/s}',
             created_at: '{s name="order/details/created_at" namespace="backend/Lengow/translation"}{/s}',
             message: '{s name="order/details/message" namespace="backend/Lengow/translation"}{/s}',
@@ -161,15 +163,24 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
                 fieldLabel: me.snippets.details.carrier_id_relay
             },
             {
-                name: 'sentByMarketplace',
-                fieldLabel: me.snippets.details.sent_by_mkp,
-                renderer : function(value, metadata, record) {
-                    if (value === 'true') {
-                        value = me.snippets.details.say_yes;
-                    } else if (value === 'false') {
-                        value = me.snippets.details.say_no;
-                    }
-                    return value;
+                name: 'isExpress',
+                fieldLabel: me.snippets.details.is_express,
+                renderer : function(value) {
+                    return value === 'true' ? me.snippets.details.say_yes : me.snippets.details.say_no;
+                }
+            },
+            {
+                name: 'isDeliveredByMarketplace',
+                fieldLabel: me.snippets.details.is_delivered_by_marketplace,
+                renderer : function(value) {
+                    return value === 'true' ? me.snippets.details.say_yes : me.snippets.details.say_no;
+                }
+            },
+            {
+                name: 'isBusiness',
+                fieldLabel: me.snippets.details.is_business,
+                renderer : function(value) {
+                    return value === 'true' ? me.snippets.details.say_yes : me.snippets.details.say_no;
                 }
             },
             {

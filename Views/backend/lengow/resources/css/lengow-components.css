@@ -7,7 +7,7 @@
   display: block;
   border-radius: 3px;
   padding: 45px 60px 45px;
-  box-shadow: 0 3px 0 0 rgba(0,0,0,.05);
+  box-shadow: 0 3px 0 0 rgba(0, 0, 0, .05);
   margin-bottom: 30px;
   margin-top: 30px;
   position: relative;
@@ -29,7 +29,7 @@ a.lgw-box-link:hover {
 
 .lgw-box-link:hover .lgw-box {
   top: -6px;
-  box-shadow: 0 10px 10px 0 rgba(0,0,0,.05);
+  box-shadow: 0 10px 10px 0 rgba(0, 0, 0, .05);
 }
 
 .img-circle {
@@ -80,7 +80,7 @@ a.lgw-box-link:hover {
 .lgw-container .lgw-btn:hover,
 .lgw-container .lgw-btn:active,
 .lgw-btn-order:hover,
-.lgw-btn-order:active{
+.lgw-btn-order:active {
   background: #019ce2;
   color: white;
 }
@@ -93,8 +93,9 @@ a.lgw-box-link:hover {
 
 .lgw-btn-white a, .custom-grid-action a {
   background-color: #fff;
-  border:1px solid #d7d7d7;
+  border: 1px solid #d7d7d7;
   color: #555;
+  font-weight: bold;
 }
 
 .lgw-btn-white a:hover, .custom-grid-action a:hover
@@ -109,7 +110,7 @@ a.lgw-box-link:hover {
 
 .lgw-label {
   font-size: 11px;
-  background :#ebebeb;
+  background: #ebebeb;
   color: #828282;
   height: 18px;
   line-height: 18px;
@@ -159,6 +160,30 @@ a.lgw-box-link:hover {
   line-height: 21px;
 }
 
+.lgw-label.blue-light {
+  background: #d6f4ff;
+  color: #00b0f0;
+}
+
+.lgw-label.orange-light {
+  background: #fef2d7;
+  color: #d59202;
+}
+
+.lgw-label.green-light {
+  background: #e3f2e3;
+  color: #6aba69;
+}
+
+.lgw-label.icon-solo {
+  align-items: center;
+  height: 25px;
+  display: inline-flex;
+  padding: 0px;
+  width: 25px;
+  position: relative;
+}
+
 .lgw-label-preprod {
   color: white;
   background: #0e1425;
@@ -177,32 +202,10 @@ a.lgw-box-link:hover {
 /*                    TOOLTIP                    */
 /*************************************************/
 
-.lengow_action_button_grid:hover{
-  background: #019ce2;
-}
-
 .lengow_tooltip {
   position: relative;
-  color: #fff;
+  color: #000;
   text-decoration: none;
-  font-weight: bold;
-  padding-right: 15px;
-}
-
-span.lengow_tooltip:after{
-  content: '';
-  background:  url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAABAklEQVQ4jcWSsS5EURCGvxEiFBuFFdqVrE2U2l2l6NU8wSZqWZWInhfwAt5ieQM6WylYhUYkaD7NuXFc9ya7UfibyZyZ7z8ncwb+qKgrqAEsAxERzxM7qk31Qh37rbF6rHbUF7VdB6+rowx8VT+y/C3F/YKZyeAl4BpopbgNNCJiHugBd8Biau8U3Gz2gD6wCgyBnYh4z2pbwGaWb1QZzAEj4KgEA1wCD8BauuSmcgb/K3VXPVX76p7aqOjppl86qTK48qcOS/UFdZhqgyqDswy+VbvpPNReBj+mL/9lcFBaFtXPtEyF7tVW3QzaaU076kB9Kq3yudqcdKaF6crU0LT6AhpCGITI3a7YAAAAAElFTkSuQmCC');
-  background-size: cover;
-  position: absolute;
-  margin-top: -1px;
-  margin-left: 2px;
-  width: 15px;
-  height: 15px;
-  color: #FFF;
-}
-
-.lengow_tooltip:hover {
-  z-index: 1070;
 }
 
 .lengow_tooltip span {
@@ -222,15 +225,89 @@ span.lengow_tooltip:after{
   font-style: normal;
   font-weight: normal;
   line-height: 1.42857143;
-  max-width: 500px;
+  max-width: 200px;
   opacity: .9;
+  z-index: 1070;
+}
+
+a.lengow_tooltip.lgw-btn {
+  white-space: normal;
+}
+
+span.lengow_order_action {
+  white-space: normal;
+  width: 500px;
+}
+
+span.lengow_order_types {
+  bottom: -20px;
+  left: -10px;
+  white-space: nowrap;
+}
+
+span.lengow_order_country {
+  bottom: -23px;
+  left: -20px;
+  white-space: nowrap;
+}
+
+span.lengow_order_amount {
+  bottom: -23px;
+  left: -20px;
+  white-space: nowrap;
+  max-width: 65px;
+}
+
+/*************************************************/
+/*                     ICON                      */
+/*************************************************/
+
+.lgw-icon {
+  speak: none;
+  font-style: normal;
+  font-weight: 400;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  letter-spacing: 0;
+  background-repeat: no-repeat;
+  height: 18px;
+  width: 25px;
+
+}
+
+.lgw-icon.mod-chrono {
+  background-image: url(../img/clock.png);
+  margin: 0 4px 2px 4px;
+}
+
+.lgw-icon.mod-chrono:after {
+  font-size: 20px;
+}
+
+.lgw-icon.mod-delivery {
+  background-image: url(../img/plane.png);
+  margin: 1px 0 0 2px;
+}
+
+.lgw-icon.mod-delivery:after {
+  font-size: 20px;
+}
+
+.lgw-icon.mod-pro {
+  background-image: url(../img/bag.png);
+  margin: -1px 0 0 3px;
+}
+
+.lgw-icon.mod-pro:after {
+  font-size: 20px;
 }
 
 /*************************************************/
 /*                    ACTION ORDER               */
 /*************************************************/
 
-.custom-grid-action, .custom-grid-action .x-grid-cell-inner{
+.custom-grid-overflow, .custom-grid-overflow .x-grid-cell-inner {
   overflow: visible;
 }
 
