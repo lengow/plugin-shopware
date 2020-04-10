@@ -686,7 +686,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     protected function loadOrderTypesData()
     {
         $orderTypes = array();
-        if ($this->orderData->order_types !== null && !empty($this->orderData->order_types)) {
+        if (!empty($this->orderData->order_types)) {
             foreach ($this->orderData->order_types as $orderType) {
                 $orderTypes[$orderType->type] = $orderType->label;
                 if ($orderType->type === LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE) {
