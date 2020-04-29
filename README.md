@@ -35,16 +35,16 @@ Follow the instruction below if you want to install Lengow for Shopware using Gi
 
 In case you wish to contribute to the plugin, fork the `dev` branch rather than cloning it, and create a pull request via Github. For further information please read the section "Become a contributor" of this document.
 
-3.) Set the correct directory permissions:
+2.) Set the correct directory permissions:
 
     chmod -R 755 engine/Shopware/Plugins/Community/Backend/Lengow
 
 Depending on your server configuration, it might be necessary to set whole write permissions (777) to the files and folders above.
 You can also start testing with lower permissions due to security reasons (644 for example) as long as your php process can write to those files.
 
-4.) Activate the plugin through the `Configuration > Plugin Manager` screen in Shopware
+3.) Activate the plugin through the `Configuration > Plugin Manager` screen in Shopware
 
-5.) Log in with your Lengow credentials and configure the plugin
+4.) Log in with your Lengow credentials and configure the plugin
 
 ## Frequently Asked Questions
 
