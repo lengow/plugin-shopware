@@ -203,6 +203,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'lengow_settings' => true,
             'global' => true,
         ),
+        'lengowCurrencyConversion' => array(
+            'lengow_settings' => true,
+            'global' => true,
+        ),
     );
 
     /**

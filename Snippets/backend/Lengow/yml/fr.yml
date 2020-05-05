@@ -127,6 +127,9 @@ fr:
       report_mail_address:
         label: "Email à utiliser pour l'envoi des emails de rapport"
         description: "Email séparé par ;"
+      currency_conversion_title:
+        label: "Convertir la devise de vos commandes"
+        description: "Toutes les commandes importées dans Shopware seront automatiquement converties dans la devise choisie dans Lengow"
     lengow_order_status_settings:
       label: "Statut des commandes"
       description: "Attribuez des statuts Lengow à vos commandes pour les retrouver facilement parmi l'ensemble de vos commandes."

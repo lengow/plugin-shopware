@@ -249,6 +249,12 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'required' => false,
                 'description' => 'settings/lengow_import_settings/report_mail_address/description',
             ),
+            'lengowCurrencyConversion' => array(
+                'type' => 'boolean',
+                'label' => 'settings/lengow_import_settings/currency_conversion_title/label',
+                'description' => 'settings/lengow_import_settings/currency_conversion_title/description',
+                'value' => true,
+            ),
         );
         // auto-generate form
         $importSettingForm = $this->createSettingForm('lengow_import_settings', $importFormElements);
