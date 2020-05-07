@@ -127,6 +127,9 @@ de:
       report_mail_address:
         label: "Emailaddresse für den Email-Report"
         description: "Email getrennt durch ;"
+      currency_conversion_title:
+        label: "Konvertieren Sie die Währung Ihrer Bestellung"
+        description: "Alle in Shopware importierten Bestellungen werden automatisch in die Währung umgerechnet, die Sie in Lengow ausgewählt haben."
     lengow_order_status_settings:
       label: "Lieferstatus"
       description: "Passen Sie den Lengow Lieferstatus an um Ihre Lieferungen einfach abzufragen"
@@ -223,7 +226,7 @@ de:
       status_canceled: "Abgebrochen"
       action_sent: "Aktion [0] gesendet"
       action_waiting_return: "Aktivität gesendet, warten auf Antwort"
-      nb_product: "[0] product(s)"
+      nb_product: "[0] produkt(en)"
       errors:
         not_imported: "nicht importiert"
         not_sent: "nicht gesendet"
