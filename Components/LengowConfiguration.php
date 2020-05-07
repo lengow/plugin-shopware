@@ -175,6 +175,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'global' => true,
             'type' => 'boolean',
         ),
+        'lengowCurrencyConversion' => array(
+            'global' => true,
+            'type' => 'boolean',
+        ),
         'lengowImportInProgress' => array(
             'lengow_settings' => true,
             'global' => true,
@@ -200,10 +204,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'global' => true,
         ),
         'lengowLastActionSync' => array(
-            'lengow_settings' => true,
-            'global' => true,
-        ),
-        'lengowCurrencyConversion' => array(
             'lengow_settings' => true,
             'global' => true,
         ),

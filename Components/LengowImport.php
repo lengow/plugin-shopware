@@ -555,7 +555,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         }
         do {
             try {
-                $currencyConversion = !(bool)LengowConfiguration::getConfig('lengowCurrencyConversion', $this->shop);
+                $currencyConversion = !(bool)LengowConfiguration::getConfig('lengowCurrencyConversion');
                 if ($this->importOneOrder) {
                     $results = $this->connector->get(
                         LengowConnector::API_ORDER,
