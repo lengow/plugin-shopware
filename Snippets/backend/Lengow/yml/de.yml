@@ -226,7 +226,7 @@ de:
       status_canceled: "Abgebrochen"
       action_sent: "Aktion [0] gesendet"
       action_waiting_return: "Aktivität gesendet, warten auf Antwort"
-      nb_product: "[0] product(s)"
+      nb_product: "[0] produkt(en)"
       errors:
         not_imported: "nicht importiert"
         not_sent: "nicht gesendet"
