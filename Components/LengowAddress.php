@@ -498,9 +498,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      * @param array $addressDatas API address data
      * @param string $typeAddress address type (billing or shipping)
      *
-     * @return array
      * @throws LengowException
      *
+     * @return array
      */
     protected function setShopwareAddressFields($addressDatas, $typeAddress = 'billing')
     {
@@ -682,7 +682,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
     }
 
     /**
-     * Search state by postcode for specific countries
+     * Get country state if exist
      *
      * @param CountryModel $country Shopware country instance
      * @param string $postcode address postcode
