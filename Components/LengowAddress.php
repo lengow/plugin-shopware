@@ -34,6 +34,7 @@ use Shopware\Models\Attribute\CustomerShipping as AttributeCustomerShippingModel
 use Shopware\Models\Attribute\OrderBilling as AttributeOrderBillingModel;
 use Shopware\Models\Attribute\OrderShipping as AttributeOrderShippingModel;
 use Shopware\Models\Country\Country as CountryModel;
+use Shopware\Models\Country\State as CountryStateModel;
 use Shopware\Models\Customer\Address as CustomerAddressModel;
 use Shopware\Models\Customer\Billing as CustomerBillingModel;
 use Shopware\Models\Customer\Shipping as CustomerShippingModel;
@@ -49,6 +50,21 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
 {
     /**
+     * @var string code ISO A2 for France
+     */
+    const ISO_A2_FR = 'FR';
+
+    /**
+     * @var string code ISO A2 for Spain
+     */
+    const ISO_A2_ES = 'ES';
+
+    /**
+     * @var string code ISO A2 for Italy
+     */
+    const ISO_A2_IT = 'IT';
+
+    /**
      * @var array API fields for an address
      */
     protected $addressApiNodes = array(
@@ -63,6 +79,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
         'complement',
         'zipcode',
         'city',
+        'state_region',
         'common_country_iso_a2',
         'phone_home',
         'phone_office',
@@ -107,6 +124,244 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
         'miss',
         'Ms',
         'ms',
+    );
+
+    /**
+     * @var array All region codes for correspondence
+     */
+    protected $regionCodes = array(
+        self::ISO_A2_ES => array(
+            '01' => 'Alava',
+            '02' => 'Albacete',
+            '03' => 'Alicante',
+            '04' => 'Almeria',
+            '05' => 'Avila',
+            '06' => 'Badajoz',
+            '07' => 'Baleares',
+            '08' => 'Barcelona',
+            '09' => 'Burgos',
+            '10' => 'Caceres',
+            '11' => 'Cadiz',
+            '12' => 'Castellon',
+            '13' => 'Ciudad Real',
+            '14' => 'Cordoba',
+            '15' => 'A Coruсa',
+            '16' => 'Cuenca',
+            '17' => 'Girona',
+            '18' => 'Granada',
+            '19' => 'Guadalajara',
+            '20' => 'Guipuzcoa',
+            '21' => 'Huelva',
+            '22' => 'Huesca',
+            '23' => 'Jaen',
+            '24' => 'Leon',
+            '25' => 'Lleida',
+            '26' => 'La Rioja',
+            '27' => 'Lugo',
+            '28' => 'Madrid',
+            '29' => 'Malaga',
+            '30' => 'Murcia',
+            '31' => 'Navarra',
+            '32' => 'Ourense',
+            '33' => 'Asturias',
+            '34' => 'Palencia',
+            '35' => 'Las Palmas',
+            '36' => 'Pontevedra',
+            '37' => 'Salamanca',
+            '38' => 'Santa Cruz de Tenerife',
+            '39' => 'Cantabria',
+            '40' => 'Segovia',
+            '41' => 'Sevilla',
+            '42' => 'Soria',
+            '43' => 'Tarragona',
+            '44' => 'Teruel',
+            '45' => 'Toledo',
+            '46' => 'Valencia',
+            '47' => 'Valladolid',
+            '48' => 'Vizcaya',
+            '49' => 'Zamora',
+            '50' => 'Zaragoza',
+            '51' => 'Ceuta',
+            '52' => 'Melilla',
+        ),
+        self::ISO_A2_IT => array(
+            '00' => 'RM',
+            '01' => 'VT',
+            '02' => 'RI',
+            '03' => 'FR',
+            '04' => 'LT',
+            '05' => 'TR',
+            '06' => 'PG',
+            '07' => array(
+                '07000-07019' => 'SS',
+                '07020-07029' => 'OT',
+                '07030-07049' => 'SS',
+                '07050-07999' => 'SS',
+            ),
+            '08' => array(
+                '08000-08010' => 'OR',
+                '08011-08012' => 'NU',
+                '08013-08013' => 'OR',
+                '08014-08018' => 'NU',
+                '08019-08019' => 'OR',
+                '08020-08020' => 'OT',
+                '08021-08029' => 'NU',
+                '08030-08030' => 'OR',
+                '08031-08032' => 'NU',
+                '08033-08033' => 'CA',
+                '08034-08034' => 'OR',
+                '08035-08035' => 'CA',
+                '08036-08039' => 'NU',
+                '08040-08042' => 'OG',
+                '08043-08043' => 'CA',
+                '08044-08049' => 'OG',
+                '08050-08999' => 'NU',
+            ),
+            '09' => array(
+                '09000-09009' => 'CA',
+                '09010-09017' => 'CI',
+                '09018-09019' => 'CA',
+                '09020-09041' => 'VS',
+                '09042-09069' => 'CA',
+                '09070-09099' => 'OR',
+                '09100-09169' => 'CA',
+                '09170-09170' => 'OR',
+                '09171-09999' => 'CA',
+            ),
+            '10' => 'TO',
+            '11' => 'AO',
+            '12' => array(
+                '12000-12070' => 'CN',
+                '12071-12071' => 'SV',
+                '12072-12999' => 'CN',
+            ),
+            '13' => array(
+                '13000-13799' => 'VC',
+                '13800-13999' => 'BI',
+            ),
+            '14' => 'AT',
+            '15' => 'AL',
+            '16' => 'GE',
+            '17' => 'SV',
+            '18' => array(
+                '18000-18024' => 'IM',
+                '18025-18025' => 'CN',
+                '18026-18999' => 'IM',
+            ),
+            '19' => 'SP',
+            '20' => array(
+                '20000-20799' => 'MI',
+                '20800-20999' => 'MB',
+            ),
+            '21' => 'VA',
+            '22' => 'CO',
+            '23' => array(
+                '23000-23799' => 'SO',
+                '23800-23999' => 'LC',
+            ),
+            '24' => 'BG',
+            '25' => 'BS',
+            '26' => array(
+                '26000-26799' => 'CR',
+                '26800-26999' => 'LO',
+            ),
+            '27' => 'PV',
+            '28' => array(
+                '28000-28799' => 'NO',
+                '28800-28999' => 'VB',
+            ),
+            '29' => 'PC',
+            '30' => 'VE',
+            '31' => 'TV',
+            '32' => 'BL',
+            '33' => array(
+                '33000-33069' => 'UD',
+                '33070-33099' => 'PN',
+                '33100-33169' => 'UD',
+                '33170-33999' => 'PN',
+            ),
+            '34' => array(
+                '34000-34069' => 'TS',
+                '34070-34099' => 'GO',
+                '34100-34169' => 'TS',
+                '34170-34999' => 'GO',
+            ),
+            '35' => 'PD',
+            '36' => 'VI',
+            '37' => 'VR',
+            '38' => 'TN',
+            '39' => 'BZ',
+            '40' => 'BO',
+            '41' => 'MO',
+            '42' => 'RE',
+            '43' => 'PR',
+            '44' => 'FE',
+            '45' => 'RO',
+            '46' => 'MN',
+            '47' => array(
+                '47000-47799' => 'FC',
+                '47800-47999' => 'RN',
+            ),
+            '48' => 'RA',
+            '50' => 'FI',
+            '51' => 'PT',
+            '52' => 'AR',
+            '53' => 'SI',
+            '54' => 'MS',
+            '55' => 'LU',
+            '56' => 'PI',
+            '57' => 'LI',
+            '58' => 'GR',
+            '59' => 'PO',
+            '60' => 'AN',
+            '61' => 'PU',
+            '62' => 'MC',
+            '63' => array(
+                '63000-63799' => 'AP',
+                '63800-63999' => 'FM',
+            ),
+            '64' => 'TE',
+            '65' => 'PE',
+            '66' => 'CH',
+            '67' => 'AQ',
+            '70' => 'BA',
+            '71' => 'FG',
+            '72' => 'BR',
+            '73' => 'LE',
+            '74' => 'TA',
+            '75' => 'MT',
+            '76' => 'BT',
+            '80' => 'NA',
+            '81' => 'CE',
+            '82' => 'BN',
+            '83' => 'AV',
+            '84' => 'SA',
+            '85' => 'PZ',
+            '86' => array(
+                '86000-86069' => 'CB',
+                '86070-86099' => 'IS',
+                '86100-86169' => 'CB',
+                '86170-86999' => 'IS',
+            ),
+            '87' => 'CS',
+            '88' => array(
+                '88000-88799' => 'CZ',
+                '88800-88999' => 'KR',
+            ),
+            '89' => array(
+                '89000-89799' => 'RC',
+                '89800-89999' => 'VV',
+            ),
+            '90' => 'PA',
+            '91' => 'TP',
+            '92' => 'AG',
+            '93' => 'CL',
+            '94' => 'EN',
+            '95' => 'CT',
+            '96' => 'SR',
+            '97' => 'RG',
+            '98' => 'ME',
+        ),
     );
 
     /**
@@ -258,10 +513,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
                 )
             );
         }
+        $state = $this->getState($country, $addressDatas['zipcode'], $addressDatas['state_region']);
         $names = $this->getNames($addressDatas);
         $addressFields = $this->getAddressFields($addressDatas, $typeAddress);
         return array(
-            'company' => (string)$addressDatas['society'],
+            'company' => $addressDatas['company'],
             'salutation' => $this->getSalutation($addressDatas),
             'firstname' => ucfirst(strtolower($names['firstname'])),
             'lastname' => ucfirst(strtolower($names['lastname'])),
@@ -269,10 +525,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             'additional_address_line_1' => strtolower($addressFields['additional_address_line_1']),
             'additional_address_line_2' => strtolower($addressFields['additional_address_line_2']),
             'full_street' => strtolower($addressFields['full_address']),
-            'zipcode' => (string)$addressDatas['zipcode'],
+            'zipcode' => $addressDatas['zipcode'],
             'city' => ucfirst(strtolower(preg_replace('/[!<>?=+@{}_$%]/sim', '', $addressDatas['city']))),
             'country' => $country,
             'country_id' => $country->getId(),
+            'state' => $state,
+            'state_id' => $state ? $state->getId() : false,
             'phone' => $this->getPhoneNumber($addressDatas),
         );
     }
@@ -318,8 +576,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             $address->setCity($addressFields['city']);
             if ($newSchema) {
                 $address->setCountry($addressFields['country']);
+                if ($addressFields['state']) {
+                    $address->setState($addressFields['state']);
+                }
             } else {
                 $address->setCountryId($addressFields['country_id']);
+                if ($addressFields['state_id']) {
+                    $address->setStateId($addressFields['state_id']);
+                }
             }
             $address->setAttribute($addressAttribute);
             if ($typeAddress === 'billing' || $newSchema) {
@@ -376,6 +640,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             $address->setZipCode($addressFields['zipcode']);
             $address->setCity($addressFields['city']);
             $address->setCountry($addressFields['country']);
+            if (LengowMain::compareVersion('5.0.0') && $addressFields['state']) {
+                $address->setState($addressFields['state']);
+            }
             $address->setAttribute($addressAttribute);
             if ($typeAddress === 'billing') {
                 $phone = !empty($addressFields['phone']) ? $addressFields['phone'] : $this->shippingDatas['phone'];
@@ -412,6 +679,26 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             ->getRepository('Shopware\Models\Country\Country')
             ->findOneBy(array('iso' => $isoCode));
         return $country;
+    }
+
+    /**
+     * Get country state if exist
+     *
+     * @param CountryModel $country Shopware country instance
+     * @param string $postcode address postcode
+     * @param string $stateRegion address state region
+     *
+     * @return CountryStateModel|false
+     */
+    protected function getState($country, $postcode, $stateRegion)
+    {
+        $state = false;
+        if (in_array($country->getIso(), array(self::ISO_A2_FR, self::ISO_A2_ES, self::ISO_A2_IT))) {
+            $state = $this->searchStateByPostcode($country, $postcode);
+        } elseif (!empty($stateRegion)) {
+            $state = $this->searchStateByStateRegion($country, $stateRegion);
+        }
+        return $state;
     }
 
     /**
@@ -590,5 +877,128 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             $phoneNumber = $addressDatas['phone_office'];
         }
         return LengowMain::cleanPhone($phoneNumber);
+    }
+
+    /**
+     * Search state by postcode for specific countries
+     *
+     * @param CountryModel $country Shopware country instance
+     * @param string $postcode address postcode
+     *
+     * @return CountryStateModel|false
+     */
+    protected function searchStateByPostcode($country, $postcode)
+    {
+        $state = false;
+        $countryIsoA2 = $country->getIso();
+        $postcodeSubstr = substr(str_pad($postcode, 5, '0', STR_PAD_LEFT), 0, 2);
+        switch ($countryIsoA2) {
+            case self::ISO_A2_FR:
+                $shortCode = ltrim($postcodeSubstr, '0');
+                break;
+            case self::ISO_A2_ES:
+                $shortCode = isset($this->regionCodes[$countryIsoA2][$postcodeSubstr])
+                    ? $this->regionCodes[$countryIsoA2][$postcodeSubstr]
+                    : false;
+                break;
+            case self::ISO_A2_IT:
+                $shortCode = isset($this->regionCodes[$countryIsoA2][$postcodeSubstr])
+                    ? $this->regionCodes[$countryIsoA2][$postcodeSubstr]
+                    : false;
+                if ($shortCode && is_array($shortCode) && !empty($shortCode)) {
+                    $shortCode = $this->getShortCodeFromIntervalPostcodes((int)$postcode, $shortCode);
+                }
+                break;
+            default:
+                $shortCode = false;
+                break;
+        }
+        if ($shortCode) {
+            $state = Shopware()->Models()
+                ->getRepository('Shopware\Models\Country\State')
+                ->findOneBy(array('country' => $country, 'shortCode' => $shortCode));
+        }
+        return $state ? $state : false;
+    }
+
+    /**
+     * Get short code from interval postcodes
+     *
+     * @param integer $postcode address postcode
+     * @param array $intervalPostcodes postcode intervals
+     *
+     * @return string|false
+     */
+    protected function getShortCodeFromIntervalPostcodes($postcode, $intervalPostcodes)
+    {
+        foreach ($intervalPostcodes as $intervalPostcode => $shortCode) {
+            $intervalPostcodes = explode('-', $intervalPostcode);
+            if (!empty($intervalPostcodes) && count($intervalPostcodes) === 2) {
+                $minPostcode = is_numeric($intervalPostcodes[0]) ? (int)$intervalPostcodes[0] : false;
+                $maxPostcode = is_numeric($intervalPostcodes[1]) ? (int)$intervalPostcodes[1] : false;
+                if (($minPostcode && $maxPostcode) && ($postcode >= $minPostcode && $postcode <= $maxPostcode)) {
+                    return $shortCode;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Search Magento region id by state return by api
+     *
+     * @param CountryModel $country Shopware country instance
+     * @param string $stateRegion address state region
+     *
+     * @return CountryStateModel|false
+     */
+    protected function searchStateByStateRegion($country, $stateRegion)
+    {
+        $state = false;
+        /** @var CountryStateModel[] $countryStates */
+        $countryStates = Shopware()->Models()
+            ->getRepository('Shopware\Models\Country\State')
+            ->findBy(array('country' => $country));
+        $stateRegionCleaned = $this->cleanString($stateRegion);
+        if (!empty($countryStates) && !empty($stateRegion)) {
+            // strict search on the region code
+            foreach ($countryStates as $countryState) {
+                $shortCodeCleaned = $this->cleanString($countryState->getShortCode());
+                if ($stateRegionCleaned === $shortCodeCleaned) {
+                    $state = $countryState;
+                    break;
+                }
+            }
+            // approximate search on the state name
+            if (!$state) {
+                $results = array();
+                foreach ($countryStates as $countryState) {
+                    $nameCleaned = $this->cleanString($countryState->getName());
+                    similar_text($stateRegionCleaned, $nameCleaned, $percent);
+                    if ($percent > 70) {
+                        $results[(int)$percent] = $countryState;
+                    }
+                }
+                if (!empty($results)) {
+                    krsort($results);
+                    $state = current($results);
+                }
+            }
+        }
+        return $state;
+    }
+
+    /**
+     * Cleaning a string before search
+     *
+     * @param string $string string to clean
+     *
+     * @return string
+     */
+    protected function cleanString($string)
+    {
+        $string = strtolower(str_replace(array(' ', '-', '_', '.'), '', trim($string)));
+        $string = LengowMain::replaceAccentedChars(html_entity_decode($string));
+        return $string;
     }
 }
