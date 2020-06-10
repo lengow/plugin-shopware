@@ -227,7 +227,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         if ($data['orderTypes'] !== null) {
             $content .= '<div>';
             $orderTypes = (string)$data['orderTypes'];
-            $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : [];
+            $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : array();
             if (isset($orderTypes[LengowOrder::TYPE_EXPRESS]) || isset($orderTypes[LengowOrder::TYPE_PRIME])) {
                 $isExpress = true;
                 $iconLabel = isset($orderTypes[LengowOrder::TYPE_PRIME])
