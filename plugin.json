@@ -6,8 +6,12 @@
     "support_mail": "support.lengow.zendesk@lengow.com",
     "license": "proprietary",
     "link": "http://lengow.com",
-    "currentVersion": "1.5.1",
+    "currentVersion": "1.5.2",
     "changes": {
+        "1.5.2": {
+            "releasedate": "2020-06-10",
+            "line": ""
+        },
         "1.5.1": {
             "releasedate": "2020-03-12",
             "line": ""
@@ -91,6 +95,7 @@
     },
     "changelog": {
         "en": {
+            "1.5.2": "Feature: [import] Addition of order types in the order management screen; Feature: [import] Addition on the currency conversion in imported order; Feature: [import] Integration of the region code in the delivery and billing addresses; Bugfix: Update of the access token when recovering an http 401 code",
             "1.5.1": "Bugfix: Addition of the http 201 code in the success codes",
             "1.5.0": "Feature: Refactoring and optimization of the connector class; Feature: Optimization of API calls for synchronisation of orders and actions; Feature: [import] Protection of the import of anonymized orders; Feature: [import] Protection of the import of orders older than 3 months; Feature: Display of an alert when the plugin is no longer up to date; Feature: Renaming from Preprod Mode to Debug Mode; Bugfix: Refactoring and optimization of dates with the correct locale; Bugfix: [action] Improved carrier matching with a strict then approximate search; Bugfix: [import] Enhanced security for orders that change their marketplace name",
             "1.4.3": "Feature: Adding compatibility with php 7.3; Bugfix: [export] Recovery of variations when product selection is enabled; Bugfix: [export] Adding a filter on internal type articles (kind = 3); Bugfix: [import] Adding a security on the product search between the reference and the id",

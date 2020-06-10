@@ -1,4 +1,13 @@
 =============================================================
+Version 1.5.2
+=============================================================
+
+    - Feature: [import] Addition of order types in the order management screen
+    - Feature: [import] Addition on the currency conversion in imported order
+    - Feature: [import] Integration of the region code in the delivery and billing addresses
+    - Bugfix: Update of the access token when recovering an http 401 code
+
+=============================================================
 Version 1.5.1
 =============================================================
 

@@ -11,6 +11,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
         column: {
             actions: '{s name="order/grid/column/actions" namespace="backend/Lengow/translation"}{/s}',
             lengow_status: '{s name="order/grid/column/lengow_status" namespace="backend/Lengow/translation"}{/s}',
+            order_types: '{s name="order/grid/column/order_types" namespace="backend/Lengow/translation"}{/s}',
             marketplace: '{s name="order/grid/column/marketplace" namespace="backend/Lengow/translation"}{/s}',
             store_name: '{s name="order/grid/column/store_name" namespace="backend/Lengow/translation"}{/s}',
             marketplace_sku: '{s name="order/grid/column/marketplace_sku" namespace="backend/Lengow/translation"}{/s}',
@@ -45,7 +46,8 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             import_order: '{s name="order/buttons/mass_action_reimport" namespace="backend/Lengow/translation"}{/s}'
         },
         action_sent: '{s name="order/grid/action_sent" namespace="backend/Lengow/translation"}{/s}',
-        action_waiting_return: '{s name="order/grid/action_waiting_return" namespace="backend/Lengow/translation"}{/s}'
+        action_waiting_return: '{s name="order/grid/action_waiting_return" namespace="backend/Lengow/translation"}{/s}',
+        nb_product: '{s name="order/grid/nb_product" namespace="backend/Lengow/translation"}{/s}'
     },
 
     listeners : {
@@ -123,7 +125,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
         var columns = [
             {
                 header: me.snippets.column.actions,
-                tdCls: 'custom-grid-action',
+                tdCls: 'custom-grid-overflow',
                 dataIndex: 'inError',
                 flex: 2,
                 renderer: function(value, metadata, record) {
@@ -167,22 +169,29 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             }, {
                 header: me.snippets.column.lengow_status,
                 dataIndex: 'orderLengowState',
+                align: 'center',
                 flex: 2,
-                renderer : function(value, metadata, record) {
-                    if(record.get('sentByMarketplace')) {
-                        value = 'shipped_by_mkp';
-                    }
+                renderer : function(value) {
                     return '<span class="lgw-label lgw-label-' + value + '">'
                         + me.snippets.status[value] + '</span>';
                 }
             }, {
-                header: me.snippets.column.marketplace,
-                dataIndex: 'marketplaceLabel',
-                flex: 1.5
+                header: me.snippets.column.order_types,
+                tdCls: 'custom-grid-overflow',
+                align: 'center',
+                dataIndex: 'orderTypes',
+                flex: 1.2,
+                renderer : function(value, metadata, record) {
+                    return record.get('orderTypesContent');
+                }
             }, {
                 header: me.snippets.column.marketplace_sku,
                 dataIndex: 'marketplaceSku',
                 flex: 2
+            }, {
+                header: me.snippets.column.marketplace,
+                dataIndex: 'marketplaceLabel',
+                flex: 1.5
             }, {
                 header: me.snippets.column.store_name,
                 dataIndex: 'storeName',
@@ -190,48 +199,51 @@ Ext.define('Shopware.apps.Lengow.view.import.Grid', {
             }, {
                 header: me.snippets.column.shopware_status,
                 dataIndex: 'orderStatus',
+                flex: 1.8,
                 renderer : function(value, metadata, record) {
                     var orderStatusDescription = record.get('orderStatusDescription');
                     if (orderStatusDescription) return orderStatusDescription;
                     else if (value) return value;
                     return '';
-                },
-                flex: 2
+                }
             }, {
                 header: me.snippets.column.shopware_sku,
                 dataIndex: 'orderSku',
-                flex: 1.2
-            }, {
-                header: me.snippets.column.order_date,
-                dataIndex: 'orderDate',
-                flex: 1.6,
-                renderer : function(value) {
-                    var date = new Date(value);
-                    return Ext.Date.format(date, 'd-M-Y G:i');
-                }
+                flex: 1.8
             }, {
                 header: me.snippets.column.customer_name,
                 dataIndex: 'customerName',
                 flex: 2
             }, {
-                header: me.snippets.column.country,
-                dataIndex: 'countryIso',
-                flex: 0.7,
-                renderer : function(value, metadata, record) {
-                    return '<img src="/engine/Shopware/Plugins/Community/Backend/Lengow/Views/backend/lengow/resources/img/flag/'
-                        + value.substr(0,2).toUpperCase() + '.png" alt="' + record.get('countryName') + '" title="'
-                        + record.get('countryName') + '" />';
+                header: me.snippets.column.order_date,
+                dataIndex: 'orderDate',
+                flex: 2,
+                renderer : function(value) {
+                    var date = new Date(value);
+                    return Ext.Date.format(date, 'd-M-Y G:i');
                 }
             }, {
-                header: me.snippets.column.nb_items,
-                dataIndex: 'orderItem',
-                flex: 0.5
+                header: me.snippets.column.country,
+                tdCls: 'custom-grid-overflow',
+                dataIndex: 'countryIso',
+                flex: 1,
+                align: 'center',
+                renderer : function(value, metadata, record) {
+                    var countryName = record.get('countryName'),
+                        countryIsoA2 = value.substr(0,2).toUpperCase();
+                    return '<a class="lengow_tooltip" href="#"><img src="/engine/Shopware/Plugins/Community/Backend/Lengow/Views/backend/lengow/resources/img/flag/'
+                        + countryIsoA2 + '.png" alt="' + countryName + '" title="'
+                        + countryName + '" /><span class="lengow_order_country">' + countryName + '</span></a>';
+                }
             }, {
                 header: me.snippets.column.total_paid,
+                tdCls: 'custom-grid-overflow',
                 dataIndex: 'totalPaid',
-                flex: 0.8,
-                renderer : function(value) {
-                    return Ext.util.Format.currency(value);
+                flex: 1,
+                renderer : function(value, metadata, record) {
+                    var nbProduct = Ext.String.format(me.snippets.nb_product, record.get('orderItem'));
+                    return '<div class="lengow_tooltip">' +  Ext.util.Format.currency(value)
+                        + '<span class="lengow_order_amount">' + nbProduct + '</span></div>';
                 }
             },
             me.createActionColumn()

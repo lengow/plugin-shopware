@@ -76,6 +76,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             'orderLengow.orderDate as orderDate',
             'orderLengow.customerName as customerName',
             'orderLengow.orderItem as orderItem',
+            'orderLengow.orderTypes as orderTypes',
             'orderLengow.deliveryCountryIso as deliveryCountryIso',
             'orderLengow.sentByMarketplace as sentByMarketplace',
             'orderLengow.commission as commission',
@@ -138,7 +139,8 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             $searchFilter = '%' . $filters['search'] . '%';
             $condition = 'orderLengow.marketplaceSku LIKE :searchFilter OR ' .
                 'orderLengow.marketplaceName LIKE :searchFilter OR ' .
-                'orderLengow.customerName LIKE :searchFilter';
+                'orderLengow.customerName LIKE :searchFilter OR ' .
+                'orderLengow.orderTypes LIKE :searchFilter';
             $builder->andWhere($condition)
                 ->setParameter('searchFilter', $searchFilter);
         }
@@ -150,18 +152,23 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $builder->distinct()->addOrderBy('orderLengow.orderDate', 'DESC');
         $totalOrders = count($builder->getQuery()->getArrayResult());
         $builder->setFirstResult($start)->setMaxResults($limit);
-        $result = $builder->getQuery()->getArrayResult();
+        $results = $builder->getQuery()->getArrayResult();
         $orderErrors = $this->getOrderErrors();
-        if ($result) {
-            foreach ($result as $key => $error) {
-                $result[$key]['errorMessage'] = $orderErrors[$error['id']];
+        if ($results) {
+            foreach ($results as $key => $result) {
+                $results[$key]['errorMessage'] = $orderErrors[$result['id']];
+                $orderTypes = $this->getOrderTypes($result);
+                $results[$key]['orderTypesContent'] = $orderTypes['orderTypesContent'];
+                $results[$key]['isExpress'] = $orderTypes['isExpress'];
+                $results[$key]['isDeliveredByMarketplace'] = $orderTypes['isDeliveredByMarketplace'];
+                $results[$key]['isBusiness'] = $orderTypes['isBusiness'];
             }
         }
 
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $result,
+                'data' => $results,
                 'total' => $totalOrders,
             )
         );
@@ -205,7 +212,55 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     }
 
     /**
-     * Get datas for import header page
+     * Get Order types data
+     *
+     * @param array $data Order data
+     *
+     * @return array
+     */
+    public function getOrderTypes(array $data)
+    {
+        $content = '';
+        $isExpress = false;
+        $isDeliveredByMarketplace = false;
+        $isBusiness = false;
+        if ($data['orderTypes'] !== null) {
+            $content .= '<div>';
+            $orderTypes = (string)$data['orderTypes'];
+            $orderTypes = $orderTypes !== '' ? json_decode($orderTypes, true) : array();
+            if (isset($orderTypes[LengowOrder::TYPE_EXPRESS]) || isset($orderTypes[LengowOrder::TYPE_PRIME])) {
+                $isExpress = true;
+                $iconLabel = isset($orderTypes[LengowOrder::TYPE_PRIME])
+                    ? $orderTypes[LengowOrder::TYPE_PRIME]
+                    : $orderTypes[LengowOrder::TYPE_EXPRESS];
+                $content .= $this->generateOrderTypeIcon($iconLabel, 'orange-light', 'mod-chrono');
+            }
+            if (isset($orderTypes[LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE])
+                || (bool)$data['sentByMarketplace']
+            ) {
+                $isDeliveredByMarketplace = true;
+                $iconLabel = isset($orderTypes[LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE])
+                    ? $orderTypes[LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE]
+                    : LengowOrder::LABEL_FULFILLMENT;
+                $content .= $this->generateOrderTypeIcon($iconLabel, 'green-light', 'mod-delivery');
+            }
+            if (isset($orderTypes[LengowOrder::TYPE_BUSINESS])) {
+                $isBusiness = true;
+                $iconLabel = $orderTypes[LengowOrder::TYPE_BUSINESS];
+                $content .= $this->generateOrderTypeIcon($iconLabel, 'blue-light', 'mod-pro');
+            }
+            $content .= '</div>';
+        }
+        return array(
+            'orderTypesContent' => $content,
+            'isExpress' => $isExpress,
+            'isDeliveredByMarketplace' => $isDeliveredByMarketplace,
+            'isBusiness' => $isBusiness,
+        );
+    }
+
+    /**
+     * Get data for import header page
      */
     public function getPanelContentsAction()
     {
@@ -223,7 +278,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 array('email' => implode(', ', LengowConfiguration::getReportEmailAddress()))
             );
         } else {
-            $data['mail_report'] =LengowMain::decodeLogMessage('order/panel/no_mail_report', $locale);
+            $data['mail_report'] = LengowMain::decodeLogMessage('order/panel/no_mail_report', $locale);
         }
         $data['mail_report'] .= ' (<a href="#">Change this?</a>)';
         $this->View()->assign(
@@ -301,7 +356,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                     $em = LengowBootstrap::getEntityManager();
                     /** @var ShopModel $shop */
                     $shop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('id' => (int)$shopId));
-                    $shopName = $shop !== null ? $shop->getName() . ' : ' :  '';
+                    $shopName = $shop !== null ? $shop->getName() . ' : ' : '';
                     $error = LengowMain::decodeLogMessage($values, $locale);
                     $messages[] = $shopName . $error;
                 }
@@ -493,5 +548,25 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 'data' => $message,
             )
         );
+    }
+
+    /**
+     * Generate order type icon
+     *
+     * @param string $iconLabel icon label for tooltip
+     * @param string $iconColor icon background color
+     * @param string $iconMod icon mod for image
+     *
+     * @return string
+     */
+    private function generateOrderTypeIcon($iconLabel, $iconColor, $iconMod)
+    {
+        return '
+            <div class="lgw-label ' . $iconColor . ' icon-solo lengow_tooltip">
+                <a class="lgw-icon ' . $iconMod . '">
+                    <span class="lengow_order_types">' . $iconLabel . '</span>
+                </a>
+            </div>
+        ';
     }
 }

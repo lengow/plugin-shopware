@@ -555,6 +555,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         }
         do {
             try {
+                $currencyConversion = !(bool)LengowConfiguration::getConfig('lengowCurrencyConversion');
                 if ($this->importOneOrder) {
                     $results = $this->connector->get(
                         LengowConnector::API_ORDER,
@@ -562,6 +563,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                             'marketplace_order_id' => $this->marketplaceSku,
                             'marketplace' => $this->marketplaceName,
                             'account_id' => $this->accountId,
+                            'no_currency_conversion' => $currencyConversion,
                         ),
                         LengowConnector::FORMAT_STREAM,
                         '',
@@ -587,6 +589,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                                 'catalog_ids' => implode(',', $this->shopCatalogIds),
                                 'account_id' => $this->accountId,
                                 'page' => $page,
+                                'no_currency_conversion' => $currencyConversion,
                             )
                         ),
                         LengowConnector::FORMAT_STREAM,

@@ -127,6 +127,13 @@ class Order extends ModelEntity
     /**
      * @var string
      *
+     * @ORM\Column(name="order_types", type="text", nullable=true)
+     */
+    private $orderTypes = null;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="currency", type="string", length=3, nullable=true)
      */
     private $currency = null;
@@ -532,6 +539,29 @@ class Order extends ModelEntity
     public function setOrderItem($orderItem)
     {
         $this->orderItem = $orderItem;
+        return $this;
+    }
+
+    /**
+     * Gets the value of order types
+     *
+     * @return string
+     */
+    public function getOrderTypes()
+    {
+        return $this->orderTypes;
+    }
+
+    /**
+     * Sets the value of order types
+     *
+     * @param string $orderTypes the order types
+     *
+     * @return self
+     */
+    public function setOrderTypes($orderTypes)
+    {
+        $this->orderTypes = $orderTypes;
         return $this;
     }
 
