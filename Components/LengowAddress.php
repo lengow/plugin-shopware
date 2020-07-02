@@ -389,9 +389,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      */
     protected $logOutput;
 
-	/**
-	 * @var string vatNumber of current order
-	 */
+    /**
+     * @var string vatNumber of current order
+     */
     protected $vatNumber;
 
     /**
@@ -628,7 +628,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
                 $address = new OrderBillingModel();
                 $addressAttribute = new AttributeOrderBillingModel();
                 if ($this->vatNumber) {
-	                $address->setVatId($this->vatNumber);
+                    $address->setVatId($this->vatNumber);
                 }
             } else {
                 $address = new OrderShippingModel();

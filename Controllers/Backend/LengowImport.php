@@ -134,12 +134,12 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 'WITH',
                 's_order.id = s_lengow_action.orderId'
             )
-	        ->leftJoin(
-	            'Shopware\Models\Order\Billing',
-		        's_order_billingaddress',
-		        'WITH',
-		        's_order_billingaddress.orderId = orderLengow.orderId'
-	        );
+            ->leftJoin(
+                'Shopware\Models\Order\Billing',
+                's_order_billingaddress',
+                'WITH',
+                's_order_billingaddress.orderId = orderLengow.orderId'
+            );
 
         // search criteria
         if (isset($filters['search'])) {

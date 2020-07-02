@@ -179,10 +179,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             'global' => true,
             'type' => 'boolean',
         ),
-	    'lengowImportB2b' => array(
-		    'global' => true,
-		    'type' => 'boolean',
-	    ),
+        'lengowImportB2b' => array(
+            'global' => true,
+            'type'   => 'boolean',
+        ),
         'lengowImportInProgress' => array(
             'lengow_settings' => true,
             'global' => true,
