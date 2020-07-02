@@ -255,6 +255,12 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 'description' => 'settings/lengow_import_settings/currency_conversion_title/description',
                 'value' => true,
             ),
+            'lengowImportB2b' => array(
+                'type' => 'boolean',
+                'label' => 'settings/lengow_import_settings/import_b2b/label',
+                'description' => 'settings/lengow_import_settings/import_b2b/description',
+                'value' => false,
+            ),
         );
         // auto-generate form
         $importSettingForm = $this->createSettingForm('lengow_import_settings', $importFormElements);

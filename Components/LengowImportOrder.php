@@ -446,6 +446,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                     'relay_id' => $this->relayId,
                     'marketplace_sku' => $this->marketplaceSku,
                     'log_output' => $this->logOutput,
+	                'vat_number' => $this->getVatNumberFromOrderData(),
                 )
             );
             // get or create Shopware customer
@@ -1091,6 +1092,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 ->getRepository('Shopware\Models\Order\Number')
                 ->findOneBy(array('name' => 'invoice'));
             $orderNumber = $number->getNumber() + 1;
+            $taxFree = 0;
+	        // If order is B2B and import B2B without tax is enabled => set the order to taxFree
+	        if (isset($this->orderTypes[LengowOrder::TYPE_BUSINESS ])
+	            && (bool)LengowConfiguration::getConfig('lengowImportB2b')) {
+		        $taxFree = 1;
+	        }
             // create a temporary order
             $orderParams = array(
                 'ordernumber' => $orderNumber,
@@ -1106,7 +1113,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 'transactionID' => '',
                 'customercomment' => '',
                 'net' => '',
-                'taxfree' => '',
+                'taxfree' => $taxFree,  //'', // TODO CHECK HERE IF TAXFREE IS ENOUGH
                 'partnerID' => '',
                 'temporaryID' => '',
                 'referer' => '',
@@ -1181,6 +1188,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         }
         return $order;
     }
+
+	/**
+	 * Get vat_number from lengow order data
+	 *
+	 * @return string|null
+	 */
+	protected function getVatNumberFromOrderData() {
+		if (isset($this->orderData->billing_address->vat_number)) {
+			return $this->orderData->billing_address->vat_number;
+		} else if (isset($this->packageData->delivery->vat_number)) {
+			return $this->packageData->delivery->vat_number;
+		}
+		return null;
+	}
 
     /**
      * Create order details based on API data

@@ -95,6 +95,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             's_core_countries.iso as countryIso',
             'orderError.message as errorMessage',
             's_lengow_action.actionType as lastActionType',
+	        's_order_billingaddress.vatId as vatNumber',
         );
 
         if (LengowMain::compareVersion('5.5.0')) {
@@ -132,7 +133,13 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 's_lengow_action',
                 'WITH',
                 's_order.id = s_lengow_action.orderId'
-            );
+            )
+	        ->leftJoin(
+	            'Shopware\Models\Order\Billing',
+		        's_order_billingaddress',
+		        'WITH',
+		        's_order_billingaddress.orderId = orderLengow.orderId'
+	        );
 
         // search criteria
         if (isset($filters['search'])) {
@@ -162,6 +169,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 $results[$key]['isExpress'] = $orderTypes['isExpress'];
                 $results[$key]['isDeliveredByMarketplace'] = $orderTypes['isDeliveredByMarketplace'];
                 $results[$key]['isBusiness'] = $orderTypes['isBusiness'];
+                $results[$key]['vatNumber'] = $result['vatNumber'];
             }
         }
 
