@@ -130,7 +130,7 @@ en:
       currency_conversion_title:
         label: "Convert the currency of your order"
         description: "All orders imported into Shopware will be automatically converted into the currency you've selected in Lengow"
-      import_b2b:
+      import_btob:
         label: "Enable import of B2B orders without tax"
         description: "Activate this option to import B2B orders without tax"
     lengow_order_status_settings:

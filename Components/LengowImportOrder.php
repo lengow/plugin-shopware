@@ -1217,6 +1217,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     protected function createOrderDetails($order, $articles)
     {
         try {
+            $taxFree = false;
+            // If order is B2B and import B2B without tax is enabled => set the order to taxFree
+            if (isset($this->orderTypes[LengowOrder::TYPE_BUSINESS])
+                && (bool)LengowConfiguration::getConfig('lengowImportB2b')) {
+                $taxFree = true;
+            }
             foreach ($articles as $articleDetailId => $articleDetailData) {
                 /** @var ArticleDetailModel $articleDetail */
                 $articleDetail = $this->entityManager->getReference('Shopware\Models\Article\Detail', $articleDetailId);
@@ -1237,11 +1243,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 $orderDetail->setPrice($articleDetailData['price_unit']);
                 $orderDetail->setQuantity($articleDetailData['quantity']);
                 $orderDetail->setArticleName($articleDetail->getArticle()->getName() . $detailName);
-                $orderDetail->setTaxRate($articleDetail->getArticle()->getTax()->getTax());
+                $orderDetail->setTaxRate($taxFree ? 0 : $articleDetail->getArticle()->getTax()->getTax());
                 $orderDetail->setEan($articleDetail->getEan());
                 $orderDetail->setUnit($articleDetail->getUnit() ? $articleDetail->getUnit()->getName() : '');
                 $orderDetail->setPackUnit($articleDetail->getPackUnit());
-                $orderDetail->setTax($articleDetail->getArticle()->getTax());
+                $orderDetail->setTax($taxFree ? null : $articleDetail->getArticle()->getTax());
                 $orderDetail->setStatus($detailStatus);
                 // decreases article detail stock
                 $quantity = $articleDetail->getInStock();

@@ -130,7 +130,7 @@ de:
       currency_conversion_title:
         label: "Konvertieren Sie die Währung Ihrer Bestellung"
         description: "Alle in Shopware importierten Bestellungen werden automatisch in die Währung umgerechnet, die Sie in Lengow ausgewählt haben."
-      import_b2b:
+      import_btob:
         label: "Import von B2B-Bestellungen ohne Steuern ermöglichen"
         description: "Aktivieren Sie diese Option, um B2B-Bestellungen ohne Steuer zu importieren"
     lengow_order_status_settings:

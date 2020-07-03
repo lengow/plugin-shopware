@@ -257,8 +257,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             ),
             'lengowImportB2b' => array(
                 'type' => 'boolean',
-                'label' => 'settings/lengow_import_settings/import_b2b/label',
-                'description' => 'settings/lengow_import_settings/import_b2b/description',
+                'label' => 'settings/lengow_import_settings/import_btob/label',
+                'description' => 'settings/lengow_import_settings/import_btob/description',
                 'value' => false,
             ),
         );
