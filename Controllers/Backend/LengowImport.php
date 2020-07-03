@@ -89,13 +89,13 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             'orderLengow.createdAt as createdAt',
             'orderLengow.message as message',
             'orderLengow.extra as extra',
+            'orderLengow.customerVatNumber as vatNumber',
             'shops.name as storeName',
             's_order.number as orderShopwareSku',
             's_core_countries.name as countryName',
             's_core_countries.iso as countryIso',
             'orderError.message as errorMessage',
             's_lengow_action.actionType as lastActionType',
-	        's_order_billingaddress.vatId as vatNumber',
         );
 
         if (LengowMain::compareVersion('5.5.0')) {
@@ -133,12 +133,6 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 's_lengow_action',
                 'WITH',
                 's_order.id = s_lengow_action.orderId'
-            )
-            ->leftJoin(
-                'Shopware\Models\Order\Billing',
-                's_order_billingaddress',
-                'WITH',
-                's_order_billingaddress.orderId = orderLengow.orderId'
             );
 
         // search criteria

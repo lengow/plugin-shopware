@@ -395,12 +395,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         $customerEmail = $this->orderData->billing_address->email !== null
             ? (string)$this->orderData->billing_address->email
             : (string)$this->packageData->delivery->email;
+        $customerVatNumber = $this->getVatNumberFromOrderData();
         // update Lengow order with new data
         $lengowOrder->setTotalPaid($this->orderAmount)
             ->setCurrency($this->orderData->currency->iso_a3)
             ->setOrderItem($this->orderItems)
             ->setCustomerName($customerName)
             ->setCustomerEmail($customerEmail)
+            ->setCustomerVatNumber($customerVatNumber)
             ->setCarrier($this->carrierName)
             ->setCarrierMethod($this->carrierMethod)
             ->setCarrierTracking($this->trackingNumber)
@@ -1201,7 +1203,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         } elseif (isset($this->packageData->delivery->vat_number)) {
             return $this->packageData->delivery->vat_number;
         }
-        return null;
+        return '';
     }
 
     /**

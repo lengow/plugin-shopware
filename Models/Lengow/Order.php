@@ -146,6 +146,13 @@ class Order extends ModelEntity
     private $totalPaid = null;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="customer_vat_number", type="text", nullable=true)
+     */
+    private $customerVatNumber;
+
+    /**
      * @var float
      *
      * @ORM\Column(name="commission", type="decimal", precision=17, scale=2, nullable=true)
@@ -608,6 +615,25 @@ class Order extends ModelEntity
     public function setTotalPaid($totalPaid)
     {
         $this->totalPaid = $totalPaid;
+        return $this;
+    }
+
+    /**
+     * Get the value of customer vat number
+     *
+     * @return string
+     */
+    public function getCustomerVatNumber() {
+        return $this->customerVatNumber;
+    }
+
+    /**
+     * @param string $customerVatNumber the customer vat number
+     *
+     * @return self
+     */
+    public function setCustomerVatNumber($customerVatNumber) {
+        $this->customerVatNumber = $customerVatNumber;
         return $this;
     }
 
