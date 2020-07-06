@@ -99,7 +99,7 @@
     },
     "changelog": {
         "en": {
-            "1.5.3": "Feature: Adding new links to the Lengow Help Center and Support",
+            "1.5.3": "Feature: Adding new links to the Lengow Help Center and Support; Feature: [import] B2b orders can now be imported without taxes (optionnal)",
             "1.5.2": "Feature: [import] Addition of order types in the order management screen; Feature: [import] Addition on the currency conversion in imported order; Feature: [import] Integration of the region code in the delivery and billing addresses; Bugfix: Update of the access token when recovering an http 401 code",
             "1.5.1": "Bugfix: Addition of the http 201 code in the success codes",
             "1.5.0": "Feature: Refactoring and optimization of the connector class; Feature: Optimization of API calls for synchronisation of orders and actions; Feature: [import] Protection of the import of anonymized orders; Feature: [import] Protection of the import of orders older than 3 months; Feature: Display of an alert when the plugin is no longer up to date; Feature: Renaming from Preprod Mode to Debug Mode; Bugfix: Refactoring and optimization of dates with the correct locale; Bugfix: [action] Improved carrier matching with a strict then approximate search; Bugfix: [import] Enhanced security for orders that change their marketplace name",

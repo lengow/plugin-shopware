@@ -390,6 +390,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
     protected $logOutput;
 
     /**
+     * @var string vatNumber of current order
+     */
+    protected $vatNumber;
+
+    /**
      * Construct the address
      *
      * @param $params array optional options
@@ -404,6 +409,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
         $this->relayId = isset($params['relay_id']) ? $params['relay_id'] : null;
         $this->marketplaceSku = isset($params['marketplace_sku']) ? $params['marketplace_sku'] : null;
         $this->logOutput = isset($params['log_output']) ? $params['log_output'] : false;
+        $this->vatNumber = isset($params['vat_number']) ? $params['vat_number'] : null;
         if (isset($params['billing_datas'])) {
             $billingAddressDatas = $this->extractAddressDataFromAPI($params['billing_datas']);
             $this->billingDatas = $this->setShopwareAddressFields($billingAddressDatas);
@@ -621,6 +627,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             if ($typeAddress === 'billing') {
                 $address = new OrderBillingModel();
                 $addressAttribute = new AttributeOrderBillingModel();
+                if ($this->vatNumber) {
+                    $address->setVatId($this->vatNumber);
+                }
             } else {
                 $address = new OrderShippingModel();
                 $addressAttribute = new AttributeOrderShippingModel();

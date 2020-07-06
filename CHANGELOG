@@ -3,6 +3,7 @@ Version 1.5.3
 =============================================================
 
     - Feature: Adding new links to the Lengow Help Center and Support
+    - Feature: [import] B2b orders can now be imported without taxes (optionnal)
 
 =============================================================
 Version 1.5.2

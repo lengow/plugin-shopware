@@ -130,6 +130,9 @@ en:
       currency_conversion_title:
         label: "Convert the currency of your order"
         description: "All orders imported into Shopware will be automatically converted into the currency you've selected in Lengow"
+      import_btob:
+        label: "Enable import of B2B orders without tax"
+        description: "Activate this option to import B2B orders without tax"
     lengow_order_status_settings:
       label: "Order Status"
       description: "Match your Lengow order status to retrieve them in your orders easily"
@@ -248,11 +251,13 @@ en:
       is_express: "Express delivery"
       is_delivered_by_marketplace: "Shipped by Marketplace"
       is_business: "Business"
+      vat_number: "VAT number"
       created_at: "Imported at"
       message: "Message"
       extra: "JSON format"
       say_yes: "Yes"
       say_no: "No"
+      no_vat: "No VAT number"
     buttons:
       action_ship: "Ship the order"
       action_cancel: "Cancel the order"
