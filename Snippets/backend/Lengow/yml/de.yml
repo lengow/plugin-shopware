@@ -256,6 +256,7 @@ de:
       extra: "JSON Format"
       say_yes: "Ja"
       say_no: "Nein"
+      no_vat: "No UST-ID"
     buttons:
       action_ship: " Die Bestellung versenden"
       action_cancel: "Die Bestellung stornieren"

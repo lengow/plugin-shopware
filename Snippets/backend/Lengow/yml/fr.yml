@@ -256,6 +256,7 @@ fr:
       extra: "Format JSON"
       say_yes: "Oui"
       say_no: "Non"
+      no_vat: "pas de numéro de TVA"
     buttons:
       action_ship: "Expédier la commande"
       action_cancel: "Annuler la commande"

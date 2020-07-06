@@ -34,7 +34,8 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
             message: '{s name="order/details/message" namespace="backend/Lengow/translation"}{/s}',
             extra: '{s name="order/details/extra" namespace="backend/Lengow/translation"}{/s}',
             say_yes: '{s name="order/details/say_yes" namespace="backend/Lengow/translation"}{/s}',
-            say_no: '{s name="order/details/say_no" namespace="backend/Lengow/translation"}{/s}'
+            say_no: '{s name="order/details/say_no" namespace="backend/Lengow/translation"}{/s}',
+            no_vat: '{s name="order/details/no_vat" namespace="backend/Lengow/translation"}{/s}'
         },
         buttons: {
             action_ship: '{s name="order/buttons/action_ship" namespace="backend/Lengow/translation"}{/s}',
@@ -188,7 +189,7 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
                 name: 'vatNumber',
                 fieldLabel: me.snippets.details.vat_number,
                 renderer : function(value) {
-                    return value ? value : 'No vat number';
+                    return value ? value : me.snippets.details.no_vat;
                 }
             },
             {
