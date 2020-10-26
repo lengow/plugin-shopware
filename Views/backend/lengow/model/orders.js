@@ -31,6 +31,7 @@ Ext.define('Shopware.apps.Lengow.model.Orders', {
         { name : 'isExpress', type: 'bool' },
         { name : 'isDeliveredByMarketplace', type: 'bool' },
         { name : 'isBusiness', type: 'bool' },
+        { name : 'vatNumber', type: 'string' },
         { name : 'inError', type: 'bool' },
         { name : 'message', type: 'string' },
         { name : 'createdAt', type: 'datetime' },

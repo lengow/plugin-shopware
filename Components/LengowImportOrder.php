@@ -395,12 +395,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         $customerEmail = $this->orderData->billing_address->email !== null
             ? (string)$this->orderData->billing_address->email
             : (string)$this->packageData->delivery->email;
+        $customerVatNumber = $this->getVatNumberFromOrderData();
         // update Lengow order with new data
         $lengowOrder->setTotalPaid($this->orderAmount)
             ->setCurrency($this->orderData->currency->iso_a3)
             ->setOrderItem($this->orderItems)
             ->setCustomerName($customerName)
             ->setCustomerEmail($customerEmail)
+            ->setCustomerVatNumber($customerVatNumber)
             ->setCarrier($this->carrierName)
             ->setCarrierMethod($this->carrierMethod)
             ->setCarrierTracking($this->trackingNumber)
@@ -446,6 +448,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                     'relay_id' => $this->relayId,
                     'marketplace_sku' => $this->marketplaceSku,
                     'log_output' => $this->logOutput,
+                    'vat_number' => $this->getVatNumberFromOrderData(),
                 )
             );
             // get or create Shopware customer
@@ -1091,6 +1094,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 ->getRepository('Shopware\Models\Order\Number')
                 ->findOneBy(array('name' => 'invoice'));
             $orderNumber = $number->getNumber() + 1;
+            $taxFree = 0;
+            // If order is B2B and import B2B without tax is enabled => set the order to taxFree
+            if (isset($this->orderTypes[LengowOrder::TYPE_BUSINESS])
+                && (bool)LengowConfiguration::getConfig('lengowImportB2b')) {
+                $taxFree = 1;
+            }
             // create a temporary order
             $orderParams = array(
                 'ordernumber' => $orderNumber,
@@ -1106,7 +1115,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 'transactionID' => '',
                 'customercomment' => '',
                 'net' => '',
-                'taxfree' => '',
+                'taxfree' => $taxFree,
                 'partnerID' => '',
                 'temporaryID' => '',
                 'referer' => '',
@@ -1183,6 +1192,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     }
 
     /**
+     * Get vat_number from lengow order data
+     *
+     * @return string|null
+     */
+    protected function getVatNumberFromOrderData()
+    {
+        if (isset($this->orderData->billing_address->vat_number)) {
+            return $this->orderData->billing_address->vat_number;
+        } elseif (isset($this->packageData->delivery->vat_number)) {
+            return $this->packageData->delivery->vat_number;
+        }
+        return '';
+    }
+
+    /**
      * Create order details based on API data
      *
      * @param OrderModel $order Shopware order instance
@@ -1193,6 +1217,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
     protected function createOrderDetails($order, $articles)
     {
         try {
+            $taxFree = false;
+            // If order is B2B and import B2B without tax is enabled => set the order to taxFree
+            if (isset($this->orderTypes[LengowOrder::TYPE_BUSINESS])
+                && (bool)LengowConfiguration::getConfig('lengowImportB2b')) {
+                $taxFree = true;
+            }
             foreach ($articles as $articleDetailId => $articleDetailData) {
                 /** @var ArticleDetailModel $articleDetail */
                 $articleDetail = $this->entityManager->getReference('Shopware\Models\Article\Detail', $articleDetailId);
@@ -1213,11 +1243,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 $orderDetail->setPrice($articleDetailData['price_unit']);
                 $orderDetail->setQuantity($articleDetailData['quantity']);
                 $orderDetail->setArticleName($articleDetail->getArticle()->getName() . $detailName);
-                $orderDetail->setTaxRate($articleDetail->getArticle()->getTax()->getTax());
+                $orderDetail->setTaxRate($taxFree ? 0 : $articleDetail->getArticle()->getTax()->getTax());
                 $orderDetail->setEan($articleDetail->getEan());
                 $orderDetail->setUnit($articleDetail->getUnit() ? $articleDetail->getUnit()->getName() : '');
                 $orderDetail->setPackUnit($articleDetail->getPackUnit());
-                $orderDetail->setTax($articleDetail->getArticle()->getTax());
+                $orderDetail->setTax($taxFree ? null : $articleDetail->getArticle()->getTax());
                 $orderDetail->setStatus($detailStatus);
                 // decreases article detail stock
                 $quantity = $articleDetail->getInStock();

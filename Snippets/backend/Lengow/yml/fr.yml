@@ -21,7 +21,7 @@ fr:
       some_help_title: "Besoin d'aide ?"
       get_in_touch: "Prenez contact avec les équipes Lengow."
       visit_help_center: "Visitez notre Help Center"
-      help_center_link: "https://supportlengow.zendesk.com/hc/fr/articles/360012203311"
+      help_center_link: "https://support.lengow.com/kb/guide/fr/WPhak8Nc3U"
       configure_plugin: "pour plus d'informations sur la configuration de votre plugin Shopware"
   status:
     screen:
@@ -47,7 +47,7 @@ fr:
       title: "Demandez de l'aide à notre équipe Support !"
       contain_text_support: "Des questions, un feedback sur Lengow... transmettez vos demandes au"
       title_lengow_support: "support Lengow"
-      link_lengow_support: "https://supportlengow.zendesk.com/hc/fr/requests/new"
+      link_lengow_support: "https://www.lengow.com/fr/support/"
       need_some_help: "Besoin d'aide ?"
       contain_text_support_hour: "Nous ferons notre maximum pour revenir vers vous au plus vite (Notre équipe Support est disponible du lundi au vendredi, de 9h à 18h)."
       find_answer: "Vous pouvez aussi consulter"
@@ -130,6 +130,9 @@ fr:
       currency_conversion_title:
         label: "Convertir la devise de vos commandes"
         description: "Toutes les commandes importées dans Shopware seront automatiquement converties dans la devise choisie dans Lengow"
+      import_btob:
+        label: "Activer l'import des commandes B2B sans taxes"
+        description: "Activer cette option pour importer les commandes B2B sans taxes"
     lengow_order_status_settings:
       label: "Statut des commandes"
       description: "Attribuez des statuts Lengow à vos commandes pour les retrouver facilement parmi l'ensemble de vos commandes."
@@ -247,11 +250,13 @@ fr:
       is_express: "Livraison Express"
       is_delivered_by_marketplace: "Expédié par la marketplace"
       is_business: "Business"
+      vat_number: "Numéro de TVA"
       created_at: "Importée le"
       message: "Message"
       extra: "Format JSON"
       say_yes: "Oui"
       say_no: "Non"
+      no_vat: "pas de numéro de TVA"
     buttons:
       action_ship: "Expédier la commande"
       action_cancel: "Annuler la commande"

@@ -22,7 +22,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Sync', {
         Ext.getCmp('syncPanel').getEl().mask();
         var syncIframe = document.getElementById("lengow_iframe");
         if (syncIframe) {
-            me.url = me.syncLink ? '//cms.'+me.lengowUrl+'/sync/' : '//cms.'+me.lengowUrl+'/';
+            me.url = me.syncLink ? 'https://cms.'+me.lengowUrl+'/sync/' : 'https://cms.'+me.lengowUrl+'/';
             syncIframe.src = me.url+'?lang='+me.langIsoCode+'&clientType=shopware';
             syncIframe.onload = function() {
                 Ext.Ajax.request({

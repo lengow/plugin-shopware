@@ -21,7 +21,7 @@ en:
       some_help_title: "Need some help?"
       get_in_touch: "Get in touch with Lengow."
       visit_help_center: "Visit our Help Center"
-      help_center_link: "https://supportlengow.zendesk.com/hc/en-us/articles/360012203311"
+      help_center_link: "https://support.lengow.com/kb/guide/en/WPhak8Nc3U"
       configure_plugin: "for detailed information on how to configure your Shopware plugin properly"
   status:
     screen:
@@ -47,7 +47,7 @@ en:
       title: "Get a little help from your support team!"
       contain_text_support: "Ask us anything about Lengow or share feedback with"
       title_lengow_support: "Lengow Support."
-      link_lengow_support: "https://supportlengow.zendesk.com/hc/en-us/requests/new"
+      link_lengow_support: "https://www.lengow.com/support/"
       need_some_help: "Need some help?"
       contain_text_support_hour: "We’ll do our best to get back to you during regular business hours (Monday to Friday – 9am to 6pm GMT+1)."
       find_answer: "You can also find answers in our "
@@ -130,6 +130,9 @@ en:
       currency_conversion_title:
         label: "Convert the currency of your order"
         description: "All orders imported into Shopware will be automatically converted into the currency you've selected in Lengow"
+      import_btob:
+        label: "Enable import of B2B orders without tax"
+        description: "Activate this option to import B2B orders without tax"
     lengow_order_status_settings:
       label: "Order Status"
       description: "Match your Lengow order status to retrieve them in your orders easily"
@@ -248,11 +251,13 @@ en:
       is_express: "Express delivery"
       is_delivered_by_marketplace: "Shipped by Marketplace"
       is_business: "Business"
+      vat_number: "VAT number"
       created_at: "Imported at"
       message: "Message"
       extra: "JSON format"
       say_yes: "Yes"
       say_no: "No"
+      no_vat: "No VAT number"
     buttons:
       action_ship: "Ship the order"
       action_cancel: "Cancel the order"

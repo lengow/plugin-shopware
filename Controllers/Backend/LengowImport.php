@@ -89,6 +89,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             'orderLengow.createdAt as createdAt',
             'orderLengow.message as message',
             'orderLengow.extra as extra',
+            'orderLengow.customerVatNumber as vatNumber',
             'shops.name as storeName',
             's_order.number as orderShopwareSku',
             's_core_countries.name as countryName',
@@ -162,6 +163,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 $results[$key]['isExpress'] = $orderTypes['isExpress'];
                 $results[$key]['isDeliveredByMarketplace'] = $orderTypes['isDeliveredByMarketplace'];
                 $results[$key]['isBusiness'] = $orderTypes['isBusiness'];
+                $results[$key]['vatNumber'] = $result['vatNumber'];
             }
         }
 

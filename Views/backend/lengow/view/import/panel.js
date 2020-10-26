@@ -28,12 +28,14 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
             is_express: '{s name="order/details/is_express" namespace="backend/Lengow/translation"}{/s}',
             is_delivered_by_marketplace: '{s name="order/details/is_delivered_by_marketplace" namespace="backend/Lengow/translation"}{/s}',
             is_business: '{s name="order/details/is_business" namespace="backend/Lengow/translation"}{/s}',
+            vat_number: '{s name="order/details/vat_number" namespace="backend/Lengow/translation"}{/s}',
             order_date: '{s name="order/grid/column/order_date" namespace="backend/Lengow/translation"}{/s}',
             created_at: '{s name="order/details/created_at" namespace="backend/Lengow/translation"}{/s}',
             message: '{s name="order/details/message" namespace="backend/Lengow/translation"}{/s}',
             extra: '{s name="order/details/extra" namespace="backend/Lengow/translation"}{/s}',
             say_yes: '{s name="order/details/say_yes" namespace="backend/Lengow/translation"}{/s}',
-            say_no: '{s name="order/details/say_no" namespace="backend/Lengow/translation"}{/s}'
+            say_no: '{s name="order/details/say_no" namespace="backend/Lengow/translation"}{/s}',
+            no_vat: '{s name="order/details/no_vat" namespace="backend/Lengow/translation"}{/s}'
         },
         buttons: {
             action_ship: '{s name="order/buttons/action_ship" namespace="backend/Lengow/translation"}{/s}',
@@ -181,6 +183,13 @@ Ext.define('Shopware.apps.Lengow.view.import.Panel', {
                 fieldLabel: me.snippets.details.is_business,
                 renderer : function(value) {
                     return value === 'true' ? me.snippets.details.say_yes : me.snippets.details.say_no;
+                }
+            },
+            {
+                name: 'vatNumber',
+                fieldLabel: me.snippets.details.vat_number,
+                renderer : function(value) {
+                    return value ? value : me.snippets.details.no_vat;
                 }
             },
             {
