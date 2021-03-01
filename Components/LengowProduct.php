@@ -530,7 +530,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     private function getPrices()
     {
         $detailPrice = $this->getDetailPrice();
-        $tax = $this->article->getTax()->getTax();
+        $tax = $this->article->getTax() ? $this->article->getTax()->getTax() : 0;
         // get original price before discount
         $priceExclTax = $detailPrice ? $detailPrice->getPrice() : 0;
         $priceInclTax = $priceExclTax * (100 + $tax) / 100;
