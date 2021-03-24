@@ -39,30 +39,16 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_ExtJs
 {
     /**
-     * Create html which contains Lengow iframe. Called when synchronizing a shop or creating a new account
+     * Create html which contains Lengow connection process
      */
-    public function getSyncIframeAction()
+    public function getConnectionAction()
     {
-        $panelHtml = '
-            <div class="lgw-container" style="height: 100%;">
-                <div class="lgw-content-section text-center" style="height: 100%;">
-                    <iframe id="lengow_iframe" 
-                        scrolling="yes"
-                        style="display: none;"
-                        frameborder="0"></iframe>
-                </div>
-            </div>
-            <input type="hidden" id="lengow_ajax_link">
-            <input type="hidden" id="lengow_sync_link">
-            ';
         $this->View()->assign(
             array(
                 'success' => true,
                 'data' => array(
-                    'panelHtml' => $panelHtml,
+                    'panelHtml' =>  LengowElements::getConnectionHome(),
                     'isNewMerchant' => LengowConfiguration::isNewMerchant(),
-                    'langIsoCode' => substr(LengowMain::getLocale(), 0, 2),
-                    'lengowUrl' => LengowConnector::LENGOW_URL,
                 ),
             )
         );

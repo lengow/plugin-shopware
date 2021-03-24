@@ -35,7 +35,7 @@ use Shopware\Models\Config\Value as ConfigValueModel;
 use Shopware\Models\Shop\Shop as ShopModel;
 use Shopware\CustomModels\Lengow\Settings as LengowSettingsModel;
 use Shopware_Plugins_Backend_Lengow_Bootstrap as LengowBootstrap;
-use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;;
+use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
 
@@ -234,23 +234,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                 $em = LengowBootstrap::getEntityManager();
                 $criteria = array('name' => $configName);
                 if ($shop !== null) {
-                    $criteria['shopId'] = is_integer($shop) ? $shop : $shop->getId();
+                    $criteria['shopId'] = is_int($shop) ? $shop : $shop->getId();
                 }
                 // @var LengowSettingsModel $config
                 $config = $em->getRepository('Shopware\CustomModels\Lengow\Settings')->findOneBy($criteria);
                 if ($config !== null) {
                     $value = $config->getValue();
                 }
-            } else {
-                // if shop no shop, get default one
-                if ($shop === null) {
-                    $shop = self::getDefaultShop();
-                }
-                $shopId = is_integer($shop) ? $shop : $shop->getId();
-                $lengowConf = new LengowConfiguration();
-                $value = $lengowConf->get($configName, $shopId);
+                return $value;
             }
         }
+        // if shop no shop, get default one
+        if ($shop === null) {
+            $shop = self::getDefaultShop();
+        }
+        $shopId = is_int($shop) ? $shop : $shop->getId();
+        $value = (new self())->get($configName, $shopId);
         return $value;
     }
 
@@ -274,8 +273,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             if (isset($setting['lengow_settings']) && $setting['lengow_settings']) {
                 $em = LengowBootstrap::getEntityManager();
                 $criteria = array('name' => $configName);
-                if ($shop != null) {
-                    if (is_integer($shop)) {
+                if ($shop !== null) {
+                    if (is_int($shop)) {
                         $shop = $em->getRepository('Shopware\Models\Shop\Shop')->find($shop);
                     }
                     $criteria['shopId'] = $shop->getId();
@@ -302,7 +301,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                 if ($shop === null) {
                     $shop = self::getDefaultShop();
                 }
-                $shopId = is_integer($shop) ? $shop : $shop->getId();
+                $shopId = is_int($shop) ? $shop : $shop->getId();
                 $lengowConf = new LengowConfiguration();
                 return $lengowConf->save($configName, $value, $shopId);
             }
@@ -344,16 +343,35 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      * Set Valid Account id / Access token / Secret token
      *
      * @param array $accessIds Account id / Access token / Secret token
+     *
+     * @return boolean
      */
     public static function setAccessIds($accessIds)
     {
+        $count = 0;
         $listKey = array('lengowAccountId', 'lengowAccessToken', 'lengowSecretToken');
         foreach ($accessIds as $key => $value) {
-            if (!in_array($key, array_keys($listKey))) {
+            if (!in_array($key, $listKey, true)) {
                 continue;
             }
-            if (strlen($value) > 0) {
+            if ($value !== '') {
+                $count++;
                 self::setConfig($key, $value);
+            }
+        }
+        return $count === count($listKey);
+    }
+
+    /**
+     * Reset access ids for old customer
+     */
+    public static function resetAccessIds()
+    {
+        $accessIds = array('lengowAccountId', 'lengowAccessToken', 'lengowSecretToken');
+        foreach ($accessIds as $accessId) {
+            $value = self::getConfig($accessId);
+            if ($value !== '') {
+                self::setConfig($accessId, 0);
             }
         }
     }
@@ -365,8 +383,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      */
     public static function isNewMerchant()
     {
-        $accessIds = self::getAccessIds();
-        list($accountId, $accessToken, $secretToken) = $accessIds;
+        list($accountId, $accessToken, $secretToken) = self::getAccessIds();
         if ($accountId !== null && $accessToken !== null && $secretToken !== null) {
             return false;
         }
@@ -409,7 +426,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         $valueChange = false;
         $shopCatalogIds = self::getCatalogIds($shop);
         foreach ($catalogIds as $catalogId) {
-            if (!in_array($catalogId, $shopCatalogIds) && is_numeric($catalogId) && $catalogId > 0) {
+            if ($catalogId > 0 && is_numeric($catalogId) && !in_array($catalogId, $shopCatalogIds, true)) {
                 $shopCatalogIds[] = (int)$catalogId;
                 $valueChange = true;
             }
@@ -420,6 +437,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             $shop
         );
         return $valueChange;
+    }
+
+    /**
+     * Reset all catalog ids
+     */
+    public static function resetCatalogIds()
+    {
+        $shops = LengowMain::getActiveShops();
+        foreach ($shops as $shop) {
+            if (self::shopIsActive($shop)) {
+                self::setConfig('lengowCatalogId', 0, $shop);
+                self::setConfig('lengowShopActive', false, $shop);
+            }
+        }
     }
 
     /**
@@ -447,7 +478,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         $catalogIds = self::getCatalogIds($shop);
         $shopHasCatalog = !empty($catalogIds);
         self::setConfig('lengowShopActive', $shopHasCatalog, $shop);
-        return $shopIsActive !== $shopHasCatalog ? true : false;
+        return $shopIsActive !== $shopHasCatalog;
     }
 
     /**

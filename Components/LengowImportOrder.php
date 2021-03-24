@@ -54,6 +54,7 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace as LengowMarket
 use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
 use Shopware_Plugins_Backend_Lengow_Components_LengowOrderError as LengowOrderError;
 use Shopware_Plugins_Backend_Lengow_Components_LengowProduct as LengowProduct;
+use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
 
 /**
  * Lengow Import Order Class
@@ -264,7 +265,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 LengowMain::setLogMessage(
                     'log/import/error_already_created',
                     array(
-                        'decoded_message' => LengowMain::decodeLogMessage($importLog['message']),
+                        'decoded_message' => LengowMain::decodeLogMessage(
+                            $importLog['message'],
+                            LengowTranslation::DEFAULT_ISO_CODE
+                        ),
                         'date_message' => $dateMessage->format('Y-m-d H:i:s'),
                     )
                 ),
@@ -506,7 +510,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             if ($lengowOrder->isInError()) {
                 LengowOrderError::createOrderError($lengowOrder, $errorMessage);
             }
-            $decodedMessage = LengowMain::decodeLogMessage($errorMessage);
+            $decodedMessage = LengowMain::decodeLogMessage($errorMessage, LengowTranslation::DEFAULT_ISO_CODE);
             LengowMain::log(
                 LengowLog::CODE_IMPORT,
                 LengowMain::setLogMessage(
@@ -646,11 +650,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         if (!empty($errorMessages)) {
             foreach ($errorMessages as $errorMessage) {
                 LengowOrderError::createOrderError($lengowOrder, $errorMessage);
+                $decodedMessage = LengowMain::decodeLogMessage($errorMessage, LengowTranslation::DEFAULT_ISO_CODE);
                 LengowMain::log(
                     LengowLog::CODE_IMPORT,
                     LengowMain::setLogMessage(
                         'log/import/order_import_failed',
-                        array('decoded_message' => LengowMain::decodeLogMessage($errorMessage))
+                        array('decoded_message' => $decodedMessage)
                     ),
                     $this->logOutput,
                     $this->marketplaceSku

@@ -35,7 +35,7 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTransl
 require_once('./config.inc.php');
 
 $check = new LengowCheck();
-$locale = new LengowTranslation();
+$locale = new LengowTranslation(LengowTranslation::DEFAULT_ISO_CODE);
 if (LengowMain::checkIp(true)) {
     echo '
     <!DOCTYPE html>

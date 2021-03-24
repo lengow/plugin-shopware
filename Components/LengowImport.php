@@ -41,6 +41,7 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
 use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
 use Shopware_Plugins_Backend_Lengow_Components_LengowOrderError as LengowOrderError;
 use Shopware_Plugins_Backend_Lengow_Components_LengowSync as LengowSync;
+use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
 
 /**
  * Lengow Import Class
@@ -378,7 +379,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                         LengowOrderError::finishOrderErrors($this->lengowOrderId);
                         LengowOrderError::createOrderError($this->lengowOrderId, $errorMessage);
                     }
-                    $decodedMessage = LengowMain::decodeLogMessage($errorMessage);
+                    $decodedMessage = LengowMain::decodeLogMessage($errorMessage, LengowTranslation::DEFAULT_ISO_CODE);
                     LengowMain::log(
                         LengowLog::CODE_IMPORT,
                         LengowMain::setLogMessage(
@@ -598,7 +599,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     );
                 }
             } catch (Exception $e) {
-                $message = LengowMain::decodeLogMessage($e->getMessage());
+                $message = LengowMain::decodeLogMessage($e->getMessage(), LengowTranslation::DEFAULT_ISO_CODE);
                 throw new LengowException(
                     LengowMain::setLogMessage(
                         'lengow_log/exception/error_lengow_webservice',
@@ -727,7 +728,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                         . $e->getFile() . ' | ' . $e->getLine();
                 }
                 if (isset($errorMessage)) {
-                    $decodedMessage = LengowMain::decodeLogMessage($errorMessage);
+                    $decodedMessage = LengowMain::decodeLogMessage($errorMessage, LengowTranslation::DEFAULT_ISO_CODE);
                     LengowMain::log(
                         LengowLog::CODE_IMPORT,
                         LengowMain::setLogMessage(

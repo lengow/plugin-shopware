@@ -36,6 +36,7 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowImport as LengowImport;
 use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 use Shopware_Plugins_Backend_Lengow_Components_LengowSync as LengowSync;
+use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
 
 /**
  * Frontend Lengow Controller
@@ -88,7 +89,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
         // if shop name has been filled
         if ($shopId === null) {
             header('HTTP/1.1 400 Bad Request');
-            die(LengowMain::decodeLogMessage('log/export/specify_shop'));
+            die(LengowMain::decodeLogMessage('log/export/specify_shop', LengowTranslation::DEFAULT_ISO_CODE));
         }
         $em = Shopware()->Models();
         /** @var ShopModel $shop */
@@ -109,7 +110,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             die(
                 LengowMain::decodeLogMessage(
                     'log/export/shop_dont_exist',
-                    null,
+                    LengowTranslation::DEFAULT_ISO_CODE,
                     array(
                         'shop_id' => $shopId,
                         'shop_ids' => $shopsIds,
@@ -160,18 +161,21 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             if ((bool)LengowConfiguration::getConfig('lengowIpEnabled')) {
                 $errorMessage = LengowMain::decodeLogMessage(
                     'log/export/unauthorised_ip',
-                    null,
+                    LengowTranslation::DEFAULT_ISO_CODE,
                     array('ip' => $_SERVER['REMOTE_ADDR'])
                 );
             } else {
                 if (strlen($token) > 0) {
                     $errorMessage = LengowMain::decodeLogMessage(
                         'log/export/unauthorised_token',
-                        null,
+                        LengowTranslation::DEFAULT_ISO_CODE,
                         array('token' => $token)
                     );
                 } else {
-                    $errorMessage = LengowMain::decodeLogMessage('log/export/empty_token');
+                    $errorMessage = LengowMain::decodeLogMessage(
+                        'log/export/empty_token',
+                        LengowTranslation::DEFAULT_ISO_CODE
+                    );
                 }
             }
             header('HTTP/1.1 403 Forbidden');
@@ -280,25 +284,34 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 // sync parameter is not valid
                 if ($sync && !in_array($sync, LengowSync::$syncActions)) {
                     header('HTTP/1.1 400 Bad Request');
-                    die(LengowMain::decodeLogMessage('log/import/not_valid_action', null, array('action' => $sync)));
+                    die(
+                        LengowMain::decodeLogMessage(
+                            'log/import/not_valid_action',
+                            LengowTranslation::DEFAULT_ISO_CODE,
+                            array('action' => $sync)
+                        )
+                    );
                 }
             }
         } else {
             if ((bool)LengowConfiguration::getConfig('lengowIpEnabled')) {
                 $errorMessage = LengowMain::decodeLogMessage(
                     'log/export/unauthorised_ip',
-                    null,
+                    LengowTranslation::DEFAULT_ISO_CODE,
                     array('ip' => $_SERVER['REMOTE_ADDR'])
                 );
             } else {
                 if (strlen($token) > 0) {
                     $errorMessage = LengowMain::decodeLogMessage(
                         'log/export/unauthorised_token',
-                        null,
+                        LengowTranslation::DEFAULT_ISO_CODE,
                         array('token' => $token)
                     );
                 } else {
-                    $errorMessage = LengowMain::decodeLogMessage('log/export/empty_token');
+                    $errorMessage = LengowMain::decodeLogMessage(
+                        'log/export/empty_token',
+                        LengowTranslation::DEFAULT_ISO_CODE
+                    );
                 }
             }
             header('HTTP/1.1 403 Forbidden');

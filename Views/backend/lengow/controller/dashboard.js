@@ -22,7 +22,7 @@ Ext.define('Shopware.apps.Lengow.controller.Dashboard', {
     onLoadDashboardContent: function() {
         var me = this;
         Ext.Ajax.request({
-            url: '{url controller="LengowHome" action="getHomeContent"}',
+            url: '{url controller="LengowDashboard" action="getDashboardContent"}',
             method: 'POST',
             type: 'json',
             success: function(response) {
@@ -56,12 +56,9 @@ Ext.define('Shopware.apps.Lengow.controller.Dashboard', {
         var refreshLink = Ext.query("a[id=lgw-refresh]")[0];
         refreshLink.onclick = function() {
             Ext.Ajax.request({
-                url: '{url controller="LengowSync" action="getIsSync"}',
+                url: '{url controller="LengowDashboard" action="refreshStatus"}',
                 method: 'POST',
                 type: 'json',
-                params: {
-                    syncAction: 'refresh_status'
-                },
                 success: function() {
                     // refresh Lengow by launching a new instance of the plugin
                     Shopware.app.Application.addSubApplication({

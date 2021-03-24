@@ -36,6 +36,7 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowFile as LengowFile;
 use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace as LengowMarketplace;
+use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
 
 /**
  * Lengow Sync Class
@@ -121,13 +122,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             'plugin_version' => Shopware()->Plugins()->Backend()->Lengow()->getVersion(),
             'email' => LengowConfiguration::getConfig('mail'),
             'cron_url' => LengowMain::getImportUrl(),
-            'return_url' => 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'],
             'shops' => array(),
         );
         $activeShops = LengowMain::getActiveShops();
         foreach ($activeShops as $shop) {
             $export = new LengowExport($shop, array());
-            $data['shops'][$shop->getId()] = array(
+            $data['shops'][] = array(
                 'token' => LengowMain::getToken($shop),
                 'shop_name' => $shop->getName(),
                 'domain_url' => LengowMain::getShopUrl($shop),
@@ -141,33 +141,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     }
 
     /**
-     * Set shop configuration key from Lengow
-     *
-     * @param array $params Lengow API credentials
-     */
-    public static function sync($params)
-    {
-        LengowConfiguration::setAccessIds(
-            array(
-                'lengowAccountId' => $params['account_id'],
-                'lengowAccessToken' => $params['access_token'],
-                'lengowSecretToken' => $params['secret_token'],
-            )
-        );
-        if (isset($params['shops'])) {
-            foreach ($params['shops'] as $shopToken => $shopCatalogIds) {
-                $shop = LengowMain::getShopByToken($shopToken);
-                if ($shop) {
-                    LengowConfiguration::setCatalogIds($shopCatalogIds['catalog_ids'], $shop);
-                    LengowConfiguration::setActiveShop($shop);
-                }
-            }
-        }
-        // save last update date for a specific settings (change synchronisation interval time)
-        LengowConfiguration::setConfig('lengowLastSettingUpdate', time());
-    }
-
-    /**
      * Sync Lengow catalogs for order synchronisation
      *
      * @param boolean $force force cache Update
@@ -177,14 +150,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
      */
     public static function syncCatalog($force = false, $logOutput = false)
     {
+        $success = false;
         $settingUpdated = false;
         if (LengowConfiguration::isNewMerchant()) {
-            return false;
+            return $success;
         }
         if (!$force) {
             $updatedAt = LengowConfiguration::getConfig('lengowCatalogUpdate');
             if ($updatedAt !== null && (time() - (int)$updatedAt) < self::$cacheTimes[self::SYNC_CATALOG]) {
-                return false;
+                return $success;
             }
         }
         $result = LengowConnector::queryApi(LengowConnector::GET, LengowConnector::API_CMS, array(), '', $logOutput);
@@ -202,6 +176,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                             }
                         }
                     }
+                    $success = true;
                     break;
                 }
             }
@@ -211,7 +186,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             LengowConfiguration::setConfig('lengowLastSettingUpdate', time());
         }
         LengowConfiguration::setConfig('lengowCatalogUpdate', time());
-        return true;
+        return $success;
     }
 
     /**
@@ -346,7 +321,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 $marketplaceFile->close();
                 LengowConfiguration::setConfig('lengowMarketplaceUpdate', time());
             } catch (LengowException $e) {
-                $decodedMessage = LengowMain::decodeLogMessage($e->getMessage());
+                $decodedMessage = LengowMain::decodeLogMessage($e->getMessage(), LengowTranslation::DEFAULT_ISO_CODE);
                 LengowMain::log(
                     LengowLog::CODE_IMPORT,
                     LengowMain::setLogMessage(

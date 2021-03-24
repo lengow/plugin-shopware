@@ -35,6 +35,13 @@ default:
       token_is_empty: "the returned authorization token is empty"
       api_not_available: "Lengow APIs are not available"
       retry_get_token: "API call failed - authorization token expired - attempt to recover a new token"
+    connection:
+      cms_creation_success: "CMS successfully created with Lengow webservice (CMS token %{cms_token})"
+      cms_creation_failed: "WARNING! CMS could NOT be created with Lengow webservice (CMS token %{cms_token})"
+      cms_already_exist: "CMS already created in Lengow (CMS token %{cms_token})"
+      try_link_catalog: "try to associate catalogue IDs %{catalog_ids} to the shop (SHOP token %{shop_token}) for the Shopware shop ID %{shop_id}"
+      link_catalog_success: "catalogues successfully linked with Lengow webservice"
+      link_catalog_failed: "WARNING! catalogues could NOT be linked with Lengow webservice"
     mail_report:
       send_mail_to: "report email sent to %{email}"
       unable_send_mail_to: "unable to send report email to %{email}"

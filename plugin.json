@@ -6,9 +6,9 @@
     "support_mail": "support.lengow.zendesk@lengow.com",
     "license": "proprietary",
     "link": "http://lengow.com",
-    "currentVersion": "1.5.4",
+    "currentVersion": "1.6.0",
     "changes": {
-        "1.5.4": {
+        "1.6.0": {
             "releasedate": "",
             "line": ""
         },
@@ -103,7 +103,7 @@
     },
     "changelog": {
         "en": {
-            "1.5.4": "",
+            "1.6.0": "Feature: Integration of the new connection process; Bugfix: Check if product tax exist before fetching it",
             "1.5.3": "Feature: Adding new links to the Lengow Help Center and Support; Feature: [import] B2b orders can now be imported without taxes (optional); Bugfix: Always load iframe over https",
             "1.5.2": "Feature: [import] Addition of order types in the order management screen; Feature: [import] Addition on the currency conversion in imported order; Feature: [import] Integration of the region code in the delivery and billing addresses; Bugfix: Update of the access token when recovering an http 401 code",
             "1.5.1": "Bugfix: Addition of the http 201 code in the success codes",
