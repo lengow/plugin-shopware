@@ -29,7 +29,6 @@
  */
 
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
-use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
 
 /**
  * Lengow Translation Class
@@ -37,14 +36,24 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTransl
 class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
 {
     /**
+     * @var string default iso code
+     */
+    const DEFAULT_ISO_CODE = 'default';
+
+    /**
      * @var array all translations
      */
     protected static $translation = null;
 
     /**
-     * @var string fallback iso code
+     * Construct
+     *
+     * @param string|null $isoCode translation iso code
      */
-    public $fallbackIsoCode = 'default';
+    public function __construct($isoCode = null)
+    {
+        $this->isoCode = $isoCode ? $isoCode : LengowMain::getLocale();
+    }
 
     /**
      * Translate message
@@ -57,17 +66,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
      */
     public function t($message, $args = array(), $isoCode = null)
     {
+        if ($isoCode === null) {
+            $isoCode = $this->isoCode;
+        }
         if (!isset(self::$translation[$isoCode])) {
             self::loadFile();
         }
         if (isset(self::$translation[$isoCode][$message])) {
             return $this->translateFinal(self::$translation[$isoCode][$message], $args);
         } else {
-            if (!isset(self::$translation[$this->fallbackIsoCode])) {
-                self::loadFile($this->fallbackIsoCode);
+            if (!isset(self::$translation[self::DEFAULT_ISO_CODE])) {
+                self::loadFile(self::DEFAULT_ISO_CODE);
             }
-            if (isset(self::$translation[$this->fallbackIsoCode][$message])) {
-                return $this->translateFinal(self::$translation[$this->fallbackIsoCode][$message], $args);
+            if (isset(self::$translation[self::DEFAULT_ISO_CODE][$message])) {
+                return $this->translateFinal(self::$translation[self::DEFAULT_ISO_CODE][$message], $args);
             } else {
                 return 'Missing Translation [' . $message . ']';
             }
@@ -136,32 +148,5 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
             self::loadFile();
         }
         return array_key_exists($isoCode, self::$translation);
-    }
-
-    /**
-     * Get translations from an array
-     *
-     * @param array $keys list of translation keys
-     *
-     * @return array
-     */
-    public static function getTranslationsFromArray($keys)
-    {
-        // get locale from session
-        $locale = LengowMain::getLocale();
-        $lengowTranslation = new LengowTranslation();
-        $translations = array();
-        foreach ($keys as $path => $key) {
-            foreach ($key as $value) {
-                $translationParam = array();
-                if (preg_match('/^(([a-z\_]*\/){1,3}[a-z\_]*)(\[(.*)\]|)$/', $path . $value, $result)) {
-                    if (isset($result[1])) {
-                        $tKey = $result[1];
-                        $translations[$value] = $lengowTranslation->t($tKey, $translationParam, $locale);
-                    }
-                }
-            }
-        }
-        return $translations;
     }
 }

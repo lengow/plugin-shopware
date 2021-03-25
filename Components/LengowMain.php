@@ -251,7 +251,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function getLocale()
     {
-        return Shopware()->Auth()->getIdentity()->locale->getLocale();
+        if (Shopware()->Auth()->getIdentity() !== null) {
+            return Shopware()->Auth()->getIdentity()->locale->getLocale();
+        }
+        return LengowTranslation::DEFAULT_ISO_CODE;
     }
 
     /**

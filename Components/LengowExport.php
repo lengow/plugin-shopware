@@ -37,6 +37,7 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowException as LengowExceptio
 use Shopware_Plugins_Backend_Lengow_Components_LengowFeed as LengowFeed;
 use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
 use Shopware_Plugins_Backend_Lengow_Components_LengowProduct as LengowProduct;
 
 /**
@@ -331,7 +332,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
             }
             if (isset($errorMessage)) {
-                $decodedMessage = LengowMain::decodeLogMessage($errorMessage);
+                $decodedMessage = LengowMain::decodeLogMessage($errorMessage, LengowTranslation::DEFAULT_ISO_CODE);
                 LengowMain::log(
                     LengowLog::CODE_EXPORT,
                     LengowMain::setLogMessage('log/export/export_failed', array('decoded_message' => $decodedMessage)),

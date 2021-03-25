@@ -50,7 +50,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCheck
      */
     public function __construct()
     {
-        $this->locale = new LengowTranslation();
+        $this->locale = new LengowTranslation(LengowTranslation::DEFAULT_ISO_CODE);
     }
 
     /**

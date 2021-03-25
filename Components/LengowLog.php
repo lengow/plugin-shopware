@@ -31,6 +31,7 @@
 use Shopware_Plugins_Backend_Lengow_Components_LengowException as LengowException;
 use Shopware_Plugins_Backend_Lengow_Components_LengowFile as LengowFile;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
 
 /**
  * Lengow Log Class
@@ -42,6 +43,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
      * @var string install log code
      */
     const CODE_INSTALL = 'Install';
+
+    /**
+     * @var string connection log code
+     */
+    const CODE_CONNECTION = 'Connection';
 
     /**
      * @var string setting log code
@@ -115,7 +121,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
      */
     public function write($category, $message = '', $display = false, $marketplaceSku = null)
     {
-        $decodedMessage = LengowMain::decodeLogMessage($message);
+        $decodedMessage = LengowMain::decodeLogMessage($message, LengowTranslation::DEFAULT_ISO_CODE);
         $log = date('Y-m-d H:i:s');
         $log .= ' - ' . (empty($category) ? '' : '[' . $category . '] ');
         $log .= '' . (empty($marketplaceSku) ? '' : 'order ' . $marketplaceSku . ': ');

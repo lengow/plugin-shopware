@@ -41,46 +41,10 @@ class Shopware_Controllers_Backend_LengowHelp extends Shopware_Controllers_Backe
      */
     public function getHelpContentAction()
     {
-        $keys = array(
-            'help/screen/' => array(
-                'title',
-                'go_to_lengow',
-                'contain_text_support',
-                'contain_text_support_hour',
-                'find_answer',
-                'link_shopware_guide',
-                'mailto_subject',
-                'mail_lengow_support_title',
-                'need_some_help',
-                'link_lengow_support',
-                'title_lengow_support',
-            ),
-            'dashboard/screen/' => array(
-                'help_center_link',
-            ),
-        );
-        $translations = LengowTranslation::getTranslationsFromArray($keys);
-        $html = '<div class="lgw-container">
-                <div class="lgw-box lengow_help_wrapper text-center">
-                    <h2>' . $translations['title'] . '</h2>
-                    <p>' . $translations['contain_text_support'] . ' 
-                        <a href="' . $translations['link_lengow_support'] . '" target="_blank" title="Lengow Support">
-                        ' . $translations['title_lengow_support'] . '
-                        </a>
-                    </p>
-                    <p>' . $translations['contain_text_support_hour'] . '</p>
-                    <p>' . $translations['find_answer'] . '
-                        <a href="' . $translations['help_center_link'] . '" target="_blank" title="Help Center">
-                        ' . $translations['link_shopware_guide'] . '
-                        </a>
-                    </p>
-                </div>
-            </div>';
-        $html .= LengowElements::getFooter();
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => $html,
+                'data' => LengowElements::getHelp(),
             )
         );
     }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2017 Lengow SAS
+ * Copyright 2021 Lengow SAS
  *
  * NOTICE OF LICENSE
  *
@@ -24,7 +24,7 @@
  * @package     Lengow
  * @subpackage  Controllers
  * @author      Team module <team-module@lengow.com>
- * @copyright   2017 Lengow SAS
+ * @copyright   2021 Lengow SAS
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
@@ -32,14 +32,14 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowElements as LengowElements;
 use Shopware_Plugins_Backend_Lengow_Components_LengowSync as LengowSync;
 
 /**
- * Backend Lengow Home Controller
+ * Backend Lengow Dashboard Controller
  */
-class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backend_ExtJs
+class Shopware_Controllers_Backend_LengowDashboard extends Shopware_Controllers_Backend_ExtJs
 {
     /**
      * Construct home page html with translations
      */
-    public function getHomeContentAction()
+    public function getDashboardContentAction()
     {
         $status = LengowSync::getStatusAccount();
         $showTabBar = false;
@@ -56,5 +56,14 @@ class Shopware_Controllers_Backend_LengowHome extends Shopware_Controllers_Backe
                 'data' => $htmlContent,
             )
         );
+    }
+
+    /**
+     * Refresh status account action
+     */
+    public function refreshStatusAction()
+    {
+        LengowSync::getStatusAccount(true);
+        $this->View()->assign(array('success' => true));
     }
 }

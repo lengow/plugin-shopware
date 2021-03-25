@@ -43,6 +43,7 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
 use Shopware_Plugins_Backend_Lengow_Components_LengowOrderError as LengowOrderError;
+use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
 
 /**
  * Lengow Order Class
@@ -585,8 +586,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         if ($lengowOrder === null) {
             return false;
         }
-        $accessIds = LengowConfiguration::getAccessIds();
-        list($accountId, $accessToken, $secretToken) = $accessIds;
+        list($accountId, $accessToken, $secretToken) = LengowConfiguration::getAccessIds();
         if ($connector === null) {
             if (LengowConnector::isValidAuth($logOutput)) {
                 $connector = new LengowConnector($accessToken, $secretToken);
@@ -600,21 +600,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             foreach ($orderIds as $orderId) {
                 $shopwareIds[] = $orderId['orderId'];
             }
+            $body = array(
+                'account_id' => $accountId,
+                'marketplace_order_id' => $lengowOrder->getMarketplaceSku(),
+                'marketplace' => $lengowOrder->getMarketplaceName(),
+                'merchant_order_id' => $shopwareIds,
+            );
             try {
                 $result = $connector->patch(
                     LengowConnector::API_ORDER_MOI,
-                    array(
-                        'account_id' => $accountId,
-                        'marketplace_order_id' => $lengowOrder->getMarketplaceSku(),
-                        'marketplace' => $lengowOrder->getMarketplaceName(),
-                        'merchant_order_id' => $shopwareIds,
-                    ),
+                    array(),
                     LengowConnector::FORMAT_JSON,
-                    '',
+                    json_encode($body),
                     $logOutput
                 );
             } catch (Exception $e) {
-                $message = LengowMain::decodeLogMessage($e->getMessage());
+                $message = LengowMain::decodeLogMessage($e->getMessage(), LengowTranslation::DEFAULT_ISO_CODE);
                 $error = LengowMain::setLogMessage(
                     'log/connector/error_api',
                     array(
@@ -884,11 +885,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                     );
                 }
             }
+            $decodedMessage = LengowMain::decodeLogMessage($errorMessage, LengowTranslation::DEFAULT_ISO_CODE);
             LengowMain::log(
                 LengowLog::CODE_ACTION,
                 LengowMain::setLogMessage(
                     'log/order_action/call_action_failed',
-                    array('decoded_message' => LengowMain::decodeLogMessage($errorMessage))
+                    array('decoded_message' => $decodedMessage)
                 ),
                 false,
                 $lengowOrder->getMarketplaceSku()

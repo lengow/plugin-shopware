@@ -38,6 +38,7 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
 use Shopware_Plugins_Backend_Lengow_Components_LengowOrderError as LengowOrderError;
+use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
 
 /**
  * Lengow Action Class
@@ -601,11 +602,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                                 $lengowOrder->getMarketplaceSku()
                             );
                         }
+                        $decodedMessage = LengowMain::decodeLogMessage(
+                            $errorMessage,
+                            LengowTranslation::DEFAULT_ISO_CODE
+                        );
                         LengowMain::log(
                             LengowLog::CODE_ACTION,
                             LengowMain::setLogMessage(
                                 'log/order_action/call_action_failed',
-                                array('decoded_message' => LengowMain::decodeLogMessage($errorMessage))
+                                array('decoded_message' => $decodedMessage)
                             ),
                             false,
                             $lengowOrder->getMarketplaceSku()

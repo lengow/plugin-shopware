@@ -226,10 +226,15 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_Lengow',
             'getDefaultControllerPath'
         );
-        // home controller
+        // connection controller
         $this->subscribeEvent(
-            'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowHome',
-            'onGetHomeControllerPath'
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowConnection',
+            'onGetConnectionControllerPath'
+        );
+        // dashboard controller
+        $this->subscribeEvent(
+            'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowDashboard',
+            'onGetDashboardControllerPath'
         );
         // export controller
         $this->subscribeEvent(
@@ -240,11 +245,6 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $this->subscribeEvent(
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowImport',
             'onGetImportControllerPath'
-        );
-        // sync controller
-        $this->subscribeEvent(
-            'Enlight_Controller_Dispatcher_ControllerPath_Backend_LengowSync',
-            'onGetSyncControllerPath'
         );
         // log controller
         $this->subscribeEvent(
@@ -291,13 +291,23 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * Returns the path to Lengow home controller
+     * Returns the path to Lengow connection controller
      *
      * @return string
      */
-    public function onGetHomeControllerPath()
+    public function onGetConnectionControllerPath()
     {
-        return $this->Path() . 'Controllers/Backend/LengowHome.php';
+        return $this->Path() . 'Controllers/Backend/LengowConnection.php';
+    }
+
+    /**
+     * Returns the path to Lengow dashboard controller
+     *
+     * @return string
+     */
+    public function onGetDashboardControllerPath()
+    {
+        return $this->Path() . 'Controllers/Backend/LengowDashboard.php';
     }
 
     /**
@@ -311,23 +321,13 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     }
 
     /**
-     * Return the path to Lengow import controller
+     * Returns the path to Lengow import controller
      *
      * @return string
      */
     public function onGetImportControllerPath()
     {
         return $this->Path() . 'Controllers/Backend/LengowImport.php';
-    }
-
-    /**
-     * Return the path to Lengow sync controller
-     *
-     * @return string
-     */
-    public function onGetSyncControllerPath()
-    {
-        return $this->Path() . 'Controllers/Backend/LengowSync.php';
     }
 
     /**
