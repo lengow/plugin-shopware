@@ -33,6 +33,6 @@ require 'views/header.php';
 ?>
     <div class="container">
         <h1><?php echo $locale->t('toolbox/checksum/checksum_integrity'); ?></h1>
-        <?php echo $check->checkFileMd5(); ?></div>
+        <?php echo $toolboxElement->checkFileMd5(); ?></div>
 <?php
 require 'views/footer.php';

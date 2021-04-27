@@ -29,8 +29,11 @@
  */
 
 use Shopware\Models\Article\Article as ArticleModel;
+use Shopware\Models\Article\Configurator\Group as ArticleConfiguratorGroupModel;
 use Shopware\Models\Article\Detail as ArticleDetailModel;
+use Shopware\Models\Article\Element as ArticleElementModel;
 use Shopware\Models\Article\Price as ArticlePriceModel;
+use Shopware\Models\Attribute\Configuration as AttributeConfigurationModel;
 use Shopware\Models\Dispatch\Dispatch as DispatchModel;
 use Shopware\Models\Media\Media as MediaModel;
 use Shopware\Models\Category\Category as CategoryModel;
@@ -143,12 +146,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $this->shop = $shop;
         $this->type = $type;
         $this->logOutput = $logOutput;
-        $this->isVariation = $type === 'child' ? true : false;
+        $this->isVariation = $type === 'child';
         $this->currency = $currency;
         $this->factor = $this->currency->getFactor();
         $this->variations = self::getArticleVariations($this->detail->getId());
         $this->attributes = self::getArticleAttributes($this->detail->getId());
-        $this->properties = self::getArticleProperties($this->article->getId());
+        $this->properties = $this->getArticleProperties($this->article->getId());
         $this->translations = $this->getArticleTranslations();
         $this->prices = $this->getPrices();
         $this->images = $this->getImages();
@@ -169,9 +172,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             case 'id':
                 if ($this->isVariation) {
                     return $this->article->getId() . '_' . $this->detail->getId();
-                } else {
-                    return $this->article->getId();
                 }
+                return $this->article->getId();
             case 'sku':
                 return $this->detail->getNumber();
             case 'sku_supplier':
@@ -184,9 +186,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             case 'quantity':
                 if ($this->isVariation) {
                     return $this->detail->getInStock() > 0 ? $this->detail->getInStock() : 0;
-                } else {
-                    return $this->getTotalStock();
                 }
+                return $this->getTotalStock();
             case 'category':
                 return $this->getBreadcrumb();
             case 'status':
@@ -199,7 +200,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 $categories = $this->article->getCategories();
                 foreach ($categories as $category) {
                     $pathCategory = explode('|', $category->getPath());
-                    if (in_array($parentCategoryId, $pathCategory)) {
+                    if (in_array($parentCategoryId, $pathCategory, true)) {
                         $categoryId = $category->getId();
                         break;
                     }
@@ -335,7 +336,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         );
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select($select)
-            ->from('Shopware\Models\Article\Configurator\Group', 'groups')
+            ->from(ArticleConfiguratorGroupModel::class, 'groups')
             ->leftJoin('groups.options', 'options')
             ->leftJoin('options.articles', 'articles')
             ->where('articles.id = :detailId')
@@ -356,7 +357,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select(array('groups.name AS name'))
-            ->from('Shopware\Models\Article\Configurator\Group', 'groups');
+            ->from(ArticleConfiguratorGroupModel::class, 'groups');
         return $builder->getQuery()->getArrayResult();
     }
 
@@ -381,7 +382,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $attributes = array();
         foreach ($tableFieldsAttributes as $fieldAttribute => $fieldAttributeText) {
             foreach ($tableValuesAttributes as $valueAttribute => $valueAttributeText) {
-                if ($fieldAttributeText['columnName'] == $valueAttribute) {
+                if ($fieldAttributeText['columnName'] === $valueAttribute) {
                     $attributes[strtolower($fieldAttributeText['label'])] = array(
                         'columnName' => $fieldAttributeText['columnName'],
                         'value' => $valueAttributeText,
@@ -407,7 +408,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             );
             $builder = Shopware()->Models()->createQueryBuilder();
             $builder->select($select)
-                ->from('Shopware\Models\Attribute\Configuration', 'attributs')
+                ->from(AttributeConfigurationModel::class, 'attributs')
                 ->where('attributs.displayInBackend = 1')
                 ->groupBy('attributs.columnName')
                 ->orderBy('attributs.columnName', 'ASC');
@@ -420,7 +421,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             );
             $builder = Shopware()->Models()->createQueryBuilder();
             $builder->select($select)
-                ->from('Shopware\Models\Article\Element', 'attributs')
+                ->from(ArticleElementModel::class, 'attributs')
                 ->groupBy('attributs.name')
                 ->orderBy('attributs.position', 'ASC');
             $attributes =  $builder->getQuery()->getArrayResult();
@@ -447,7 +448,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         foreach ($tableProperties as $property => $propertyValue) {
             $translation = LengowMain::getPropertyValueTranslation($propertyValue['id'], $this->shop->getId());
             $lowerPropertyName = strtolower($propertyValue['name']);
-            $propertyTranslation = $translation ? $translation : $propertyValue['value'];
+            $propertyTranslation = $translation ?: $propertyValue['value'];
             if (array_key_exists($lowerPropertyName, $properties)) {
                 $properties[$lowerPropertyName] .= ', ' . $propertyTranslation;
             } else {
@@ -482,14 +483,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         foreach ($categories as $category) {
             $categoryPath = explode('|', $category->getPath());
             $countCategoryPath = count($categoryPath);
-            if (in_array($parentCategoryId, $categoryPath)) {
+            if (in_array($parentCategoryId, $categoryPath, true)) {
                 $breadcrumb = $category->getName();
-                $categoryId = (int)$category->getParentId();
+                $categoryId = (int) $category->getParentId();
                 for ($i = 0; $i < $countCategoryPath - 2; $i++) {
                     /** @var CategoryModel $category */
-                    $category = Shopware()->Models()->getReference('Shopware\Models\Category\Category', $categoryId);
+                    $category = Shopware()->Models()->getReference(CategoryModel::class, $categoryId);
                     $breadcrumb = $category->getName() . ' > ' . $breadcrumb;
-                    $categoryId = (int)$category->getParentId();
+                    $categoryId = (int) $category->getParentId();
                 }
                 break;
             }
@@ -509,7 +510,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $shopCustomerGroupId = $this->shop->getCustomerGroup()->getId();
         $detailPrices = $this->detail->getPrices();
         foreach ($detailPrices as $price) {
-            if ($price->getCustomerGroup() != null) {
+            if ($price->getCustomerGroup() !== null) {
                 if ($price->getCustomerGroup()->getId() === $shopCustomerGroupId) {
                     $shopArticlePrice = $price;
                 }
@@ -519,7 +520,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 }
             }
         }
-        return $shopArticlePrice ? $shopArticlePrice : $defaultArticlePrice;
+        return $shopArticlePrice ?: $defaultArticlePrice;
     }
 
     /**
@@ -634,9 +635,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         // if article has not been manually set with free shipping
         if (!$this->detail->getShippingFree()) {
             $em = LengowBootstrap::getEntityManager();
-            $dispatchId = LengowConfiguration::getConfig('lengowDefaultDispatcher', $this->shop);
+            $dispatchId = LengowConfiguration::getConfig(LengowConfiguration::DEFAULT_EXPORT_CARRIER_ID, $this->shop);
             /** @var DispatchModel $dispatch */
-            $dispatch = $em->getReference('Shopware\Models\Dispatch\Dispatch', $dispatchId);
+            $dispatch = $em->getReference(DispatchModel::class, $dispatchId);
             /** @var CategoryModel[] $blockedCategories */
             $blockedCategories = $dispatch->getCategories();
             if ($this->getCategoryStatus($blockedCategories)) {
@@ -681,9 +682,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 }
             }
             return number_format($shippingCost * $this->factor, 2);
-        } else {
-            return number_format(0, 2);
         }
+        return number_format(0, 2);
     }
 
     /**
@@ -723,7 +723,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $em = LengowBootstrap::getEntityManager();
         $builder = $em->createQueryBuilder();
         $builder->select(array('SUM(detail.inStock)'))
-            ->from('Shopware\Models\Article\Detail', 'detail')
+            ->from(ArticleDetailModel::class, 'detail')
             ->where('detail.articleId = :articleId')
             ->setParameter('articleId', $this->article->getId());
         return $builder->getQuery()->getSingleScalarResult();
@@ -742,7 +742,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         foreach (self::$productApiNodes as $node) {
             $temp[$node] = $api->{$node};
         }
-        $temp['price_unit'] = (float)$temp['amount'] / (float)$temp['quantity'];
+        $temp['price_unit'] = (float) $temp['amount'] / (float) $temp['quantity'];
         return $temp;
     }
 
@@ -763,7 +763,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 try {
                     $em = LengowBootstrap::getEntityManager();
                     /** @var ArticleModel $article */
-                    $article = $em->find('Shopware\Models\Article\Article', $articleId);
+                    $article = $em->find(ArticleModel::class, $articleId);
                 } catch (Exception $e) {
                     $article = null;
                 }
@@ -791,7 +791,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             $em = LengowBootstrap::getEntityManager();
             try {
                 /** @var ArticleModel $article */
-                $article = $em->find('Shopware\Models\Article\Article', $parentId);
+                $article = $em->find(ArticleModel::class, $parentId);
             } catch (Exception $e) {
                 $article = null;
             }
@@ -814,7 +814,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                         'articleId' => $parentId,
                     );
                     /** @var ArticleDetailModel $variation */
-                    $variation = $em->getRepository('Shopware\Models\Article\Detail')->findOneBy($criteria);
+                    $variation = $em->getRepository(ArticleDetailModel::class)->findOneBy($criteria);
                     $result = array(
                         'id' => $variation->getId(),
                         'number' => $variation->getNumber(),
@@ -838,14 +838,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         $em = LengowBootstrap::getEntityManager();
         /** @var ArticleDetailModel[] $result */
-        $result = $em->getRepository('Shopware\Models\Article\Detail')->findBy(array($field => $value));
+        $result = $em->getRepository(ArticleDetailModel::class)->findBy(array($field => $value));
         $total = count($result);
         if ($total === 1) {
             return array(
                 'id' => $result[0]->getId(),
                 'number' => $result[0]->getNumber(),
             );
-        } elseif ($total > 1) {
+        }
+        if ($total > 1) {
             // if more than one article found, display warning
             LengowMain::log(
                 LengowLog::CODE_IMPORT,

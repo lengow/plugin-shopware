@@ -28,12 +28,12 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
-use Shopware_Plugins_Backend_Lengow_Components_LengowCheck as LengowCheck;
 use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
 use Shopware_Plugins_Backend_Lengow_Components_LengowConnector as LengowConnector;
 use Shopware_Plugins_Backend_Lengow_Components_LengowException as LengowException;
 use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+use Shopware_Plugins_Backend_Lengow_Components_LengowToolbox as LengowToolbox;
 use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
 
 /**
@@ -254,11 +254,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      */
     public static function isValidAuth($logOutput = false)
     {
-        if (!LengowCheck::isCurlActivated()) {
+        if (!LengowToolbox::isCurlActivated()) {
             return false;
         }
         list($accountId, $accessToken, $secret) = LengowConfiguration::getAccessIds();
-        if ($accountId === null || (int)$accountId === 0 || !is_numeric($accountId)) {
+        if ($accountId === null) {
             return false;
         }
         $connector = new LengowConnector($accessToken, $secret);
@@ -373,8 +373,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      */
     public function connect($force = false, $logOutput = false)
     {
-        $token = LengowConfiguration::getConfig('lengowAuthorizationToken');
-        $updatedAt = LengowConfiguration::getConfig('lengowLastAuthorizationTokenUpdate');
+        $token = LengowConfiguration::getConfig(LengowConfiguration::AUTHORIZATION_TOKEN);
+        $updatedAt = LengowConfiguration::getConfig(LengowConfiguration::LAST_UPDATE_AUTHORIZATION_TOKEN);
         if (!$force
             && $token !== null
             && $updatedAt !== null
@@ -384,8 +384,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
             $authorizationToken = $token;
         } else {
             $authorizationToken = $this->getAuthorizationToken($logOutput);
-            LengowConfiguration::setConfig('lengowAuthorizationToken', $authorizationToken);
-            LengowConfiguration::setConfig('lengowLastAuthorizationTokenUpdate', time());
+            LengowConfiguration::setConfig(LengowConfiguration::AUTHORIZATION_TOKEN, $authorizationToken);
+            LengowConfiguration::setConfig(LengowConfiguration::LAST_UPDATE_AUTHORIZATION_TOKEN, time());
         }
         $this->token = $authorizationToken;
     }
@@ -663,7 +663,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
         if (!in_array($httpCode, $this->successCodes, true)) {
             $result = $this->format($result);
             // recovery of Lengow Api errors
-            if (isset($result['error'], $result['error']['message'])) {
+            if (isset($result['error']['message'])) {
                 throw new LengowException($result['error']['message'], $httpCode);
             }
             throw new LengowException(LengowMain::setLogMessage('log/connector/api_not_available'), $httpCode);

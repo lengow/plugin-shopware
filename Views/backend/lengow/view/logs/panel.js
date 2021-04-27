@@ -84,7 +84,7 @@ Ext.define('Shopware.apps.Lengow.view.logs.Panel', {
                 form.submit({
                     target: '_blank', // Avoids leaving the page
                     params: {
-                        fileName: selectedFile
+                        date: selectedFile
                     }
                 });
 

@@ -29,20 +29,21 @@
  */
 
 use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
+use Shopware_Plugins_Backend_Lengow_Components_LengowToolbox as LengowToolbox;
 
 require 'views/header.php';
 
-$listFiles = array_reverse(LengowLog::getPaths());
+$listFile = LengowToolbox::getData(LengowToolbox::DATA_TYPE_LOG);
 ?>
     <div class="container">
         <h1><?php echo $locale->t('toolbox/log/log_files'); ?></h1>
         <ul class="list-group">
             <?php
-            foreach ($listFiles as $file) {
-                echo '<li class="list-group-item">';
-                echo '<a href="' . $file['link'] . '" target="_blank"><i class="fa fa-download"></i> '
-                    . $file['name'] . '</a>';
-                echo '</li>';
+            foreach ($listFile as $file) {
+                $name = $file[LengowLog::LOG_DATE]
+                    ? date('l d F Y', strtotime($file[LengowLog::LOG_DATE]))
+                    : $locale->t('toolbox/log/download_all');
+                echo '<li class="list-group-item"><a href="' . $file[LengowLog::LOG_LINK] . '">' . $name . '</a></li>';
             }
             ?>
         </ul>

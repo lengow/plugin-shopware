@@ -31,6 +31,7 @@
 use Shopware_Plugins_Backend_Lengow_Components_LengowException as LengowException;
 use Shopware_Plugins_Backend_Lengow_Components_LengowFile as LengowFile;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+use Shopware_Plugins_Backend_Lengow_Components_LengowToolbox as LengowToolbox;
 use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
 
 /**
@@ -39,55 +40,20 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTransl
 class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     extends Shopware_Plugins_Backend_Lengow_Components_LengowFile
 {
-    /**
-     * @var string install log code
-     */
+    /* Log category codes */
     const CODE_INSTALL = 'Install';
-
-    /**
-     * @var string connection log code
-     */
     const CODE_CONNECTION = 'Connection';
-
-    /**
-     * @var string setting log code
-     */
     const CODE_SETTING = 'Setting';
-
-    /**
-     * @var string connector log code
-     */
     const CODE_CONNECTOR = 'Connector';
-
-    /**
-     * @var string export log code
-     */
     const CODE_EXPORT = 'Export';
-
-    /**
-     * @var string import log code
-     */
     const CODE_IMPORT = 'Import';
-
-    /**
-     * @var string action log code
-     */
     const CODE_ACTION = 'Action';
-
-    /**
-     * @var string mail report code
-     */
     const CODE_MAIL_REPORT = 'Mail Report';
-
-    /**
-     * @var string orm code
-     */
     const CODE_ORM = 'Orm';
 
-    /**
-     * @var string name of logs folder
-     */
-    public static $lengowLogFolder = 'Logs';
+    /* Log params for export */
+    const LOG_DATE = 'date';
+    const LOG_LINK = 'link';
 
     /**
      * @var LengowFile Lengow file instance
@@ -108,7 +74,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
         } else {
             $this->fileName = $fileName;
         }
-        $this->file = new LengowFile(self::$lengowLogFolder, $this->fileName);
+        $this->file = new LengowFile(LengowMain::FOLDER_LOG, $this->fileName);
     }
 
     /**
@@ -136,37 +102,37 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     /**
      * Get log files path
      *
-     * @return array|false
-     *
+     * @return array
      */
     public static function getPaths()
     {
+        $logs = array();
         $files = self::getFiles();
         if (empty($files)) {
-            return false;
+            return $logs;
         }
-        $logs = array();
         foreach ($files as $file) {
-            preg_match('/logs-([0-9]{4}-[0-9]{2}-[0-9]{2})\.txt/', $file->getPath(), $match);
+            preg_match('/^logs-([0-9]{4}-[0-9]{2}-[0-9]{2})\.txt$/', $file->fileName, $match);
+            $date = $match[1];
             $logs[] = array(
-                'full_path' => $file->getPath(),
-                'short_path' => 'logs-' . $match[1] . '.txt',
-                'link' => $file->getLink(),
-                'name' => $match[1] . '.txt',
+                self::LOG_DATE => $date,
+                self::LOG_LINK => LengowMain::getToolboxUrl()
+                    . '&' . LengowToolbox::PARAM_TOOLBOX_ACTION . '=' . LengowToolbox::ACTION_LOG
+                    . '&' . LengowToolbox::PARAM_DATE . '=' . urlencode($date),
             );
         }
-        return $logs;
+        return array_reverse($logs);
     }
 
     /**
      * Get current file
      *
      * @return string
-     *
      */
     public function getFileName()
     {
-        return Shopware()->Plugins()->Backend()->Lengow()->Path() . self::$lengowLogFolder . '/' . $this->fileName;
+        $sep = DIRECTORY_SEPARATOR;
+        return Shopware()->Plugins()->Backend()->Lengow()->Path() . LengowMain::FOLDER_LOG . $sep . $this->fileName;
     }
 
     /**
@@ -176,34 +142,48 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
      */
     public static function getFiles()
     {
-        return LengowFile::getFilesFromFolder(self::$lengowLogFolder);
+        return LengowFile::getFilesFromFolder(LengowMain::FOLDER_LOG);
     }
 
     /**
      * Download log file
      *
-     * @param string|null $file name of file to download
+     * @param string|null $date date for a specific log file
      */
-    public static function download($file = null)
+    public static function download($date = null)
     {
-        if ($file && preg_match('/^logs-([0-9]{4}-[0-9]{2}-[0-9]{2})\.txt$/', $file, $match)) {
-            $filename = LengowMain::getLengowFolder() . self::$lengowLogFolder . '/' . $file;
-            $handle = fopen($filename, 'r');
-            $contents = fread($handle, filesize($filename));
-            header('Content-type: text/plain');
-            header('Content-Disposition: attachment; filename="' . $match[1] . '.txt"');
-            echo $contents;
-            exit();
-        } else {
-            $files = self::getPaths();
-            header('Content-type: text/plain');
-            header('Content-Disposition: attachment; filename="logs.txt"');
-            foreach ($files as $file) {
-                $handle = fopen($file['full_path'], 'r');
-                $contents = fread($handle, filesize($file['full_path']));
-                echo $contents;
+        /** @var LengowFile[] $logFiles */
+        if ($date && preg_match('/^(\d{4}-\d{2}-\d{2})$/', $date, $match)) {
+            $logFiles = false;
+            $file = 'logs-' . $date . '.txt';
+            $fileName = $date . '.txt';
+            $sep = DIRECTORY_SEPARATOR;
+            $filePath = LengowMain::getLengowFolder() . LengowMain::FOLDER_LOG . $sep . $file;
+            if (file_exists($filePath)) {
+                try {
+                    $logFiles = array(new LengowFile(LengowMain::FOLDER_LOG, $file));
+                } catch (LengowException $e) {
+                    $logFiles = array();
+                }
             }
-            exit();
+        } else {
+            $fileName = 'logs.txt';
+            $logFiles = self::getFiles();
         }
+        $contents = '';
+        if ($logFiles) {
+            foreach ($logFiles as $logFile) {
+                $filePath = $logFile->getPath();
+                $handle = fopen($filePath, 'r');
+                $fileSize = filesize($filePath);
+                if ($fileSize > 0) {
+                    $contents .= fread($handle, $fileSize);
+                }
+            }
+        }
+        header('Content-type: text/plain');
+        header('Content-Disposition: attachment; filename="' . $fileName . '"');
+        echo $contents;
+        exit();
     }
 }

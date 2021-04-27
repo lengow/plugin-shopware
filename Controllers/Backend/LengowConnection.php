@@ -151,9 +151,9 @@ class Shopware_Controllers_Backend_LengowConnection extends Shopware_Controllers
         if ($accountId) {
             $accessIdsSaved = LengowConfiguration::setAccessIds(
                 array(
-                    'lengowAccountId' => $accountId,
-                    'lengowAccessToken' => $accessToken,
-                    'lengowSecretToken' => $secret,
+                    LengowConfiguration::ACCOUNT_ID => $accountId,
+                    LengowConfiguration::ACCESS_TOKEN => $accessToken,
+                    LengowConfiguration::SECRET => $secret,
                 )
             );
         }
@@ -243,7 +243,7 @@ class Shopware_Controllers_Backend_LengowConnection extends Shopware_Controllers
             foreach ($catalogsByShops as $shopId => $catalogIds) {
                 $em = LengowBootstrap::getEntityManager();
                 /** @var ShopModel $shop */
-                $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
+                $shop = $em->getReference(ShopModel::class, $shopId);
                 LengowConfiguration::setCatalogIds($catalogIds, $shop);
                 LengowConfiguration::setActiveShop($shop);
             }

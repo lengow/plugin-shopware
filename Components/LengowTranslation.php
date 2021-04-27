@@ -41,6 +41,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
     const DEFAULT_ISO_CODE = 'default';
 
     /**
+     * @var string|null iso code
+     */
+    protected $isoCode;
+
+    /**
      * @var array all translations
      */
     protected static $translation = null;
@@ -52,7 +57,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
      */
     public function __construct($isoCode = null)
     {
-        $this->isoCode = $isoCode ? $isoCode : LengowMain::getLocale();
+        $this->isoCode = $isoCode ?: LengowMain::getLocale();
     }
 
     /**
@@ -80,9 +85,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
             }
             if (isset(self::$translation[self::DEFAULT_ISO_CODE][$message])) {
                 return $this->translateFinal(self::$translation[self::DEFAULT_ISO_CODE][$message], $args);
-            } else {
-                return 'Missing Translation [' . $message . ']';
             }
+            return 'Missing Translation [' . $message . ']';
         }
     }
 
@@ -104,9 +108,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
                 $values[] = $value;
             }
             return stripslashes(str_replace($params, $values, $text));
-        } else {
-            return stripslashes($text);
         }
+        return stripslashes($text);
     }
 
     /**
@@ -120,8 +123,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
     public static function loadFile($isoCode = null, $fileName = null)
     {
         if (!$fileName) {
-            $pluginPath = LengowMain::getLengowFolder();
-            $fileName = $pluginPath . 'Snippets/backend/Lengow/translation.ini';
+            $fileName = LengowMain::getLengowFolder() . 'Snippets/backend/Lengow/translation.ini';
         }
         $translation = array();
         if (file_exists($fileName)) {

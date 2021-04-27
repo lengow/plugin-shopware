@@ -196,12 +196,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
             }
         }
         $result = LengowConnector::queryApi(LengowConnector::GET, LengowConnector::API_ORDER_ACTION, $getParams);
-        if (isset($result->error) && isset($result->error->message)) {
+        if (isset($result->error, $result->error->message)) {
             throw new LengowException($result->error->message);
         }
         if (isset($result->count) && $result->count > 0) {
             foreach ($result->results as $row) {
-                $orderAction = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Action')
+                $orderAction = Shopware()->Models()->getRepository(LengowActionModel::class)
                     ->findOneBy(array('actionId' => $row->id));
                 if ($orderAction) {
                     if ($orderAction->getState() === self::STATE_NEW) {
@@ -248,7 +248,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                     $params
                 );
             } else {
-                if ($result && $result !== null) {
+                if ($result) {
                     $message = LengowMain::setLogMessage(
                         'lengow_log/exception/action_not_created',
                         array('error_message' => json_encode($result))
@@ -282,7 +282,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
     {
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('la.id', 'la.actionId', 'la.actionType', 'la.orderId')
-            ->from('Shopware\CustomModels\Lengow\Action', 'la')
+            ->from(LengowActionModel::class, 'la')
             ->where('la.state = :state')
             ->setParameters(array('state' => self::STATE_NEW));
         $results = $builder->getQuery()->getResult();
@@ -308,7 +308,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
         );
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('la.id', 'la.actionId', 'la.actionType', 'la.orderId')
-            ->from('Shopware\CustomModels\Lengow\Action', 'la')
+            ->from(LengowActionModel::class, 'la')
             ->where('la.state = :state')
             ->andWhere('la.orderId = :orderId');
         if ($actionType) {
@@ -334,12 +334,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
     {
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('s_lengow_action.actionType')
-            ->from('Shopware\CustomModels\Lengow\Action', 's_lengow_action')
+            ->from(LengowActionModel::class, 's_lengow_action')
             ->where('s_lengow_action.orderId = :orderId')
             ->orderBy('s_lengow_action.id', 'DESC')
             ->setParameter('orderId', $orderId);
         $result = $builder->getQuery()->getArrayResult();
-        return $result[0]['actionType'] ? $result[0]['actionType'] : false;
+        return $result[0]['actionType'] ?: false;
     }
 
     /**
@@ -351,7 +351,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
      */
     public static function finishAction($id)
     {
-        $action = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Action')->find($id);
+        $action = Shopware()->Models()->getRepository(LengowActionModel::class)->find($id);
         if ($action) {
             try {
                 $action->setState(self::STATE_FINISH);
@@ -379,7 +379,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
         $params = array('orderId' => $orderId);
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('la.id')
-            ->from('Shopware\CustomModels\Lengow\Action', 'la')
+            ->from(LengowActionModel::class, 'la')
             ->where('la.orderId = :orderId');
         if ($actionType) {
             $builder->andWhere('la.actionType = :actionType');
@@ -404,10 +404,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
     public static function getIntervalTime()
     {
         $intervalTime = self::MAX_INTERVAL_TIME;
-        $lastActionSynchronisation = LengowConfiguration::getConfig('lengowLastActionSync');
+        $lastActionSynchronisation = LengowConfiguration::getConfig(
+            LengowConfiguration::LAST_UPDATE_ACTION_SYNCHRONIZATION
+        );
         if ($lastActionSynchronisation) {
-            $lastIntervalTime = time() - (int)$lastActionSynchronisation;
-            $lastIntervalTime = $lastIntervalTime + self::SECURITY_INTERVAL_TIME;
+            $lastIntervalTime = time() - (int) $lastActionSynchronisation;
+            $lastIntervalTime += self::SECURITY_INTERVAL_TIME;
             $intervalTime = $lastIntervalTime > $intervalTime ? $intervalTime : $lastIntervalTime;
         }
         return $intervalTime;
@@ -498,12 +500,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                     // finish action in lengow_action table
                     self::finishAction($action['id']);
                     /** @var LengowOrderModel $lengowOrder */
-                    $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
+                    $lengowOrder = Shopware()->Models()->getRepository(LengowOrderModel::class)
                         ->findOneBy(array('orderId' => $action['orderId']));
                     if ($lengowOrder) {
                         // finish all order logs send
                         LengowOrderError::finishOrderErrors($lengowOrder->getId(), 'send');
-                        if ($lengowOrder->getOrderProcessState() != $processStateFinish) {
+                        if ($lengowOrder->getOrderProcessState() !== $processStateFinish) {
                             try {
                                 // if action is accepted -> close order and finish all order actions
                                 if ($apiActions[$action['actionId']]->processed == true
@@ -550,7 +552,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
                 }
             }
         }
-        LengowConfiguration::setConfig('lengowLastActionSync', time());
+        LengowConfiguration::setConfig(LengowConfiguration::LAST_UPDATE_ACTION_SYNCHRONIZATION, time());
         return true;
     }
 
@@ -578,10 +580,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
             foreach ($actions as $action) {
                 self::finishAction($action['id']);
                 /** @var LengowOrderModel $lengowOrder */
-                $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
+                $lengowOrder = Shopware()->Models()->getRepository(LengowOrderModel::class)
                     ->findOneBy(array('orderId' => $action['orderId']));
                 if ($lengowOrder) {
-                    if ($lengowOrder->getOrderProcessState() != $processStateFinish && !$lengowOrder->isInError()) {
+                    if ($lengowOrder->getOrderProcessState() !== $processStateFinish && !$lengowOrder->isInError()) {
                         // if action is denied -> create order error
                         $errorMessage = LengowMain::setLogMessage('lengow_log/exception/action_is_too_old');
                         LengowOrderError::createOrderError($lengowOrder, $errorMessage, 'send');
@@ -636,7 +638,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
         );
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('la.id', 'la.orderId')
-            ->from('Shopware\CustomModels\Lengow\Action', 'la')
+            ->from(LengowActionModel::class, 'la')
             ->where('la.state = :state')
             ->andWhere('la.createdAt <= :createdAt');
         $builder->setParameters($params);
@@ -666,7 +668,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
         if ($unsentOrders) {
             foreach ($unsentOrders as $idOrder => $actionType) {
                 /** @var OrderModel $order */
-                $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')->find($idOrder);
+                $order = Shopware()->Models()->getRepository(OrderModel::class)->find($idOrder);
                 LengowOrder::callAction($order, $actionType);
             }
             return true;

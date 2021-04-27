@@ -28,15 +28,15 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
-use Shopware_Plugins_Backend_Lengow_Components_LengowCheck as LengowCheck;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
+use Shopware_Plugins_Backend_Lengow_Components_LengowToolboxElement as LengowToolboxElement;
 use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
 
 require_once('./config.inc.php');
 
-$check = new LengowCheck();
+$toolboxElement = new LengowToolboxElement();
 $locale = new LengowTranslation(LengowTranslation::DEFAULT_ISO_CODE);
-if (LengowMain::checkIp(true)) {
+if (LengowMain::checkIp()) {
     echo '
     <!DOCTYPE html>
     <html lang="en">

@@ -45,25 +45,43 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowProduct as LengowProduct;
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowExport
 {
+    /* Export GET params */
+    const PARAM_TOKEN = 'token';
+    const PARAM_MODE = 'mode';
+    const PARAM_FORMAT = 'format';
+    const PARAM_STREAM = 'stream';
+    const PARAM_OFFSET = 'offset';
+    const PARAM_LIMIT = 'limit';
+    const PARAM_SELECTION = 'selection';
+    const PARAM_OUT_OF_STOCK = 'out_of_stock';
+    const PARAM_PRODUCT_IDS = 'product_ids';
+    const PARAM_VARIATION = 'variation';
+    const PARAM_INACTIVE = 'inactive';
+    const PARAM_SHOP = 'shop';
+    const PARAM_CURRENCY = 'currency';
+    const PARAM_LOG_OUTPUT = 'log_output';
+    const PARAM_UPDATE_EXPORT_DATE = 'update_export_date';
+    const PARAM_GET_PARAMS = 'get_params';
+
     /**
      * @var array all available params for export
      */
     public static $exportParams = array(
-        'mode',
-        'format',
-        'stream',
-        'offset',
-        'limit',
-        'selection',
-        'out_of_stock',
-        'product_ids',
-        'variation',
-        'inactive',
-        'shop',
-        'currency',
-        'log_output',
-        'update_export_date',
-        'get_params',
+        self::PARAM_MODE,
+        self::PARAM_FORMAT,
+        self::PARAM_STREAM,
+        self::PARAM_OFFSET,
+        self::PARAM_LIMIT,
+        self::PARAM_SELECTION,
+        self::PARAM_OUT_OF_STOCK,
+        self::PARAM_PRODUCT_IDS,
+        self::PARAM_VARIATION,
+        self::PARAM_INACTIVE,
+        self::PARAM_SHOP,
+        self::PARAM_CURRENCY,
+        self::PARAM_LOG_OUTPUT,
+        self::PARAM_UPDATE_EXPORT_DATE,
+        self::PARAM_GET_PARAMS,
     );
 
     /**
@@ -204,27 +222,28 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
      * boolean log_output         See logs (1) or not (0)
      * boolean update_export_date Change last export date in data base (1) or not (0)
      */
-    public function __construct($shop, $params)
+    public function __construct($shop, $params = array())
     {
         $this->shop = $shop;
         $this->em = LengowBootstrap::getEntityManager();
-        $this->stream = isset($params['stream']) ? (bool)$params['stream'] : true;
-        $this->offset = isset($params['offset']) ? (int)$params['offset'] : 0;
-        $this->limit = isset($params['limit']) ? (int)$params['limit'] : 0;
-        $this->selection = isset($params['selection'])
-            ? (bool)$params['selection']
-            : LengowConfiguration::getConfig('lengowExportSelectionEnabled', $this->shop);
-        $this->outOfStock = isset($params['out_of_stock']) ? (bool)$params['out_of_stock'] : true;
-        $this->variation = isset($params['variation']) ? (bool)$params['variation'] : true;
-        $this->inactive = isset($params['inactive'])
-            ? (bool)$params['inactive']
-            : LengowConfiguration::getConfig('lengowExportDisabledProduct', $this->shop);
-        $this->mode = isset($params['mode']) ? $params['mode'] : false;
-        $this->updateExportDate = isset($params['update_export_date']) ? (bool)$params['update_export_date'] : true;
-        $this->setFormat(isset($params['format']) ? $params['format'] : LengowFeed::FORMAT_CSV);
-        $this->setProductIds(isset($params['product_ids']) ? $params['product_ids'] : false);
-        $this->setCurrency(isset($params['currency']) ? $params['currency'] : false);
-        $this->setLogOutput(isset($params['log_output']) ? (bool)$params['log_output'] : true);
+        $this->stream = !isset($params[self::PARAM_STREAM]) || $params[self::PARAM_STREAM];
+        $this->offset = isset($params[self::PARAM_OFFSET]) ? (int) $params[self::PARAM_OFFSET] : 0;
+        $this->limit = isset($params[self::PARAM_LIMIT]) ? (int) $params[self::PARAM_LIMIT] : 0;
+        $this->selection = isset($params[self::PARAM_SELECTION])
+            ? (bool) $params[self::PARAM_SELECTION]
+            : LengowConfiguration::getConfig(LengowConfiguration::SELECTION_ENABLED, $this->shop);
+        $this->outOfStock = !isset($params[self::PARAM_OUT_OF_STOCK]) || $params[self::PARAM_OUT_OF_STOCK];
+        $this->variation = !isset($params[self::PARAM_VARIATION]) || $params[self::PARAM_VARIATION];
+        $this->inactive = isset($params[self::PARAM_INACTIVE])
+            ? (bool) $params[self::PARAM_INACTIVE]
+            : LengowConfiguration::getConfig(LengowConfiguration::INACTIVE_ENABLED, $this->shop);
+        $this->mode = isset($params[self::PARAM_MODE]) ? $params[self::PARAM_MODE] : false;
+        $this->updateExportDate = !isset($params[self::PARAM_UPDATE_EXPORT_DATE])
+            || $params[self::PARAM_UPDATE_EXPORT_DATE];
+        $this->setFormat(isset($params[self::PARAM_FORMAT]) ? $params[self::PARAM_FORMAT] : LengowFeed::FORMAT_CSV);
+        $this->setProductIds(isset($params[self::PARAM_PRODUCT_IDS]) ? $params[self::PARAM_PRODUCT_IDS] : false);
+        $this->setCurrency(isset($params[self::PARAM_CURRENCY]) ? $params[self::PARAM_CURRENCY] : false);
+        $this->setLogOutput(!isset($params[self::PARAM_LOG_OUTPUT]) || $params[self::PARAM_LOG_OUTPUT]);
     }
 
     /**
@@ -235,7 +254,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
      */
     private function setFormat($format)
     {
-        $this->format = !in_array($format, LengowFeed::$availableFormats)
+        $this->format = !in_array($format, LengowFeed::$availableFormats, true)
             ? LengowFeed::FORMAT_CSV
             : $format;
     }
@@ -266,7 +285,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     {
         $currency = null;
         if ($currencyCode) {
-            $currency = $this->em->getRepository('Shopware\Models\Shop\Currency')
+            /** @var ShopCurrencyModel $currency */
+            $currency = $this->em->getRepository(ShopCurrencyModel::class)
                 ->findOneBy(array('currency' => $currencyCode));
         }
         if ($currency === null) {
@@ -294,9 +314,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         // clean logs
         LengowMain::cleanLog();
         if ($this->mode === 'size') {
-            echo $this->getExportedProducts();
+            echo $this->getTotalExportProduct();
         } elseif ($this->mode === 'total') {
-            echo $this->getTotalProducts();
+            echo $this->getTotalProduct();
         } else {
             try {
                 LengowMain::log(
@@ -372,7 +392,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 break;
             }
             /** @var ArticleDetailModel $detail */
-            $detail = $this->em->getReference('Shopware\Models\Article\Detail', $article['detailId']);
+            $detail = $this->em->getReference(ArticleDetailModel::class, $article['detailId']);
             $product = new LengowProduct($detail, $this->shop, $article['type'], $this->currency, $this->logOutput);
             foreach ($fields as $field) {
                 if (isset(self::$defaultFields[$field])) {
@@ -404,7 +424,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         }
         $success = $feed->end();
         if ($this->updateExportDate) {
-            LengowConfiguration::setConfig('lengowLastExport', date('Y-m-d H:i:s'), $this->shop);
+            LengowConfiguration::setConfig(LengowConfiguration::LAST_UPDATE_EXPORT, date('Y-m-d H:i:s'), $this->shop);
         }
         if (!$success) {
             throw new LengowException(LengowMain::setLogMessage('log/export/error_folder_not_writable'));
@@ -440,7 +460,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         foreach ($variations as $variation) {
             $variationName = strtolower($variation['name']);
             $formattedFeature = LengowFeed::formatFields($variationName, $this->format);
-            if (!in_array($formattedFeature, $formattedFields)) {
+            if (!in_array($formattedFeature, $formattedFields, true)) {
                 $fields[] = $variationName;
                 $formattedFields[] = $formattedFeature;
             }
@@ -450,7 +470,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         foreach ($attributes as $attribute) {
             $attributeLabel = 'free_' . strtolower($attribute['label']);
             $formattedAttribute = LengowFeed::formatFields($attributeLabel, $this->format);
-            if (!in_array($formattedAttribute, $formattedFields)) {
+            if (!in_array($formattedAttribute, $formattedFields, true)) {
                 $fields[] = $attributeLabel;
                 $formattedFields[] = $formattedAttribute;
             }
@@ -460,7 +480,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         foreach ($properties as $property) {
             $propertyName = 'prop_' . strtolower($property['name']);
             $formattedProperty = LengowFeed::formatFields($propertyName, $this->format);
-            if (!in_array($formattedProperty, $formattedFields)) {
+            if (!in_array($formattedProperty, $formattedFields, true)) {
                 $fields[] = $propertyName;
                 $formattedFields[] = $formattedProperty;
             }
@@ -486,7 +506,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         );
         $builder = $this->em->createQueryBuilder();
         $builder->select($selection)
-            ->from('Shopware\Models\Shop\Shop', 'shop')
+            ->from(ShopModel::class, 'shop')
             ->leftJoin('shop.category', 'mainCategory')
             ->leftJoin('mainCategory.allArticles', 'categories')
             ->leftJoin('categories.details', 'details')
@@ -593,7 +613,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
      *
      * @return integer
      */
-    public function getTotalProducts()
+    public function getTotalProduct()
     {
         $outOfStockDefaultValue = $this->outOfStock;
         $selectionDefaultValue = $this->selection;
@@ -615,7 +635,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
      *
      * @return integer
      */
-    public function getExportedProducts()
+    public function getTotalExportProduct()
     {
         $products = $this->getIdToExport();
         return count($products);
@@ -632,31 +652,31 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         $em = LengowBootstrap::getEntityManager();
         foreach (self::$exportParams as $param) {
             switch ($param) {
-                case 'mode':
+                case self::PARAM_MODE:
                     $authorizedValue = array('size', 'total');
                     $type = 'string';
                     $example = 'size';
                     break;
-                case 'format':
+                case self::PARAM_FORMAT:
                     $authorizedValue = LengowFeed::$availableFormats;
                     $type = 'string';
                     $example = LengowFeed::FORMAT_CSV;
                     break;
-                case 'offset':
-                case 'limit':
+                case self::PARAM_OFFSET:
+                case self::PARAM_LIMIT:
                     $authorizedValue = 'all integers';
                     $type = 'integer';
                     $example = 100;
                     break;
-                case 'product_ids':
+                case self::PARAM_PRODUCT_IDS:
                     $authorizedValue = 'all integers';
                     $type = 'string';
                     $example = '101,108,215';
                     break;
-                case 'shop':
+                case self::PARAM_SHOP:
                     $availableShops = array();
                     /** @var ShopModel[] $shops */
-                    $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findAll();
+                    $shops = $em->getRepository(ShopModel::class)->findAll();
                     foreach ($shops as $shop) {
                         $availableShops[] = $shop->getId();
                     }
@@ -664,10 +684,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                     $type = 'integer';
                     $example = 1;
                     break;
-                case 'currency':
+                case self::PARAM_CURRENCY:
                     $availableCurrencies = array();
                     /** @var ShopCurrencyModel[] $currencies */
-                    $currencies = $em->getRepository('Shopware\Models\Shop\Currency')->findAll();
+                    $currencies = $em->getRepository(ShopCurrencyModel::class)->findAll();
                     foreach ($currencies as $currency) {
                         $availableCurrencies[] = $currency->getCurrency();
                     }

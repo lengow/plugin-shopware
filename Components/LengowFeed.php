@@ -110,7 +110,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     /**
      * @var string|null export shop folder
      */
-    protected $shopFolder = null;
+    protected $shopFolder;
 
     /**
      * @var string full export folder
@@ -126,11 +126,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
         self::FORMAT_XML,
         self::FORMAT_JSON,
     );
-
-    /**
-     * @var string Lengow export folder
-     */
-    public static $lengowExportFolder = 'Export';
 
     /**
      * Construct
@@ -159,7 +154,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     public function initExportFile()
     {
         $sep = DIRECTORY_SEPARATOR;
-        $this->exportFolder = self::$lengowExportFolder . $sep . $this->shopFolder;
+        $this->exportFolder = LengowMain::FOLDER_EXPORT . $sep . $this->shopFolder;
         $folderPath = LengowMain::getLengowFolder() . $sep . $this->exportFolder;
         if (!file_exists($folderPath)) {
             if (!mkdir($folderPath)) {

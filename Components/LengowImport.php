@@ -48,6 +48,24 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTransl
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowImport
 {
+    /* Import GET params */
+    const PARAM_TOKEN = 'token';
+    const PARAM_TYPE = 'type';
+    const PARAM_SHOP_ID = 'shop_id';
+    const PARAM_MARKETPLACE_SKU = 'marketplace_sku';
+    const PARAM_MARKETPLACE_NAME = 'marketplace_name';
+    const PARAM_DELIVERY_ADDRESS_ID = 'delivery_address_id';
+    const PARAM_DAYS = 'days';
+    const PARAM_CREATED_FROM = 'created_from';
+    const PARAM_CREATED_TO = 'created_to';
+    const PARAM_LENGOW_ORDER_ID = 'lengow_order_id';
+    const PARAM_LIMIT = 'limit';
+    const PARAM_LOG_OUTPUT = 'log_output';
+    const PARAM_DEBUG_MODE = 'debug_mode';
+    const PARAM_FORCE = 'force';
+    const PARAM_SYNC = 'sync';
+    const PARAM_GET_SYNC = 'get_sync';
+
     /**
      * @var integer max interval time for order synchronisation old versions (1 day)
      */
@@ -81,7 +99,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     /**
      * @var integer|null Shopware shop id
      */
-    protected $shopId = null;
+    protected $shopId;
 
     /**
      * @var boolean use debug mode
@@ -96,22 +114,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     /**
      * @var string|null marketplace order sku
      */
-    protected $marketplaceSku = null;
+    protected $marketplaceSku;
 
     /**
      * @var string|null marketplace name
      */
-    protected $marketplaceName = null;
+    protected $marketplaceName;
 
     /**
      * @var integer|null Lengow order id
      */
-    protected $lengowOrderId = null;
+    protected $lengowOrderId;
 
     /**
      * @var integer|null delivery address id
      */
-    protected $deliveryAddressId = null;
+    protected $deliveryAddressId;
 
     /**
      * @var integer number of orders to import
@@ -142,16 +160,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
      * @var string account ID
      */
     protected $accountId;
-
-    /**
-     * @var string access token
-     */
-    protected $accessToken;
-
-    /**
-     * @var string secret token
-     */
-    protected $secretToken;
 
     /**
      * @var LengowConnector Lengow connector instance
@@ -212,36 +220,38 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     public function __construct($params = array())
     {
         // get generic params for synchronisation
-        $this->debugMode = isset($params['debug_mode'])
-            ? (bool)$params['debug_mode']
+        $this->debugMode = isset($params[self::PARAM_DEBUG_MODE])
+            ? (bool) $params[self::PARAM_DEBUG_MODE]
             : LengowConfiguration::debugModeIsActive();
-        $this->typeImport = isset($params['type']) ? $params['type'] : self::TYPE_MANUAL;
-        $this->logOutput = isset($params['log_output']) ? (bool)$params['log_output'] : false;
-        $this->shopId = isset($params['shop_id']) ? (int)$params['shop_id'] : null;
+        $this->typeImport = isset($params[self::PARAM_TYPE]) ? $params[self::PARAM_TYPE] : self::TYPE_MANUAL;
+        $this->logOutput = isset($params[self::PARAM_LOG_OUTPUT]) && $params[self::PARAM_LOG_OUTPUT];
+        $this->shopId = isset($params[self::PARAM_SHOP_ID]) ? (int) $params[self::PARAM_SHOP_ID] : null;
         // get params for synchronise one or all orders
-        if (array_key_exists('marketplace_sku', $params)
-            && array_key_exists('marketplace_name', $params)
-            && array_key_exists('shop_id', $params)
+        if (array_key_exists(self::PARAM_MARKETPLACE_SKU, $params)
+            && array_key_exists(self::PARAM_MARKETPLACE_NAME, $params)
+            && array_key_exists(self::PARAM_SHOP_ID, $params)
         ) {
-            if (isset($params['lengow_order_id'])) {
-                $this->lengowOrderId = (int)$params['lengow_order_id'];
+            if (isset($params[self::PARAM_LENGOW_ORDER_ID])) {
+                $this->lengowOrderId = (int) $params[self::PARAM_LENGOW_ORDER_ID];
             }
-            $this->marketplaceSku = (string)$params['marketplace_sku'];
-            $this->marketplaceName = (string)$params['marketplace_name'];
+            $this->marketplaceSku = (string) $params[self::PARAM_MARKETPLACE_SKU];
+            $this->marketplaceName = (string) $params[self::PARAM_MARKETPLACE_NAME];
             $this->limit = 1;
             $this->importOneOrder = true;
-            if (array_key_exists('delivery_address_id', $params) && $params['delivery_address_id'] != '') {
-                $this->deliveryAddressId = (int)$params['delivery_address_id'];
+            if (array_key_exists(self::PARAM_DELIVERY_ADDRESS_ID, $params)
+                && $params[self::PARAM_DELIVERY_ADDRESS_ID] !== ''
+            ) {
+                $this->deliveryAddressId = (int) $params[self::PARAM_DELIVERY_ADDRESS_ID];
             }
         } else {
             $this->marketplaceSku = null;
             // set the time interval
             $this->setIntervalTime(
-                isset($params['days']) ? (int)$params['days'] : false,
-                isset($params['created_from']) ? $params['created_from'] : false,
-                isset($params['created_to']) ? $params['created_to'] : false
+                isset($params[self::PARAM_DAYS]) ? (int) $params[self::PARAM_DAYS] : false,
+                isset($params[self::PARAM_CREATED_FROM]) ? $params[self::PARAM_CREATED_FROM] : false,
+                isset($params[self::PARAM_CREATED_TO]) ? $params[self::PARAM_CREATED_TO] : false
             );
-            $this->limit = isset($params['limit']) ? (int)$params['limit'] : 0;
+            $this->limit = isset($params[self::PARAM_LIMIT]) ? (int) $params[self::PARAM_LIMIT] : 0;
         }
     }
 
@@ -260,13 +270,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         $syncOk = true;
         // clean logs
         LengowMain::cleanLog();
-        if (self::isInProcess() && !$this->debugMode && !$this->importOneOrder) {
+        if (!$this->debugMode && !$this->importOneOrder && self::isInProcess()) {
             $globalError = LengowMain::setLogMessage(
                 'lengow_log/error/rest_time_to_import',
                 array('rest_time' => self::restTimeToImport())
             );
             LengowMain::log(LengowLog::CODE_IMPORT, $globalError, $this->logOutput);
-        } elseif (!self::checkCredentials()) {
+        } elseif (!$this->checkCredentials()) {
             $globalError = LengowMain::setLogMessage('lengow_log/error/credentials_not_valid');
             LengowMain::log(LengowLog::CODE_IMPORT, $globalError, $this->logOutput);
         } else {
@@ -291,7 +301,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 );
             }
             // get all shops for import
-            /** @var ShopModel[] $shops */
             $shops = LengowMain::getLengowActiveShops();
             foreach ($shops as $shop) {
                 if ($this->shopId !== null && $shop->getId() !== $this->shopId) {
@@ -423,10 +432,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 $this->logOutput
             );
             // sending email in error for orders
-            if (
-                (bool)LengowConfiguration::getConfig('lengowImportReportMailEnabled')
-                && !$this->debugMode
+            if ( !$this->debugMode
                 && !$this->importOneOrder
+                && (bool) LengowConfiguration::getConfig(LengowConfiguration::REPORT_MAIL_ENABLED)
             ) {
                 LengowMain::sendMailAlert($this->logOutput);
             }
@@ -447,14 +455,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         if ($this->importOneOrder) {
             $result['error'] = $error;
             return $result;
-        } else {
-            return array(
-                'order_new' => $orderNew,
-                'order_update' => $orderUpdate,
-                'order_error' => $orderError,
-                'error' => $error,
-            );
         }
+        return array(
+            'order_new' => $orderNew,
+            'order_update' => $orderUpdate,
+            'order_error' => $orderError,
+            'error' => $error,
+        );
     }
 
     /**
@@ -465,9 +472,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     protected function checkCredentials()
     {
         if (LengowConnector::isValidAuth($this->logOutput)) {
-            $accessIds = LengowConfiguration::getAccessIds();
-            list($this->accountId, $this->accessToken, $this->secretToken) = $accessIds;
-            $this->connector = new LengowConnector($this->accessToken, $this->secretToken);
+            list($this->accountId, $accessToken, $secretToken) = LengowConfiguration::getAccessIds();
+            $this->connector = new LengowConnector($accessToken, $secretToken);
             return true;
         }
         return false;
@@ -539,8 +545,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 $this->logOutput
             );
         } else {
-            $dateFrom = $this->createdFrom ? $this->createdFrom : $this->updatedFrom;
-            $dateTo = $this->createdTo ? $this->createdTo : $this->updatedTo;
+            $dateFrom = $this->createdFrom ?: $this->updatedFrom;
+            $dateTo = $this->createdTo ?: $this->updatedTo;
             LengowMain::log(
                 LengowLog::CODE_IMPORT,
                 LengowMain::setLogMessage(
@@ -556,7 +562,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         }
         do {
             try {
-                $currencyConversion = !(bool)LengowConfiguration::getConfig('lengowCurrencyConversion');
+                $currencyConversion = !(bool) LengowConfiguration::getConfig(
+                    LengowConfiguration::CURRENCY_CONVERSION_ENABLED
+                );
                 if ($this->importOneOrder) {
                     $results = $this->connector->get(
                         LengowConnector::API_ORDER,
@@ -640,8 +648,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 $orders[] = $order;
             }
             $page++;
-            $finish = ($results->next === null || $this->importOneOrder) ? true : false;
-        } while ($finish != true);
+            $finish = $results->next === null || $this->importOneOrder;
+        } while ($finish !== true);
         return $orders;
     }
 
@@ -664,7 +672,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 self::setInProcess();
             }
             $nbPackage = 0;
-            $marketplaceSku = (string)$orderData->marketplace_order_id;
+            $marketplaceSku = (string) $orderData->marketplace_order_id;
             if ($this->debugMode) {
                 $marketplaceSku .= '--' . time();
             }
@@ -691,8 +699,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                     );
                     continue;
                 }
-                $packageDeliveryAddressId = (int)$packageData->delivery->id;
-                $firstPackage = $nbPackage > 1 ? false : true;
+                $packageDeliveryAddressId = (int) $packageData->delivery->id;
+                $firstPackage = !($nbPackage > 1);
                 // check the package for re-import order
                 if ($this->importOneOrder) {
                     if ($this->deliveryAddressId !== null && $this->deliveryAddressId !== $packageDeliveryAddressId) {
@@ -744,7 +752,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 // sync to lengow if no debug_mode
                 if (!$this->debugMode && isset($order['order_new']) && $order['order_new']) {
                     /** @var OrderModel $shopwareOrder */
-                    $shopwareOrder = Shopware()->Models()->getRepository('\Shopware\Models\Order\Order')
+                    $shopwareOrder = Shopware()->Models()->getRepository(OrderModel::class)
                         ->findOneBy(array('id' => $order['order_id']));
                     $synchro = LengowOrder::synchronizeOrder($shopwareOrder, $this->connector);
                     if ($synchro) {
@@ -811,7 +819,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
             // retrieval of orders created from ... until ...
             $createdFromTimestamp = strtotime($createdFrom);
             $createdToTimestamp = strtotime($createdTo) + 86399;
-            $intervalTime = (int)($createdToTimestamp - $createdFromTimestamp);
+            $intervalTime = $createdToTimestamp - $createdFromTimestamp;
             $this->createdFrom = $createdFromTimestamp;
             $this->createdTo = $intervalTime > self::MAX_INTERVAL_TIME
                 ? $createdFromTimestamp + self::MAX_INTERVAL_TIME
@@ -822,14 +830,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 $intervalTime = $intervalTime > self::MAX_INTERVAL_TIME ? self::MAX_INTERVAL_TIME : $intervalTime;
             } else {
                 // order recovery updated since ... days
-                $importDays = (int)LengowConfiguration::getConfig('lengowImportDays');
+                $importDays = (int) LengowConfiguration::getConfig(LengowConfiguration::SYNCHRONIZATION_DAY_INTERVAL);
                 $intervalTime = $importDays * 86400;
                 // add security for older versions of the plugin
                 $intervalTime = $intervalTime < self::MIN_INTERVAL_TIME ? self::MIN_INTERVAL_TIME : $intervalTime;
                 $intervalTime = $intervalTime > self::MAX_INTERVAL_TIME ? self::MAX_INTERVAL_TIME : $intervalTime;
                 // get dynamic interval time for cron synchronisation
                 $lastImport = LengowMain::getLastImport();
-                $lastSettingUpdate = (int)LengowConfiguration::getConfig('lengowLastSettingUpdate');
+                $lastSettingUpdate = (int) LengowConfiguration::getConfig(LengowConfiguration::LAST_UPDATE_SETTING);
                 if ($this->typeImport !== self::TYPE_MANUAL
                     && $lastImport['timestamp'] !== 'none'
                     && $lastImport['timestamp'] > $lastSettingUpdate
@@ -850,7 +858,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
      */
     public static function isInProcess()
     {
-        $timestamp = (int)LengowConfiguration::getConfig('lengowImportInProgress');
+        $timestamp = (int) LengowConfiguration::getConfig(LengowConfiguration::SYNCHRONIZATION_IN_PROGRESS);
         if ($timestamp > 0) {
             // security check : if last import is more than 60 seconds old => authorize new import to be launched
             if (($timestamp + (60 * 1)) < time()) {
@@ -869,7 +877,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
      */
     public static function restTimeToImport()
     {
-        $timestamp = (int)LengowConfiguration::getConfig('lengowImportInProgress');
+        $timestamp = (int) LengowConfiguration::getConfig(LengowConfiguration::SYNCHRONIZATION_IN_PROGRESS);
         if ($timestamp > 0) {
             return $timestamp + (60 * 1) - time();
         }
@@ -882,7 +890,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     public static function setInProcess()
     {
         self::$processing = true;
-        LengowConfiguration::setConfig('lengowImportInProgress', time());
+        LengowConfiguration::setConfig(LengowConfiguration::SYNCHRONIZATION_IN_PROGRESS, time());
     }
 
     /**
@@ -891,7 +899,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
     public static function setEnd()
     {
         self::$processing = false;
-        LengowConfiguration::setConfig('lengowImportInProgress', -1);
+        LengowConfiguration::setConfig(LengowConfiguration::SYNCHRONIZATION_IN_PROGRESS, -1);
     }
 
     /**
@@ -907,7 +915,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
         if (empty($orderStateMarketplace)) {
             return false;
         }
-        if (!in_array($marketplace->getStateLengow($orderStateMarketplace), self::$lengowStates)) {
+        if (!in_array($marketplace->getStateLengow($orderStateMarketplace), self::$lengowStates, true)) {
             return false;
         }
         return true;
