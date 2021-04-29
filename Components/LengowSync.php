@@ -122,6 +122,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             'plugin_version' => Shopware()->Plugins()->Backend()->Lengow()->getVersion(),
             'email' => LengowConfiguration::getConfig('mail'),
             'cron_url' => LengowMain::getCronUrl(),
+            'toolbox_url' => LengowMain::getToolboxUrl(),
             'shops' => array(),
         );
         $activeShops = LengowMain::getActiveShops();
