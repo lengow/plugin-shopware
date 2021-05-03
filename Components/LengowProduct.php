@@ -274,7 +274,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     : $this->article->getKeywords();
                 return LengowMain::cleanData($keywords);
             case 'supplier':
-                return LengowMain::cleanData($this->article->getSupplier()->getName());
+                return $this->article->getSupplier()
+                    ? LengowMain::cleanData($this->article->getSupplier()->getName())
+                    : '';
             default:
                 $result = '';
                 if (array_key_exists($name, $this->variations) && $this->isVariation) {
