@@ -48,6 +48,7 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace as LengowMarketplace;
 use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
 use Shopware_Plugins_Backend_Lengow_Components_LengowOrderError as LengowOrderError;
+use Shopware_Plugins_Backend_Lengow_Components_LengowSync as LengowSync;
 use Shopware_Plugins_Backend_Lengow_Components_LengowToolbox as LengowToolbox;
 use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
 
@@ -809,7 +810,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     {
         $mailBody = '';
         if (!empty($orderErrors)) {
-            $support = self::decodeLogMessage('lengow_log/mail_report/no_error_in_report_mail');
+            $pluginLinks = LengowSync::getPluginLinks();
+            $support = self::decodeLogMessage(
+                'lengow_log/mail_report/no_error_in_report_mail',
+                null,
+                array('support_link' => $pluginLinks[LengowSync::LINK_TYPE_SUPPORT])
+            );
             $mailBody = '<h2>' . self::decodeLogMessage('lengow_log/mail_report/subject_report_mail') . '</h2><p><ul>';
             foreach ($orderErrors as $orderError) {
                 $order = self::decodeLogMessage(

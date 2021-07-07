@@ -86,6 +86,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     const LAST_UPDATE_SETTING = 'lengowLastSettingUpdate';
     const LAST_UPDATE_PLUGIN_DATA = 'lengowPluginDataUpdate';
     const LAST_UPDATE_AUTHORIZATION_TOKEN = 'lengowLastAuthorizationTokenUpdate';
+    const LAST_UPDATE_PLUGIN_MODAL = 'lengowLastPluginModalUpdate';
 
     /* Configuration parameters */
     const PARAM_EXPORT = 'export';
@@ -148,6 +149,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         self::LAST_UPDATE_SETTING => 'last_update_setting',
         self::LAST_UPDATE_PLUGIN_DATA => 'last_update_plugin_data',
         self::LAST_UPDATE_AUTHORIZATION_TOKEN => 'last_update_authorization_token',
+        self::LAST_UPDATE_PLUGIN_MODAL => 'last_update_plugin_modal',
     );
 
     /**
@@ -244,23 +246,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         ),
         self::DEFAULT_EXPORT_CARRIER_ID => array(
             self::PARAM_SHOP => true,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
         self::WAITING_SHIPMENT_ORDER_ID => array(
             self::PARAM_GLOBAL => true,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
         self::SHIPPED_ORDER_ID => array(
             self::PARAM_GLOBAL => true,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
         self::CANCELED_ORDER_ID => array(
             self::PARAM_GLOBAL => true,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
         self::SHIPPED_BY_MARKETPLACE_ORDER_ID => array(
             self::PARAM_GLOBAL => true,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
         self::SYNCHRONIZATION_DAY_INTERVAL => array(
             self::PARAM_GLOBAL => true,
@@ -268,7 +270,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
         ),
         self::DEFAULT_IMPORT_CARRIER_ID => array(
             self::PARAM_SHOP => true,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
         self::CURRENCY_CONVERSION_ENABLED => array(
             self::PARAM_GLOBAL => true,
@@ -295,59 +297,64 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             self::PARAM_LENGOW_SETTING => true,
             self::PARAM_SHOP => true,
             self::PARAM_EXPORT_TOOLBOX => false,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
         self::LAST_UPDATE_CRON_SYNCHRONIZATION => array(
             self::PARAM_LENGOW_SETTING => true,
             self::PARAM_GLOBAL => true,
             self::PARAM_EXPORT_TOOLBOX => false,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
         self::LAST_UPDATE_MANUAL_SYNCHRONIZATION => array(
             self::PARAM_LENGOW_SETTING => true,
             self::PARAM_GLOBAL => true,
             self::PARAM_EXPORT_TOOLBOX => false,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
         self::LAST_UPDATE_ACTION_SYNCHRONIZATION => array(
             self::PARAM_LENGOW_SETTING => true,
             self::PARAM_GLOBAL => true,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
         self::LAST_UPDATE_CATALOG => array(
             self::PARAM_LENGOW_SETTING => true,
             self::PARAM_GLOBAL => true,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
         self::LAST_UPDATE_MARKETPLACE => array(
             self::PARAM_LENGOW_SETTING => true,
             self::PARAM_GLOBAL => true,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
         self::LAST_UPDATE_ACCOUNT_STATUS_DATA => array(
             self::PARAM_LENGOW_SETTING => true,
             self::PARAM_GLOBAL => true,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
         self::LAST_UPDATE_OPTION_CMS => array(
             self::PARAM_LENGOW_SETTING => true,
             self::PARAM_GLOBAL => true,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
         self::LAST_UPDATE_SETTING => array(
             self::PARAM_LENGOW_SETTING => true,
             self::PARAM_GLOBAL => true,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
         self::LAST_UPDATE_PLUGIN_DATA => array(
             self::PARAM_LENGOW_SETTING => true,
             self::PARAM_GLOBAL => true,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
         self::LAST_UPDATE_AUTHORIZATION_TOKEN => array(
             self::PARAM_LENGOW_SETTING => true,
             self::PARAM_GLOBAL => true,
-            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
+        ),
+        self::LAST_UPDATE_PLUGIN_MODAL => array(
+            self::PARAM_LENGOW_SETTING => true,
+            self::PARAM_GLOBAL => true,
+            self::PARAM_RETURN => self::RETURN_TYPE_INTEGER,
         ),
     );
 

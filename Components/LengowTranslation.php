@@ -35,6 +35,11 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
 {
+    /* Plugin translation iso codes */
+    const ISO_CODE_EN = 'en_GB';
+    const ISO_CODE_FR = 'fr_FR';
+    const ISO_CODE_DE = 'de_DE';
+
     /**
      * @var string default iso code
      */
@@ -48,7 +53,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
     /**
      * @var array all translations
      */
-    protected static $translation = null;
+    protected static $translation;
 
     /**
      * Construct
@@ -79,15 +84,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowTranslation
         }
         if (isset(self::$translation[$isoCode][$message])) {
             return $this->translateFinal(self::$translation[$isoCode][$message], $args);
-        } else {
-            if (!isset(self::$translation[self::DEFAULT_ISO_CODE])) {
-                self::loadFile(self::DEFAULT_ISO_CODE);
-            }
-            if (isset(self::$translation[self::DEFAULT_ISO_CODE][$message])) {
-                return $this->translateFinal(self::$translation[self::DEFAULT_ISO_CODE][$message], $args);
-            }
-            return 'Missing Translation [' . $message . ']';
         }
+        if (!isset(self::$translation[self::DEFAULT_ISO_CODE])) {
+            self::loadFile(self::DEFAULT_ISO_CODE);
+        }
+        if (isset(self::$translation[self::DEFAULT_ISO_CODE][$message])) {
+            return $this->translateFinal(self::$translation[self::DEFAULT_ISO_CODE][$message], $args);
+        }
+        return 'Missing Translation [' . $message . ']';
     }
 
     /**
