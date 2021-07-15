@@ -381,7 +381,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
             $pluginData = false;
             foreach ($plugins as $plugin) {
                 if ($plugin->type === self::CMS_TYPE) {
+                    $cmsMinVersion = '';
+                    $cmsMaxVersion = '';
                     $pluginLinks = array();
+                    $currentVersion = $plugin->version;
+                    if (!empty($plugin->versions)) {
+                        foreach ($plugin->versions as $version) {
+                            if ($version->version === $currentVersion) {
+                                $cmsMinVersion = $version->cms_min_version;
+                                $cmsMaxVersion = $version->cms_max_version;
+                                break;
+                            }
+                        }
+                    }
                     if (!empty($plugin->links)) {
                         foreach ($plugin->links as $link) {
                             if (array_key_exists($link->language->iso_a2, self::$genericIsoCodes)) {
@@ -391,10 +403,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                         }
                     }
                     $pluginData = array(
-                        'version' => $plugin->version,
+                        'version' => $currentVersion,
                         'download_link' => $plugin->archive,
-                        'cms_min_version' => '4.3',
-                        'cms_max_version' => '5.7',
+                        'cms_min_version' => $cmsMinVersion,
+                        'cms_max_version' => $cmsMaxVersion,
                         'links' => $pluginLinks,
                         'extensions' => $plugin->extensions,
                     );
