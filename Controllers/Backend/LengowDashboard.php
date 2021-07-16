@@ -28,7 +28,9 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
 use Shopware_Plugins_Backend_Lengow_Components_LengowElements as LengowElements;
+use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 use Shopware_Plugins_Backend_Lengow_Components_LengowSync as LengowSync;
 
 /**
@@ -41,18 +43,31 @@ class Shopware_Controllers_Backend_LengowDashboard extends Shopware_Controllers_
      */
     public function getDashboardContentAction()
     {
-        $status = LengowSync::getStatusAccount();
-        $showTabBar = false;
-        if ($status['type'] === 'free_trial' && $status['expired']) {
+        $accountStatusData = LengowSync::getStatusAccount();
+        $freeTrialExpired = $accountStatusData
+            && $accountStatusData['type'] === 'free_trial'
+            && $accountStatusData['expired'];
+        // recovery of all plugin data for plugin update
+        $newVersionIsAvailable = false;
+        $showUpdateModal = false;
+        $pluginVersion = Shopware()->Plugins()->Backend()->Lengow()->getVersion();
+        $pluginData = LengowSync::getPluginData();
+        if (!$freeTrialExpired && $pluginData && version_compare($pluginData['version'], $pluginVersion, '>')) {
+            $newVersionIsAvailable = true;
+            // show upgrade plugin modal or not
+            $showUpdateModal = $this->showPluginUpgradeModal();
+        }
+        if ($freeTrialExpired) {
             $htmlContent = LengowElements::getEndFreeTrial();
         } else {
-            $htmlContent = LengowElements::getDashboard();
-            $showTabBar = true;
+            $htmlContent = LengowElements::getDashboard($pluginData, $accountStatusData, $showUpdateModal);
         }
         $this->View()->assign(
             array(
                 'success' => true,
-                'displayTabBar' => $showTabBar,
+                'freeTrialExpired' => $freeTrialExpired,
+                'newVersionIsAvailable' => $newVersionIsAvailable,
+                'showUpdateModal' => $showUpdateModal,
                 'data' => $htmlContent,
             )
         );
@@ -65,5 +80,31 @@ class Shopware_Controllers_Backend_LengowDashboard extends Shopware_Controllers_
     {
         LengowSync::getStatusAccount(true);
         $this->View()->assign(array('success' => true));
+    }
+
+    /**
+     * Set back the display date of the update modal by 7 days
+     */
+    public function remindMeLaterAction()
+    {
+        $timestamp = time() + (7 * 86400);
+        LengowConfiguration::setConfig(LengowConfiguration::LAST_UPDATE_PLUGIN_MODAL, $timestamp);
+        $this->View()->assign(array('success' => true));
+    }
+
+
+    /**
+     * Checks if the plugin upgrade modal should be displayed or not
+     *
+     * @return boolean
+     */
+    private function showPluginUpgradeModal()
+    {
+        $updatedAt = LengowConfiguration::getConfig(LengowConfiguration::LAST_UPDATE_PLUGIN_MODAL);
+        if ($updatedAt !== null && (time() - (int) $updatedAt) < 86400) {
+            return false;
+        }
+        LengowConfiguration::setConfig(LengowConfiguration::LAST_UPDATE_PLUGIN_MODAL, time());
+        return true;
     }
 }

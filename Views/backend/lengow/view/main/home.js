@@ -155,21 +155,15 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
             style: {
                 background: '#F7F7F7'
             },
-            items: [{
-                xtype: 'label',
-                id: 'lgw-debug-label'
-            },
-            {
-                xtype: 'tbfill'
-            },
-            {
-                xtype: 'label',
-                id: 'lgw-plugin-available-label'
-            },
-            {
-                xtype: 'label',
-                id: 'lgw-trial-label'
-            }]
+            items: [
+                {
+                    xtype: 'tbfill'
+                },
+                {
+                    xtype: 'label',
+                    id: 'lgw-debug-label'
+                }
+           ]
         };
     }
 });

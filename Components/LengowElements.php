@@ -53,34 +53,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
     public static function getHeader()
     {
         $html = array();
-        $locale = new LengowTranslation();
-        $accountStatus = LengowSync::getStatusAccount();
-        $pluginData = LengowSync::getPluginData();
-        $pluginVersion = Shopware()->Plugins()->Backend()->Lengow()->getVersion();
         if (LengowConfiguration::debugModeIsActive()) {
-            $html['lgw-debug-label'] =
-                '<div id="lgw-debug" class="adminlengowhome">'
-                    . $locale->t('menu/debug_active') .
-                '</div>';
-        }
-        if ($accountStatus['type'] === 'free_trial' && $accountStatus['expired'] !== true) {
-            $html['lgw-trial-label'] =
-                '<p class="text-right" id="menucountertrial">'
-                    . $locale->t('menu/counter', array('counter' => $accountStatus['day'])) .
-                    '<a href="//my.' . LengowConnector::LENGOW_URL . '" target="_blank">'
-                        . $locale->t('menu/upgrade_account') .
-                    '</a>
-                </p>';
-        }
-        if ($pluginData && version_compare($pluginVersion, $pluginData['version'], '<')) {
-            $pluginDownloadLink = '//my.' . LengowConnector::LENGOW_URL . $pluginData['download_link'];
-            $html['lgw-plugin-available-label'] =
-                '<p class="text-right" id="menupluginavailable">'
-                    . $locale->t('menu/new_version_available', array('version' => $pluginData['version'])) .
-                    '<a href="' . $pluginDownloadLink . '" target="_blank">'
-                        . $locale->t('menu/download_plugin', $locale) .
-                    '</a>
-                </p>';
+            $html['lgw-debug-label'] = self::getDebugModeWarning();
         }
         return $html;
     }
@@ -191,6 +165,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
     public static function getConnectionCms()
     {
         $locale = new LengowTranslation();
+        // get actual plugin urls in current language
+        $pluginLinks = LengowSync::getPluginLinks(LengowMain::getLocale());
         return '
             <div id="lgw-connection-cms">
                 <div class="lgw-content-section">
@@ -212,7 +188,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                     <p>' . $locale->t('connection/cms/credentials_description') . '</p>
                     <p>'
                         . $locale->t('connection/cms/credentials_help') .
-                        ' <a href="' . $locale->t('connection/cms/credentials_help_center_url') . '" target="_blank">'
+                        ' <a href="' . $pluginLinks[LengowSync::LINK_TYPE_HELP_CENTER] . '" target="_blank">'
                             . $locale->t('connection/cms/credentials_help_center') .
                         '</a>
                     </p>
@@ -322,6 +298,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
     public static function getConnectionCmsFailed($credentialsValid = false)
     {
         $locale = new LengowTranslation();
+        // get actual plugin urls in current language
+        $pluginLinks = LengowSync::getPluginLinks(LengowMain::getLocale());
         if ($credentialsValid) {
             $error = '<p>' . $locale->t('connection/cms/failed_description') . '</p>';
         } else {
@@ -352,11 +330,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                     . $error .
                     '<p>'
                         . $locale->t('connection/cms/failed_help') .
-                        ' <a href="' . $locale->t('help/screen/knowledge_link_url') . '" target="_blank">'
+                        ' <a href="' . $pluginLinks[LengowSync::LINK_TYPE_HELP_CENTER] . '" target="_blank">'
                             . $locale->t('connection/cms/failed_help_center') .
                         '</a> '
                         . $locale->t('connection/cms/failed_help_or') .
-                        ' <a href="' . $locale->t('help/screen/link_lengow_support') . '" target="_blank">'
+                        ' <a href="' . $pluginLinks[LengowSync::LINK_TYPE_SUPPORT] . '" target="_blank">'
                             . $locale->t('connection/cms/failed_help_customer_success_team') .
                         '</a>
                     </p>
@@ -436,6 +414,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
     public static function getConnectionCatalogFailed()
     {
         $locale = new LengowTranslation();
+        // get actual plugin urls in current language
+        $pluginLinks = LengowSync::getPluginLinks(LengowMain::getLocale());
         return '
             <div class="lgw-content-section">
                 <h2>' . $locale->t('connection/catalog/failed_title') . '</h2>
@@ -456,11 +436,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                 <p>' . $locale->t('connection/catalog/failed_description_second') . '</p>
                 <p>'
                     . $locale->t('connection/cms/failed_help') .
-                    ' <a href="' . $locale->t('help/screen/knowledge_link_url') . '" target="_blank">'
+                    ' <a href="' . $pluginLinks[LengowSync::LINK_TYPE_HELP_CENTER] . '" target="_blank">'
                         . $locale->t('connection/cms/failed_help_center') .
                     '</a> '
                     . $locale->t('connection/cms/failed_help_or') .
-                    ' <a href="' . $locale->t('help/screen/link_lengow_support') . '" target="_blank">'
+                    ' <a href="' . $pluginLinks[LengowSync::LINK_TYPE_SUPPORT] . '" target="_blank">'
                         . $locale->t('connection/cms/failed_help_customer_success_team') .
                     '</a>
                 </p>
@@ -482,13 +462,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
     public static function getHelp()
     {
         $locale = new LengowTranslation();
+        // get actual plugin urls in current language
+        $pluginLinks = LengowSync::getPluginLinks(LengowMain::getLocale());
         return '
             <div id="lengow_help_wrapper">
                 <div class="lgw-container">
                     <div class="lgw-box lengow_help_wrapper text-center">
                         <h2>' . $locale->t('help/screen/title') . '</h2>
                         <p>' . $locale->t('help/screen/contain_text_support') . ' 
-                            <a href="' . $locale->t('help/screen/link_lengow_support') . '"
+                            <a href="' . $pluginLinks[LengowSync::LINK_TYPE_SUPPORT] . '"
                                target="_blank"
                                title="Lengow Support">'
                                 . $locale->t('help/screen/title_lengow_support') .
@@ -496,7 +478,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                         </p>
                         <p>' . $locale->t('help/screen/contain_text_support_hour') . '</p>
                         <p>' . $locale->t('help/screen/find_answer') . '
-                            <a href="' . $locale->t('help/screen/knowledge_link_url') . '"
+                            <a href="' . $pluginLinks[LengowSync::LINK_TYPE_HELP_CENTER] . '"
                                target="_blank"
                                title="Help Center">'
                                 . $locale->t('help/screen/link_shopware_guide') .
@@ -547,11 +529,28 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
     /**
      * Get dashboard html
      *
+     * @param array|false $pluginData all plugin data
+     * @param array|false $accountStatusData all account status data
+     * @param bool $showUpdateModal display update modal or not
+     *
      * @return string
      */
-    public static function getDashboard()
+    public static function getDashboard($pluginData, $accountStatusData, $showUpdateModal)
     {
         $locale = new LengowTranslation();
+        // get update and free trial warning
+        $freeTrialWarning = $accountStatusData
+            && $accountStatusData['type'] === 'free_trial'
+            && !$accountStatusData['expired']
+                ? self::getFreeTrialWarning($accountStatusData['day'])
+                : '';
+        $pluginVersion = Shopware()->Plugins()->Backend()->Lengow()->getVersion();
+        $pluginUpdateWarning = $pluginData && version_compare($pluginData['version'], $pluginVersion, '>')
+            ? self::getUpdateWarning($pluginData['version'])
+            : '';
+        // get actual plugin urls in current language
+        $pluginLinks = LengowSync::getPluginLinks(LengowMain::getLocale());
+        // get other data for dashboard
         $numberOrderToBeSent = LengowOrder::countOrderToBeSent();
         $alertOrderToBeSent = $numberOrderToBeSent > 0
             ? ' <span class="lgw-label red">' . $numberOrderToBeSent . '</span>'
@@ -560,6 +559,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
         return '
             <div id="lengow_home_wrapper">
                 <div class="lgw-container">
+                    <div class="lgw-row">
+                        <div class="text-left pull-left lgw-col-6">
+                            ' . $pluginUpdateWarning . '
+                        </div>
+                        <div class="text-right pull-right lgw-col-6">
+                            ' . $freeTrialWarning . '
+                        </div>
+                    </div>
                     <div class="lgw-box lgw-home-header text-center">
                         <img src="' . self::IMG_FOLDER . 'lengow-white-big.png" alt="lengow">
                         <h1>' . $locale->t('dashboard/screen/welcome_back') . '</h1>
@@ -608,11 +615,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                             <a href="#" id="lengowHelpTab">' . $locale->t('dashboard/screen/get_in_touch') . '</a>
                         </p>
                         <p>
-                            <a href="' . $locale->t('help/screen/knowledge_link_url') . '" target="_blank">'
+                            <a href="' . $pluginLinks[LengowSync::LINK_TYPE_HELP_CENTER] . '" target="_blank">'
                                 . $locale->t('dashboard/screen/visit_help_center') .
                             '</a> ' . $locale->t('dashboard/screen/configure_plugin') . '
                         </p>
                     </div>
+                    ' . self::getUpdateModal($pluginData, $pluginLinks, $showUpdateModal) . ' 
                 </div>
                 ' . self::getFooter() . '
             </div>
@@ -628,39 +636,194 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
     {
         $locale = new LengowTranslation();
         return '
-            <div class="lgw-container">
-                <div class="lgw-box">
-                    <div class="lgw-row">
-                        <div class="lgw-col-6 display-inline-block">
-                            <h2 class="text-center">' . $locale->t('status/screen/title_end_free_trial') . '</h2>
-                            <h3 class="text-center">' . $locale->t('status/screen/subtitle_end_free_trial') . '</h3>
-                            <p class="text-center">'
-                                . $locale->t('status/screen/first_description_end_free_trial') .
-                            '</p>
-                            <p class="text-center">'
-                                . $locale->t('status/screen/second_description_end_free_trial') .
-                            '</p>
-                            <p class="text-center">'
-                                . $locale->t('status/screen/third_description_end_free_trial') .
-                            '</p>
-                            <div class="text-center">
-                                <a href="//my.' . LengowConnector::LENGOW_URL . '" class="lgw-btn" target="_blank">'
-                                    . $locale->t('status/screen/upgrade_account_button') .
-                                '</a>
+            <div id="lengow_home_wrapper">
+                <div class="lgw-container">
+                    <div class="lgw-box">
+                        <div class="lgw-row">
+                            <div class="lgw-col-6 display-inline-block text-center">
+                                <h2>' . $locale->t('status/screen/title_end_free_trial') . '</h2>
+                                <h3>' . $locale->t('status/screen/subtitle_end_free_trial') . '</h3>
+                                <p>'
+                                    . $locale->t('status/screen/first_description_end_free_trial') .
+                                '</p>
+                                <p>'
+                                    . $locale->t('status/screen/second_description_end_free_trial') .
+                                '</p>
+                                <p>'
+                                    . $locale->t('status/screen/third_description_end_free_trial') .
+                                '</p>
+                                <div>
+                                    <a href="//my.' . LengowConnector::LENGOW_URL . '" class="lgw-btn" target="_blank">'
+                                        . $locale->t('status/screen/upgrade_account_button') .
+                                    '</a>
+                                </div>
+                                <div>
+                                    <a href="#" id="lgw-refresh" class="lgw-box-link">'
+                                        . $locale->t('status/screen/refresh_action') .
+                                    '</a>
+                                </div>
                             </div>
-                            <div class="text-center">
-                                <a href="#" id="lgw-refresh" class="lgw-box-link">'
-                                    . $locale->t('status/screen/refresh_action') .
-                                '</a>
+                            <div class="lgw-col-6">
+                                <div class="vertical-center">
+                                    <img src="' . self::IMG_FOLDER . 'logo-blue.png" class="center-block" alt="lengow"/>
+                                </div>
                             </div>
                         </div>
-                        <div class="lgw-col-6">
-                            <div class="vertical-center">
-                                <img src="' . self::IMG_FOLDER . 'logo-blue.png" class="center-block" alt="lengow"/>
+                    </div>
+                </div>' . self::getFooter() . '
+            </div>';
+    }
+
+    /**
+     * Get debug mode warning html
+     *
+     * @return string
+     */
+    public static function getDebugModeWarning()
+    {
+        $locale = new LengowTranslation();
+        return '
+            <div class="lgw-debug-warning">'
+                . $locale->t('menu/debug_active') .
+            '</div>';
+    }
+
+    /**
+     * Get update warning html
+     *
+     * @param string $version new plugin version
+     *
+     * @return string
+     */
+    public static function getUpdateWarning($version)
+    {
+        $locale = new LengowTranslation();
+        return '
+            <div class="lgw-update-warning">
+                ' . $locale->t('menu/new_version_available', array('version' => $version)) . '
+                <button id="js-open-update-modal" class="btn-link mod-blue mod-inline">'
+                    . $locale->t('menu/download_plugin') .
+                '</button>
+            </div>';
+    }
+
+    /**
+     * Get free trial warning html
+     *
+     * @param string $days free trial days
+     *
+     * @return string
+     */
+    public static function getFreeTrialWarning($days)
+    {
+        $locale = new LengowTranslation();
+        return '
+            <div class="lgw-free-trial-warning">
+                ' . $locale->t('menu/counter', array('counter' => $days)) . '
+                <a href="//my.' . LengowConnector::LENGOW_URL . '" target="_blank">'
+                    . $locale->t('menu/upgrade_account') .
+                '</a>
+            </div>';
+    }
+
+    /**
+     * Get update modal html
+     *
+     * @param array $pluginData all plugin data
+     * @param array $pluginLinks all plugin links in current locale
+     * @param bool $showUpdateModal display update modal or not
+     *
+     * @return string
+     */
+    public static function getUpdateModal($pluginData, $pluginLinks, $showUpdateModal)
+    {
+        $locale = new LengowTranslation();
+        $pluginDownloadLink = '//my.' . LengowConnector::LENGOW_URL . $pluginData['download_link'];
+        $extensionHtml = '';
+        foreach ($pluginData['extensions'] as $extension) {
+            $extensionRequired = $locale->t(
+                'update/extension_required',
+                array(
+                    'name' => $extension['name'],
+                    'min_version' => $extension['min_version'],
+                    'max_version' => $extension['max_version'],
+                )
+            );
+            $extensionHtml .= '<br /> ' . $extensionRequired;
+        }
+        $isOpen = '';
+        $remindMeLaterButton = '';
+        if ($showUpdateModal) {
+            $isOpen = 'is-open';
+            $remindMeLaterButton = '
+                <button id="js-remind-me-later" class="btn-link sub-link no-margin-top text-small">'
+                    . $locale->t('update/button_remind_me_later') .
+                '</button>';
+        }
+        return '
+            <div id="js-update-modal" class="lgw-modalbox mod-size-medium ' . $isOpen . '">
+                <div class="lgw-modalbox-content">
+                    <span id="js-close-update-modal" class="lgw-modalbox-close"></span>
+                    <div class="lgw-modalbox-body">
+                        <div class="lgw-row flexbox-vertical-center">
+                            <div class="lgw-col-5 text-center">
+                                <img src="' . self::IMG_FOLDER . 'plugin-update.png" alt="">
+                            </div>
+                            <div class="lgw-col-7">
+                                <h1>' . $locale->t('update/version_available') . '</h1>
+                                <p>'
+                                    . $locale->t('update/start_now') . '
+                                    <a href="' . $pluginLinks[LengowSync::LINK_TYPE_CHANGELOG] . '" target="_blank">'
+                                        . $locale->t('update/link_changelog') .
+                                    '</a>
+                                </p>
+                                <div class="lgw-content-section mod-small">
+                                    <h2 class="no-margin-bottom">' . $locale->t('update/step_one') . '</h2>
+                                    <p class="no-margin-bottom">
+                                        ' . $locale->t('update/download_last_version') . '
+                                    </p>
+                                    <p class="text-lesser text-italic">'
+                                        . $locale->t(
+                                            'update/plugin_compatibility',
+                                            array(
+                                                'cms_min_version' => $pluginData['cms_min_version'],
+                                                'cms_max_version' => $pluginData['cms_max_version'],
+                                            )
+                                        ) . $extensionHtml .
+                                    '</p>
+                                </div>
+                                <div class="lgw-content-section mod-small">
+                                    <h2 class="no-margin-bottom">' . $locale->t('update/step_two') . '</h2>
+                                    <p class="no-margin-bottom">
+                                        <a href="' . $pluginLinks[LengowSync::LINK_TYPE_UPDATE_GUIDE] . '"
+                                           target="_blank">'
+                                            . $locale->t('update/link_follow') .
+                                        '</a>
+                                        ' . $locale->t('update/update_procedure') .
+                                    '</p>
+                                    <p class="text-lesser text-italic">'
+                                        . $locale->t('update/not_working') . '
+                                        <a href="' . $pluginLinks[LengowSync::LINK_TYPE_SUPPORT] . '"
+                                            target="_blank">'
+                                            . $locale->t('update/customer_success_team') .
+                                        '</a>
+                                    </p>
+                                </div>
+                                <div class="flexbox-vertical-center margin-standard">
+                                    <a class="lgw-btn no-margin-top"
+                                       href="' . $pluginDownloadLink . '"
+                                       target="_blank">'
+                                        . $locale->t(
+                                            'update/button_download_version',
+                                            array('version' => $pluginData['version'])
+                                        ) .
+                                    '</a>
+                                    ' . $remindMeLaterButton . '
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>' . self::getFooter();
+            </div>';
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2017 Lengow SAS
+ * Copyright 2021 Lengow SAS
  *
  * NOTICE OF LICENSE
  *
@@ -22,32 +22,28 @@
  *
  * @category    Lengow
  * @package     Lengow
- * @subpackage  Toolbox
+ * @subpackage  Upgrade
  * @author      Team module <team-module@lengow.com>
- * @copyright   2017 Lengow SAS
+ * @copyright   2021 Lengow SAS
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
-use Shopware\Kernel;
-use Shopware\Components\HttpCache\AppCache;
+use Shopware_Plugins_Backend_Lengow_Bootstrap as LengowBootstrap;
+use Shopware_Plugins_Backend_Lengow_Bootstrap_Database as LengowBootstrapDatabase;
 
-$toolboxPath = 'engine/Shopware/Plugins/Community/Backend/Lengow/Toolbox/';
-$currentDirectory = str_replace($toolboxPath, '', dirname($_SERVER['SCRIPT_FILENAME']) . "/");
+if (!LengowBootstrapDatabase::isInstallationInProgress()) {
+    exit();
+}
 
-require_once $currentDirectory . 'autoload.php';
-
-require_once('../Bootstrap.php');
-require_once('../Components/LengowConfiguration.php');
-require_once('../Components/LengowFile.php');
-require_once('../Components/LengowLog.php');
-require_once('../Components/LengowMain.php');
-require_once('../Components/LengowToolboxElement.php');
-require_once('../Components/LengowTranslation.php');
-
-$environment = getenv('ENV') ?: getenv('REDIRECT_ENV') ?: 'production';
-
-$kernel = new Kernel($environment, $environment !== 'production');
-$kernel->boot();
-if ($kernel->isHttpCacheEnabled()) {
-    $kernel = new AppCache($kernel, $kernel->getHttpCacheConfig());
+$orderTable = 's_lengow_settings';
+if (LengowBootstrapDatabase::tableExist($orderTable)) {
+    $db = Shopware()->Db();
+    try {
+        if (LengowBootstrapDatabase::columnExists($orderTable, 'value')) {
+            $db->exec('ALTER TABLE `s_lengow_settings` CHANGE `value` `value` TEXT NULL DEFAULT NULL');
+        }
+    } catch (Exception $e) {
+        $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+        LengowBootstrap::log('log/install/add_upgrade_error', array('error_message' => $errorMessage));
+    }
 }

@@ -57,7 +57,7 @@ class Settings extends ModelEntity
     /**
      * @var string
      *
-     * @ORM\Column(name="value", type="string", length=100, nullable=true)
+     * @ORM\Column(name="value", type="text", nullable=true)
      */
     private $value;
 

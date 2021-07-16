@@ -40,21 +40,20 @@ class Shopware_Controllers_Backend_LengowLogs extends Shopware_Controllers_Backe
      */
     public function listAction()
     {
-        $files = LengowLog::getFiles();
+        $files = LengowLog::getPaths();
         $result = array();
         foreach ($files as $logFile) {
-            $name = $logFile->fileName;
-            $date = substr($name, 5, 11);
+            $date = $logFile[LengowLog::LOG_DATE];
             $dateTime = new DateTime($date);
             $result[] = array(
-                'name' => $logFile->fileName,
+                'name' => $date,
                 'date' => date_format($dateTime, 'd m Y'),
             );
         }
         $this->View()->assign(
             array(
                 'success' => true,
-                'data' => array_reverse($result),
+                'data' => $result,
                 'total' => count($result),
             )
         );
@@ -65,7 +64,7 @@ class Shopware_Controllers_Backend_LengowLogs extends Shopware_Controllers_Backe
      */
     public function downloadAction()
     {
-        $fileName = $this->Request()->getParam('fileName');
-        LengowLog::download($fileName);
+        $date = $this->Request()->getParam('date');
+        LengowLog::download($date);
     }
 }

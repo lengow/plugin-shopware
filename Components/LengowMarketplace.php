@@ -47,7 +47,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     /**
      * @var string marketplace file name
      */
-    public static $marketplaceJson = 'marketplaces.json';
+    const FILE_MARKETPLACE = 'marketplaces.json';
 
     /**
      * @var array all valid actions
@@ -131,36 +131,36 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
             $this->labelName = $this->marketplace->name;
             foreach ($this->marketplace->orders->status as $key => $state) {
                 foreach ($state as $value) {
-                    $this->statesLengow[(string)$value] = (string)$key;
-                    $this->states[(string)$key][(string)$value] = (string)$value;
+                    $this->statesLengow[(string) $value] = (string) $key;
+                    $this->states[(string) $key][(string) $value] = (string) $value;
                 }
             }
             foreach ($this->marketplace->orders->actions as $key => $action) {
                 foreach ($action->status as $state) {
-                    $this->actions[(string)$key]['status'][(string)$state] = (string)$state;
+                    $this->actions[(string) $key]['status'][(string) $state] = (string) $state;
                 }
                 foreach ($action->args as $arg) {
-                    $this->actions[(string)$key]['args'][(string)$arg] = (string)$arg;
+                    $this->actions[(string) $key]['args'][(string) $arg] = (string) $arg;
                 }
                 foreach ($action->optional_args as $optionalArg) {
-                    $this->actions[(string)$key]['optional_args'][(string)$optionalArg] = $optionalArg;
+                    $this->actions[(string) $key]['optional_args'][(string) $optionalArg] = $optionalArg;
                 }
                 foreach ($action->args_description as $argKey => $argDescription) {
                     $validValues = array();
                     if (isset($argDescription->valid_values)) {
                         foreach ($argDescription->valid_values as $code => $validValue) {
-                            $validValues[(string)$code] = isset($validValue->label)
-                                ? (string)$validValue->label
-                                : (string)$validValue;
+                            $validValues[(string) $code] = isset($validValue->label)
+                                ? (string) $validValue->label
+                                : (string) $validValue;
                         }
                     }
                     $defaultValue = isset($argDescription->default_value)
-                        ? (string)$argDescription->default_value
+                        ? (string) $argDescription->default_value
                         : '';
                     $acceptFreeValue = isset($argDescription->accept_free_values)
-                        ? (bool)$argDescription->accept_free_values
+                        ? (bool) $argDescription->accept_free_values
                         : true;
-                    $this->argValues[(string)$argKey] = array(
+                    $this->argValues[(string) $argKey] = array(
                         'default_value' => $defaultValue,
                         'accept_free_values' => $acceptFreeValue,
                         'valid_values' => $validValues,
@@ -169,7 +169,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
             }
             if (isset($this->marketplace->orders->carriers)) {
                 foreach ($this->marketplace->orders->carriers as $key => $carrier) {
-                    $this->carriers[(string)$key] = (string)$carrier->label;
+                    $this->carriers[(string) $key] = (string) $carrier->label;
                 }
             }
             $this->isLoaded = true;
@@ -194,13 +194,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     public static function getFilePath()
     {
         $sep = DIRECTORY_SEPARATOR;
-        $folderPath = LengowMain::getLengowFolder();
-        $configFolder = LengowMain::$lengowConfigFolder;
-        return $folderPath . $sep . $configFolder . $sep . self::$marketplaceJson;
+        return LengowMain::getLengowFolder() . $sep . LengowMain::FOLDER_CONFIG . $sep . self::FILE_MARKETPLACE;
     }
 
     /**
-     * Get the real lengow's order state
+     * Get the real Lengow's order state
      *
      * @param string $name marketplace order state
      *
@@ -258,15 +256,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     {
         if (isset($this->actions[$action])) {
             $actions = $this->actions[$action];
-            if (isset($actions['args']) && is_array($actions['args'])) {
-                if (in_array(LengowAction::ARG_LINE, $actions['args'])) {
-                    return true;
-                }
+            if (isset($actions['args'])
+                && is_array($actions['args'])
+                && in_array(LengowAction::ARG_LINE, $actions['args'], true)
+            ) {
+                return true;
             }
-            if (isset($actions['optional_args']) && is_array($actions['optional_args'])) {
-                if (in_array(LengowAction::ARG_LINE, $actions['optional_args'])) {
-                    return true;
-                }
+            if (isset($actions['optional_args'])
+                && is_array($actions['optional_args'])
+                && in_array(LengowAction::ARG_LINE, $actions['optional_args'], true)
+            ) {
+                return true;
             }
         }
         return false;
@@ -358,7 +358,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      */
     protected function checkAction($action)
     {
-        if (!in_array($action, self::$validActions)) {
+        if (!in_array($action, self::$validActions, true)) {
             throw new LengowException(
                 LengowMain::setLogMessage('lengow_log/exception/action_not_valid', array('action' => $action))
             );
@@ -382,10 +382,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      */
     protected function checkOrderData($lengowOrder)
     {
-        if (strlen($lengowOrder->getMarketplaceSku()) === 0) {
+        if ($lengowOrder->getMarketplaceSku() === '') {
             throw new LengowException(LengowMain::setLogMessage('lengow_log/exception/marketplace_sku_require'));
         }
-        if (strlen($lengowOrder->getMarketplaceName()) === 0) {
+        if ($lengowOrder->getMarketplaceName() === '') {
             throw new LengowException(LengowMain::setLogMessage('lengow_log/exception/marketplace_name_require'));
         }
     }
@@ -400,7 +400,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     protected function getMarketplaceArguments($action)
     {
         $actions = $this->getAction($action);
-        if (isset($actions['args']) && isset($actions['optional_args'])) {
+        if (isset($actions['args'], $actions['optional_args'])) {
             $marketplaceArguments = array_merge($actions['args'], $actions['optional_args']);
         } elseif (!isset($actions['args']) && isset($actions['optional_args'])) {
             $marketplaceArguments = $actions['optional_args'];
@@ -452,11 +452,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                     $params[$arg] = date('c');
                     break;
                 default:
-                    if (isset($actions['optional_args']) && in_array($arg, $actions['optional_args'])) {
+                    if (isset($actions['optional_args']) && in_array($arg, $actions['optional_args'], true)) {
                         break;
                     }
-                    $defaultValue = $this->getDefaultValue((string)$arg);
-                    $paramValue = $defaultValue ? $defaultValue : $arg . ' not available';
+                    $defaultValue = $this->getDefaultValue((string) $arg);
+                    $paramValue = $defaultValue ?: $arg . ' not available';
                     $params[$arg] = $paramValue;
                     break;
             }
@@ -479,7 +479,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
         $actions = $this->getAction($action);
         if (isset($actions['args'])) {
             foreach ($actions['args'] as $arg) {
-                if (!isset($params[$arg]) || strlen($params[$arg]) === 0) {
+                if (!isset($params[$arg]) || $params[$arg] === '') {
                     throw new LengowException(
                         LengowMain::setLogMessage('lengow_log/exception/arg_is_required', array('arg_name' => $arg))
                     );
@@ -488,7 +488,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
         }
         if (isset($actions['optional_args'])) {
             foreach ($actions['optional_args'] as $arg) {
-                if (isset($params[$arg]) && strlen($params[$arg]) === 0) {
+                if (isset($params[$arg]) && $params[$arg] === '') {
                     unset($params[$arg]);
                 }
             }
@@ -572,9 +572,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
     private function searchValue($pattern, $subject, $strict = true)
     {
         if ($strict) {
-            $found = $pattern === $subject ? true : false;
+            $found = $pattern === $subject;
         } else {
-            $found = preg_match('`.*?' . $pattern . '.*?`i', $subject) ? true : false;
+            $found = (bool) preg_match('`.*?' . $pattern . '.*?`i', $subject);
         }
         return $found;
     }
