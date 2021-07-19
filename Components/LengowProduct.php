@@ -29,11 +29,8 @@
  */
 
 use Shopware\Models\Article\Article as ArticleModel;
-use Shopware\Models\Article\Configurator\Group as ArticleConfiguratorGroupModel;
 use Shopware\Models\Article\Detail as ArticleDetailModel;
-use Shopware\Models\Article\Element as ArticleElementModel;
 use Shopware\Models\Article\Price as ArticlePriceModel;
-use Shopware\Models\Attribute\Configuration as AttributeConfigurationModel;
 use Shopware\Models\Dispatch\Dispatch as DispatchModel;
 use Shopware\Models\Media\Media as MediaModel;
 use Shopware\Models\Category\Category as CategoryModel;
@@ -338,7 +335,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         );
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select($select)
-            ->from(ArticleConfiguratorGroupModel::class, 'groups')
+            ->from('Shopware\Models\Article\Configurator\Group', 'groups')
             ->leftJoin('groups.options', 'options')
             ->leftJoin('options.articles', 'articles')
             ->where('articles.id = :detailId')
@@ -359,7 +356,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select(array('groups.name AS name'))
-            ->from(ArticleConfiguratorGroupModel::class, 'groups');
+            ->from('Shopware\Models\Article\Configurator\Group', 'groups');
         return $builder->getQuery()->getArrayResult();
     }
 
@@ -410,7 +407,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             );
             $builder = Shopware()->Models()->createQueryBuilder();
             $builder->select($select)
-                ->from(AttributeConfigurationModel::class, 'attributs')
+                ->from('Shopware\Models\Attribute\Configuration', 'attributs')
                 ->where('attributs.displayInBackend = 1')
                 ->groupBy('attributs.columnName')
                 ->orderBy('attributs.columnName', 'ASC');
@@ -423,7 +420,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             );
             $builder = Shopware()->Models()->createQueryBuilder();
             $builder->select($select)
-                ->from(ArticleElementModel::class, 'attributs')
+                ->from('Shopware\Models\Article\Element', 'attributs')
                 ->groupBy('attributs.name')
                 ->orderBy('attributs.position', 'ASC');
             $attributes =  $builder->getQuery()->getArrayResult();
@@ -490,7 +487,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 $categoryId = (int) $category->getParentId();
                 for ($i = 0; $i < $countCategoryPath - 2; $i++) {
                     /** @var CategoryModel $category */
-                    $category = Shopware()->Models()->getReference(CategoryModel::class, $categoryId);
+                    $category = Shopware()->Models()->getReference('Shopware\Models\Category\Category', $categoryId);
                     $breadcrumb = $category->getName() . ' > ' . $breadcrumb;
                     $categoryId = (int) $category->getParentId();
                 }
@@ -639,7 +636,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             $em = LengowBootstrap::getEntityManager();
             $dispatchId = LengowConfiguration::getConfig(LengowConfiguration::DEFAULT_EXPORT_CARRIER_ID, $this->shop);
             /** @var DispatchModel $dispatch */
-            $dispatch = $em->getReference(DispatchModel::class, $dispatchId);
+            $dispatch = $em->getReference('Shopware\Models\Dispatch\Dispatch', $dispatchId);
             /** @var CategoryModel[] $blockedCategories */
             $blockedCategories = $dispatch->getCategories();
             if ($this->getCategoryStatus($blockedCategories)) {
@@ -725,7 +722,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $em = LengowBootstrap::getEntityManager();
         $builder = $em->createQueryBuilder();
         $builder->select(array('SUM(detail.inStock)'))
-            ->from(ArticleDetailModel::class, 'detail')
+            ->from('Shopware\Models\Article\Detail', 'detail')
             ->where('detail.articleId = :articleId')
             ->setParameter('articleId', $this->article->getId());
         return $builder->getQuery()->getSingleScalarResult();
@@ -765,7 +762,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 try {
                     $em = LengowBootstrap::getEntityManager();
                     /** @var ArticleModel $article */
-                    $article = $em->find(ArticleModel::class, $articleId);
+                    $article = $em->find('Shopware\Models\Article\Article', $articleId);
                 } catch (Exception $e) {
                     $article = null;
                 }
@@ -793,7 +790,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             $em = LengowBootstrap::getEntityManager();
             try {
                 /** @var ArticleModel $article */
-                $article = $em->find(ArticleModel::class, $parentId);
+                $article = $em->find('Shopware\Models\Article\Article', $parentId);
             } catch (Exception $e) {
                 $article = null;
             }
@@ -816,7 +813,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                         'articleId' => $parentId,
                     );
                     /** @var ArticleDetailModel $variation */
-                    $variation = $em->getRepository(ArticleDetailModel::class)->findOneBy($criteria);
+                    $variation = $em->getRepository('Shopware\Models\Article\Detail')->findOneBy($criteria);
                     $result = array(
                         'id' => $variation->getId(),
                         'number' => $variation->getNumber(),
@@ -840,7 +837,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         $em = LengowBootstrap::getEntityManager();
         /** @var ArticleDetailModel[] $result */
-        $result = $em->getRepository(ArticleDetailModel::class)->findBy(array($field => $value));
+        $result = $em->getRepository('Shopware\Models\Article\Detail')->findBy(array($field => $value));
         $total = count($result);
         if ($total === 1) {
             return array(

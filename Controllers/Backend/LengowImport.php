@@ -28,13 +28,9 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
-use Shopware\Models\Country\Country as CountryModel;
 use Shopware\Models\Order\Order as OrderModel;
-use Shopware\Models\Order\Status as OrderStatusModel;
 use Shopware\Models\Shop\Shop as ShopModel;
-use Shopware\CustomModels\Lengow\Action as LengowActionModel;
 use Shopware\CustomModels\Lengow\Order as LengowOrderModel;
-use Shopware\CustomModels\Lengow\OrderError as LengowOrderErrorModel;
 use Shopware_Plugins_Backend_Lengow_Bootstrap as LengowBootstrap;
 use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
 use Shopware_Plugins_Backend_Lengow_Components_LengowImport as LengowImport;
@@ -116,24 +112,24 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
 
         $builder = $em->createQueryBuilder();
         $builder->select($select)
-            ->from(LengowOrderModel::class, 'orderLengow')
-            ->leftJoin(ShopModel::class, 'shops', 'WITH', 'orderLengow.shopId = shops.id')
+            ->from('Shopware\CustomModels\Lengow\Order', 'orderLengow')
+            ->leftJoin('Shopware\Models\Shop\Shop', 'shops', 'WITH', 'orderLengow.shopId = shops.id')
             ->leftJoin('orderLengow.order', 's_order')
-            ->leftJoin(OrderStatusModel::class, 's_core_states', 'WITH', 's_order.status = s_core_states')
+            ->leftJoin('Shopware\Models\Order\Status', 's_core_states', 'WITH', 's_order.status = s_core_states')
             ->leftJoin(
-                CountryModel::class,
+                'Shopware\Models\Country\Country',
                 's_core_countries',
                 'WITH',
                 'orderLengow.deliveryCountryIso = s_core_countries.iso'
             )
             ->leftJoin(
-                LengowOrderErrorModel::class,
+                'Shopware\CustomModels\Lengow\OrderError',
                 'orderError',
                 'WITH',
                 'orderLengow.id = orderError.lengowOrderId'
             )
             ->leftJoin(
-                LengowActionModel::class,
+                'Shopware\CustomModels\Lengow\Action',
                 's_lengow_action',
                 'WITH',
                 's_order.id = s_lengow_action.orderId'
@@ -197,7 +193,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $em = LengowBootstrap::getEntityManager();
         $builder = $em->createQueryBuilder();
         $builder->select($select)
-            ->from(LengowOrderErrorModel::class, 'orderError')
+            ->from('Shopware\CustomModels\Lengow\OrderError', 'orderError')
             ->where('orderError.isFinished = 0');
         $results = $builder->getQuery()->getArrayResult();
         if ($results) {
@@ -361,7 +357,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
                 if ((int) $shopId > 0) {
                     $em = LengowBootstrap::getEntityManager();
                     /** @var ShopModel $shop */
-                    $shop = $em->getRepository(ShopModel::class)->findOneBy(array('id' => (int) $shopId));
+                    $shop = $em->getRepository('Shopware\Models\Shop\Shop')->findOneBy(array('id' => (int) $shopId));
                     $shopName = $shop !== null ? $shop->getName() . ' : ' : '';
                     $error = LengowMain::decodeLogMessage($values, $locale);
                     $messages[] = $shopName . $error;
@@ -379,7 +375,9 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $orderId = $this->Request()->getParam('orderId');
         $action = $this->Request()->getParam('actionName');
         /** @var OrderModel $order */
-        $order = Shopware()->Models()->getRepository(OrderModel::class)->findOneBy(array('id' => $orderId));
+        $order = Shopware()->Models()
+            ->getRepository('Shopware\Models\Order\Order')
+            ->findOneBy(array('id' => $orderId));
         $success = LengowOrder::callAction($order, $action);
         $this->View()->assign(
             array(
@@ -396,7 +394,9 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     {
         $orderId = $this->Request()->getParam('orderId');
         /** @var OrderModel $order */
-        $order = Shopware()->Models()->getRepository(OrderModel::class)->findOneBy(array('id' => $orderId));
+        $order = Shopware()->Models()
+            ->getRepository('Shopware\Models\Order\Order')
+            ->findOneBy(array('id' => $orderId));
         $success = LengowOrder::synchronizeOrder($order);
         $this->View()->assign(
             array(
@@ -413,7 +413,9 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     {
         $orderId = $this->Request()->getParam('orderId');
         /** @var OrderModel $order */
-        $order = Shopware()->Models()->getRepository(OrderModel::class)->findOneBy(array('id' => $orderId));
+        $order = Shopware()->Models()
+            ->getRepository('Shopware\Models\Order\Order')
+            ->findOneBy(array('id' => $orderId));
         $success = LengowOrder::cancelAndReImportOrder($order);
         $this->View()->assign(
             array(
@@ -566,7 +568,8 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     private function reImport($lengowOrderId)
     {
         /** @var LengowOrderModel $lengowOrder */
-        $lengowOrder = Shopware()->Models()->getRepository(LengowOrderModel::class)
+        $lengowOrder = Shopware()->Models()
+            ->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(array('id' => $lengowOrderId));
         return LengowOrder::reImportOrder($lengowOrder);
     }
@@ -581,7 +584,8 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     private function reSend($lengowOrderId)
     {
         /** @var LengowOrderModel $lengowOrder */
-        $lengowOrder = Shopware()->Models()->getRepository(LengowOrderModel::class)
+        $lengowOrder = Shopware()->Models()
+            ->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(array('id' => $lengowOrderId));
         return LengowOrder::reSendOrder($lengowOrder);
     }

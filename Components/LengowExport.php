@@ -286,7 +286,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         $currency = null;
         if ($currencyCode) {
             /** @var ShopCurrencyModel $currency */
-            $currency = $this->em->getRepository(ShopCurrencyModel::class)
+            $currency = $this->em->getRepository('Shopware\Models\Shop\Currency')
                 ->findOneBy(array('currency' => $currencyCode));
         }
         if ($currency === null) {
@@ -392,7 +392,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 break;
             }
             /** @var ArticleDetailModel $detail */
-            $detail = $this->em->getReference(ArticleDetailModel::class, $article['detailId']);
+            $detail = $this->em->getReference('Shopware\Models\Article\Detail', $article['detailId']);
             $product = new LengowProduct($detail, $this->shop, $article['type'], $this->currency, $this->logOutput);
             foreach ($fields as $field) {
                 if (isset(self::$defaultFields[$field])) {
@@ -506,7 +506,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         );
         $builder = $this->em->createQueryBuilder();
         $builder->select($selection)
-            ->from(ShopModel::class, 'shop')
+            ->from('Shopware\Models\Shop\Shop', 'shop')
             ->leftJoin('shop.category', 'mainCategory')
             ->leftJoin('mainCategory.allArticles', 'categories')
             ->leftJoin('categories.details', 'details')
@@ -676,7 +676,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 case self::PARAM_SHOP:
                     $availableShops = array();
                     /** @var ShopModel[] $shops */
-                    $shops = $em->getRepository(ShopModel::class)->findAll();
+                    $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findAll();
                     foreach ($shops as $shop) {
                         $availableShops[] = $shop->getId();
                     }
@@ -687,7 +687,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                 case self::PARAM_CURRENCY:
                     $availableCurrencies = array();
                     /** @var ShopCurrencyModel[] $currencies */
-                    $currencies = $em->getRepository(ShopCurrencyModel::class)->findAll();
+                    $currencies = $em->getRepository('Shopware\Models\Shop\Currency')->findAll();
                     foreach ($currencies as $currency) {
                         $availableCurrencies[] = $currency->getCurrency();
                     }

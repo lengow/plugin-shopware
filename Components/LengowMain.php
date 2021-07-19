@@ -31,11 +31,8 @@
 use Shopware\Models\Dispatch\Dispatch as DispatchModel;
 use Shopware\Models\Order\Status as OrderStatusModel;
 use Shopware\Models\Payment\Payment as PaymentModel;
-use Shopware\Models\Plugin\Plugin as PluginModel;
 use Shopware\Models\Shop\Shop as ShopModel;
 use Shopware\Models\Tax\Tax as TaxModel;
-use Shopware\Models\User\User as UserModel;
-use Shopware\Models\User\Role as UserRoleModel;
 use Shopware_Components_Translation as ShopwareTranslation;
 use Shopware_Plugins_Backend_Lengow_Bootstrap as LengowBootstrap;
 use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
@@ -313,7 +310,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static function getShops()
     {
         $em = LengowBootstrap::getEntityManager();
-        return $em->getRepository(ShopModel::class)->findAll();
+        return $em->getRepository('Shopware\Models\Shop\Shop')->findAll();
     }
 
     /**
@@ -324,7 +321,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static function getActiveShops()
     {
         $em = LengowBootstrap::getEntityManager();
-        return $em->getRepository(ShopModel::class)->findBy(array('active' => 1));
+        return $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
     }
 
     /**
@@ -589,9 +586,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function getLengowPayment()
     {
-        $payment = Shopware()->Models()->getRepository(PaymentModel::class)->findOneBy(array('name' => 'lengow'));
+        $payment = Shopware()->Models()
+            ->getRepository('Shopware\Models\Payment\Payment')
+            ->findOneBy(array('name' => 'lengow'));
         if ($payment === null) {
-            $plugin = Shopware()->Models()->getRepository(PluginModel::class)->findOneBy(array('name' => 'Lengow'));
+            $plugin = Shopware()->Models()
+                ->getRepository('Shopware\Models\Plugin\Plugin')
+                ->findOneBy(array('name' => 'Lengow'));
             if ($plugin !== null && !$plugin->getPayments()->isEmpty()) {
                 $payment = $plugin->getPayments()->first();
             }
@@ -610,7 +611,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             ? array('name' => 'lengow_technical_error')
             : array('description' => 'Technischer Fehler - Lengow');
         /** @var OrderStatusModel $orderStatus */
-        return Shopware()->Models()->getRepository(OrderStatusModel::class)->findOneBy($params);
+        return Shopware()->Models()->getRepository('Shopware\Models\Order\Status')->findOneBy($params);
     }
 
     /**
@@ -669,7 +670,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             $orderStatusId = LengowConfiguration::getConfig($settingName);
             try {
                 /** @var OrderStatusModel $orderStatus */
-                $orderStatus = Shopware()->Models()->getReference(OrderStatusModel::class, (int) $orderStatusId);
+                $orderStatus = Shopware()->Models()->getReference('Shopware\Models\Order\Status', (int) $orderStatusId);
                 if ($orderStatus !== null) {
                     return $orderStatus;
                 }
@@ -737,7 +738,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
 	            WHERE sct.tax = (SELECT MAX(tax) from s_core_tax)';
             $taxId = (int) Shopware()->Db()->fetchOne($sql);
         }
-        return Shopware()->Models()->getReference(TaxModel::class, $taxId);
+        return Shopware()->Models()->getReference('Shopware\Models\Tax\Tax', $taxId);
     }
 
     /**
@@ -749,8 +750,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     {
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('user')
-            ->from(UserModel::class, 'user')
-            ->leftJoin(UserRoleModel::class, 'role')
+            ->from('Shopware\Models\User\User', 'user')
+            ->leftJoin('Shopware\Models\User\Role', 'role')
             ->where('user.active = :active')
             ->andWhere('role.name = :name')
             ->setParameters(

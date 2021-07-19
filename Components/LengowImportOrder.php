@@ -333,7 +333,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         }
         // get a record in the lengow order table
         /** @var LengowOrderModel $lengowOrder */
-        $lengowOrder = $this->entityManager->getRepository(LengowOrderModel::class)
+        $lengowOrder = $this->entityManager->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(
                 array(
                     'marketplaceSku' => $this->marketplaceSku,
@@ -461,7 +461,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $customerEmail = $this->getCustomerEmail();
             /** @var CustomerModel $customer */
             $customer = $this->entityManager
-                ->getRepository(CustomerModel::class)
+                ->getRepository('Shopware\Models\Customer\Customer')
                 ->findOneBy(
                     array(
                         'email' => $customerEmail,
@@ -576,7 +576,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         );
         // get a record in the lengow order table
         /** @var LengowOrderModel $lengowOrder */
-        $lengowOrder = $this->entityManager->getRepository(LengowOrderModel::class)
+        $lengowOrder = $this->entityManager->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(array('order' => $order));
         $result = array('order_lengow_id' => $lengowOrder->getId());
         // Lengow -> Cancel and reimport order
@@ -631,7 +631,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $errorMessages[] = LengowMain::setLogMessage('lengow_log/error/no_currency');
         } else {
             /** @var CurrencyModel $currency */
-            $currency = $this->entityManager->getRepository(CurrencyModel::class)
+            $currency = $this->entityManager->getRepository('Shopware\Models\Shop\Currency')
                 ->findOneBy(array('currency' => $this->orderData->currency->iso_a3));
             if ($currency === null) {
                 $errorMessages[] = LengowMain::setLogMessage(
@@ -989,7 +989,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             }
             // get new customer number
             /** @var OrderNumberModel $number */
-            $number = Shopware()->Models()->getRepository(OrderNumberModel::class)->findOneBy(array('name' => 'user'));
+            $number = Shopware()->Models()
+                ->getRepository('Shopware\Models\Order\Number')
+                ->findOneBy(array('name' => 'user'));
             $customerNumber = $number->getNumber() + 1;
             // create a Shopware customer
             $customer = new CustomerModel();
@@ -1078,12 +1080,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             // get default dispatch for import
             $dispatchId = LengowConfiguration::getConfig(LengowConfiguration::DEFAULT_IMPORT_CARRIER_ID, $this->shop);
             /** @var DispatchModel $dispatch */
-            $dispatch = $this->entityManager->getReference(DispatchModel::class, $dispatchId);
+            $dispatch = $this->entityManager->getReference('Shopware\Models\Dispatch\Dispatch', $dispatchId);
             $dispatchTax = LengowMain::getDispatchTax($dispatch);
             $taxPercent = (float) $dispatchTax->getTax();
             // get currency for order amount
             /** @var CurrencyModel $currency */
-            $currency = $this->entityManager->getRepository(CurrencyModel::class)
+            $currency = $this->entityManager->getRepository('Shopware\Models\Shop\Currency')
                 ->findOneBy(array('currency' => $this->orderData->currency->iso_a3));
             // get current order status
             $orderStatus = LengowMain::getShopwareOrderStatus(
@@ -1100,7 +1102,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             // get new order number
             /** @var OrderNumberModel $number */
             $number = Shopware()->Models()
-                ->getRepository(OrderNumberModel::class)
+                ->getRepository('Shopware\Models\Order\Number')
                 ->findOneBy(array('name' => 'invoice'));
             $orderNumber = $number->getNumber() + 1;
             $taxFree = 0;
@@ -1141,7 +1143,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             // get temporary order
             /** @var OrderModel $order */
             $order = Shopware()->Models()
-                ->getRepository(OrderModel::class)
+                ->getRepository('Shopware\Models\Order\Order')
                 ->findOneBy(array('number' => $orderNumber));
             // update Lengow order with new data
             $orderProcessState = LengowOrder::getOrderProcessState($this->orderStateLengow);
@@ -1235,7 +1237,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             }
             foreach ($articles as $articleDetailId => $articleDetailData) {
                 /** @var ArticleDetailModel $articleDetail */
-                $articleDetail = $this->entityManager->getReference(ArticleDetailModel::class, $articleDetailId);
+                $articleDetail = $this->entityManager->getReference('Shopware\Models\Article\Detail', $articleDetailId);
                 // create name for a variation
                 $detailName = '';
                 $variations = LengowProduct::getArticleVariations($articleDetail->getId());
@@ -1243,7 +1245,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                     $detailName .= ' ' . $variation;
                 }
                 /** @var OrderDetailStatusModel $detailStatus */
-                $detailStatus = $this->entityManager->getReference(OrderDetailStatusModel::class, 0);
+                $detailStatus = $this->entityManager->getReference('Shopware\Models\Order\DetailStatus', 0);
                 // create order detail
                 $orderDetail = new OrderDetailModel();
                 $orderDetail->setOrder($order);
@@ -1356,7 +1358,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $orderLineSaved = '';
             foreach ($articles as $articleDetailId => $articleDetailData) {
                 /** @var ArticleDetailModel $articleDetail */
-                $articleDetail = $this->entityManager->getReference(ArticleDetailModel::class, $articleDetailId);
+                $articleDetail = $this->entityManager->getReference('Shopware\Models\Article\Detail', $articleDetailId);
                 // create Lengow order line entity
                 foreach ($articleDetailData['order_line_ids'] as $orderLineId) {
                     $lengowOrderLine = new LengowOrderLineModel();
@@ -1405,7 +1407,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
         try {
             foreach ($articles as $articleDetailId => $articleDetailData) {
                 /** @var ArticleDetailModel $articleDetail */
-                $articleDetail = $this->entityManager->getReference(ArticleDetailModel::class, $articleDetailId);
+                $articleDetail = $this->entityManager->getReference('Shopware\Models\Article\Detail', $articleDetailId);
                 $quantity = $articleDetail->getInStock();
                 $newStock = $quantity + $articleDetailData['quantity'];
                 $articleDetail->setInStock($newStock);

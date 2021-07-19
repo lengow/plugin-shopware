@@ -34,8 +34,6 @@ use Shopware\Models\Order\History as OrderHistoryModel;
 use Shopware\Models\Order\Order as OrderModel;
 use Shopware\Models\Order\Status as OrderStatusModel;
 use Shopware\CustomModels\Lengow\Order as LengowOrderModel;
-use Shopware\CustomModels\Lengow\OrderError as LengowOrderErrorModel;
-use Shopware\CustomModels\Lengow\OrderLine as LengowOrderLineModel;
 use Shopware_Plugins_Backend_Lengow_Components_LengowAction as LengowAction;
 use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
 use Shopware_Plugins_Backend_Lengow_Components_LengowConnector as LengowConnector;
@@ -137,7 +135,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     {
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('lo.orderId')
-            ->from(LengowOrderModel::class, 'lo')
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
             ->where('lo.marketplaceSku = :marketplaceSku')
             ->andWhere('lo.marketplaceName = :marketplaceName')
             ->andWhere('lo.deliveryAddressId = :deliveryAddressId')
@@ -153,7 +151,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         $result['orderId'] = $builder->getQuery()->getOneOrNullResult();
         if ($result['orderId'] !== null) {
             /** @var OrderModel $order */
-            $order = Shopware()->Models()->getRepository(OrderModel::class)
+            $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')
                 ->findOneBy(array('id' => $result['orderId']));
             if ($order !== null) {
                 return $order;
@@ -176,9 +174,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         $type = LengowOrderError::getOrderErrorType($type);
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select(array('loe.id', 'loe.message', 'loe.createdAt'))
-            ->from(LengowOrderModel::class, 'lo')
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
             ->leftJoin(
-                LengowOrderErrorModel::class,
+                'Shopware\CustomModels\Lengow\OrderError',
                 'loe',
                 Join::WITH,
                 'lo.id = loe.lengowOrderId'
@@ -214,7 +212,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     {
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('lo.id')
-            ->from(LengowOrderModel::class, 'lo')
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
             ->where('lo.orderId = :orderId')
             ->andWhere('lo.deliveryAddressId = :deliveryAddressId')
             ->setParameters(
@@ -246,7 +244,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     {
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('lo.orderId')
-            ->from(LengowOrderModel::class, 'lo')
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
             ->where('lo.marketplaceSku = :marketplaceSku')
             ->andWhere('lo.marketplaceName = :marketplaceName')
             ->setParameters(
@@ -273,7 +271,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     {
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('lol.orderLineId')
-            ->from(LengowOrderLineModel::class, 'lol')
+            ->from('Shopware\CustomModels\Lengow\OrderLine', 'lol')
             ->where('lol.order = :order')
             ->setParameters(array('order' => $order));
         $results = $builder->getQuery()->getResult();
@@ -294,7 +292,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     {
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('o.id')
-            ->from(OrderModel::class, 'o')
+            ->from('Shopware\Models\Order\Order', 'o')
             ->where('o.number = :number')
             ->setParameters(array('number' => $number));
         try {
@@ -320,7 +318,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         $isFromLengow = false;
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('lo.id')
-            ->from(LengowOrderModel::class, 'lo')
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
             ->where('lo.orderId = :orderId')
             ->setParameters(array('orderId' => $orderId));
         try {
@@ -367,7 +365,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     {
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select(array('lo.orderId'))
-            ->from(LengowOrderModel::class, 'lo')
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
             ->where('lo.orderId IS NOT NULL');
         $results = $builder->getQuery()->getResult();
         return count($results);
@@ -382,7 +380,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     {
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select(array('lo.orderId'))
-            ->from(LengowOrderModel::class, 'lo')
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
             ->where('lo.inError = true');
         $results = $builder->getQuery()->getResult();
         return count($results);
@@ -397,7 +395,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     {
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select(array('lo.orderId'))
-            ->from(LengowOrderModel::class, 'lo')
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
             ->where('lo.orderProcessState = 1');
         $results = $builder->getQuery()->getResult();
         return count($results);
@@ -420,7 +418,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         $orderStatusCanceled = LengowMain::getOrderStatus(LengowOrder::STATE_CANCELED);
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select(array('lo.orderId', 'oh.orderStatusId'))
-            ->from(LengowOrderModel::class, 'lo')
+            ->from('Shopware\CustomModels\Lengow\Order', 'lo')
             ->leftJoin('lo.order', 'o')
             ->leftJoin('o.history', 'oh')
             ->where('lo.orderProcessState = :orderProcessState')
@@ -534,7 +532,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     public static function updateOrderStatus($orderId, $orderStatusId)
     {
         $builder = Shopware()->Models()->createQueryBuilder();
-        $builder->update(OrderModel::class, 'o')
+        $builder->update('Shopware\Models\Order\Order', 'o')
             ->set('o.status', $orderStatusId)
             ->where('o.id = :orderId')
             ->setParameters(array('orderId' => $orderId))
@@ -597,7 +595,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     public static function synchronizeOrder($order, $connector = null, $logOutput = false)
     {
         /** @var LengowOrderModel $lengowOrder */
-        $lengowOrder = Shopware()->Models()->getRepository(LengowOrderModel::class)
+        $lengowOrder = Shopware()->Models()
+            ->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(array('order' => $order));
         if ($lengowOrder === null) {
             return false;
@@ -712,7 +711,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     public static function cancelAndReImportOrder($order)
     {
         /** @var LengowOrderModel $lengowOrder */
-        $lengowOrder = Shopware()->Models()->getRepository(LengowOrderModel::class)
+        $lengowOrder = Shopware()->Models()
+            ->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(array('order' => $order));
         if ($lengowOrder === null) {
             return false;
@@ -733,7 +733,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             && (isset($result['order_new']) && $result['order_new'])
         ) {
             $newOrder = Shopware()->Models()
-                ->getRepository(OrderModel::class)
+                ->getRepository('\Shopware\Models\Order\Order')
                 ->findOneBy(array('id' => $result['order_id']));
             if ($newOrder) {
                 $newStatus = LengowMain::getLengowTechnicalErrorStatus();
@@ -823,7 +823,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     {
         $success = true;
         /** @var LengowOrderModel $lengowOrder */
-        $lengowOrder = Shopware()->Models()->getRepository(LengowOrderModel::class)
+        $lengowOrder = Shopware()->Models()
+            ->getRepository('Shopware\CustomModels\Lengow\Order')
             ->findOneBy(array('order' => $order));
         if ($lengowOrder === null) {
             return false;

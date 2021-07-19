@@ -37,7 +37,6 @@ use Shopware\Models\Dispatch\Dispatch as DispatchModel;
 use Shopware\Models\Order\Status as OrderStatusModel;
 use Shopware\Models\Shop\Locale as ShopLocaleModel;
 use Shopware\Models\Snippet\Snippet as SnippetModel;
-use Shopware\CustomModels\Lengow\Settings as LengowSettingsModel;
 use Shopware_Plugins_Backend_Lengow_Bootstrap as LengowBootstrap;
 use Shopware_Plugins_Backend_Lengow_Bootstrap_Database as LengowBootstrapDatabase;
 use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
@@ -308,7 +307,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         $mainForm->setChildren($forms);
         // translate sub categories (sub-forms settings names)
         /** @var ShopLocaleModel[] $locales */
-        $locales = $this->entityManager->getRepository(ShopLocaleModel::class)->findAll();
+        $locales = $this->entityManager->getRepository('Shopware\Models\Shop\Locale')->findAll();
         foreach ($forms as $form) {
             $formName = $form->getName();
             // available locales in Shopware
@@ -335,10 +334,10 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
     public function removeOldSettings()
     {
         foreach ($this->oldSettings as $setting) {
-            $element = $this->entityManager->getRepository(ConfigElementModel::class)
+            $element = $this->entityManager->getRepository('Shopware\Models\Config\Element')
                 ->findOneBy(array('name' => $setting));
             if ($element === null && LengowBootstrapDatabase::tableExist('s_lengow_settings')) {
-                $element = $this->entityManager->getRepository(LengowSettingsModel::class)
+                $element = $this->entityManager->getRepository('Shopware\CustomModels\Lengow\Settings')
                     ->findOneBy(array('name' => $setting));
             }
             if ($element) {
@@ -363,7 +362,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
      */
     protected function createSettingForm($name, $elements)
     {
-        $form = $this->entityManager->getRepository(ConfigFormModel::class)->findOneBy(array('name' => $name));
+        $form = $this->entityManager->getRepository('Shopware\Models\Config\Form')->findOneBy(array('name' => $name));
         if ($form === null) {
             $form = new ConfigFormModel();
             $form->setName($name);
@@ -371,7 +370,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
             $form->setDescription($this->getTranslation('settings/' . $name . '/description'));
         }
         /** @var ShopLocaleModel[] $locales */
-        $locales = $this->entityManager->getRepository(ShopLocaleModel::class)->findAll();
+        $locales = $this->entityManager->getRepository('Shopware\Models\Shop\Locale')->findAll();
         foreach ($elements as $key => $options) {
             $type = $options['type'];
             array_shift($options);
@@ -386,7 +385,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
                 if (LengowTranslation::containsIso($isoCode)) {
                     $label = $this->getTranslation($options['label'], $isoCode);
                     $description = $this->getTranslation($options['description'], $isoCode);
-                    $translation = $this->entityManager->getRepository(ConfigElementTranslationModel::class)
+                    $translation = $this->entityManager->getRepository('Shopware\Models\Config\ElementTranslation')
                         ->findOneBy(array('element' => $elementModel, 'locale' => $locale));
                     if ($translation === null) {
                         $translation = new ConfigElementTranslationModel();
@@ -427,7 +426,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
     protected function getDispatches()
     {
         /** @var DispatchModel[] $dispatches */
-        $dispatches = $this->entityManager->getRepository(DispatchModel::class)->findBy(array('type' => 0));
+        $dispatches = $this->entityManager->getRepository('Shopware\Models\Dispatch\Dispatch')
+            ->findBy(array('type' => 0));
         $selection = array();
         $defaultValue = null;
         // default dispatcher used to get shipping fees in export
@@ -453,13 +453,14 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         $selection = array();
         $shop = LengowConfiguration::getDefaultShop();
         /** @var OrderStatusModel[] $orderStates */
-        $orderStates = $this->entityManager->getRepository(OrderStatusModel::class)->findBy(array('group' => 'state'));
+        $orderStates = $this->entityManager->getRepository('Shopware\Models\Order\Status')
+            ->findBy(array('group' => 'state'));
         // default dispatcher used to get shipping fees in export
         foreach ($orderStates as $orderState) {
             if ($orderState->getId() != -1) {
                 if (LengowMain::compareVersion('5.5.0')) {
                     /** @var SnippetModel $orderStateSnippet */
-                    $orderStateSnippet = $this->entityManager->getRepository(SnippetModel::class)
+                    $orderStateSnippet = $this->entityManager->getRepository('Shopware\Models\Snippet\Snippet')
                         ->findOneBy(
                             array(
                                 'localeId' => $shop->getLocale()->getId(),
