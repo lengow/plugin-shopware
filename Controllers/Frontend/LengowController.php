@@ -94,11 +94,11 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
         }
         $em = Shopware()->Models();
         /** @var ShopModel $shop */
-        $shop = $em->getRepository(ShopModel::class)->find($shopId);
+        $shop = $em->getRepository('Shopware\Models\Shop\Shop')->find($shopId);
         // a shop with this name exist
         if ($shop === null) {
             /** @var ShopModel[] $shops */
-            $shops = $em->getRepository(ShopModel::class)->findBy(array('active' => 1));
+            $shops = $em->getRepository('Shopware\Models\Shop\Shop')->findBy(array('active' => 1));
             $index = count($shops);
             $shopsIds = '[';
             foreach ($shops as $shop) {

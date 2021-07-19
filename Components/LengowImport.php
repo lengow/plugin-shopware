@@ -752,7 +752,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImport
                 // sync to lengow if no debug_mode
                 if (!$this->debugMode && isset($order['order_new']) && $order['order_new']) {
                     /** @var OrderModel $shopwareOrder */
-                    $shopwareOrder = Shopware()->Models()->getRepository(OrderModel::class)
+                    $shopwareOrder = Shopware()->Models()
+                        ->getRepository('Shopware\Models\Order\Order')
                         ->findOneBy(array('id' => $order['order_id']));
                     $synchro = LengowOrder::synchronizeOrder($shopwareOrder, $this->connector);
                     if ($synchro) {

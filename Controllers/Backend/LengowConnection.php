@@ -243,7 +243,7 @@ class Shopware_Controllers_Backend_LengowConnection extends Shopware_Controllers
             foreach ($catalogsByShops as $shopId => $catalogIds) {
                 $em = LengowBootstrap::getEntityManager();
                 /** @var ShopModel $shop */
-                $shop = $em->getReference(ShopModel::class, $shopId);
+                $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
                 LengowConfiguration::setCatalogIds($catalogIds, $shop);
                 LengowConfiguration::setActiveShop($shop);
             }
