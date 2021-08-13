@@ -64,9 +64,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     const LINK_TYPE_SUPPORT = 'support';
 
     /* Default plugin links */
-    const LINK_HELP_CENTER = 'https://support.lengow.com/kb/guide/en/shopware-WPhak8Nc3U/Steps/25870';
-    const LINK_CHANGELOG = 'https://support.lengow.com/kb/guide/en/shopware-WPhak8Nc3U/Steps/25870,113313,261688';
-    const LINK_UPDATE_GUIDE = 'https://support.lengow.com/kb/guide/en/shopware-WPhak8Nc3U/Steps/25870,123274';
+    const LINK_HELP_CENTER = 'https://support.lengow.com/kb/guide/en/WPhak8Nc3U';
+    const LINK_CHANGELOG = 'https://support.lengow.com/kb/guide/en/NiLwyFZKbZ';
+    const LINK_UPDATE_GUIDE = 'https://support.lengow.com/kb/guide/en/WPhak8Nc3U/Steps/25870,123274';
     const LINK_SUPPORT = 'https://help-support.lengow.com/hc/en-us/requests/new';
 
     /* Api iso codes */
