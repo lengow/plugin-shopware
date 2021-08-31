@@ -482,7 +482,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         foreach ($categories as $category) {
             $categoryPath = explode('|', $category->getPath());
             $countCategoryPath = count($categoryPath);
-            if (in_array($parentCategoryId, $categoryPath, true)) {
+            // warning! Do not use strict verification
+            if (in_array($parentCategoryId, $categoryPath)) {
                 $breadcrumb = $category->getName();
                 $categoryId = (int) $category->getParentId();
                 for ($i = 0; $i < $countCategoryPath - 2; $i++) {
