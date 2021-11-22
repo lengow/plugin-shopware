@@ -307,6 +307,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 // recovering data with the marketplaces.json file
                 $marketplacesData = file_get_contents($filePath);
                 if ($marketplacesData) {
+                    // don't add true, decoded data are used as object
                     return json_decode($marketplacesData);
                 }
             }
@@ -342,13 +343,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 );
             }
             return $result;
-        } else {
-            // if the API does not respond, use marketplaces.json if it exists
-            if (file_exists($filePath)) {
-                $marketplacesData = file_get_contents($filePath);
-                if ($marketplacesData) {
-                    return json_decode($marketplacesData);
-                }
+        }
+        // if the API does not respond, use marketplaces.json if it exists
+        if (file_exists($filePath)) {
+            $marketplacesData = file_get_contents($filePath);
+            if ($marketplacesData) {
+                // don't add true, decoded data are used as object
+                return json_decode($marketplacesData);
             }
         }
         return false;
@@ -418,10 +419,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 LengowConfiguration::setConfig(LengowConfiguration::LAST_UPDATE_PLUGIN_DATA, time());
                 return $pluginData;
             }
-        } else {
-            if (LengowConfiguration::getConfig(LengowConfiguration::PLUGIN_DATA)) {
-                return json_decode(LengowConfiguration::getConfig(LengowConfiguration::PLUGIN_DATA), true);
-            }
+        } else if (LengowConfiguration::getConfig(LengowConfiguration::PLUGIN_DATA)) {
+            return json_decode(LengowConfiguration::getConfig(LengowConfiguration::PLUGIN_DATA), true);
         }
         return false;
     }

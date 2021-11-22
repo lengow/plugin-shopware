@@ -240,7 +240,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
             $mainCategory = $shop->getCategory();
             $this->setLengowStatusFromCategory($mainCategory, $shopId, $active);
         } else {
-            $attributeIds = json_decode($articleIds);
+            $attributeIds = json_decode($articleIds, true);
             foreach ($attributeIds as $id) {
                 $attribute = $em->getReference('Shopware\Models\Attribute\Article', $id);
                 if ($attribute) {
@@ -356,7 +356,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
     {
         $shopId = $this->Request()->getParam('id');
         $name = $this->Request()->getParam('name');
-        $status = (int)($this->Request()->getParam('status') === 'true');
+        $status = (int) ($this->Request()->getParam('status') === 'true');
         $em = LengowBootstrap::getEntityManager();
         /** @var ShopModel $shop */
         $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
@@ -378,7 +378,7 @@ class Shopware_Controllers_Backend_LengowExport extends Shopware_Controllers_Bac
         $em = LengowBootstrap::getEntityManager();
         /** @var ShopModel $shop */
         $shop = $em->getReference('Shopware\Models\Shop\Shop', $shopId);
-        $names = json_decode($configList);
+        $names = json_decode($configList, true);
         $result = array();
         foreach ($names as $name) {
             $result[$name] = LengowConfiguration::getConfig($name, $shop);

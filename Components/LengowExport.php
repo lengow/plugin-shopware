@@ -137,72 +137,72 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     /**
      * @var string export format
      */
-    protected $format;
+    private $format;
 
     /**
      * @var boolean display result on screen
      */
-    protected $stream;
+    private $stream;
 
     /**
      * @var array list of articles to display
      */
-    protected $productIds = array();
+    private $productIds = array();
 
     /**
      * @var integer limit number of results
      */
-    protected $limit;
+    private $limit;
 
     /**
      * @var integer get results from specific index
      */
-    protected $offset;
+    private $offset;
 
     /**
      * @var boolean export out of stock articles
      */
-    protected $outOfStock;
+    private $outOfStock;
 
     /**
      * @var boolean update export date.
      */
-    protected $updateExportDate;
+    private $updateExportDate;
 
     /**
      * @var boolean export variant articles
      */
-    protected $variation;
+    private $variation;
 
     /**
      * @var boolean export Lengow products only
      */
-    protected $selection;
+    private $selection;
 
     /**
      * @var boolean enable/disable log output
      */
-    protected $logOutput;
+    private $logOutput;
 
     /**
      * @var boolean export disabled articles
      */
-    protected $inactive;
+    private $inactive;
 
     /**
      * @var string export mode (size|null)
      */
-    protected $mode;
+    private $mode;
 
     /**
      * @var ShopModel Shopware Shop instance
      */
-    protected $shop;
+    private $shop;
 
     /**
      * @var ShopCurrencyModel Shopware Currency instance
      */
-    protected $currency;
+    private $currency;
 
     /**
      * LengowExport constructor
@@ -270,7 +270,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             $exportedIds = explode(',', $productIds);
             foreach ($exportedIds as $id) {
                 if (is_numeric($id) && $id > 0) {
-                    $this->productIds[] = (int)$id;
+                    $this->productIds[] = (int) $id;
                 }
             }
         }
@@ -329,8 +329,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                     LengowMain::setLogMessage(
                         'log/export/start_for_shop',
                         array(
-                            'name_shop' => $this->shop->getName(),
-                            'id_shop' => $this->shop->getId(),
+                            'shop_name' => $this->shop->getName(),
+                            'shop_id' => $this->shop->getId(),
                         )
                     ),
                     $this->logOutput
@@ -349,7 +349,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
             } catch (LengowException $e) {
                 $errorMessage = $e->getMessage();
             } catch (Exception $e) {
-                $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+                $errorMessage = '[Shopware error]: "' . $e->getMessage()
+                    . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
             }
             if (isset($errorMessage)) {
                 $decodedMessage = LengowMain::decodeLogMessage($errorMessage, LengowTranslation::DEFAULT_ISO_CODE);
@@ -424,7 +425,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
         }
         $success = $feed->end();
         if ($this->updateExportDate) {
-            LengowConfiguration::setConfig(LengowConfiguration::LAST_UPDATE_EXPORT, date('Y-m-d H:i:s'), $this->shop);
+            LengowConfiguration::setConfig(LengowConfiguration::LAST_UPDATE_EXPORT, time(), $this->shop);
         }
         if (!$success) {
             throw new LengowException(LengowMain::setLogMessage('log/export/error_folder_not_writable'));
@@ -575,7 +576,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
                     // insert variation for a specific parent
                     $articlesByParent[$article['articleId']]['childs'][] = $article;
                 }
-                if ((int)$article['kind'] === 1) {
+                if ((int) $article['kind'] === 1) {
                     // get detailId and detailNumber for parent
                     $articlesByParent[$article['articleId']]['detailId'] = $article['detailId'];
                     $articlesByParent[$article['articleId']]['detailNumber'] = $article['detailNumber'];

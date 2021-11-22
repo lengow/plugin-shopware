@@ -93,6 +93,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     const PARAM_EXPORT_TOOLBOX = 'export_toolbox';
     const PARAM_GLOBAL = 'global';
     const PARAM_LENGOW_SETTING = 'lengow_setting';
+    const PARAM_RESET_TOKEN = 'reset_token';
     const PARAM_RETURN = 'return';
     const PARAM_SECRET = 'secret';
     const PARAM_SHOP = 'shop';
@@ -164,11 +165,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
             self::PARAM_GLOBAL => true,
             self::PARAM_EXPORT => false,
             self::PARAM_SECRET => true,
+            self::PARAM_RESET_TOKEN => true,
         ),
         self::SECRET => array(
             self::PARAM_GLOBAL => true,
             self::PARAM_EXPORT => false,
             self::PARAM_SECRET => true,
+            self::PARAM_RESET_TOKEN => true,
         ),
         self::CMS_TOKEN => array(
             self::PARAM_LENGOW_SETTING => true,
@@ -517,6 +520,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
     }
 
     /**
+     * Reset authorization token
+     */
+    public static function resetAuthorizationToken()
+    {
+        self::setConfig(self::AUTHORIZATION_TOKEN, '');
+        self::setConfig(self::LAST_UPDATE_AUTHORIZATION_TOKEN, '');
+    }
+
+    /**
      * Check if new merchant
      *
      * @return boolean
@@ -851,7 +863,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                                 'key' => self::$genericParamKeys[$key],
                                 'old_value' => $oldValue,
                                 'value' => $value,
-                                'shop_id' => is_integer($shop) ? $shop : $shop->getId(),
+                                'shop_id' => is_int($shop) ? $shop : $shop->getId(),
                             )
                         )
                     );
@@ -871,6 +883,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
                 // save last update date for a specific settings (change synchronisation interval time)
                 if (isset($setting[self::PARAM_UPDATE]) && $setting[self::PARAM_UPDATE]) {
                     self::setConfig(self::LAST_UPDATE_SETTING, time());
+                }
+                // reset the authorization token when a configuration parameter is changed
+                if (isset($setting[self::PARAM_RESET_TOKEN]) && $setting[self::PARAM_RESET_TOKEN]) {
+                    self::resetAuthorizationToken();
                 }
             }
         }

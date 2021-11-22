@@ -49,25 +49,15 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
 {
-    /**
-     * @var string code ISO A2 for France
-     */
+    /* Country iso A2 codes */
     const ISO_A2_FR = 'FR';
-
-    /**
-     * @var string code ISO A2 for Spain
-     */
     const ISO_A2_ES = 'ES';
-
-    /**
-     * @var string code ISO A2 for Italy
-     */
     const ISO_A2_IT = 'IT';
 
     /**
      * @var array API fields for an address
      */
-    protected $addressApiNodes = array(
+    private $addressApiNodes = array(
         'company',
         'civility',
         'email',
@@ -89,7 +79,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
     /**
      * @var array current alias of mister
      */
-    protected $currentMale = array(
+    private $currentMale = array(
         'M',
         'M.',
         'Mr',
@@ -105,7 +95,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
     /**
      * @var array current alias of miss
      */
-    protected $currentFemale = array(
+    private $currentFemale = array(
         'Mme',
         'mme',
         'Mm',
@@ -129,7 +119,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
     /**
      * @var array All region codes for correspondence
      */
-    protected $regionCodes = array(
+    private $regionCodes = array(
         self::ISO_A2_ES => array(
             '01' => 'Alava',
             '02' => 'Albacete',
@@ -365,41 +355,41 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
     );
 
     /**
-     * @var array billing datas
+     * @var array billing data
      */
-    protected $billingDatas = array();
+    private $billingData = array();
 
     /**
-     * @var array shipping datas
+     * @var array shipping data
      */
-    protected $shippingDatas = array();
+    private $shippingData = array();
 
     /**
      * @var string carrier relay id
      */
-    protected $relayId;
+    private $relayId;
 
     /**
      * @var string id lengow of current order
      */
-    protected $marketplaceSku;
+    private $marketplaceSku;
 
     /**
      * @var boolean display log messages
      */
-    protected $logOutput;
+    private $logOutput;
 
     /**
      * @var string vatNumber of current order
      */
-    protected $vatNumber;
+    private $vatNumber;
 
     /**
      * Construct the address
      *
      * @param $params array optional options
-     * array  billing_datas  API billing datas
-     * array  shipping_datas API shipping datas
+     * array  billing_data  API billing data
+     * array  shipping_data API shipping data
      * string relay_id       carrier id relay
      *
      * @throws LengowException
@@ -410,13 +400,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
         $this->marketplaceSku = isset($params['marketplace_sku']) ? $params['marketplace_sku'] : null;
         $this->logOutput = isset($params['log_output']) ? $params['log_output'] : false;
         $this->vatNumber = isset($params['vat_number']) ? $params['vat_number'] : null;
-        if (isset($params['billing_datas'])) {
-            $billingAddressDatas = $this->extractAddressDataFromAPI($params['billing_datas']);
-            $this->billingDatas = $this->setShopwareAddressFields($billingAddressDatas);
+        if (isset($params['billing_data'])) {
+            $billingAddressData = $this->extractAddressDataFromAPI($params['billing_data']);
+            $this->billingData = $this->setShopwareAddressFields($billingAddressData);
         }
-        if (isset($params['shipping_datas'])) {
-            $shippingAddressDatas = $this->extractAddressDataFromAPI($params['shipping_datas']);
-            $this->shippingDatas = $this->setShopwareAddressFields($shippingAddressDatas, 'shipping');
+        if (isset($params['shipping_data'])) {
+            $shippingAddressData = $this->extractAddressDataFromAPI($params['shipping_data']);
+            $this->shippingData = $this->setShopwareAddressFields($shippingAddressData, 'shipping');
         }
     }
 
@@ -430,7 +420,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      */
     public function getCustomerAddress($newSchema = true, $typeAddress = 'billing')
     {
-        $addressFields = ($newSchema || $typeAddress === 'billing') ? $this->billingDatas : $this->shippingDatas;
+        $addressFields = ($newSchema || $typeAddress === 'billing') ? $this->billingData : $this->shippingData;
         $params = LengowMain::compareVersion('5.0.0')
             ? array('street' => $addressFields['street'])
             : array('street' => $addressFields['full_street']);
@@ -465,7 +455,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      */
     public function getOrderAddress($typeAddress = 'billing')
     {
-        $addressFields = $typeAddress === 'billing' ? $this->billingDatas : $this->shippingDatas;
+        $addressFields = $typeAddress === 'billing' ? $this->billingData : $this->shippingData;
         $params = LengowMain::compareVersion('5.0.0')
             ? array('street' => $addressFields['street'])
             : array('street' => $addressFields['full_street']);
@@ -485,15 +475,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
     /**
      * Extract address data from API
      *
-     * @param array $apiDatas API nodes containing data
+     * @param array $apiData API nodes containing data
      *
      * @return array
      */
-    protected function extractAddressDataFromAPI($apiDatas)
+    private function extractAddressDataFromAPI($apiData)
     {
         $temp = array();
         foreach ($this->addressApiNodes as $node) {
-            $temp[$node] = (string)$apiDatas->{$node};
+            $temp[$node] = (string) $apiData->{$node};
         }
         return $temp;
     }
@@ -501,43 +491,43 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
     /**
      * Prepare API address data for Shopware address object
      *
-     * @param array $addressDatas API address data
+     * @param array $addressData API address data
      * @param string $typeAddress address type (billing or shipping)
      *
      * @throws LengowException
      *
      * @return array
      */
-    protected function setShopwareAddressFields($addressDatas, $typeAddress = 'billing')
+    private function setShopwareAddressFields($addressData, $typeAddress = 'billing')
     {
-        $country = $this->getCountryByIso($addressDatas['common_country_iso_a2']);
+        $country = $this->getCountryByIso($addressData['common_country_iso_a2']);
         if ($country === null) {
             throw new LengowException(
                 LengowMain::setLogMessage(
                     'lengow_log/exception/country_not_found',
-                    array('iso_code' => $addressDatas['common_country_iso_a2'])
+                    array('iso_code' => $addressData['common_country_iso_a2'])
                 )
             );
         }
-        $state = $this->getState($country, $addressDatas['zipcode'], $addressDatas['state_region']);
-        $names = $this->getNames($addressDatas);
-        $addressFields = $this->getAddressFields($addressDatas, $typeAddress);
+        $state = $this->getState($country, $addressData['zipcode'], $addressData['state_region']);
+        $names = $this->getNames($addressData);
+        $addressFields = $this->getAddressFields($addressData, $typeAddress);
         return array(
-            'company' => $addressDatas['company'],
-            'salutation' => $this->getSalutation($addressDatas),
+            'company' => $addressData['company'],
+            'salutation' => $this->getSalutation($addressData),
             'firstname' => ucfirst(strtolower($names['firstname'])),
             'lastname' => ucfirst(strtolower($names['lastname'])),
             'street' => strtolower($addressFields['street']),
             'additional_address_line_1' => strtolower($addressFields['additional_address_line_1']),
             'additional_address_line_2' => strtolower($addressFields['additional_address_line_2']),
             'full_street' => strtolower($addressFields['full_address']),
-            'zipcode' => $addressDatas['zipcode'],
-            'city' => ucfirst(strtolower(preg_replace('/[!<>?=+@{}_$%]/sim', '', $addressDatas['city']))),
+            'zipcode' => $addressData['zipcode'],
+            'city' => ucfirst(strtolower(preg_replace('/[!<>?=+@{}_$%]/sim', '', $addressData['city']))),
             'country' => $country,
             'country_id' => $country->getId(),
             'state' => $state,
             'state_id' => $state ? $state->getId() : false,
-            'phone' => $this->getPhoneNumber($addressDatas),
+            'phone' => $this->getPhoneNumber($addressData),
         );
     }
 
@@ -550,7 +540,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      *
      * @return CustomerAddressModel|CustomerBillingModel|CustomerShippingModel\|false
      */
-    protected function createCustomerAddress($addressFields, $newSchema, $typeAddress)
+    private function createCustomerAddress($addressFields, $newSchema, $typeAddress)
     {
         try {
             // get address object for specific Shopware version
@@ -593,12 +583,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             }
             $address->setAttribute($addressAttribute);
             if ($typeAddress === 'billing' || $newSchema) {
-                $phone = !empty($addressFields['phone']) ? $addressFields['phone'] : $this->shippingDatas['phone'];
+                $phone = !empty($addressFields['phone']) ? $addressFields['phone'] : $this->shippingData['phone'];
                 $address->setPhone($phone);
             }
             return $address;
         } catch (Exception $e) {
-            $errorMessage = '[Doctrine error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            $errorMessage = '[Doctrine error]: "' . $e->getMessage()
+                . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
             LengowMain::log(
                 LengowLog::CODE_ORM,
                 LengowMain::setLogMessage(
@@ -620,7 +611,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      *
      * @return OrderBillingModel|OrderShippingModel|false
      */
-    protected function createOrderAddress($addressFields, $typeAddress)
+    private function createOrderAddress($addressFields, $typeAddress)
     {
         try {
             // get address object for specific Shopware version
@@ -649,17 +640,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             $address->setZipCode($addressFields['zipcode']);
             $address->setCity($addressFields['city']);
             $address->setCountry($addressFields['country']);
-            if (LengowMain::compareVersion('5.0.0') && $addressFields['state']) {
+            if ($addressFields['state'] && LengowMain::compareVersion('5.0.0')) {
                 $address->setState($addressFields['state']);
             }
             $address->setAttribute($addressAttribute);
             if ($typeAddress === 'billing') {
-                $phone = !empty($addressFields['phone']) ? $addressFields['phone'] : $this->shippingDatas['phone'];
+                $phone = !empty($addressFields['phone']) ? $addressFields['phone'] : $this->shippingData['phone'];
                 $address->setPhone($phone);
             }
             return $address;
         } catch (Exception $e) {
-            $errorMessage = '[Doctrine error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            $errorMessage = '[Doctrine error]: "' . $e->getMessage()
+                . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
             LengowMain::log(
                 LengowLog::CODE_ORM,
                 LengowMain::setLogMessage(
@@ -680,14 +672,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      *
      * @return CountryModel|null
      */
-    protected function getCountryByIso($countryIso)
+    private function getCountryByIso($countryIso)
     {
         $isoCode = strtoupper(substr(str_replace(' ', '', $countryIso), 0, 2));
         /** @var CountryModel $country */
-        $country = Shopware()->Models()
+        return Shopware()->Models()
             ->getRepository('Shopware\Models\Country\Country')
             ->findOneBy(array('iso' => $isoCode));
-        return $country;
     }
 
     /**
@@ -699,7 +690,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      *
      * @return CountryStateModel|false
      */
-    protected function getState($country, $postcode, $stateRegion)
+    private function getState($country, $postcode, $stateRegion)
     {
         $state = false;
         if (in_array($country->getIso(), array(self::ISO_A2_FR, self::ISO_A2_ES, self::ISO_A2_IT))) {
@@ -713,26 +704,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
     /**
      * Check if firstname or lastname are empty
      *
-     * @param array $addressDatas API address data
+     * @param array $addressData API address data
      *
      * @return array
      */
-    protected function getNames($addressDatas)
+    private function getNames($addressData)
     {
         $names = array(
-            'firstname' => trim($addressDatas['first_name']),
-            'lastname' => trim($addressDatas['last_name']),
-            'fullname' => $this->cleanFullName($addressDatas['full_name']),
+            'firstname' => trim($addressData['first_name']),
+            'lastname' => trim($addressData['last_name']),
+            'fullname' => $this->cleanFullName($addressData['full_name']),
         );
-        if (empty($names['firstname'])) {
-            if (!empty($names['lastname'])) {
-                $names = $this->splitNames($names['lastname']);
-            }
+        if (empty($names['firstname']) && !empty($names['lastname'])) {
+            $names = $this->splitNames($names['lastname']);
         }
-        if (empty($names['lastname'])) {
-            if (!empty($names['firstname'])) {
-                $names = $this->splitNames($names['firstname']);
-            }
+        if (empty($names['lastname']) && !empty($names['firstname'])) {
+            $names = $this->splitNames($names['firstname']);
         }
         // check full name if last_name and first_name are empty
         if (empty($names['lastname']) && empty($names['firstname'])) {
@@ -754,14 +741,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      *
      * @return string
      */
-    protected function cleanFullName($fullname)
+    private function cleanFullName($fullname)
     {
         $split = explode(' ', $fullname);
         if ($split && !empty($split)) {
-            $fullname = (in_array($split[0], $this->currentMale) || in_array($split[0], $this->currentFemale))
-                ? ''
-                : $split[0];
-            for ($i = 1; $i < count($split); $i++) {
+            $fullname = (in_array($split[0], $this->currentMale, true)
+                || in_array($split[0], $this->currentFemale, true)
+            ) ? '' : $split[0];
+            $countSplit = count($split);
+            for ($i = 1; $i < $countSplit; $i++) {
                 if (!empty($fullname)) {
                     $fullname .= ' ';
                 }
@@ -778,13 +766,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      *
      * @return array
      */
-    protected function splitNames($fullname)
+    private function splitNames($fullname)
     {
         $split = explode(' ', $fullname);
         if ($split && !empty($split)) {
             $names['firstname'] = $split[0];
             $names['lastname'] = '';
-            for ($i = 1; $i < count($split); $i++) {
+            $countSplit = count($split);
+            for ($i = 1; $i < $countSplit; $i++) {
                 if (!empty($names['lastname'])) {
                     $names['lastname'] .= ' ';
                 }
@@ -800,44 +789,45 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
     /**
      * Get the real salutation
      *
-     * @param array $addressDatas API address data
+     * @param array $addressData API address data
      *
      * @return string
      */
-    protected function getSalutation($addressDatas)
+    private function getSalutation($addressData)
     {
 
-        $salutation = $addressDatas['civility'];
+        $salutation = $addressData['civility'];
         if (empty($salutation)) {
-            $split = explode(' ', $addressDatas['full_name']);
+            $split = explode(' ', $addressData['full_name']);
             if ($split && !empty($split)) {
                 $salutation = $split[0];
             }
         }
-        if (!empty($addressDatas['society'])) {
+        if (!empty($addressData['society'])) {
             return 'company';
-        } elseif (in_array($salutation, $this->currentMale)) {
-            return 'mr';
-        } elseif (in_array($salutation, $this->currentFemale)) {
-            return 'ms';
-        } else {
-            return '';
         }
+        if (in_array($salutation, $this->currentMale, true)) {
+            return 'mr';
+        }
+        if (in_array($salutation, $this->currentFemale, true)) {
+            return 'ms';
+        }
+        return '';
     }
 
     /**
      * Get clean address fields
      *
-     * @param array $addressDatas API address data
+     * @param array $addressData API address data
      * @param string $typeAddress address type (billing or shipping)
      *
      * @return array
      */
-    protected function getAddressFields($addressDatas, $typeAddress)
+    private function getAddressFields($addressData, $typeAddress)
     {
-        $street = trim($addressDatas['first_line']);
-        $additionalAddressLine1 = trim($addressDatas['second_line']);
-        $additionalAddressLine2 = trim($addressDatas['complement']);
+        $street = trim($addressData['first_line']);
+        $additionalAddressLine1 = trim($addressData['second_line']);
+        $additionalAddressLine2 = trim($addressData['complement']);
         if (empty($street)) {
             if (!empty($additionalAddressLine1)) {
                 $street = $additionalAddressLine1;
@@ -871,19 +861,19 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
     /**
      * Get clean phone number
      *
-     * @param array $addressDatas API address data
+     * @param array $addressData API address data
      *
      * @return string
      */
-    protected function getPhoneNumber($addressDatas = array())
+    private function getPhoneNumber($addressData = array())
     {
         $phoneNumber = '';
-        if (!empty($addressDatas['phone_home'])) {
-            $phoneNumber = $addressDatas['phone_home'];
-        } elseif (!empty($addressDatas['phone_mobile'])) {
-            $phoneNumber = $addressDatas['phone_mobile'];
-        } elseif (!empty($addressDatas['phone_office'])) {
-            $phoneNumber = $addressDatas['phone_office'];
+        if (!empty($addressData['phone_home'])) {
+            $phoneNumber = $addressData['phone_home'];
+        } elseif (!empty($addressData['phone_mobile'])) {
+            $phoneNumber = $addressData['phone_mobile'];
+        } elseif (!empty($addressData['phone_office'])) {
+            $phoneNumber = $addressData['phone_office'];
         }
         return LengowMain::cleanPhone($phoneNumber);
     }
@@ -896,7 +886,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      *
      * @return CountryStateModel|false
      */
-    protected function searchStateByPostcode($country, $postcode)
+    private function searchStateByPostcode($country, $postcode)
     {
         $state = false;
         $countryIsoA2 = $country->getIso();
@@ -915,7 +905,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
                     ? $this->regionCodes[$countryIsoA2][$postcodeSubstr]
                     : false;
                 if ($shortCode && is_array($shortCode) && !empty($shortCode)) {
-                    $shortCode = $this->getShortCodeFromIntervalPostcodes((int)$postcode, $shortCode);
+                    $shortCode = $this->getShortCodeFromIntervalPostcodes((int) $postcode, $shortCode);
                 }
                 break;
             default:
@@ -927,7 +917,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
                 ->getRepository('Shopware\Models\Country\State')
                 ->findOneBy(array('country' => $country, 'shortCode' => $shortCode));
         }
-        return $state ? $state : false;
+        return $state ?: false;
     }
 
     /**
@@ -938,13 +928,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      *
      * @return string|false
      */
-    protected function getShortCodeFromIntervalPostcodes($postcode, $intervalPostcodes)
+    private function getShortCodeFromIntervalPostcodes($postcode, $intervalPostcodes)
     {
         foreach ($intervalPostcodes as $intervalPostcode => $shortCode) {
             $intervalPostcodes = explode('-', $intervalPostcode);
             if (!empty($intervalPostcodes) && count($intervalPostcodes) === 2) {
-                $minPostcode = is_numeric($intervalPostcodes[0]) ? (int)$intervalPostcodes[0] : false;
-                $maxPostcode = is_numeric($intervalPostcodes[1]) ? (int)$intervalPostcodes[1] : false;
+                $minPostcode = is_numeric($intervalPostcodes[0]) ? (int) $intervalPostcodes[0] : false;
+                $maxPostcode = is_numeric($intervalPostcodes[1]) ? (int) $intervalPostcodes[1] : false;
                 if (($minPostcode && $maxPostcode) && ($postcode >= $minPostcode && $postcode <= $maxPostcode)) {
                     return $shortCode;
                 }
@@ -961,7 +951,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      *
      * @return CountryStateModel|false
      */
-    protected function searchStateByStateRegion($country, $stateRegion)
+    private function searchStateByStateRegion($country, $stateRegion)
     {
         $state = false;
         /** @var CountryStateModel[] $countryStates */
@@ -985,7 +975,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
                     $nameCleaned = $this->cleanString($countryState->getName());
                     similar_text($stateRegionCleaned, $nameCleaned, $percent);
                     if ($percent > 70) {
-                        $results[(int)$percent] = $countryState;
+                        $results[(int) $percent] = $countryState;
                     }
                 }
                 if (!empty($results)) {
@@ -1004,10 +994,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
      *
      * @return string
      */
-    protected function cleanString($string)
+    private function cleanString($string)
     {
         $string = strtolower(str_replace(array(' ', '-', '_', '.'), '', trim($string)));
-        $string = LengowMain::replaceAccentedChars(html_entity_decode($string));
-        return $string;
+        return LengowMain::replaceAccentedChars(html_entity_decode($string));
     }
 }

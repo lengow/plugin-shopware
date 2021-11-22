@@ -65,6 +65,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     const ACTION_CRON = 'cron';
     const ACTION_TOOLBOX = 'toolbox';
 
+    /* Date formats */
+    const DATE_FULL = 'Y-m-d H:i:s';
+    const DATE_DAY = 'Y-m-d';
+    const DATE_ISO_8601 = 'c';
+
     /**
      * @var string Name of Lengow front controller
      */
@@ -78,7 +83,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * @var array Lengow Authorized IPs
      */
-    protected static $ipsLengow = array(
+    private static $ipsLengow = array(
         '127.0.0.1',
         '10.0.4.150',
         '46.19.183.204',
@@ -120,7 +125,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static $registers;
 
     /**
-     * @var ShopwareTranslation Shopware translation instance
+     * @var ShopwareTranslation Shopware's translation instance
      */
     public static $translation;
 
@@ -327,13 +332,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Get list of shops that have been activated in Lengow
      *
+     * @param integer|null $shopId Shopware shop id
+     *
      * @return ShopModel[]
      */
-    public static function getLengowActiveShops()
+    public static function getLengowActiveShops($shopId = null)
     {
         $result = array();
         $shops = self::getActiveShops();
         foreach ($shops as $shop) {
+            if ($shopId && $shop->getId() !== $shopId) {
+                continue;
+            }
             // get Lengow config for this shop
             if (LengowConfiguration::shopIsActive($shop)) {
                 $result[] = $shop;
@@ -496,9 +506,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     public static function cleanLog()
     {
         $days = array();
-        $days[] = 'logs-' . date('Y-m-d') . '.txt';
+        $days[] = 'logs-' . date(LengowMain::DATE_DAY) . '.txt';
         for ($i = 1; $i < self::LOG_LIFE; $i++) {
-            $days[] = 'logs-' . date('Y-m-d', strtotime('-' . $i . 'day')) . '.txt';
+            $days[] = 'logs-' . date(LengowMain::DATE_DAY, strtotime('-' . $i . 'day')) . '.txt';
         }
         /** @var LengowFile[] $logFiles */
         $logFiles = LengowLog::getFiles();
@@ -701,8 +711,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Get property value translation
      *
-     * @param integer $propertyValueId Shopware property value id
-     * @param integer $shopId Shopware Shop Id
+     * @param integer $propertyValueId Shopware's property value id
+     * @param integer $shopId Shopware Shop id
      *
      * @return string|false
      */
@@ -751,7 +761,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('user')
             ->from('Shopware\Models\User\User', 'user')
-            ->leftJoin('Shopware\Models\User\Role', 'role')
+            ->join('Shopware\Models\User\Role', 'role')
             ->where('user.active = :active')
             ->andWhere('role.name = :name')
             ->setParameters(
@@ -803,7 +813,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     /**
      * Get mail alert body and put mail attribute at true in order lengow record
      *
-     * @param array $orderErrors order errors ready to be send
+     * @param array $orderErrors order errors ready to be sent
      *
      * @return string
      */
@@ -894,16 +904,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         $string = preg_replace($pattern, ' ', $string);
         $string = preg_replace('/[\s]+/', ' ', $string);
         $string = trim($string);
-        $string = str_replace('&nbsp;', ' ', $string);
-        $string = str_replace('|', ' ', $string);
-        $string = str_replace('"', '\'', $string);
-        $string = str_replace('’', '\'', $string);
-        $string = str_replace('&#39;', '\' ', $string);
-        $string = str_replace('&#150;', '-', $string);
-        $string = str_replace(chr(9), ' ', $string);
-        $string = str_replace(chr(10), ' ', $string);
-        $string = str_replace(chr(13), ' ', $string);
-        return $string;
+        return str_replace(
+            array('&nbsp;', '|', '"', '’', '&#39;', '&#150;', chr(9), chr(10), chr(13)),
+            array(' ', ' ', '\'', '\'', '\' ', '-', ' ', ' ', ' '),
+            $string
+        );
     }
 
     /**
@@ -932,7 +937,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         );
         $value = preg_replace('/[\s]+/', ' ', $value);
         $value = trim($value);
-        $value = str_replace(
+        return str_replace(
             array(
                 '&nbsp;',
                 '|',
@@ -969,7 +974,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             ),
             $value
         );
-        return $value;
     }
 
     /**

@@ -39,6 +39,7 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConf
 use Shopware_Plugins_Backend_Lengow_Components_LengowConnector as LengowConnector;
 use Shopware_Plugins_Backend_Lengow_Components_LengowException as LengowException;
 use Shopware_Plugins_Backend_Lengow_Components_LengowImport as LengowImport;
+use Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder as LengowImportOrder;
 use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
@@ -50,69 +51,24 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTransl
  */
 class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
 {
-    /**
-     * @var integer order process state for order imported
-     */
+    /* Order process states */
+    const PROCESS_STATE_NEW = 0;
     const PROCESS_STATE_IMPORT = 1;
-
-    /**
-     * @var integer order process state for order finished
-     */
     const PROCESS_STATE_FINISH = 2;
 
-    /**
-     * @var string order state accepted
-     */
+    /* Order states */
     const STATE_ACCEPTED = 'accepted';
-
-    /**
-     * @var string order state waiting_shipment
-     */
     const STATE_WAITING_SHIPMENT = 'waiting_shipment';
-
-    /**
-     * @var string order state shipped
-     */
     const STATE_SHIPPED = 'shipped';
-
-    /**
-     * @var string order state closed
-     */
     const STATE_CLOSED = 'closed';
-
-    /**
-     * @var string order state refused
-     */
     const STATE_REFUSED = 'refused';
-
-    /**
-     * @var string order state canceled
-     */
     const STATE_CANCELED = 'canceled';
-
-    /**
-     * @var string order state refunded
-     */
     const STATE_REFUNDED = 'refunded';
 
-    /**
-     * @var string order type prime
-     */
+    /* Order types */
     const TYPE_PRIME = 'is_prime';
-
-    /**
-     * @var string order type express
-     */
     const TYPE_EXPRESS = 'is_express';
-
-    /**
-     * @var string order type business
-     */
     const TYPE_BUSINESS = 'is_business';
-
-    /**
-     * @var string order type delivered by marketplace
-     */
     const TYPE_DELIVERED_BY_MARKETPLACE = 'is_delivered_by_marketplace';
 
     /**
@@ -126,8 +82,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      * @param string $marketplaceSku Lengow order id
      * @param string $marketplaceName marketplace name
      * @param integer $deliveryAddressId Lengow delivery address id
-     *
-     * @throws Exception
      *
      * @return OrderModel|false
      */
@@ -145,17 +99,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                     'marketplaceSku' => $marketplaceSku,
                     'marketplaceName' => $marketplaceName,
                     'deliveryAddressId' => $deliveryAddressId,
-                    'orderProcessState' => 0,
+                    'orderProcessState' => self::PROCESS_STATE_NEW,
                 )
             );
-        $result['orderId'] = $builder->getQuery()->getOneOrNullResult();
-        if ($result['orderId'] !== null) {
-            /** @var OrderModel $order */
-            $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')
-                ->findOneBy(array('id' => $result['orderId']));
-            if ($order !== null) {
-                return $order;
+        try {
+            $result['orderId'] = $builder->getQuery()->getOneOrNullResult();
+            if ($result['orderId'] !== null) {
+                /** @var OrderModel $order */
+                $order = Shopware()->Models()->getRepository('Shopware\Models\Order\Order')
+                    ->findOneBy(array('id' => $result['orderId']));
+                if ($order !== null) {
+                    return $order;
+                }
             }
+        } catch (Exception $e) {
+            return false;
         }
         return false;
     }
@@ -169,9 +127,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
      *
      * @return array|false
      */
-    public static function orderIsInError($marketplaceSku, $deliveryAddressId, $type = 'import')
-    {
-        $type = LengowOrderError::getOrderErrorType($type);
+    public static function orderIsInError(
+        $marketplaceSku,
+        $deliveryAddressId,
+        $type = LengowOrderError::TYPE_ERROR_IMPORT
+    ) {
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select(array('loe.id', 'loe.message', 'loe.createdAt'))
             ->from('Shopware\CustomModels\Lengow\Order', 'lo')
@@ -479,7 +439,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         if ($orderProcessState === self::PROCESS_STATE_FINISH) {
             // finish actions and order errors if lengow order is shipped, closed, cancel or refunded
             LengowAction::finishAllActions($order->getId());
-            LengowOrderError::finishOrderErrors($lengowOrder->getId(), 'send');
+            LengowOrderError::finishOrderErrors($lengowOrder->getId(), LengowOrderError::TYPE_ERROR_SEND);
             if ($lengowOrder->getOrderProcessState() !== $orderProcessState) {
                 $lengowOrder->setOrderProcessState($orderProcessState);
                 $flushLengowOrder = true;
@@ -507,7 +467,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                     $order->setTrackingCode($trackingNumber);
                     Shopware()->Models()->flush($order);
                 }
-                return 'Shipped';
+                return self::STATE_SHIPPED;
             }
             if (($orderStateLengow === LengowOrder::STATE_CANCELED || $orderStateLengow === LengowOrder::STATE_REFUSED)
                 && ($order->getOrderStatus()->getId() === $waitingShipmentOrderStatus->getId()
@@ -517,7 +477,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
                 $canceledOrderStatus = LengowMain::getOrderStatus(LengowOrder::STATE_CANCELED);
                 self::createOrderHistory($order, $canceledOrderStatus, $logOutput, $lengowOrder->getMarketplaceSku());
                 self::updateOrderStatus($order->getId(), $canceledOrderStatus->getId());
-                return 'Canceled';
+                return self::STATE_CANCELED;
             }
         }
         return false;
@@ -568,7 +528,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             Shopware()->Models()->persist($orderHistory);
             Shopware()->Models()->flush();
         } catch (Exception $e) {
-            $errorMessage = '[Doctrine error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            $errorMessage = '[Doctrine error]: "' . $e->getMessage()
+                . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
             LengowMain::log(
                 LengowLog::CODE_ORM,
                 LengowMain::setLogMessage(
@@ -610,46 +571,42 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             }
         }
         $orderIds = self::getAllOrderIds($lengowOrder->getMarketplaceSku(), $lengowOrder->getMarketplaceName());
-        if ($orderIds) {
-            $shopwareIds = array();
-            foreach ($orderIds as $orderId) {
-                $shopwareIds[] = $orderId['orderId'];
-            }
-            $body = array(
-                'account_id' => $accountId,
-                'marketplace_order_id' => $lengowOrder->getMarketplaceSku(),
-                'marketplace' => $lengowOrder->getMarketplaceName(),
-                'merchant_order_id' => $shopwareIds,
-            );
-            try {
-                $result = $connector->patch(
-                    LengowConnector::API_ORDER_MOI,
-                    array(),
-                    LengowConnector::FORMAT_JSON,
-                    json_encode($body),
-                    $logOutput
-                );
-            } catch (Exception $e) {
-                $message = LengowMain::decodeLogMessage($e->getMessage(), LengowTranslation::DEFAULT_ISO_CODE);
-                $error = LengowMain::setLogMessage(
-                    'log/connector/error_api',
-                    array(
-                        'error_code' => $e->getCode(),
-                        'error_message' => $message,
-                    )
-                );
-                LengowMain::log(LengowLog::CODE_CONNECTOR, $error, $logOutput);
-                return false;
-            }
-            if ($result === null
-                || (isset($result['detail']) && $result['detail'] === 'Pas trouvé.')
-                || isset($result['error'])
-            ) {
-                return false;
-            }
-            return true;
+        if (!$orderIds) {
+            return false;
         }
-        return false;
+        $shopwareIds = array();
+        foreach ($orderIds as $orderId) {
+            $shopwareIds[] = $orderId['orderId'];
+        }
+        $body = array(
+            LengowImport::ARG_ACCOUNT_ID => $accountId,
+            LengowImport::ARG_MARKETPLACE_ORDER_ID => $lengowOrder->getMarketplaceSku(),
+            LengowImport::ARG_MARKETPLACE => $lengowOrder->getMarketplaceName(),
+            LengowImport::ARG_MERCHANT_ORDER_ID => $shopwareIds,
+        );
+        try {
+            $result = $connector->patch(
+                LengowConnector::API_ORDER_MOI,
+                array(),
+                LengowConnector::FORMAT_JSON,
+                json_encode($body),
+                $logOutput
+            );
+            return !($result === null
+                || (isset($result['detail']) && $result['detail'] === 'Pas trouvé.')
+                || isset($result['error']));
+        } catch (Exception $e) {
+            $message = LengowMain::decodeLogMessage($e->getMessage(), LengowTranslation::DEFAULT_ISO_CODE);
+            $error = LengowMain::setLogMessage(
+                'log/connector/error_api',
+                array(
+                    'error_code' => $e->getCode(),
+                    'error_message' => $message,
+                )
+            );
+            LengowMain::log(LengowLog::CODE_CONNECTOR, $error, $logOutput);
+            return false;
+        }
     }
 
     /**
@@ -729,24 +686,43 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         // import orders
         $import = new LengowImport($params);
         $result = $import->exec();
-        if ((isset($result['order_id']) && $result['order_id'] != $order->getId())
-            && (isset($result['order_new']) && $result['order_new'])
-        ) {
-            $newOrder = Shopware()->Models()
-                ->getRepository('\Shopware\Models\Order\Order')
-                ->findOneBy(array('id' => $result['order_id']));
-            if ($newOrder) {
-                $newStatus = LengowMain::getLengowTechnicalErrorStatus();
-                if ($newStatus) {
-                    self::createOrderHistory($order, $newStatus);
-                    self::updateOrderStatus($order->getId(), $newStatus->getId());
+        if (!empty($result[LengowImport::ORDERS_CREATED])) {
+            $orderCreated = $result[LengowImport::ORDERS_CREATED][0];
+            if ($orderCreated[LengowImportOrder::MERCHANT_ORDER_ID] !== $order->getId()) {
+                $newOrder = Shopware()->Models()
+                    ->getRepository('\Shopware\Models\Order\Order')
+                    ->findOneBy(array('id' => $orderCreated[LengowImportOrder::MERCHANT_ORDER_ID]));
+                if ($newOrder) {
+                    $newStatus = LengowMain::getLengowTechnicalErrorStatus();
+                    if ($newStatus) {
+                        self::createOrderHistory($order, $newStatus);
+                        self::updateOrderStatus($order->getId(), $newStatus->getId());
+                    }
+                    return array(
+                        'marketplace_sku' => $lengowOrder->getMarketplaceSku(),
+                        'order_sku' => $newOrder->getNumber(),
+                        'order_id' => $newOrder->getId(),
+                    );
                 }
-                return array(
-                    'marketplace_sku' => $lengowOrder->getMarketplaceSku(),
-                    'order_sku' => $newOrder->getNumber(),
-                    'order_id' => $newOrder->getId(),
-                );
             }
+        }
+        // in the event of an error, all new order errors are finished and the order is reset
+        LengowOrderError::finishOrderErrors($lengowOrder->getId());
+        try {
+            $lengowOrder->setReimported(false);
+            Shopware()->Models()->flush($lengowOrder);
+        } catch (Exception $e) {
+            $errorMessage = '[Doctrine error]: "' . $e->getMessage()
+                . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
+            LengowMain::log(
+                LengowLog::CODE_ORM,
+                LengowMain::setLogMessage(
+                    'log/exception/order_insert_failed',
+                    array('decoded_message' => $errorMessage)
+                ),
+                false,
+                $lengowOrder->getMarketplaceSku()
+            );
         }
         return false;
     }
@@ -843,7 +819,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         );
         try {
             // finish all order errors before API call
-            LengowOrderError::finishOrderErrors($lengowOrder->getId(), 'send');
+            LengowOrderError::finishOrderErrors($lengowOrder->getId(), LengowOrderError::TYPE_ERROR_SEND);
             if ($lengowOrder->isInError()) {
                 $lengowOrder->setInError(false);
                 Shopware()->Models()->flush($lengowOrder);
@@ -869,18 +845,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (Exception $e) {
-            $errorMessage = '[Shopware error] "' . $e->getMessage()
-                . '" ' . $e->getFile() . ' | ' . $e->getLine();
+            $errorMessage = '[Shopware error]: "' . $e->getMessage()
+                . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
         }
         if (isset($errorMessage)) {
             if ($lengowOrder->getOrderProcessState() !== self::PROCESS_STATE_FINISH) {
-                LengowOrderError::createOrderError($lengowOrder, $errorMessage, 'send');
+                LengowOrderError::createOrderError($lengowOrder, $errorMessage, LengowOrderError::TYPE_ERROR_SEND);
                 try {
                     $lengowOrder->setInError(true);
                     Shopware()->Models()->flush($lengowOrder);
                 } catch (Exception $e) {
-                    $doctrineError = '[Doctrine error] "' . $e->getMessage() . '" '
-                        . $e->getFile() . ' | ' . $e->getLine();
+                    $doctrineError = '[Doctrine error]: "' . $e->getMessage()
+                        . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
                     LengowMain::log(
                         LengowLog::CODE_ORM,
                         LengowMain::setLogMessage(
@@ -944,8 +920,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
             LengowConnector::GET,
             LengowConnector::API_ORDER,
             array(
-                'marketplace_order_id' => $lengowOrder->getMarketplaceSku(),
-                'marketplace' => $lengowOrder->getMarketplaceName(),
+                LengowImport::ARG_MARKETPLACE_ORDER_ID => $lengowOrder->getMarketplaceSku(),
+                LengowImport::ARG_MARKETPLACE => $lengowOrder->getMarketplaceName(),
             )
         );
         if (isset($results->count) && (int) $results->count === 0) {

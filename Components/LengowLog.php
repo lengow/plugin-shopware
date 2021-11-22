@@ -58,7 +58,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     /**
      * @var LengowFile Lengow file instance
      */
-    protected $file;
+    private $file;
 
     /**
      * Construct
@@ -70,7 +70,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     public function __construct($fileName = null)
     {
         if (empty($fileName)) {
-            $this->fileName = 'logs-' . date('Y-m-d') . '.txt';
+            $this->fileName = 'logs-' . date(LengowMain::DATE_DAY) . '.txt';
         } else {
             $this->fileName = $fileName;
         }
@@ -88,7 +88,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     public function write($category, $message = '', $display = false, $marketplaceSku = null)
     {
         $decodedMessage = LengowMain::decodeLogMessage($message, LengowTranslation::DEFAULT_ISO_CODE);
-        $log = date('Y-m-d H:i:s');
+        $log = date(LengowMain::DATE_FULL);
         $log .= ' - ' . (empty($category) ? '' : '[' . $category . '] ');
         $log .= '' . (empty($marketplaceSku) ? '' : 'order ' . $marketplaceSku . ': ');
         $log .= $decodedMessage . "\r\n";

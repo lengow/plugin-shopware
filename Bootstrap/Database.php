@@ -39,37 +39,44 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
  */
 class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
 {
+    /* Lengow tables */
+    const TABLE_ORDER = 's_lengow_order';
+    const TABLE_ORDER_ERROR = 's_lengow_order_error';
+    const TABLE_ORDER_LINE = 's_lengow_order_line';
+    const TABLE_ACTION = 's_lengow_action';
+    const TABLE_SETTINGS = 's_lengow_settings';
+
     /**
      * @var ModelManager Shopware entity manager
      */
-    protected $entityManager;
+    private $entityManager;
 
     /**
      * @var SchemaTool Doctrine Schema Tool
      */
-    protected $schemaTool;
+    private $schemaTool;
 
     /**
      * @var array custom models used by Lengow in the database
      */
-    protected $customModels = array(
-        's_lengow_order' => array(
+    private $customModels = array(
+        self::TABLE_ORDER => array(
             'entity' => 'Shopware\CustomModels\Lengow\Order',
             'remove' => false,
         ),
-        's_lengow_order_error' => array(
+        self::TABLE_ORDER_ERROR => array(
             'entity' => 'Shopware\CustomModels\Lengow\OrderError',
             'remove' => false,
         ),
-        's_lengow_order_line' => array(
+        self::TABLE_ORDER_LINE  => array(
             'entity' => 'Shopware\CustomModels\Lengow\OrderLine',
             'remove' => false,
         ),
-        's_lengow_action' => array(
+        self::TABLE_ACTION => array(
             'entity' => 'Shopware\CustomModels\Lengow\Action',
             'remove' => false,
         ),
-        's_lengow_settings' => array(
+        self::TABLE_SETTINGS => array(
             'entity' => 'Shopware\CustomModels\Lengow\Settings',
             'remove' => true,
         ),
@@ -78,7 +85,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
     /**
      * @var boolean installation status
      */
-    protected static $installationStatus;
+    private static $installationStatus;
 
     /**
      * Construct
@@ -348,7 +355,7 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
      */
     public function updateOrderAttribute()
     {
-        if (self::tableExist('s_lengow_order') && self::columnExists('s_lengow_order', 'order_id')) {
+        if (self::tableExist(self::TABLE_ORDER) && self::columnExists(self::TABLE_ORDER, 'order_id')) {
             $sql = 'SELECT oa.id FROM s_order_attributes oa
                 LEFT JOIN s_lengow_order lo ON lo.order_id = oa.orderID
                 WHERE lo.order_id IS NOT NULL AND oa.lengow_is_from_lengow IS NULL';
@@ -376,12 +383,12 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
     public function addLengowTechnicalErrorStatus()
     {
         $lengowTechnicalError = LengowMain::getLengowTechnicalErrorStatus();
-        if (self::tableExist('s_core_states') && $lengowTechnicalError === null) {
+        if ($lengowTechnicalError === null && self::tableExist('s_core_states')) {
             try {
                 // get id max for new order status - id is not auto-increment
-                $idMax = (int)Shopware()->Db()->fetchOne('SELECT MAX(id) FROM `s_core_states`');
+                $idMax = (int) Shopware()->Db()->fetchOne('SELECT MAX(id) FROM `s_core_states`');
                 // position max for new order status - exclude cancelled order status
-                $positionMax = (int)Shopware()->Db()->fetchOne(
+                $positionMax = (int) Shopware()->Db()->fetchOne(
                     'SELECT MAX(position) FROM `s_core_states`
                     WHERE `group` = \'state\' AND `description` != \'Abgebrochen\''
                 );
@@ -405,7 +412,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                 Shopware()->Db()->query($sql, $params);
                 LengowBootstrap::log('log/install/add_technical_error_status');
             } catch (Exception $e) {
-                $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+                $errorMessage = '[Shopware error]: "' . $e->getMessage()
+                    . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
                 LengowBootstrap::log(
                     'log/install/add_technical_error_status_error',
                     array('error_message' => $errorMessage)

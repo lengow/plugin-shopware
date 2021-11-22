@@ -29,11 +29,13 @@
  */
 
 use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
+use Shopware_Plugins_Backend_Lengow_Components_LengowConnector as LengowConnector;
 use Shopware_Plugins_Backend_Lengow_Components_LengowExport as LengowExport;
 use Shopware_Plugins_Backend_Lengow_Components_LengowImport as LengowImport;
 use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
+use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
 
 /**
  * Lengow Toolbox Class
@@ -41,14 +43,22 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
 class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
 {
     /* Toolbox GET params */
+    const PARAM_CREATED_FROM = 'created_from';
+    const PARAM_CREATED_TO = 'created_to';
+    const PARAM_DATE = 'date';
+    const PARAM_DAYS = 'days';
+    const PARAM_FORCE = 'force';
+    const PARAM_MARKETPLACE_NAME = 'marketplace_name';
+    const PARAM_MARKETPLACE_SKU = 'marketplace_sku';
+    const PARAM_SHOP_ID = 'shop_id';
     const PARAM_TOKEN = 'token';
     const PARAM_TOOLBOX_ACTION = 'toolbox_action';
-    const PARAM_DATE = 'date';
     const PARAM_TYPE = 'type';
 
     /* Toolbox Actions */
     const ACTION_DATA = 'data';
     const ACTION_LOG = 'log';
+    const ACTION_ORDER = 'order';
 
     /* Data type */
     const DATA_TYPE_ALL = 'all';
@@ -108,6 +118,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
     const CHECKSUM_FILE_DELETED = 'file_deleted';
     const LOGS = 'logs';
 
+    /* Toolbox order data  */
+    const ERRORS = 'errors';
+    const ERROR_TYPE = 'type';
+    const ERROR_MESSAGE = 'message';
+    const ERROR_CODE = 'code';
+
+    /* PHP extensions */
+    const PHP_EXTENSION_CURL = 'curl_version';
+    const PHP_EXTENSION_SIMPLEXML = 'simplexml_load_file';
+    const PHP_EXTENSION_JSON = 'json_decode';
+
     /* Toolbox files */
     const FILE_CHECKMD5 = 'checkmd5.csv';
     const FILE_TEST = 'test.txt';
@@ -118,6 +139,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
     public static $toolboxActions = array(
         self::ACTION_DATA,
         self::ACTION_LOG,
+        self::ACTION_ORDER,
     );
 
     /**
@@ -163,13 +185,34 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
     }
 
     /**
+     * Start order synchronization based on specific parameters
+     *
+     * @param array $params synchronization parameters
+     *
+     * @return array
+     */
+    public static function syncOrders($params = array())
+    {
+        // get all params for order synchronization
+        $params = self::filterParamsForSync($params);
+        $import = new LengowImport($params);
+        $result = $import->exec();
+        // if global error return error message and request http code
+        if (isset($result[LengowImport::ERRORS][0])) {
+            return self::generateErrorReturn(LengowConnector::CODE_403, $result[LengowImport::ERRORS][0]);
+        }
+        unset($result[LengowImport::ERRORS]);
+        return $result;
+    }
+
+    /**
      * Check if PHP Curl is activated
      *
      * @return boolean
      */
     public static function isCurlActivated()
     {
-        return function_exists('curl_version');
+        return function_exists(self::PHP_EXTENSION_CURL);
     }
 
     /**
@@ -384,7 +427,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
      */
     private static function isSimpleXMLActivated()
     {
-        return function_exists('simplexml_load_file');
+        return function_exists(self::PHP_EXTENSION_SIMPLEXML);
     }
 
     /**
@@ -394,7 +437,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
      */
     private static function isJsonActivated()
     {
-        return function_exists('json_decode');
+        return function_exists(self::PHP_EXTENSION_JSON);
     }
 
     /**
@@ -407,7 +450,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
         $sep = DIRECTORY_SEPARATOR;
         $filePath = LengowMain::getLengowFolder() . $sep . LengowMain::FOLDER_CONFIG . $sep . self::FILE_TEST;
         try {
-            $file = fopen($filePath, 'w+');
+            $file = fopen($filePath, 'wb+');
             if (!$file) {
                 return false;
             }
@@ -416,5 +459,57 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    /**
+     * Filter parameters for order synchronization
+     *
+     * @param array $params synchronization params
+     *
+     * @return array
+     */
+    private static function filterParamsForSync($params = array())
+    {
+        $paramsFiltered = array(LengowImport::PARAM_TYPE => LengowImport::TYPE_TOOLBOX);
+        if (isset(
+            $params[self::PARAM_MARKETPLACE_SKU],
+            $params[self::PARAM_MARKETPLACE_NAME],
+            $params[self::PARAM_SHOP_ID]
+        )) {
+            // get all parameters to synchronize a specific order
+            $paramsFiltered[LengowImport::PARAM_MARKETPLACE_SKU] = $params[self::PARAM_MARKETPLACE_SKU];
+            $paramsFiltered[LengowImport::PARAM_MARKETPLACE_NAME] = $params[self::PARAM_MARKETPLACE_NAME];
+            $paramsFiltered[LengowImport::PARAM_SHOP_ID] = (int) $params[self::PARAM_SHOP_ID];
+        } elseif (isset($params[self::PARAM_CREATED_FROM], $params[self::PARAM_CREATED_TO])) {
+            // get all parameters to synchronize over a fixed period
+            $paramsFiltered[LengowImport::PARAM_CREATED_FROM] = $params[self::PARAM_CREATED_FROM];
+            $paramsFiltered[LengowImport::PARAM_CREATED_TO] = $params[self::PARAM_CREATED_TO];
+        } elseif (isset($params[self::PARAM_DAYS])) {
+            // get all parameters to synchronize over a time interval
+            $paramsFiltered[LengowImport::PARAM_DAYS] = (int) $params[self::PARAM_DAYS];
+        }
+        // force order synchronization by removing pending errors
+        if (isset($params[self::PARAM_FORCE])) {
+            $paramsFiltered[LengowImport::PARAM_FORCE_SYNC] = (bool) $params[self::PARAM_FORCE];
+        }
+        return $paramsFiltered;
+    }
+
+    /**
+     * Generates an error return for the Toolbox webservice
+     *
+     * @param integer $httpCode request http code
+     * @param string $error error message
+     *
+     * @return array
+     */
+    private static function generateErrorReturn($httpCode, $error)
+    {
+        return array(
+            self::ERRORS => array(
+                self::ERROR_MESSAGE => LengowMain::decodeLogMessage($error, LengowTranslation::DEFAULT_ISO_CODE),
+                self::ERROR_CODE => $httpCode,
+            ),
+        );
     }
 }
