@@ -103,24 +103,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrderError
     }
 
     /**
-     * Return type value
-     *
-     * @param string $type order error type (import or send)
-     *
-     * @return integer
-     */
-    public static function getOrderErrorType($type = null)
-    {
-        switch ($type) {
-            case 'send':
-                return self::TYPE_ERROR_SEND;
-            case 'import':
-            default:
-                return self::TYPE_ERROR_IMPORT;
-        }
-    }
-
-    /**
      * Removes all order error for one lengow order
      *
      * @param integer $lengowOrderId Lengow order id

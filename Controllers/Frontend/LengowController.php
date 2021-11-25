@@ -336,24 +336,33 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 LengowToolbox::downloadLog($date);
                 break;
             case LengowToolbox::ACTION_ORDER:
-                $result = LengowToolbox::syncOrders(
-                    array(
-                        LengowToolbox::PARAM_CREATED_TO => $this->Request()
-                            ->getParam(LengowToolbox::PARAM_CREATED_TO),
-                        LengowToolbox::PARAM_CREATED_FROM => $this->Request()
-                            ->getParam(LengowToolbox::PARAM_CREATED_FROM),
-                        LengowToolbox::PARAM_DAYS => $this->Request()
-                            ->getParam(LengowToolbox::PARAM_DAYS),
-                        LengowToolbox::PARAM_FORCE => $this->Request()
-                            ->getParam(LengowToolbox::PARAM_FORCE),
-                        LengowToolbox::PARAM_MARKETPLACE_NAME => $this->Request()
-                            ->getParam(LengowToolbox::PARAM_MARKETPLACE_NAME),
-                        LengowToolbox::PARAM_MARKETPLACE_SKU => $this->Request()
-                            ->getParam(LengowToolbox::PARAM_MARKETPLACE_SKU),
-                        LengowToolbox::PARAM_SHOP_ID => $this->Request()
-                            ->getParam(LengowToolbox::PARAM_SHOP_ID),
-                    )
-                );
+                $process = $this->Request()->getParam(LengowToolbox::PARAM_PROCESS, LengowToolbox::PROCESS_TYPE_SYNC);
+                if ($process === LengowToolbox::PROCESS_TYPE_GET_DATA) {
+                    $result = LengowToolbox::getOrderData(
+                        $this->Request()->getParam(LengowToolbox::PARAM_MARKETPLACE_SKU),
+                        $this->Request()->getParam(LengowToolbox::PARAM_MARKETPLACE_NAME),
+                        $this->Request()->getParam(LengowToolbox::PARAM_TYPE)
+                    );
+                } else {
+                    $result = LengowToolbox::syncOrders(
+                        array(
+                            LengowToolbox::PARAM_CREATED_TO => $this->Request()
+                                ->getParam(LengowToolbox::PARAM_CREATED_TO),
+                            LengowToolbox::PARAM_CREATED_FROM => $this->Request()
+                                ->getParam(LengowToolbox::PARAM_CREATED_FROM),
+                            LengowToolbox::PARAM_DAYS => $this->Request()
+                                ->getParam(LengowToolbox::PARAM_DAYS),
+                            LengowToolbox::PARAM_FORCE => $this->Request()
+                                ->getParam(LengowToolbox::PARAM_FORCE),
+                            LengowToolbox::PARAM_MARKETPLACE_NAME => $this->Request()
+                                ->getParam(LengowToolbox::PARAM_MARKETPLACE_NAME),
+                            LengowToolbox::PARAM_MARKETPLACE_SKU => $this->Request()
+                                ->getParam(LengowToolbox::PARAM_MARKETPLACE_SKU),
+                            LengowToolbox::PARAM_SHOP_ID => $this->Request()
+                                ->getParam(LengowToolbox::PARAM_SHOP_ID),
+                        )
+                    );
+                }
                 if (isset($result[LengowToolbox::ERRORS][LengowToolbox::ERROR_CODE])) {
                     if ($result[LengowToolbox::ERRORS][LengowToolbox::ERROR_CODE] === LengowConnector::CODE_404) {
                         header('HTTP/1.1 404 Not Found');

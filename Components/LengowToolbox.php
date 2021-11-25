@@ -28,6 +28,11 @@
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License, version 3
  */
 
+use Shopware\Models\Order\History as OrderHistoryModel;
+use Shopware\Models\Order\Order as OrderModel;
+use Shopware\CustomModels\Lengow\Order as LengowOrderModel;
+use Shopware\CustomModels\Lengow\OrderError as LengowOrderErrorModel;
+use Shopware_Plugins_Backend_Lengow_Components_LengowAction as LengowAction;
 use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
 use Shopware_Plugins_Backend_Lengow_Components_LengowConnector as LengowConnector;
 use Shopware_Plugins_Backend_Lengow_Components_LengowExport as LengowExport;
@@ -35,6 +40,7 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowImport as LengowImport;
 use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
+use Shopware_Plugins_Backend_Lengow_Components_LengowOrderError as LengowOrderError;
 use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
 
 /**
@@ -50,6 +56,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
     const PARAM_FORCE = 'force';
     const PARAM_MARKETPLACE_NAME = 'marketplace_name';
     const PARAM_MARKETPLACE_SKU = 'marketplace_sku';
+    const PARAM_PROCESS = 'process';
     const PARAM_SHOP_ID = 'shop_id';
     const PARAM_TOKEN = 'token';
     const PARAM_TOOLBOX_ACTION = 'toolbox_action';
@@ -61,15 +68,24 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
     const ACTION_ORDER = 'order';
 
     /* Data type */
+    const DATA_TYPE_ACTION = 'action';
     const DATA_TYPE_ALL = 'all';
     const DATA_TYPE_CHECKLIST = 'checklist';
     const DATA_TYPE_CHECKSUM = 'checksum';
     const DATA_TYPE_CMS = 'cms';
+    const DATA_TYPE_ERROR = 'error';
+    const DATA_TYPE_EXTRA = 'extra';
     const DATA_TYPE_LOG = 'log';
     const DATA_TYPE_PLUGIN = 'plugin';
     const DATA_TYPE_OPTION = 'option';
+    const DATA_TYPE_ORDER = 'order';
+    const DATA_TYPE_ORDER_STATUS = 'order_status';
     const DATA_TYPE_SHOP = 'shop';
     const DATA_TYPE_SYNCHRONIZATION = 'synchronization';
+
+    /* Toolbox process type */
+    const PROCESS_TYPE_GET_DATA = 'get_data';
+    const PROCESS_TYPE_SYNC = 'sync';
 
     /* Toolbox Data  */
     const CHECKLIST = 'checklist';
@@ -119,10 +135,68 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
     const LOGS = 'logs';
 
     /* Toolbox order data  */
+    const ID = 'id';
+    const ORDERS = 'orders';
+    const ORDER_MARKETPLACE_SKU = 'marketplace_sku';
+    const ORDER_MARKETPLACE_NAME = 'marketplace_name';
+    const ORDER_MARKETPLACE_LABEL = 'marketplace_label';
+    const ORDER_MERCHANT_ORDER_ID = 'merchant_order_id';
+    const ORDER_MERCHANT_ORDER_REFERENCE = 'merchant_order_reference';
+    const ORDER_DELIVERY_ADDRESS_ID = 'delivery_address_id';
+    const ORDER_DELIVERY_COUNTRY_ISO = 'delivery_country_iso';
+    const ORDER_PROCESS_STATE = 'order_process_state';
+    const ORDER_STATUSES = 'order_statuses';
+    const ORDER_STATUS = 'order_status';
+    const ORDER_MERCHANT_ORDER_STATUS = 'merchant_order_status';
+    const ORDER_TOTAL_PAID = 'total_paid';
+    const ORDER_MERCHANT_TOTAL_PAID = 'merchant_total_paid';
+    const ORDER_COMMISSION= 'commission';
+    const ORDER_CURRENCY = 'currency';
+    const ORDER_DATE = 'order_date';
+    const ORDER_ITEMS = 'order_items';
+    const ORDER_IS_REIMPORTED = 'is_reimported';
+    const ORDER_IS_IN_ERROR = 'is_in_error';
+    const ORDER_ACTION_IN_PROGRESS = 'action_in_progress';
+    const CUSTOMER = 'customer';
+    const CUSTOMER_NAME = 'name';
+    const CUSTOMER_EMAIL = 'email';
+    const CUSTOMER_VAT_NUMBER = 'vat_number';
+    const ORDER_TYPES = 'order_types';
+    const ORDER_TYPE_EXPRESS = 'is_express';
+    const ORDER_TYPE_PRIME = 'is_prime';
+    const ORDER_TYPE_BUSINESS = 'is_business';
+    const ORDER_TYPE_DELIVERED_BY_MARKETPLACE = 'is_delivered_by_marketplace';
+    const TRACKING = 'tracking';
+    const TRACKING_CARRIER = 'carrier';
+    const TRACKING_METHOD = 'method';
+    const TRACKING_NUMBER = 'tracking_number';
+    const TRACKING_RELAY_ID = 'relay_id';
+    const TRACKING_MERCHANT_CARRIER = 'merchant_carrier';
+    const TRACKING_MERCHANT_TRACKING_NUMBER = 'merchant_tracking_number';
+    const TRACKING_MERCHANT_TRACKING_URL = 'merchant_tracking_url';
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
+    const IMPORTED_AT = 'imported_at';
     const ERRORS = 'errors';
     const ERROR_TYPE = 'type';
     const ERROR_MESSAGE = 'message';
     const ERROR_CODE = 'code';
+    const ERROR_FINISHED = 'is_finished';
+    const ERROR_REPORTED = 'is_reported';
+    const ACTIONS = 'actions';
+    const ACTION_ID = 'action_id';
+    const ACTION_PARAMETERS = 'parameters';
+    const ACTION_RETRY = 'retry';
+    const ACTION_FINISH = 'is_finished';
+
+    /* Process state labels */
+    const PROCESS_STATE_NEW = 'new';
+    const PROCESS_STATE_IMPORT = 'import';
+    const PROCESS_STATE_FINISH = 'finish';
+
+    /* Error type labels */
+    const TYPE_ERROR_IMPORT = 'import';
+    const TYPE_ERROR_SEND = 'send';
 
     /* PHP extensions */
     const PHP_EXTENSION_CURL = 'curl_version';
@@ -203,6 +277,43 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
         }
         unset($result[LengowImport::ERRORS]);
         return $result;
+    }
+
+    /**
+     * Get all order data from a marketplace reference
+     *
+     * @param string|null $marketplaceSku marketplace order reference
+     * @param string|null $marketplaceName marketplace code
+     * @param string $type Toolbox order data type
+     *
+     * @return array
+     */
+    public static function getOrderData($marketplaceSku = null, $marketplaceName = null, $type = self::DATA_TYPE_ORDER)
+    {
+        $lengowOrders = $marketplaceSku && $marketplaceName
+            ? LengowOrder::getAllLengowOrders($marketplaceSku, $marketplaceName)
+            : array();
+        // if no reference is found, process is blocked
+        if (empty($lengowOrders)) {
+            return self::generateErrorReturn(
+                LengowConnector::CODE_404,
+                LengowMain::setLogMessage('log/import/unable_find_order')
+            );
+        }
+        $orders = array();
+        foreach ($lengowOrders as $lengowOrder) {
+            if ($type === self::DATA_TYPE_EXTRA) {
+                return self::getOrderExtraData($lengowOrder);
+            }
+            $marketplaceLabel = $lengowOrder->getMarketplaceLabel();
+            $orders[] = self::getOrderDataByType($lengowOrder, $type);
+        }
+        return array(
+            self::ORDER_MARKETPLACE_SKU => $marketplaceSku,
+            self::ORDER_MARKETPLACE_NAME => $marketplaceName,
+            self::ORDER_MARKETPLACE_LABEL => isset($marketplaceLabel) ? $marketplaceLabel : null,
+            self::ORDERS => $orders,
+        );
     }
 
     /**
@@ -493,6 +604,295 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
             $paramsFiltered[LengowImport::PARAM_FORCE_SYNC] = (bool) $params[self::PARAM_FORCE];
         }
         return $paramsFiltered;
+    }
+
+    /**
+     * Get array of all the data of the order
+     *
+     * @param LengowOrderModel $lengowOrder Lengow order instance
+     * @param string $type Toolbox order data type
+     *
+     * @return array
+     */
+    private static function getOrderDataByType($lengowOrder, $type)
+    {
+        $order = $lengowOrder->getOrder();
+        $orderReferences = array(
+            self::ID => $lengowOrder->getId(),
+            self::ORDER_MERCHANT_ORDER_ID  => $order ? $order->getId() : null,
+            self::ORDER_MERCHANT_ORDER_REFERENCE  => $order ? $order->getNumber() : null,
+            self::ORDER_DELIVERY_ADDRESS_ID => $lengowOrder->getDeliveryAddressId(),
+        );
+        switch ($type) {
+            case self::DATA_TYPE_ACTION:
+                $orderData = array(
+                    self::ACTIONS => $order ? self::getOrderActionData($order) : array(),
+                );
+                break;
+            case self::DATA_TYPE_ERROR:
+                $orderData = array(
+                    self::ERRORS => self::getOrderErrorsData($lengowOrder),
+                );
+                break;
+            case self::DATA_TYPE_ORDER_STATUS:
+                $orderData = array(
+                    self::ORDER_STATUSES => $order ? self::getOrderStatusesData($order) : array(),
+                );
+                break;
+            case self::DATA_TYPE_ORDER:
+            default:
+                $orderData = self::getAllOrderData($lengowOrder, $order);
+        }
+        return array_merge($orderReferences, $orderData);
+    }
+
+    /**
+     * Get array of all the data of the order
+     *
+     * @param LengowOrderModel $lengowOrder Lengow order instance
+     * @param OrderModel|null $order Shopware order instance
+     *
+     * @return array
+     */
+    private static function getAllOrderData($lengowOrder, $order = null)
+    {
+        $orderDispatch = $order ? $order->getDispatch() : null;
+        $hasActionInProgress = $order && LengowAction::getActionByOrderId($order->getId());
+        $orderPayment = $order ? $order->getPaymentInstances()->first() : null;
+        $merchantOrderStatus = null;
+        if ($order) {
+            $merchantOrderStatus = LengowMain::compareVersion('5.1')
+                ? $order->getOrderStatus()->getName()
+                : $order->getOrderStatus()->getDescription();
+        }
+        $orderTypes = json_decode($lengowOrder->getOrderTypes(), true);
+        return array(
+            self::ORDER_DELIVERY_COUNTRY_ISO => $lengowOrder->getDeliveryCountryIso(),
+            self::ORDER_PROCESS_STATE => self::getOrderProcessLabel($lengowOrder->getOrderProcessState()),
+            self::ORDER_STATUS => $lengowOrder->getOrderLengowState(),
+            self::ORDER_MERCHANT_ORDER_STATUS => $merchantOrderStatus,
+            self::ORDER_STATUSES => $order ? self::getOrderStatusesData($order) : array(),
+            self::ORDER_TOTAL_PAID => $lengowOrder->getTotalPaid(),
+            self::ORDER_MERCHANT_TOTAL_PAID => $order ? $order->getInvoiceAmount() : null,
+            self::ORDER_COMMISSION => $lengowOrder->getCommission(),
+            self::ORDER_CURRENCY => $lengowOrder->getCurrency(),
+            self::CUSTOMER => array(
+                self::CUSTOMER_NAME => !empty($lengowOrder->getCarrier()) ? $lengowOrder->getCarrier() : null,
+                self::CUSTOMER_EMAIL => !empty($lengowOrder->getCustomerEmail())
+                    ? $lengowOrder->getCustomerEmail()
+                    : null,
+                self::CUSTOMER_VAT_NUMBER => !empty($lengowOrder->getCustomerVatNumber())
+                    ? $lengowOrder->getCustomerVatNumber()
+                    : null,
+            ),
+            self::ORDER_DATE => $lengowOrder->getOrderDate()->getTimestamp(),
+            self::ORDER_TYPES => array(
+                self::ORDER_TYPE_EXPRESS => isset($orderTypes[LengowOrder::TYPE_EXPRESS]),
+                self::ORDER_TYPE_PRIME => isset($orderTypes[LengowOrder::TYPE_PRIME]),
+                self::ORDER_TYPE_BUSINESS => isset($orderTypes[LengowOrder::TYPE_BUSINESS]),
+                self::ORDER_TYPE_DELIVERED_BY_MARKETPLACE => isset(
+                    $orderTypes[LengowOrder::TYPE_DELIVERED_BY_MARKETPLACE]
+                ),
+            ),
+            self::ORDER_ITEMS => $lengowOrder->getOrderItem(),
+            self::TRACKING => array(
+                self::TRACKING_CARRIER => !empty($lengowOrder->getCarrier())
+                    ? $lengowOrder->getCarrier()
+                    : null,
+                self::TRACKING_METHOD => !empty($lengowOrder->getCarrierMethod())
+                    ? $lengowOrder->getCarrierMethod()
+                    : null,
+                self::TRACKING_NUMBER => !empty($lengowOrder->getCarrierTracking())
+                    ? $lengowOrder->getCarrierTracking()
+                    : null,
+                self::TRACKING_RELAY_ID => !empty($lengowOrder->getCarrierIdRelay())
+                    ? $lengowOrder->getCarrierIdRelay()
+                    : null,
+                self::TRACKING_MERCHANT_CARRIER => $orderDispatch ? $orderDispatch->getName() : null,
+                self::TRACKING_MERCHANT_TRACKING_NUMBER => $order && !empty($order->getTrackingCode())
+                    ? $order->getTrackingCode()
+                    : null,
+                self::TRACKING_MERCHANT_TRACKING_URL => $orderDispatch && !empty($orderDispatch->getStatusLink())
+                    ? $orderDispatch->getStatusLink()
+                    : null,
+            ),
+            self::ORDER_IS_REIMPORTED => $lengowOrder->isReimported(),
+            self::ORDER_IS_IN_ERROR => $lengowOrder->isInError(),
+            self::ERRORS => self::getOrderErrorsData($lengowOrder),
+            self::ORDER_ACTION_IN_PROGRESS => $hasActionInProgress,
+            self::ACTIONS => $order ? self::getOrderActionData($order) : array(),
+            self::CREATED_AT => $lengowOrder->getCreatedAt()->getTimestamp(),
+            self::UPDATED_AT => $lengowOrder->getUpdatedAt() ? $lengowOrder->getUpdatedAt()->getTimestamp() : 0,
+            self::IMPORTED_AT => $orderPayment ? $orderPayment->getCreatedAt()->getTimestamp() : 0,
+        );
+    }
+
+    /**
+     * Get array of all the errors of a Lengow order
+     *
+     * @param LengowOrderModel $lengowOrder Lengow order instance
+     *
+     * @return array
+     */
+    private static function getOrderErrorsData($lengowOrder)
+    {
+        $orderErrors = array();
+        /** @var LengowOrderErrorModel[] $errors */
+        $errors = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\OrderError')
+            ->findBy(array('lengowOrder' => $lengowOrder));
+        if ($errors) {
+            foreach ($errors as $error) {
+                $orderErrors[] = array(
+                    self::ID => $error->getId(),
+                    self::ERROR_TYPE => $error->getType() === LengowOrderError::TYPE_ERROR_IMPORT
+                        ? self::TYPE_ERROR_IMPORT
+                        : self::TYPE_ERROR_SEND,
+                    self::ERROR_MESSAGE => LengowMain::decodeLogMessage(
+                        $error->getMessage(),
+                        LengowTranslation::DEFAULT_ISO_CODE
+                    ),
+                    self::ERROR_FINISHED => $error->isFinished(),
+                    self::ERROR_REPORTED => $error->isMail(),
+                    self::CREATED_AT => $error->getCreatedAt()->getTimestamp(),
+                    self::UPDATED_AT => $error->getUpdatedAt() ? $error->getUpdatedAt()->getTimestamp() : 0,
+                );
+            }
+        }
+        return $orderErrors;
+    }
+
+    /**
+     * Get array of all the actions of a Lengow order
+     *
+     * @param OrderModel $order Shopware order instance
+     *
+     * @return array
+     */
+    private static function getOrderActionData($order)
+    {
+        $orderActions = array();
+        $actions = LengowAction::getActionByOrderId($order->getId());
+        if ($actions) {
+            foreach ($actions as $action) {
+                $orderActions[] = array(
+                    self::ID => $action->getId(),
+                    self::ACTION_ID => $action->getActionId(),
+                    self::ACTION_PARAMETERS => json_decode($action->getParameters(), true),
+                    self::ACTION_RETRY => $action->getRetry(),
+                    self::ACTION_FINISH => $action->getState() === LengowAction::STATE_FINISH,
+                    self::CREATED_AT => $action->getCreatedAt()->getTimestamp(),
+                    self::UPDATED_AT => $action->getUpdatedAt() ? $action->getUpdatedAt()->getTimestamp() : 0,
+                );
+            }
+        }
+        return $orderActions;
+    }
+
+    /**
+     * Get array of all the statuses of an order
+     *
+     * @param OrderModel $order Shopware order instance
+     *
+     * @return array
+     */
+    private static function getOrderStatusesData($order)
+    {
+        $orderPayment = $order ? $order->getPaymentInstances()->first() : null;
+        if ($order->getHistory()->isEmpty()) {
+            return array(
+                self::ORDER_MERCHANT_ORDER_STATUS => LengowMain::compareVersion('5.1')
+                    ? $order->getOrderStatus()->getName()
+                    : $order->getOrderStatus()->getDescription(),
+                self::ORDER_STATUS => self::getOrderStatusCorrespondence($order->getOrderStatus()->getId()),
+                self::CREATED_AT => $orderPayment ? $orderPayment->getCreatedAt()->getTimestamp() : 0,
+            );
+        }
+        $orderStatuses = array();
+        $firstOrderHistory = true;
+        /** @var OrderHistoryModel $orderHistory */
+        foreach ($order->getHistory() as $orderHistory) {
+            if ($orderHistory->getOrderStatus() === null
+                || ($firstOrderHistory && $orderHistory->getPreviousOrderStatus() === null)
+            ) {
+                continue;
+            }
+            if ($firstOrderHistory) {
+                $orderStatuses[] = array(
+                    self::ORDER_MERCHANT_ORDER_STATUS => LengowMain::compareVersion('5.1')
+                        ? $orderHistory->getPreviousOrderStatus()->getName()
+                        : $orderHistory->getPreviousOrderStatus()->getDescription(),
+                    self::ORDER_STATUS => self::getOrderStatusCorrespondence(
+                        $orderHistory->getPreviousOrderStatus()->getId()
+                    ),
+                    self::CREATED_AT => $orderPayment ? $orderPayment->getCreatedAt()->getTimestamp() : 0,
+                );
+            }
+            $orderStatuses[] = array(
+                self::ORDER_MERCHANT_ORDER_STATUS => LengowMain::compareVersion('5.1')
+                    ? $orderHistory->getOrderStatus()->getName()
+                    : $orderHistory->getOrderStatus()->getDescription(),
+                self::ORDER_STATUS => self::getOrderStatusCorrespondence($orderHistory->getOrderStatus()->getId()),
+                self::CREATED_AT => $orderHistory->getChangeDate()->getTimestamp(),
+            );
+            $firstOrderHistory = false;
+        }
+        return $orderStatuses;
+    }
+
+    /**
+     * Get all the data of the order at the time of import
+     *
+     * @param LengowOrderModel $lengowOrder Lengow order instance
+     *
+     * @return array
+     */
+    private static function getOrderExtraData($lengowOrder)
+    {
+        return json_decode($lengowOrder->getExtra(), true);
+    }
+
+    /**
+     * Get order process label
+     *
+     * @param integer $orderProcess Lengow order process (new, import or finish)
+     *
+     * @return string
+     */
+    private static function getOrderProcessLabel($orderProcess)
+    {
+        switch ($orderProcess) {
+            case LengowOrder::PROCESS_STATE_NEW:
+                return self::PROCESS_STATE_NEW;
+            case LengowOrder::PROCESS_STATE_IMPORT:
+                return self::PROCESS_STATE_IMPORT;
+            case LengowOrder::PROCESS_STATE_FINISH:
+            default:
+                return self::PROCESS_STATE_FINISH;
+        }
+    }
+
+    /**
+     * Retrieves the correspondence between the PrestaShop and Lengow status
+     *
+     * @param integer $idOrderState PrestaShop order state id
+     *
+     * @return string|null
+     */
+    private static function getOrderStatusCorrespondence($idOrderState)
+    {
+        $statusWaitingShipment = LengowMain::getOrderStatus(LengowOrder::STATE_WAITING_SHIPMENT);
+        $statusShipped = LengowMain::getOrderStatus(LengowOrder::STATE_SHIPPED);
+        $statusCanceled = LengowMain::getOrderStatus(LengowOrder::STATE_CANCELED);
+        switch ($idOrderState) {
+            case $statusWaitingShipment->getId():
+                return LengowOrder::STATE_WAITING_SHIPMENT;
+            case $statusShipped->getId():
+                return LengowOrder::STATE_SHIPPED;
+            case $statusCanceled->getId():
+                return LengowOrder::STATE_CANCELED;
+            default:
+                return null;
+        }
     }
 
     /**

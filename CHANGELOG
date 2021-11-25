@@ -3,6 +3,7 @@ Version 1.7.0
 =============================================================
 
     - Feature: Integration of order synchronization in the toolbox webservice
+    - Feature: Retrieving the status of an order in the toolbox webservice
 
 =============================================================
 Version 1.6.2

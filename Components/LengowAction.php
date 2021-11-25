@@ -245,31 +245,25 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAction
      * Find active actions by order id
      *
      * @param integer $orderId Shopware order id
+     * @param boolean $onlyActive get only active actions
      * @param string|null $actionType action type (ship or cancel)
      *
-     * @return array|false
+     * @return LengowActionModel[]|null
      */
-    public static function getActiveActionByOrderId($orderId, $actionType = null)
+    public static function getActionByOrderId($orderId, $onlyActive = false, $actionType = null)
     {
-        $params = array(
-            'orderId' => $orderId,
-            'state' => self::STATE_NEW,
-        );
-        $builder = Shopware()->Models()->createQueryBuilder();
-        $builder->select('la.id', 'la.actionId', 'la.actionType', 'la.orderId')
-            ->from('Shopware\CustomModels\Lengow\Action', 'la')
-            ->where('la.state = :state')
-            ->andWhere('la.orderId = :orderId');
+        $params = array('orderId' => $orderId);
+        if ($onlyActive) {
+            $params['state'] = self::STATE_NEW;
+        }
         if ($actionType) {
-            $builder->andWhere('la.actionType = :actionType');
             $params['actionType'] = $actionType;
         }
-        $builder->setParameters($params);
-        $results = $builder->getQuery()->getResult();
-        if (!empty($results)) {
-            return $results;
+        $actions = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Action')->findBy($params);
+        if (!empty($actions)) {
+            return $actions;
         }
-        return false;
+        return null;
     }
 
     /**

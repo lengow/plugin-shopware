@@ -221,6 +221,25 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
     }
 
     /**
+     * Retrieves all the Lengow order ids from a marketplace reference
+     *
+     * @param string $marketplaceSku Lengow order id
+     * @param string $marketplaceName marketplace name
+     *
+     * @return LengowOrderModel[]
+     */
+    public static function getAllLengowOrders($marketplaceSku, $marketplaceName)
+    {
+        return Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
+            ->findBy(
+                array(
+                    'marketplaceSku' => $marketplaceSku,
+                    'marketplaceName' => $marketplaceName,
+                )
+            );
+    }
+
+    /**
      * Get all Lengow order line ids from marketplace order
      *
      * @param OrderModel $order Shopware order instance
@@ -399,7 +418,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrder
         if (!empty($results)) {
             foreach ($results as $result) {
                 $orderId = (int) $result['orderId'];
-                if (!LengowAction::getActiveActionByOrderId($orderId)) {
+                if (!(bool) LengowAction::getActionByOrderId($orderId, true)) {
                     $action = (int) $result['orderStatusId'] === $orderStatusCanceled->getId()
                         ? LengowAction::TYPE_CANCEL
                         : LengowAction::TYPE_SHIP;
