@@ -677,7 +677,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
             self::ORDER_COMMISSION => $lengowOrder->getCommission(),
             self::ORDER_CURRENCY => $lengowOrder->getCurrency(),
             self::CUSTOMER => array(
-                self::CUSTOMER_NAME => !empty($lengowOrder->getCarrier()) ? $lengowOrder->getCarrier() : null,
+                self::CUSTOMER_NAME => !empty($lengowOrder->getCustomerName()) ? $lengowOrder->getCustomerName() : null,
                 self::CUSTOMER_EMAIL => !empty($lengowOrder->getCustomerEmail())
                     ? $lengowOrder->getCustomerEmail()
                     : null,
