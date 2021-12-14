@@ -35,7 +35,7 @@ if (!LengowBootstrapDatabase::isInstallationInProgress()) {
     exit();
 }
 
-$orderTable = 's_lengow_order';
+$orderTable = LengowBootstrapDatabase::TABLE_ORDER;
 if (LengowBootstrapDatabase::tableExist($orderTable)) {
     $db = Shopware()->Db();
     try {
@@ -103,7 +103,8 @@ if (LengowBootstrapDatabase::tableExist($orderTable)) {
             $db->exec('ALTER TABLE `s_lengow_order` ADD `updated_at` DATETIME NULL DEFAULT NULL');
         }
     } catch (Exception $e) {
-        $errorMessage = '[Shopware error] "' . $e->getMessage() . '" ' . $e->getFile() . ' | ' . $e->getLine();
+        $errorMessage = '[Shopware error]: "' . $e->getMessage()
+            . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
         LengowBootstrap::log('log/install/add_upgrade_error', array('error_message' => $errorMessage));
     }
 }

@@ -93,7 +93,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowCatalog
                 array(
                     'catalog_id' => $catalog->id,
                     'catalog_name' => $name,
-                    'nb_products' => $catalog->products ? $catalog->products : 0,
+                    'nb_products' => $catalog->products ?: 0,
                     'catalog_status' => $status,
                 )
             );

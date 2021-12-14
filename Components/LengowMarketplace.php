@@ -32,6 +32,7 @@ use Shopware\Models\Order\Order as OrderModel;
 use Shopware\CustomModels\Lengow\Order as LengowOrderModel;
 use Shopware_Plugins_Backend_Lengow_Components_LengowAction as LengowAction;
 use Shopware_Plugins_Backend_Lengow_Components_LengowException as LengowException;
+use Shopware_Plugins_Backend_Lengow_Components_LengowImport as LengowImport;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
 use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
@@ -157,9 +158,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                     $defaultValue = isset($argDescription->default_value)
                         ? (string) $argDescription->default_value
                         : '';
-                    $acceptFreeValue = isset($argDescription->accept_free_values)
-                        ? (bool) $argDescription->accept_free_values
-                        : true;
+                    $acceptFreeValue = !isset($argDescription->accept_free_values)
+                        || $argDescription->accept_free_values;
                     $this->argValues[(string) $argKey] = array(
                         'default_value' => $defaultValue,
                         'accept_free_values' => $acceptFreeValue,
@@ -280,8 +280,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      * @param LengowOrderModel $lengowOrder Lengow order instance
      * @param string|null $orderLineId Lengow order line id
      *
-     * @throws Exception|LengowException
-     *
      * @return boolean
      */
     public function callAction($action, $order, $lengowOrder, $orderLineId = null)
@@ -300,8 +298,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
             if ($orderLineId !== null) {
                 $params[LengowAction::ARG_LINE] = $orderLineId;
             }
-            $params['marketplace_order_id'] = $lengowOrder->getMarketplaceSku();
-            $params['marketplace'] = $lengowOrder->getMarketplaceName();
+            $params[LengowImport::ARG_MARKETPLACE_ORDER_ID] = $lengowOrder->getMarketplaceSku();
+            $params[LengowImport::ARG_MARKETPLACE] = $lengowOrder->getMarketplaceName();
             $params[LengowAction::ARG_ACTION_TYPE] = $action;
             // checks whether the action is already created to not return an action
             $canSendAction = LengowAction::canSendAction($params, $order);
@@ -312,17 +310,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
         } catch (LengowException $e) {
             $errorMessage = $e->getMessage();
         } catch (Exception $e) {
-            $errorMessage = '[Shopware error]: "' . $e->getMessage() . '" ' . $e->getFile() . ' line ' . $e->getLine();
+            $errorMessage = '[Shopware error]: "' . $e->getMessage()
+                . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
         }
         if (isset($errorMessage)) {
             if ($lengowOrder->getOrderProcessState() !== LengowOrder::getOrderProcessState(LengowOrder::STATE_CLOSED)) {
-                LengowOrderError::createOrderError($lengowOrder, $errorMessage, 'send');
+                LengowOrderError::createOrderError(
+                    $lengowOrder,
+                    $errorMessage,
+                    LengowOrderError::TYPE_ERROR_SEND
+                );
                 try {
                     $lengowOrder->setInError(true);
                     Shopware()->Models()->flush($lengowOrder);
                 } catch (Exception $e) {
-                    $doctrineError = '[Doctrine error] "' . $e->getMessage() . '" '
-                        . $e->getFile() . ' | ' . $e->getLine();
+                    $doctrineError = '[Doctrine error]: "' . $e->getMessage()
+                        . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
                     LengowMain::log(
                         LengowLog::CODE_ORM,
                         LengowMain::setLogMessage(
@@ -356,7 +359,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      *
      * @throws LengowException
      */
-    protected function checkAction($action)
+    private function checkAction($action)
     {
         if (!in_array($action, self::$validActions, true)) {
             throw new LengowException(
@@ -380,7 +383,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      *
      * @throws LengowException
      */
-    protected function checkOrderData($lengowOrder)
+    private function checkOrderData($lengowOrder)
     {
         if ($lengowOrder->getMarketplaceSku() === '') {
             throw new LengowException(LengowMain::setLogMessage('lengow_log/exception/marketplace_sku_require'));
@@ -397,7 +400,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      *
      * @return array
      */
-    protected function getMarketplaceArguments($action)
+    private function getMarketplaceArguments($action)
     {
         $actions = $this->getAction($action);
         if (isset($actions['args'], $actions['optional_args'])) {
@@ -422,7 +425,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      *
      * @return array
      */
-    protected function getAllParams($action, $order, $lengowOrder, $marketplaceArguments)
+    private function getAllParams($action, $order, $lengowOrder, $marketplaceArguments)
     {
         $params = array();
         $actions = $this->getAction($action);
@@ -449,7 +452,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
                     break;
                 case LengowAction::ARG_SHIPPING_DATE:
                 case LengowAction::ARG_DELIVERY_DATE:
-                    $params[$arg] = date('c');
+                    $params[$arg] = date(LengowMain::DATE_ISO_8601);
                     break;
                 default:
                     if (isset($actions['optional_args']) && in_array($arg, $actions['optional_args'], true)) {
@@ -474,7 +477,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      *
      * @return array
      */
-    protected function checkAndCleanParams($action, $params)
+    private function checkAndCleanParams($action, $params)
     {
         $actions = $this->getAction($action);
         if (isset($actions['args'])) {
@@ -503,7 +506,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMarketplace
      *
      * @return string
      */
-    protected function matchDispatch($name)
+    private function matchDispatch($name)
     {
         if (!empty($this->carriers)) {
             $nameCleaned = $this->cleanString($name);

@@ -51,9 +51,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
         $info = json_decode(file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'plugin.json'), true);
         if ($info) {
             return $info['currentVersion'];
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**

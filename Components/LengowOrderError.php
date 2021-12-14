@@ -51,22 +51,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrderError
      *
      * @param LengowOrderModel|integer $lengowOrder Lengow order instance
      * @param string $message error message
-     * @param string $type error type (import or send)
+     * @param integer $type error type (import or send)
      *
      * @return boolean
      */
-    public static function createOrderError($lengowOrder, $message, $type = 'import')
+    public static function createOrderError($lengowOrder, $message, $type = self::TYPE_ERROR_IMPORT)
     {
         try {
-            $errorType = self::getOrderErrorType($type);
-            if (is_integer($lengowOrder)) {
+            if (is_int($lengowOrder)) {
                 $lengowOrder = Shopware()->Models()->getRepository('Shopware\CustomModels\Lengow\Order')
                     ->findOneBy(array('id' => $lengowOrder));
             }
             $orderError = new LengowOrderErrorModel();
             $orderError->setLengowOrder($lengowOrder)
                 ->setMessage($message)
-                ->setType($errorType)
+                ->setType($type)
                 ->setCreatedAt(new DateTime());
             Shopware()->Models()->persist($orderError);
             Shopware()->Models()->flush($orderError);
@@ -104,34 +103,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrderError
     }
 
     /**
-     * Return type value
-     *
-     * @param string $type order error type (import or send)
-     *
-     * @return integer
-     */
-    public static function getOrderErrorType($type = null)
-    {
-        switch ($type) {
-            case 'send':
-                return self::TYPE_ERROR_SEND;
-            case 'import':
-            default:
-                return self::TYPE_ERROR_IMPORT;
-        }
-    }
-
-    /**
      * Removes all order error for one lengow order
      *
      * @param integer $lengowOrderId Lengow order id
-     * @param string $type order error type (import or send)
+     * @param integer $type order error type (import or send)
      *
      * @return boolean
      */
-    public static function finishOrderErrors($lengowOrderId, $type = 'import')
+    public static function finishOrderErrors($lengowOrderId, $type = self::TYPE_ERROR_IMPORT)
     {
-        $type = self::getOrderErrorType($type);
         // get all order errors
         $builder = Shopware()->Models()->createQueryBuilder();
         $builder->select('loe.id')
@@ -149,7 +129,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowOrderError
         $results = $builder->getQuery()->getResult();
         if (!empty($results)) {
             foreach ($results as $result) {
-                self::updateOrderError((int)$result['id'], array('is_finished' => true));
+                self::updateOrderError((int) $result['id'], array('is_finished' => true));
             }
             return true;
         }

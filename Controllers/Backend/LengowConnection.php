@@ -191,6 +191,7 @@ class Shopware_Controllers_Backend_LengowConnection extends Shopware_Controllers
         // reset access ids if cms creation failed
         if (!$cmsConnected) {
             LengowConfiguration::resetAccessIds();
+            LengowConfiguration::resetAuthorizationToken();
         }
         return $cmsConnected;
     }

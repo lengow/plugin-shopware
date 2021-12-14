@@ -31,6 +31,7 @@
 use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
 use Shopware_Plugins_Backend_Lengow_Components_LengowConnector as LengowConnector;
 use Shopware_Plugins_Backend_Lengow_Components_LengowException as LengowException;
+use Shopware_Plugins_Backend_Lengow_Components_LengowImport as LengowImport;
 use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 use Shopware_Plugins_Backend_Lengow_Components_LengowToolbox as LengowToolbox;
@@ -53,120 +54,41 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     // const LENGOW_API_URL = 'https://api.lengow.io';
     const LENGOW_API_URL = 'https://api.lengow.net';
 
-    /**
-     * @var string url of access token API
-     */
+    /* Lengow API routes */
     const API_ACCESS_TOKEN = '/access/get_token';
-
-    /**
-     * @var string url of order API
-     */
     const API_ORDER = '/v3.0/orders';
-
-    /**
-     * @var string url of order merchant order id API
-     */
     const API_ORDER_MOI = '/v3.0/orders/moi/';
-
-    /**
-     * @var string url of order action API
-     */
     const API_ORDER_ACTION = '/v3.0/orders/actions/';
-
-    /**
-     * @var string url of marketplace API
-     */
     const API_MARKETPLACE = '/v3.0/marketplaces';
-
-    /**
-     * @var string url of plan API
-     */
     const API_PLAN = '/v3.0/plans';
-
-    /**
-     * @var string url of cms API
-     */
     const API_CMS = '/v3.1/cms';
-
-    /**
-     * @var string url of cms catalog API
-     */
     const API_CMS_CATALOG = '/v3.1/cms/catalogs/';
-
-    /**
-     * @var string url of cms mapping API
-     */
     const API_CMS_MAPPING = '/v3.1/cms/mapping/';
-
-    /**
-     * @var string url of plugin API
-     */
     const API_PLUGIN = '/v3.0/plugins';
 
-    /**
-     * @var string request GET
-     */
+    /* Request actions */
     const GET = 'GET';
-
-    /**
-     * @var string request POST
-     */
     const POST = 'POST';
-
-    /**
-     * @var string request PUT
-     */
     const PUT = 'PUT';
-
-    /**
-     * @var string request PATCH
-     */
     const PATCH = 'PATCH';
 
-    /**
-     * @var string json format return
-     */
+    /* Return formats */
     const FORMAT_JSON = 'json';
-
-    /**
-     * @var string stream format return
-     */
     const FORMAT_STREAM = 'stream';
 
-    /**
-     * @var string success code
-     */
+    /* Http codes */
     const CODE_200 = 200;
-
-    /**
-     * @var string success create code
-     */
     const CODE_201 = 201;
-
-    /**
-     * @var string unauthorized access code
-     */
     const CODE_401 = 401;
-
-    /**
-     * @var string forbidden access code
-     */
     const CODE_403 = 403;
-
-    /**
-     * @var string error server code
-     */
+    const CODE_404 = 404;
     const CODE_500 = 500;
-
-    /**
-     * @var string timeout server code
-     */
     const CODE_504 = 504;
 
     /**
      * @var array success HTTP codes for request
      */
-    protected $successCodes = array(
+    private $successCodes = array(
         self::CODE_200,
         self::CODE_201,
     );
@@ -174,7 +96,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * @var array authorization HTTP codes for request
      */
-    protected $authorizationCodes = array(
+    private $authorizationCodes = array(
         self::CODE_401,
         self::CODE_403,
     );
@@ -182,12 +104,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * @var integer Authorization token lifetime
      */
-    protected $tokenLifetime = 3000;
+    private $tokenLifetime = 3000;
 
     /**
      * @var array default options for Curl
      */
-    protected $curlOpts = array(
+    private $curlOpts = array(
         CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT => 10,
@@ -197,22 +119,22 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * @var string access token to connect
      */
-    protected $accessToken;
+    private $accessToken;
 
     /**
      * @var string secret to connect
      */
-    protected $secret;
+    private $secret;
 
     /**
      * @var string temporary token for the authorization
      */
-    protected $token;
+    private $token;
 
     /**
      * @var array lengow url for Curl timeout
      */
-    protected $lengowUrls = array(
+    private $lengowUrls = array(
         self::API_ORDER => 20,
         self::API_ORDER_MOI => 10,
         self::API_ORDER_ACTION => 15,
@@ -227,7 +149,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * @var array API requiring no arguments in the call url
      */
-    protected $apiWithoutUrlArgs = array(
+    private $apiWithoutUrlArgs = array(
         self::API_ACCESS_TOKEN,
         self::API_ORDER_ACTION,
         self::API_ORDER_MOI,
@@ -236,7 +158,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
     /**
      * @var array API requiring no authorization for the call url
      */
-    protected static $apiWithoutAuthorizations = array(
+    private static $apiWithoutAuthorizations = array(
         self::API_PLUGIN,
     );
 
@@ -310,7 +232,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
             }
             $connector = new LengowConnector($accessToken, $secret);
             $type = strtolower($type);
-            $args = $authorizationRequired ? array_merge(array('account_id' => $accountId), $args) : $args;
+            $args = $authorizationRequired
+                ? array_merge(array(LengowImport::ARG_ACCOUNT_ID => $accountId), $args)
+                : $args;
             $results = $connector->$type($api, $args, self::FORMAT_STREAM, $body, $logOutput);
         } catch (LengowException $e) {
             $message = LengowMain::decodeLogMessage($e->getMessage(), LengowTranslation::DEFAULT_ISO_CODE);
@@ -324,6 +248,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
             LengowMain::log(LengowLog::CODE_CONNECTOR, $error, $logOutput);
             return false;
         }
+        // don't add true, decoded data are used as object
         return json_decode($results);
     }
 
@@ -572,7 +497,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConnector
      *
      * @return mixed
      */
-    protected function makeRequest($type, $api, $args, $token, $body, $logOutput)
+    private function makeRequest($type, $api, $args, $token, $body, $logOutput)
     {
         // define CURLE_OPERATION_TIMEDOUT for old php versions
         defined('CURLE_OPERATION_TIMEDOUT') || define('CURLE_OPERATION_TIMEDOUT', CURLE_OPERATION_TIMEOUTED);

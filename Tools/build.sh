@@ -42,7 +42,7 @@ if [ -z "$1" ]; then
     exit 0
 else
     VERSION="$1"
-    ARCHIVE_NAME='Lengow.shopware.'$VERSION'.zip'
+    ARCHIVE_NAME='lengow.shopware.'$VERSION'.zip'
 fi
 
 # variables
@@ -98,6 +98,8 @@ remove_files $FOLDER_TMP ".gitignore"
 remove_files $FOLDER_TMP ".DS_Store"
 # remove .idea
 remove_files $FOLDER_TMP ".idea"
+# remove Jenkinsfile
+remove_files $FOLDER_TMP "Jenkinsfile"
 # clean Config Folder
 remove_files $FOLDER_CONFIG "marketplaces.json"
 # clean Log Folder

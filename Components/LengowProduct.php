@@ -60,72 +60,72 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * @var ArticleModel Shopware article instance
      */
-    protected $article;
+    private $article;
 
     /**
      * @var ArticleDetailModel Shopware article detail instance
      */
-    protected $detail;
+    private $detail;
 
     /**
      * @var ShopModel Shopware shop instance
      */
-    protected $shop;
+    private $shop;
 
     /**
      * @var string article type
      */
-    protected $type;
+    private $type;
 
     /**
      * @var boolean enable/disable log output
      */
-    protected $logOutput;
+    private $logOutput;
 
     /**
      * @var boolean is this article a simple product (true) or a variation (false)
      */
-    protected $isVariation = false;
+    private $isVariation;
 
     /**
-     * @var ShopCurrencyModel Shopware currency instance
+     * @var ShopCurrencyModel Shopware's currency instance
      */
-    protected $currency;
+    private $currency;
 
     /**
      * @var float currency factor (compare to Euro)
      */
-    protected $factor;
+    private $factor;
 
     /**
      * @var array Shopware article translation
      */
-    protected $translations;
+    private $translations;
 
     /**
      * @var array specific variations for the product
      */
-    protected $variations;
+    private $variations;
 
     /**
      * @var array specific attributes for the product
      */
-    protected $attributes;
+    private $attributes;
 
     /**
      * @var array specific properties for the product
      */
-    protected $properties;
+    private $properties;
 
     /**
      * @var array all product prices
      */
-    protected $prices;
+    private $prices;
 
     /**
      * @var array all product images
      */
-    protected $images;
+    private $images;
 
     /**
      * Construct
@@ -133,7 +133,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      * @param ArticleDetailModel $detail Shopware article detail instance
      * @param ShopModel $shop Shopware shop instance
      * @param string $type article type
-     * @param ShopCurrencyModel $currency Shopware currency instance
+     * @param ShopCurrencyModel $currency Shopware's currency instance
      * @param boolean $logOutput display logs or not
      */
     public function __construct($detail, $shop, $type, $currency, $logOutput)
@@ -218,7 +218,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 return $this->getShippingCost();
             case 'currency':
                 return $this->currency->getCurrency();
-            case (preg_match('`image_url_([0-9]+)`', $name) ? true : false):
+            case (bool) preg_match('`image_url_([0-9]+)`', $name):
                 return $this->images[$name];
             case 'type':
                 return $this->type;
@@ -732,7 +732,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     /**
      * Extract cart data from API
      *
-     * @param mixed $api product datas
+     * @param mixed $api product data
      *
      * @return array
      */

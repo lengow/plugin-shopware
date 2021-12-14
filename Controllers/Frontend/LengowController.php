@@ -31,6 +31,7 @@
 use Shopware\Models\Shop\Shop as ShopModel;
 use Shopware_Plugins_Backend_Lengow_Components_LengowAction as LengowAction;
 use Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration as LengowConfiguration;
+use Shopware_Plugins_Backend_Lengow_Components_LengowConnector as LengowConnector;
 use Shopware_Plugins_Backend_Lengow_Components_LengowExport as LengowExport;
 use Shopware_Plugins_Backend_Lengow_Components_LengowImport as LengowImport;
 use Shopware_Plugins_Backend_Lengow_Components_LengowLog as LengowLog;
@@ -46,29 +47,27 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
 {
     /**
      * Export Lengow feed
+     *
+     * List params
+     * string  mode               Number of products exported
+     * string  token              Shop token for authorisation
+     * string  format             Format of exported files ('csv','yaml','xml','json')
+     * boolean stream             Stream file (1) or generate a file on server (0)
+     * integer offset             Offset of total product
+     * integer limit              Limit number of exported product
+     * boolean selection          Export product selection (1) or all products (0)
+     * boolean out_of_stock       Export out of stock product (1) Export only product in stock (0)
+     * string  product_ids        List of product id separate with comma (1,2,3)
+     * boolean variation          Export product Variation (1) Export parent product only (0)
+     * boolean inactive           Export inactive product (1) or not (0)
+     * integer shop               Export a specific shop
+     * string  currency           Convert prices with a specific currency
+     * boolean log_output         See logs (1) or not (0)
+     * boolean update_export_date Change last export date in data base (1) or not (0)
+     * boolean get_params         See export parameters and authorized values in json format (1) or not (0)
      */
     public function exportAction()
     {
-        /**
-         * List params
-         * string  mode               Number of products exported
-         * string  token              Shop token for authorisation
-         * string  format             Format of exported files ('csv','yaml','xml','json')
-         * boolean stream             Stream file (1) or generate a file on server (0)
-         * integer offset             Offset of total product
-         * integer limit              Limit number of exported product
-         * boolean selection          Export product selection (1) or all products (0)
-         * boolean out_of_stock       Export out of stock product (1) Export only product in stock (0)
-         * string  product_ids        List of product id separate with comma (1,2,3)
-         * boolean variation          Export product Variation (1) Export parent product only (0)
-         * boolean inactive           Export inactive product (1) or not (0)
-         * integer shop               Export a specific shop
-         * string  currency           Convert prices with a specific currency
-         * boolean log_output         See logs (1) or not (0)
-         * boolean update_export_date Change last export date in data base (1) or not (0)
-         * boolean get_params         See export parameters and authorized values in json format (1) or not (0)
-         */
-
         // disable template for export
         $this->view->setTemplate(null);
         // get all GET params for export
@@ -150,8 +149,8 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 );
                 $export->exec();
             } catch (Exception $e) {
-                $errorMessage = '[Shopware error] "' . $e->getMessage()
-                    . '" ' . $e->getFile() . ' | ' . $e->getLine();
+                $errorMessage = '[Shopware error]: "' . $e->getMessage()
+                    . '" in ' . $e->getFile() . ' on line ' . $e->getLine();
                 LengowMain::log(
                     LengowLog::CODE_EXPORT,
                     LengowMain::setLogMessage(
@@ -166,26 +165,25 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
 
     /**
      * Synchronize stock and cms options
+     *
+     * List params
+     * string  token               Global token for authorisation
+     * string  sync                Data type to synchronize
+     * integer days                Synchronization interval time
+     * integer limit               Maximum number of new orders created
+     * integer shop_id             Shop id to synchronize
+     * string  marketplace_sku     Lengow marketplace order id to synchronize
+     * string  marketplace_name    Lengow marketplace name to synchronize
+     * string  created_from        Synchronization of orders since
+     * string  created_to          Synchronization of orders until
+     * integer delivery_address_id Lengow delivery address id to synchronize
+     * boolean debug_mode          Activate debug mode (1) or not (0)
+     * boolean log_output          Display log messages (1) or not (0)
+     * boolean get_sync            See synchronization parameters in json format (1) or not (0)
+     * boolean force_sync          Force synchronization order even if there are errors
      */
     public function cronAction()
     {
-        /**
-         * List params
-         * string  token               Global token for authorisation
-         * string  sync                Number of products exported
-         * integer days                Import period
-         * integer limit               Number of orders to import
-         * integer shop_id             Shop id to import
-         * string  marketplace_sku     Lengow marketplace order id to import
-         * string  marketplace_name    Lengow marketplace name to import
-         * string  created_from        import of orders since
-         * string  created_to          import of orders until
-         * integer delivery_address_id Lengow delivery address id to import
-         * boolean debug_mode          Activate debug mode
-         * boolean log_output          See logs (1) or not (0)
-         * boolean get_sync            See synchronisation parameters in json format (1) or not (0)
-         */
-
         // disable template for cron
         $this->view->setTemplate(null);
         $token = $this->Request()->getParam(LengowImport::PARAM_TOKEN);
@@ -213,6 +211,10 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                     LengowImport::PARAM_TYPE => LengowImport::TYPE_CRON,
                     LengowImport::PARAM_LOG_OUTPUT => $logOutput
                 );
+                if ($this->Request()->getParam(LengowImport::PARAM_FORCE_SYNC) !== null) {
+                    $params[LengowImport::PARAM_FORCE_SYNC] = $this->Request()
+                            ->getParam(LengowImport::PARAM_FORCE_SYNC) === '1';
+                }
                 if ($this->Request()->getParam(LengowImport::PARAM_DEBUG_MODE) !== null) {
                     $params[LengowImport::PARAM_DEBUG_MODE] = $this->Request()
                             ->getParam(LengowImport::PARAM_DEBUG_MODE) === '1';
@@ -291,16 +293,22 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
 
     /**
      * Get all plugin data for toolbox
+     *
+     * List params
+     * string  toolbox_action   Toolbox specific action
+     * string  type             Type of data to display
+     * string  created_from     Synchronization of orders since
+     * string  created_to       Synchronization of orders until
+     * string  date             Log date to download
+     * string  marketplace_name Lengow marketplace name to synchronize
+     * string  marketplace_sku  Lengow marketplace order id to synchronize
+     * string  process          Type of process for order action
+     * boolean force            Force synchronization order even if there are errors (1) or not (0)
+     * integer shop_id          Shop id to synchronize
+     * integer days             Synchronization interval time
      */
     public function toolboxAction()
     {
-        /**
-         * List params
-         * string toolbox_action toolbox specific action
-         * string type           type of data to display
-         * string date           date of the log to export
-         */
-
         // disable template for cron
         $this->view->setTemplate(null);
         $token = $this->Request()->getParam(LengowToolbox::PARAM_TOKEN);
@@ -326,6 +334,43 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
             case LengowToolbox::ACTION_LOG:
                 $date = $this->Request()->getParam(LengowToolbox::PARAM_DATE);
                 LengowToolbox::downloadLog($date);
+                break;
+            case LengowToolbox::ACTION_ORDER:
+                $process = $this->Request()->getParam(LengowToolbox::PARAM_PROCESS, LengowToolbox::PROCESS_TYPE_SYNC);
+                if ($process === LengowToolbox::PROCESS_TYPE_GET_DATA) {
+                    $result = LengowToolbox::getOrderData(
+                        $this->Request()->getParam(LengowToolbox::PARAM_MARKETPLACE_SKU),
+                        $this->Request()->getParam(LengowToolbox::PARAM_MARKETPLACE_NAME),
+                        $this->Request()->getParam(LengowToolbox::PARAM_TYPE)
+                    );
+                } else {
+                    $result = LengowToolbox::syncOrders(
+                        array(
+                            LengowToolbox::PARAM_CREATED_TO => $this->Request()
+                                ->getParam(LengowToolbox::PARAM_CREATED_TO),
+                            LengowToolbox::PARAM_CREATED_FROM => $this->Request()
+                                ->getParam(LengowToolbox::PARAM_CREATED_FROM),
+                            LengowToolbox::PARAM_DAYS => $this->Request()
+                                ->getParam(LengowToolbox::PARAM_DAYS),
+                            LengowToolbox::PARAM_FORCE => $this->Request()
+                                ->getParam(LengowToolbox::PARAM_FORCE),
+                            LengowToolbox::PARAM_MARKETPLACE_NAME => $this->Request()
+                                ->getParam(LengowToolbox::PARAM_MARKETPLACE_NAME),
+                            LengowToolbox::PARAM_MARKETPLACE_SKU => $this->Request()
+                                ->getParam(LengowToolbox::PARAM_MARKETPLACE_SKU),
+                            LengowToolbox::PARAM_SHOP_ID => $this->Request()
+                                ->getParam(LengowToolbox::PARAM_SHOP_ID),
+                        )
+                    );
+                }
+                if (isset($result[LengowToolbox::ERRORS][LengowToolbox::ERROR_CODE])) {
+                    if ($result[LengowToolbox::ERRORS][LengowToolbox::ERROR_CODE] === LengowConnector::CODE_404) {
+                        header('HTTP/1.1 404 Not Found');
+                    } else {
+                        header('HTTP/1.1 403 Forbidden');
+                    }
+                }
+                echo json_encode($result);
                 break;
             default:
                 $type = $this->Request()->getParam(LengowToolbox::PARAM_TYPE);
