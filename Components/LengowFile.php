@@ -66,7 +66,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
      *
      * @throws LengowException
      */
-    public function __construct($folderName, $fileName = null, $mode = 'a+')
+    public function __construct($folderName, $fileName = null, $mode = 'ab+')
     {
         $this->fileName = $fileName;
         $this->folderName = $folderName;
@@ -100,7 +100,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
     public function write($txt)
     {
         if (!$this->instance) {
-            $this->instance = fopen($this->getPath(), 'a+');
+            $this->instance = fopen($this->getPath(), 'ab+');
         }
         fwrite($this->instance, $txt);
     }
@@ -126,7 +126,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFile
      *
      * @return resource
      */
-    public static function getResource($path, $mode = 'a+')
+    public static function getResource($path, $mode = 'ab+')
     {
         return fopen($path, $mode);
     }

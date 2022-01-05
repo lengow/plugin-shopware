@@ -2,7 +2,7 @@
 Version 1.7.1
 =============================================================
 
-
+    - Feature: Removal of compatibility with Shopware versions lower than 5.5
 
 =============================================================
 Version 1.7.0

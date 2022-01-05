@@ -99,14 +99,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowEvent
     {
         $request = $args->getSubject()->Request();
         $controllerName = $request->getControllerName();
-        // since 5.x, forms use _repositoryClass parameter to specify the repository to update
-        if (LengowMain::compareVersion('5.0.0')) {
-            $repositoryName = $request->get('_repositoryClass');
-        } else {
-            $repositoryName = $request->get('name');
-        }
         // if action is from Shopware basics settings plugin and editing shop form
-        if ($controllerName === 'Config' && $repositoryName === 'shop') {
+        if ($controllerName === 'Config' && $request->get('_repositoryClass') === 'shop') {
             $action = $request->getActionName();
             $lengowDatabase = new LengowBootstrapDatabase();
             $data = $request->getPost();

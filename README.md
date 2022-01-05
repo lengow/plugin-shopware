@@ -1,6 +1,6 @@
 # Lengow for Shopware
 
-- **Requires at least:** 4.3
+- **Requires at least:** 5.5
 - **Tested up to:** 5.7
 - **Requires PHP:** 5.6
 - **Stable tag:** 1.7.0

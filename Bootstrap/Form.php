@@ -504,22 +504,16 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Form
         // default dispatcher used to get shipping fees in export
         foreach ($orderStates as $orderState) {
             if ($orderState->getId() != -1) {
-                if (LengowMain::compareVersion('5.5.0')) {
-                    /** @var SnippetModel $orderStateSnippet */
-                    $orderStateSnippet = $this->entityManager->getRepository('Shopware\Models\Snippet\Snippet')
-                        ->findOneBy(
-                            array(
-                                'localeId' => $shop->getLocale()->getId(),
-                                'namespace' => 'backend/static/order_status',
-                                'name' => $orderState->getName(),
-                            )
-                        );
-                    $orderStateDescription = $orderStateSnippet
-                        ? $orderStateSnippet->getValue()
-                        : $orderState->getName();
-                } else {
-                    $orderStateDescription = $orderState->getDescription();
-                }
+                /** @var SnippetModel $orderStateSnippet */
+                $orderStateSnippet = $this->entityManager->getRepository('Shopware\Models\Snippet\Snippet')
+                    ->findOneBy(
+                        array(
+                            'localeId' => $shop->getLocale()->getId(),
+                            'namespace' => 'backend/static/order_status',
+                            'name' => $orderState->getName(),
+                        )
+                    );
+                $orderStateDescription = $orderStateSnippet ? $orderStateSnippet->getValue() : $orderState->getName();
                 $selection[] = array($orderState->getId(), $orderStateDescription);
             }
         }

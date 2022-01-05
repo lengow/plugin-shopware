@@ -617,11 +617,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function getLengowTechnicalErrorStatus()
     {
-        $params = LengowMain::compareVersion('5.1.0')
-            ? array('name' => 'lengow_technical_error')
-            : array('description' => 'Technischer Fehler - Lengow');
         /** @var OrderStatusModel $orderStatus */
-        return Shopware()->Models()->getRepository('Shopware\Models\Order\Status')->findOneBy($params);
+        return Shopware()->Models()->getRepository('Shopware\Models\Order\Status')->findOneBy(
+            array('name' => 'lengow_technical_error')
+        );
     }
 
     /**

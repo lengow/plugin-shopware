@@ -480,7 +480,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
         $fileName = LengowMain::getLengowFolder() . $sep . LengowMain::FOLDER_TOOLBOX . $sep . self::FILE_CHECKMD5;
         if (file_exists($fileName)) {
             $md5Available = true;
-            if (($file = fopen($fileName, 'r')) !== false) {
+            if (($file = fopen($fileName, 'rb')) !== false) {
                 while (($data = fgetcsv($file, 1000, '|')) !== false) {
                     $fileCounter++;
                     $shortPath = $data[0];
@@ -661,9 +661,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
         $orderPayment = $order ? $order->getPaymentInstances()->first() : null;
         $merchantOrderStatus = null;
         if ($order) {
-            $merchantOrderStatus = LengowMain::compareVersion('5.1')
-                ? $order->getOrderStatus()->getName()
-                : $order->getOrderStatus()->getDescription();
+            $merchantOrderStatus = $order->getOrderStatus()->getName();
         }
         $orderTypes = json_decode($lengowOrder->getOrderTypes(), true);
         return array(
@@ -672,7 +670,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
             self::ORDER_STATUS => $lengowOrder->getOrderLengowState(),
             self::ORDER_MERCHANT_ORDER_STATUS => $merchantOrderStatus,
             self::ORDER_STATUSES => $order ? self::getOrderStatusesData($order) : array(),
-            self::ORDER_TOTAL_PAID => $lengowOrder->getTotalPaid(),
+            self::ORDER_TOTAL_PAID => (float) $lengowOrder->getTotalPaid(),
             self::ORDER_MERCHANT_TOTAL_PAID => $order ? $order->getInvoiceAmount() : null,
             self::ORDER_COMMISSION => $lengowOrder->getCommission(),
             self::ORDER_CURRENCY => $lengowOrder->getCurrency(),
@@ -800,9 +798,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
         $orderPayment = $order ? $order->getPaymentInstances()->first() : null;
         if ($order->getHistory()->isEmpty()) {
             return array(
-                self::ORDER_MERCHANT_ORDER_STATUS => LengowMain::compareVersion('5.1')
-                    ? $order->getOrderStatus()->getName()
-                    : $order->getOrderStatus()->getDescription(),
+                self::ORDER_MERCHANT_ORDER_STATUS => $order->getOrderStatus()->getName(),
                 self::ORDER_STATUS => self::getOrderStatusCorrespondence($order->getOrderStatus()->getId()),
                 self::CREATED_AT => $orderPayment ? $orderPayment->getCreatedAt()->getTimestamp() : 0,
             );
@@ -818,9 +814,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
             }
             if ($firstOrderHistory) {
                 $orderStatuses[] = array(
-                    self::ORDER_MERCHANT_ORDER_STATUS => LengowMain::compareVersion('5.1')
-                        ? $orderHistory->getPreviousOrderStatus()->getName()
-                        : $orderHistory->getPreviousOrderStatus()->getDescription(),
+                    self::ORDER_MERCHANT_ORDER_STATUS => $orderHistory->getPreviousOrderStatus()->getName(),
                     self::ORDER_STATUS => self::getOrderStatusCorrespondence(
                         $orderHistory->getPreviousOrderStatus()->getId()
                     ),
@@ -828,9 +822,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
                 );
             }
             $orderStatuses[] = array(
-                self::ORDER_MERCHANT_ORDER_STATUS => LengowMain::compareVersion('5.1')
-                    ? $orderHistory->getOrderStatus()->getName()
-                    : $orderHistory->getOrderStatus()->getDescription(),
+                self::ORDER_MERCHANT_ORDER_STATUS => $orderHistory->getOrderStatus()->getName(),
                 self::ORDER_STATUS => self::getOrderStatusCorrespondence($orderHistory->getOrderStatus()->getId()),
                 self::CREATED_AT => $orderHistory->getChangeDate()->getTimestamp(),
             );

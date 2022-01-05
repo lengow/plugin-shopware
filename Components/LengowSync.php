@@ -164,12 +164,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
         $success = false;
         $settingUpdated = false;
         if (LengowConfiguration::isNewMerchant()) {
-            return $success;
+            return false;
         }
         if (!$force) {
             $updatedAt = LengowConfiguration::getConfig(LengowConfiguration::LAST_UPDATE_CATALOG);
             if ($updatedAt !== null && (time() - (int) $updatedAt) < self::$cacheTimes[self::SYNC_CATALOG]) {
-                return $success;
+                return false;
             }
         }
         $result = LengowConnector::queryApi(LengowConnector::GET, LengowConnector::API_CMS, array(), '', $logOutput);
@@ -326,7 +326,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 $marketplaceFile = new LengowFile(
                     LengowMain::FOLDER_CONFIG,
                     LengowMarketplace::FILE_MARKETPLACE,
-                    'w+'
+                    'wb+'
                 );
                 $marketplaceFile->write(json_encode($result));
                 $marketplaceFile->close();
