@@ -58,7 +58,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     const FOLDER_CONFIG = 'Config';
     const FOLDER_EXPORT = 'Export';
     const FOLDER_LOG = 'Logs';
-    const FOLDER_TOOLBOX = 'Toolbox';
 
     /* Lengow actions controller */
     const ACTION_EXPORT = 'export';
@@ -1125,5 +1124,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             'OE',
         );
         return preg_replace($patterns, $replacements, $str);
+    }
+
+    /**
+     * Get cleaned shop name for shop export folder
+     *
+     * @param string $shopName Shopware shop name
+     *
+     * @return string
+     */
+    public static function getShopNameCleaned($shopName)
+    {
+        return strtolower(
+            preg_replace(
+                '/[^a-zA-Z0-9_]+/',
+                '',
+                str_replace(array(' ', '\''), '_', self::replaceAccentedChars($shopName))
+            )
+        );
     }
 }

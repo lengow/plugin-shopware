@@ -80,4 +80,18 @@ class Shopware_Controllers_Backend_Lengow extends Shopware_Controllers_Backend_E
             )
         );
     }
+
+    /**
+     * Get toolbox tab content
+     * Display all information for plugin support
+     */
+    public function getToolboxTabContentAction()
+    {
+        $this->View()->assign(
+            array(
+                'success' => true,
+                'data' => LengowElements::getToolbox(),
+            )
+        );
+    }
 }

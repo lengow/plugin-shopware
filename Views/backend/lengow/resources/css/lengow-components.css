@@ -22,6 +22,11 @@
   box-shadow 100ms ease;
 }
 
+.lgw-box-content {
+  width: 96%;
+  padding: 1% 2%;
+}
+
 a.lgw-box-link:hover {
   text-decoration: none;
 }
@@ -340,6 +345,31 @@ a.lgw-box-link:hover {
   display: inline-block;
   vertical-align: middle;
   white-space: nowrap;
+}
+
+/*************************************************/
+/*                     TABLE                     */
+/*************************************************/
+
+.lgw-container .table {
+  border: 0;
+  width: 100%;
+}
+
+.lgw-container .table tr th a {
+  display: inline;
+}
+
+.lgw-container .table tr td {
+  font-family: 'Lato', sans-serif;
+  max-width: 250px;
+  padding: 17px 10px;
+  font-size: 13px;
+  color: #555;
+  border-bottom: 1px solid #f7f7f7;
+  position: relative;
+  word-break: break-word;
+  width: auto !important;
 }
 
 /*************************************************/

@@ -111,7 +111,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     {
         $this->stream = $stream;
         $this->format = $format;
-        $this->shopFolder = self::formatFields($shopName, $format);
+        $this->shopFolder = LengowMain::getShopNameCleaned($shopName);
         if (!$this->stream) {
             $this->initExportFile();
         }

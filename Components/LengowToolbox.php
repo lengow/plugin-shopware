@@ -477,7 +477,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
         $fileModified = array();
         $fileDeleted = array();
         $sep = DIRECTORY_SEPARATOR;
-        $fileName = LengowMain::getLengowFolder() . $sep . LengowMain::FOLDER_TOOLBOX . $sep . self::FILE_CHECKMD5;
+        $fileName = LengowMain::getLengowFolder() . $sep . LengowMain::FOLDER_CONFIG . $sep . self::FILE_CHECKMD5;
         if (file_exists($fileName)) {
             $md5Available = true;
             if (($file = fopen($fileName, 'rb')) !== false) {

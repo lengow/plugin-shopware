@@ -3,6 +3,7 @@ Version 1.7.1
 =============================================================
 
     - Feature: Removal of compatibility with Shopware versions lower than 5.5
+    - Feature: Integration of an internal toolbox with all Lengow information for support
 
 =============================================================
 Version 1.7.0

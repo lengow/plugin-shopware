@@ -12,7 +12,8 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
             'lengow-main-home': {
                 initToolbar: me.onInitToolbar,
                 initLinkListener: me.onInitLinkListener,
-                initLegalsTab: me.onInitLegalsTab
+                initLegalsTab: me.onInitLegalsTab,
+                initToolboxTab: me.onInitToolboxTab
             }
         });
     },
@@ -103,6 +104,22 @@ Ext.define('Shopware.apps.Lengow.controller.Main', {
             success: function(response) {
                 var html = Ext.decode(response.responseText)['data'];
                 Ext.getCmp('lengowLegalsTab').update(html);
+            }
+        });
+    },
+
+    /**
+     * Load toolbox tab content
+     */
+    onInitToolboxTab: function() {
+        var me = this;
+        Ext.Ajax.request({
+            url: '{url controller="Lengow" action="getToolboxTabContent"}',
+            method: 'POST',
+            type: 'json',
+            success: function(response) {
+                var html = Ext.decode(response.responseText)['data'];
+                Ext.getCmp('lengowToolboxTab').update(html);
             }
         });
     },

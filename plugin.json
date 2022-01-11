@@ -119,7 +119,7 @@
     },
     "changelog": {
         "en": {
-            "1.7.1": "Feature: Removal of compatibility with Shopware versions lower than 5.5",
+            "1.7.1": "Feature: Removal of compatibility with Shopware versions lower than 5.5; Feature: Integration of an internal toolbox with all Lengow information for support",
             "1.7.0": "Feature: Integration of order synchronization in the toolbox webservice; Feature: Retrieving the status of an order in the toolbox webservice",
             "1.6.2": "Bugfix: [export] Correction on the recovery of the breadcrumb of categories",
             "1.6.1": "Feature: Outsourcing of the toolbox via webservice; Feature: Setting up a modal for the plugin update; Bugfix: [export] Check if supplier name exist before fetching it",
