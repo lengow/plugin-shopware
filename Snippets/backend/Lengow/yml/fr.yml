@@ -144,6 +144,7 @@ fr:
       plugin_information: "Informations sur le plugin"
       shopware_version: "Version du Shopware"
       plugin_version: "Version du plugin"
+      php_version: "Version du PHP"
       ip_server: "IP Serveur"
       authorized_ip_enable: "Autorisation par IP activée"
       ip_authorized: "IP autorisée(s)"
