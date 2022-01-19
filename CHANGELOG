@@ -6,6 +6,7 @@ Version 1.7.1
     - Feature: Integration of an internal toolbox with all Lengow information for support
     - Feature: Adding the PHP version in the toolbox
     - Feature: Modification of the fallback urls of the Lengow Help Center
+    - Feature: Adding extra field update date in external toolbox
 
 =============================================================
 Version 1.7.0

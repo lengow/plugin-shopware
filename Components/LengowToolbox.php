@@ -189,6 +189,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
     const ACTION_PARAMETERS = 'parameters';
     const ACTION_RETRY = 'retry';
     const ACTION_FINISH = 'is_finished';
+    const EXTRA_UPDATED_AT = 'extra_updated_at';
 
     /* Process state labels */
     const PROCESS_STATE_NEW = 'new';
@@ -303,11 +304,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
         }
         $orders = array();
         foreach ($lengowOrders as $lengowOrder) {
+            $order = $lengowOrder->getOrder();
             if ($type === self::DATA_TYPE_EXTRA) {
-                return self::getOrderExtraData($lengowOrder);
+                return self::getOrderExtraData($lengowOrder, $order);
             }
             $marketplaceLabel = $lengowOrder->getMarketplaceLabel();
-            $orders[] = self::getOrderDataByType($lengowOrder, $type);
+            $orders[] = self::getOrderDataByType($type, $lengowOrder, $order);
+            unset($order);
         }
         return array(
             self::ORDER_MARKETPLACE_SKU => $marketplaceSku,
@@ -611,14 +614,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
     /**
      * Get array of all the data of the order
      *
-     * @param LengowOrderModel $lengowOrder Lengow order instance
      * @param string $type Toolbox order data type
+     * @param LengowOrderModel $lengowOrder Lengow order instance
+     * @param OrderModel|null $order Shopware order instance
      *
      * @return array
      */
-    private static function getOrderDataByType($lengowOrder, $type)
+    private static function getOrderDataByType($type, $lengowOrder, $order = null)
     {
-        $order = $lengowOrder->getOrder();
         $orderReferences = array(
             self::ID => $lengowOrder->getId(),
             self::ORDER_MERCHANT_ORDER_ID  => $order ? $order->getId() : null,
@@ -837,12 +840,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
      * Get all the data of the order at the time of import
      *
      * @param LengowOrderModel $lengowOrder Lengow order instance
+     * @param OrderModel|null $order Shopware order instance
      *
      * @return array
      */
-    private static function getOrderExtraData($lengowOrder)
+    private static function getOrderExtraData($lengowOrder, $order = null)
     {
-        return json_decode($lengowOrder->getExtra(), true);
+        $orderData = json_decode($lengowOrder->getExtra(), true);
+        if ($order && $order->getPaymentInstances()->first()) {
+            $orderPayment = $order->getPaymentInstances()->first();
+            $extraUpdatedAt = $orderPayment ? $orderPayment->getCreatedAt()->getTimestamp() : 0;
+        } else {
+            $extraUpdatedAt = $lengowOrder->getUpdatedAt() ? $lengowOrder->getUpdatedAt()->getTimestamp() : 0;
+        }
+        $orderData[self::EXTRA_UPDATED_AT] = $extraUpdatedAt;
+        return $orderData;
     }
 
     /**
