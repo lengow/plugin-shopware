@@ -97,20 +97,9 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             's_core_countries.iso as countryIso',
             'orderError.message as errorMessage',
             's_lengow_action.actionType as lastActionType',
+            's_core_states.name as orderStatus',
+            's_core_states.name as orderStatusDescription',
         );
-
-        if (LengowMain::compareVersion('5.5.0')) {
-            $select[] = 's_core_states.name as orderStatusDescription';
-        } else {
-            $select[] = 's_core_states.description as orderStatusDescription';
-        }
-
-        if (LengowMain::compareVersion('5.1')) {
-            $select[] = 's_core_states.name as orderStatus';
-        } else {
-            $select[] = 's_order.status as orderStatus';
-        }
-
         $builder = $em->createQueryBuilder();
         $builder->select($select)
             ->from('Shopware\CustomModels\Lengow\Order', 'orderLengow')

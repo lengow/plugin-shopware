@@ -676,8 +676,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
 
     /**
      * Get config from db
-     * Shopware < 5.0.0 compatibility
-     * > 5.0.0 : Use Shopware()->Plugins()->Backend()->Lengow()->get('config_writer')->get() instead
      *
      * @param string $name config name
      * @param integer $shopId Shopware shop id
@@ -686,18 +684,20 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowConfiguration
      */
     public function get($name, $shopId = 1)
     {
-        $query = $this->getConfigValueByNameQuery($name, $shopId);
-        $result = $query->execute()->fetch(\PDO::FETCH_ASSOC);
-        if ($result['configured']) {
-            return unserialize($result['configured']);
+        try {
+            $query = $this->getConfigValueByNameQuery($name, $shopId);
+            $result = $query->execute()->fetch(\PDO::FETCH_ASSOC);
+            if ($result['configured']) {
+                return unserialize($result['configured']);
+            }
+            return unserialize($result['value']);
+        } catch (Exception $e) {
+            return null;
         }
-        return unserialize($result['value']);
     }
 
     /**
      * Save new config in the db
-     * Shopware < 5.0.0 compatibility
-     * > 5.0.0 : Use Shopware()->Plugins()->Backend()->Lengow()->get('config_writer')->save() instead
      *
      * @param string $name new config name
      * @param mixed $value config value

@@ -111,7 +111,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
     {
         $this->stream = $stream;
         $this->format = $format;
-        $this->shopFolder = self::formatFields($shopName, $format);
+        $this->shopFolder = LengowMain::getShopNameCleaned($shopName);
         if (!$this->stream) {
             $this->initExportFile();
         }
@@ -297,12 +297,11 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowFeed
             }
             if (isset($oldFilePath)) {
                 $rename = $this->file->rename($oldFilePath);
-                $this->file->fileName = $oldFileName;
             } else {
                 $sep = DIRECTORY_SEPARATOR;
                 $rename = $this->file->rename($this->file->getFolderPath() . $sep . $oldFileName);
-                $this->file->fileName = $oldFileName;
             }
+            $this->file->fileName = $oldFileName;
             return $rename;
         }
         return true;

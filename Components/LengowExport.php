@@ -220,7 +220,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
      * string  mode               Export mode => size: display only exported products, total: display all products
      * boolean variation          Export product Variation (1) Export parent product only (0)
      * boolean log_output         See logs (1) or not (0)
-     * boolean update_export_date Change last export date in data base (1) or not (0)
+     * boolean update_export_date Change last export date in database (1) or not (0)
      */
     public function __construct($shop, $params = array())
     {
@@ -247,7 +247,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowExport
     }
 
     /**
-     * Check whether or not the format exists
+     * Check whether the format exists
      * If not specified (null), get the default format of the configuration
      *
      * @param string $format export format

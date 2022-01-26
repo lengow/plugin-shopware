@@ -5,9 +5,13 @@
     "description": "Lengow allows you to easily export your product catalogue from your Shopware store and sell on Amazon, Cdiscount, Google Shopping, Criteo, LeGuide.com, Ebay, Rakuten, Priceminister. Choose from our 1,800 available marketing channels!",
     "support_mail": "support.lengow.zendesk@lengow.com",
     "license": "proprietary",
-    "link": "http://lengow.com",
-    "currentVersion": "1.7.0",
+    "link": "https://lengow.com",
+    "currentVersion": "1.7.1",
     "changes": {
+        "1.7.1": {
+            "releasedate": "2022-01-27",
+            "line": ""
+        },
         "1.7.0": {
             "releasedate": "2021-12-14",
             "line": ""
@@ -115,7 +119,8 @@
     },
     "changelog": {
         "en": {
-            "1.7.0": "",
+            "1.7.1": "Feature: Removal of compatibility with Shopware versions lower than 5.5; Feature: Integration of an internal toolbox with all Lengow information for support; Feature: Adding the php version in the toolbox; Feature: Modification of the fallback urls of the Lengow Help Center; Feature: Adding extra field update date in external toolbox",
+            "1.7.0": "Feature: Integration of order synchronization in the toolbox webservice; Feature: Retrieving the status of an order in the toolbox webservice",
             "1.6.2": "Bugfix: [export] Correction on the recovery of the breadcrumb of categories",
             "1.6.1": "Feature: Outsourcing of the toolbox via webservice; Feature: Setting up a modal for the plugin update; Bugfix: [export] Check if supplier name exist before fetching it",
             "1.6.0": "Feature: Integration of the new connection process; Bugfix: Check if product tax exist before fetching it",
@@ -144,7 +149,7 @@
         }
     },
     "compatibility": {
-        "minimumVersion": "4.3.0",
+        "minimumVersion": "5.5.0",
         "maximumVersion": null,
         "blacklist": [
         ]

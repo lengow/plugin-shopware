@@ -280,14 +280,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     $result = LengowMain::cleanData($this->variations[$name]);
                 }
                 // get the text of a free text field
-                if (strstr($name, 'free_')) {
+                if (strpos($name, 'free_') !== false) {
                     $noPrefAttribute = str_replace('free_', '', $name);
                     if (array_key_exists($noPrefAttribute, $this->attributes)) {
                         $attribute = $this->attributes[$noPrefAttribute];
                         // get attribute translation
-                        $columnName = LengowMain::compareVersion('5.2')
-                            ? '__attribute_' . $attribute['columnName']
-                            : $attribute['columnName'];
+                        $columnName = '__attribute_' . $attribute['columnName'];
                         $attributeValue = isset($this->translations[$columnName])
                             ? $this->translations[$columnName]
                             : $attribute['value'];
@@ -295,7 +293,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     }
                 }
                 // get the text of a property
-                if (strstr($name, 'prop_')) {
+                if (strpos($name, 'prop_') !== false) {
                     $noPrefProperty = str_replace('prop_', '', $name);
                     if (array_key_exists($noPrefProperty, $this->properties)) {
                         $result = LengowMain::cleanData($this->properties[$noPrefProperty]);
@@ -399,33 +397,17 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
      */
     public static function getAllAttributes()
     {
-        // use "core_engine_elements" table up to 5.2 version and "attribute_configuration" table later
-        if (LengowMain::compareVersion('5.2'))  {
-            $select = array(
-                'attributs.columnName',
-                'attributs.label',
-            );
-            $builder = Shopware()->Models()->createQueryBuilder();
-            $builder->select($select)
-                ->from('Shopware\Models\Attribute\Configuration', 'attributs')
-                ->where('attributs.displayInBackend = 1')
-                ->groupBy('attributs.columnName')
-                ->orderBy('attributs.columnName', 'ASC');
-            $attributes = $builder->getQuery()->getArrayResult();
-        } else {
-            $select = array(
-                'attributs.name as columnName',
-                'attributs.label',
-                'attributs.position',
-            );
-            $builder = Shopware()->Models()->createQueryBuilder();
-            $builder->select($select)
-                ->from('Shopware\Models\Article\Element', 'attributs')
-                ->groupBy('attributs.name')
-                ->orderBy('attributs.position', 'ASC');
-            $attributes =  $builder->getQuery()->getArrayResult();
-        }
-        return $attributes;
+        $select = array(
+            'attributs.columnName',
+            'attributs.label',
+        );
+        $builder = Shopware()->Models()->createQueryBuilder();
+        $builder->select($select)
+            ->from('Shopware\Models\Attribute\Configuration', 'attributs')
+            ->where('attributs.displayInBackend = 1')
+            ->groupBy('attributs.columnName')
+            ->orderBy('attributs.columnName', 'ASC');
+        return $builder->getQuery()->getArrayResult();
     }
 
     /**
@@ -570,27 +552,18 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             $images =  $this->article->getImages();
         }
         // get url for each image
-        $isMediaManagerSupported = LengowMain::compareVersion('5.1.0');
         $isHttps = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 'https://' : 'http://';
         $domain = $isHttps . $_SERVER['SERVER_NAME'];
         foreach ($images as $image) {
             try {
                 /** @var MediaModel $media */
                 $media = $variationHasImage ? $image->getParent()->getMedia() : $image->getMedia();
-                if ($media !== null) {
-                    if ($isMediaManagerSupported) {
-                        if ($media->getPath() !== null) {
-                            $mediaService = Shopware()->Container()->get('shopware_media.media_service');
-                            // get image virtual path (ie : .../media/image/0a/20/03/my-image.png)
-                            $imagePath = $mediaService->getUrl($media->getPath());
-                            $firstOccurrence = strpos($imagePath, '/media');
-                            $urls[] = $domain . substr($imagePath, $firstOccurrence);
-                        }
-                    } else {
-                        if ($media->getPath() !== null) {
-                            $urls[] = $domain . '/' . $media->getPath();
-                        }
-                    }
+                if (($media !== null) && $media->getPath() !== null) {
+                    $mediaService = Shopware()->Container()->get('shopware_media.media_service');
+                    // get image virtual path (ie : .../media/image/0a/20/03/my-image.png)
+                    $imagePath = $mediaService->getUrl($media->getPath());
+                    $firstOccurrence = strpos($imagePath, '/media');
+                    $urls[] = $domain . substr($imagePath, $firstOccurrence);
                 }
             } catch (Exception $e) {
                 LengowMain::log(
@@ -747,7 +720,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     }
 
     /**
-     * Check whether or not an article is a parent
+     * Check whether an article is a parent
      *
      * @param string $articleId Lengow article id
      *
@@ -802,10 +775,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                 if (!$isConfigurable && count($ids) === 1) {
                     // get article main detail id
                     $mainDetail = $article->getMainDetail();
-                    $result = array(
-                        'id' => $mainDetail->getId(),
-                        'number' => $mainDetail->getNumber(),
-                    );
+                    if ($mainDetail) {
+                        $result = array(
+                            'id' => $mainDetail->getId(),
+                            'number' => $mainDetail->getNumber(),
+                        );
+                    }
                 } elseif ($isConfigurable && count($ids) === 2) {
                     // if product is configurable and articleId contains detail reference
                     $detailId = $ids[1];

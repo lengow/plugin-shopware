@@ -86,8 +86,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap extends Shopware_Components_Plug
     public function install()
     {
         self::log('log/install/start');
-        if (!$this->assertMinimumVersion('4.3.0')) {
-            throw new \RuntimeException('At least Shopware 4.3.0 is required');
+        if (!$this->assertMinimumVersion('5.5.0')) {
+            throw new \RuntimeException('At least Shopware 5.5.0 is required');
         }
         $this->registerController('Backend', 'Lengow');
         $this->registerController('Frontend', 'LengowController');

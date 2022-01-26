@@ -229,13 +229,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
         foreach ($shopIds as $shopId) {
             $attributeName = 'shop' . $shopId . '_active';
             if (self::columnExists($tableName, 'lengow_' . $attributeName)) {
-                // check Shopware\Bundle\AttributeBundle\Service\CrudService::delete compatibility
-                if (LengowMain::compareVersion('5.2.2')) {
-                    $crudService = Shopware()->Container()->get('shopware_attribute.crud_service');
-                    $crudService->delete($tableName, 'lengow_' . $attributeName);
-                } else {
-                    $this->entityManager->removeAttribute($tableName, 'lengow', $attributeName);
-                }
+                $crudService = Shopware()->Container()->get('shopware_attribute.crud_service');
+                $crudService->delete($tableName, 'lengow_' . $attributeName);
                 LengowBootstrap::log(
                     'log/uninstall/remove_column',
                     array(
@@ -269,13 +264,8 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
         foreach ($shopIds as $shopId) {
             $attributeName = 'shop' . $shopId . '_active';
             if (!self::columnExists($tableName, 'lengow_' . $attributeName)) {
-                if (LengowMain::compareVersion('5.2.2')) {
-                    $crudService = Shopware()->Container()->get('shopware_attribute.crud_service');
-                    $crudService->update($tableName, 'lengow_' . $attributeName, 'boolean');
-                } else {
-                    // @legacy Shopware < 5.2
-                    $this->entityManager->addAttribute($tableName, 'lengow', $attributeName, 'boolean');
-                }
+                $crudService = Shopware()->Container()->get('shopware_attribute.crud_service');
+                $crudService->update($tableName, 'lengow_' . $attributeName, 'boolean');
                 LengowBootstrap::log(
                     'log/install/add_column',
                     array(
@@ -295,18 +285,11 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
      */
     public function addFromLengowColumns()
     {
-        // check Shopware\Bundle\AttributeBundle\Service\CrudService::update compatibility
-        $crudCompatibility = LengowMain::compareVersion('5.2.2');
         $tableName = 's_order_attributes';
         $attributeName = 'is_from_lengow';
         if (!self::columnExists($tableName, $attributeName)) {
-            if ($crudCompatibility) {
-                $crudService = Shopware()->Container()->get('shopware_attribute.crud_service');
-                $crudService->update($tableName, 'lengow_'.$attributeName, 'boolean');
-            } else {
-                // @legacy Shopware < 5.2
-                $this->entityManager->addAttribute($tableName, 'lengow', $attributeName, 'boolean');
-            }
+            $crudService = Shopware()->Container()->get('shopware_attribute.crud_service');
+            $crudService->update($tableName, 'lengow_'.$attributeName, 'boolean');
             LengowBootstrap::log(
                 'log/install/add_column',
                 array('column' => $attributeName, 'table' => $tableName)
@@ -394,20 +377,14 @@ class Shopware_Plugins_Backend_Lengow_Bootstrap_Database
                 );
                 $params = array(
                     'id' => $idMax + 1,
+                    'name' => 'lengow_technical_error',
                     'description' => 'Technischer Fehler - Lengow',
                     'position' => $positionMax === 24 ? 26 : $positionMax + 1,
                     'group' => 'state',
                     'mail' => 0,
                 );
-                // compatibility with 4.3 version - the name field did not exist
-                if (LengowMain::compareVersion('5.1.0')) {
-                    $sql = 'INSERT INTO `s_core_states` (`id`, `name`, `description`, `position`, `group`, `mail`)
-                        VALUES (:id, :name , :description, :position, :group, :mail)';
-                    $params['name'] = 'lengow_technical_error';
-                } else {
-                    $sql = 'INSERT INTO `s_core_states` (`id`, `description`, `position`, `group`, `mail`)
-                        VALUES (:id, :description, :position, :group, :mail)';
-                }
+                $sql = 'INSERT INTO `s_core_states` (`id`, `name`, `description`, `position`, `group`, `mail`)
+                    VALUES (:id, :name , :description, :position, :group, :mail)';
                 // insert lengow technical error status in database
                 Shopware()->Db()->query($sql, $params);
                 LengowBootstrap::log('log/install/add_technical_error_status');

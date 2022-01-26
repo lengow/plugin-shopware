@@ -417,3 +417,29 @@ span.lengow_action:after {
 #lengow_legals_wrapper {
   padding-top: 40px;
 }
+
+/*************************************************/
+/*                    TOOLBOX                    */
+/*************************************************/
+
+#lengow_toolbox_wrapper {
+  padding-top: 40px;
+}
+
+#lengow_toolbox_wrapper .lgw-container {
+  min-width: 1100px;
+  max-width: 1400px;
+  width: auto;
+}
+
+#lengow_toolbox_wrapper .lgw-check-green {
+  color: green;
+}
+
+#lengow_toolbox_wrapper .lgw-check-red {
+  color: red;
+}
+
+#lengow_toolbox_wrapper .lgw-container .table tr td {
+  max-width: none;
+}

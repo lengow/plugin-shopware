@@ -153,7 +153,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
     public static function download($date = null)
     {
         /** @var LengowFile[] $logFiles */
-        if ($date && preg_match('/^(\d{4}-\d{2}-\d{2})$/', $date, $match)) {
+        if ($date && preg_match('/^(\d{4}-\d{2}-\d{2})$/', $date)) {
             $logFiles = false;
             $file = 'logs-' . $date . '.txt';
             $fileName = $date . '.txt';
@@ -174,7 +174,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowLog
         if ($logFiles) {
             foreach ($logFiles as $logFile) {
                 $filePath = $logFile->getPath();
-                $handle = fopen($filePath, 'r');
+                $handle = fopen($filePath, 'rb');
                 $fileSize = filesize($filePath);
                 if ($fileSize > 0) {
                     $contents .= fread($handle, $fileSize);

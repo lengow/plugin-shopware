@@ -96,6 +96,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
     const PLUGIN = 'plugin';
     const PLUGIN_CMS_VERSION = 'cms_version';
     const PLUGIN_VERSION = 'plugin_version';
+    const PLUGIN_PHP_VERSION = 'php_version';
     const PLUGIN_DEBUG_MODE_DISABLE = 'debug_mode_disable';
     const PLUGIN_WRITE_PERMISSION = 'write_permission';
     const PLUGIN_SERVER_IP = 'server_ip';
@@ -188,6 +189,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
     const ACTION_PARAMETERS = 'parameters';
     const ACTION_RETRY = 'retry';
     const ACTION_FINISH = 'is_finished';
+    const EXTRA_UPDATED_AT = 'extra_updated_at';
 
     /* Process state labels */
     const PROCESS_STATE_NEW = 'new';
@@ -302,11 +304,13 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
         }
         $orders = array();
         foreach ($lengowOrders as $lengowOrder) {
+            $order = $lengowOrder->getOrder();
             if ($type === self::DATA_TYPE_EXTRA) {
-                return self::getOrderExtraData($lengowOrder);
+                return self::getOrderExtraData($lengowOrder, $order);
             }
             $marketplaceLabel = $lengowOrder->getMarketplaceLabel();
-            $orders[] = self::getOrderDataByType($lengowOrder, $type);
+            $orders[] = self::getOrderDataByType($type, $lengowOrder, $order);
+            unset($order);
         }
         return array(
             self::ORDER_MARKETPLACE_SKU => $marketplaceSku,
@@ -385,6 +389,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
         return array(
             self::PLUGIN_CMS_VERSION => LengowMain::getShopwareVersion(),
             self::PLUGIN_VERSION => Shopware()->Plugins()->Backend()->Lengow()->getVersion(),
+            self::PLUGIN_PHP_VERSION => PHP_VERSION,
             self::PLUGIN_DEBUG_MODE_DISABLE => !LengowConfiguration::debugModeIsActive(),
             self::PLUGIN_WRITE_PERMISSION => self::testWritePermission(),
             self::PLUGIN_SERVER_IP => $_SERVER['SERVER_ADDR'],
@@ -477,10 +482,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
         $fileModified = array();
         $fileDeleted = array();
         $sep = DIRECTORY_SEPARATOR;
-        $fileName = LengowMain::getLengowFolder() . $sep . LengowMain::FOLDER_TOOLBOX . $sep . self::FILE_CHECKMD5;
+        $fileName = LengowMain::getLengowFolder() . $sep . LengowMain::FOLDER_CONFIG . $sep . self::FILE_CHECKMD5;
         if (file_exists($fileName)) {
             $md5Available = true;
-            if (($file = fopen($fileName, 'r')) !== false) {
+            if (($file = fopen($fileName, 'rb')) !== false) {
                 while (($data = fgetcsv($file, 1000, '|')) !== false) {
                     $fileCounter++;
                     $shortPath = $data[0];
@@ -609,14 +614,14 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
     /**
      * Get array of all the data of the order
      *
-     * @param LengowOrderModel $lengowOrder Lengow order instance
      * @param string $type Toolbox order data type
+     * @param LengowOrderModel $lengowOrder Lengow order instance
+     * @param OrderModel|null $order Shopware order instance
      *
      * @return array
      */
-    private static function getOrderDataByType($lengowOrder, $type)
+    private static function getOrderDataByType($type, $lengowOrder, $order = null)
     {
-        $order = $lengowOrder->getOrder();
         $orderReferences = array(
             self::ID => $lengowOrder->getId(),
             self::ORDER_MERCHANT_ORDER_ID  => $order ? $order->getId() : null,
@@ -661,9 +666,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
         $orderPayment = $order ? $order->getPaymentInstances()->first() : null;
         $merchantOrderStatus = null;
         if ($order) {
-            $merchantOrderStatus = LengowMain::compareVersion('5.1')
-                ? $order->getOrderStatus()->getName()
-                : $order->getOrderStatus()->getDescription();
+            $merchantOrderStatus = $order->getOrderStatus()->getName();
         }
         $orderTypes = json_decode($lengowOrder->getOrderTypes(), true);
         return array(
@@ -672,7 +675,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
             self::ORDER_STATUS => $lengowOrder->getOrderLengowState(),
             self::ORDER_MERCHANT_ORDER_STATUS => $merchantOrderStatus,
             self::ORDER_STATUSES => $order ? self::getOrderStatusesData($order) : array(),
-            self::ORDER_TOTAL_PAID => $lengowOrder->getTotalPaid(),
+            self::ORDER_TOTAL_PAID => (float) $lengowOrder->getTotalPaid(),
             self::ORDER_MERCHANT_TOTAL_PAID => $order ? $order->getInvoiceAmount() : null,
             self::ORDER_COMMISSION => $lengowOrder->getCommission(),
             self::ORDER_CURRENCY => $lengowOrder->getCurrency(),
@@ -800,9 +803,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
         $orderPayment = $order ? $order->getPaymentInstances()->first() : null;
         if ($order->getHistory()->isEmpty()) {
             return array(
-                self::ORDER_MERCHANT_ORDER_STATUS => LengowMain::compareVersion('5.1')
-                    ? $order->getOrderStatus()->getName()
-                    : $order->getOrderStatus()->getDescription(),
+                self::ORDER_MERCHANT_ORDER_STATUS => $order->getOrderStatus()->getName(),
                 self::ORDER_STATUS => self::getOrderStatusCorrespondence($order->getOrderStatus()->getId()),
                 self::CREATED_AT => $orderPayment ? $orderPayment->getCreatedAt()->getTimestamp() : 0,
             );
@@ -818,9 +819,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
             }
             if ($firstOrderHistory) {
                 $orderStatuses[] = array(
-                    self::ORDER_MERCHANT_ORDER_STATUS => LengowMain::compareVersion('5.1')
-                        ? $orderHistory->getPreviousOrderStatus()->getName()
-                        : $orderHistory->getPreviousOrderStatus()->getDescription(),
+                    self::ORDER_MERCHANT_ORDER_STATUS => $orderHistory->getPreviousOrderStatus()->getName(),
                     self::ORDER_STATUS => self::getOrderStatusCorrespondence(
                         $orderHistory->getPreviousOrderStatus()->getId()
                     ),
@@ -828,9 +827,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
                 );
             }
             $orderStatuses[] = array(
-                self::ORDER_MERCHANT_ORDER_STATUS => LengowMain::compareVersion('5.1')
-                    ? $orderHistory->getOrderStatus()->getName()
-                    : $orderHistory->getOrderStatus()->getDescription(),
+                self::ORDER_MERCHANT_ORDER_STATUS => $orderHistory->getOrderStatus()->getName(),
                 self::ORDER_STATUS => self::getOrderStatusCorrespondence($orderHistory->getOrderStatus()->getId()),
                 self::CREATED_AT => $orderHistory->getChangeDate()->getTimestamp(),
             );
@@ -843,12 +840,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowToolbox
      * Get all the data of the order at the time of import
      *
      * @param LengowOrderModel $lengowOrder Lengow order instance
+     * @param OrderModel|null $order Shopware order instance
      *
      * @return array
      */
-    private static function getOrderExtraData($lengowOrder)
+    private static function getOrderExtraData($lengowOrder, $order = null)
     {
-        return json_decode($lengowOrder->getExtra(), true);
+        $orderData = json_decode($lengowOrder->getExtra(), true);
+        if ($order && $order->getPaymentInstances()->first()) {
+            $orderPayment = $order->getPaymentInstances()->first();
+            $extraUpdatedAt = $orderPayment ? $orderPayment->getCreatedAt()->getTimestamp() : 0;
+        } else {
+            $extraUpdatedAt = $lengowOrder->getUpdatedAt() ? $lengowOrder->getUpdatedAt()->getTimestamp() : 0;
+        }
+        $orderData[self::EXTRA_UPDATED_AT] = $extraUpdatedAt;
+        return $orderData;
     }
 
     /**

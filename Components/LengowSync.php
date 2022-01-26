@@ -64,10 +64,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
     const LINK_TYPE_SUPPORT = 'support';
 
     /* Default plugin links */
-    const LINK_HELP_CENTER = 'https://support.lengow.com/kb/guide/en/WPhak8Nc3U';
-    const LINK_CHANGELOG = 'https://support.lengow.com/kb/guide/en/NiLwyFZKbZ';
-    const LINK_UPDATE_GUIDE = 'https://support.lengow.com/kb/guide/en/WPhak8Nc3U/Steps/25870,123274';
-    const LINK_SUPPORT = 'https://help-support.lengow.com/hc/en-us/requests/new';
+    const LINK_HELP_CENTER = 'https://help.lengow.com/hc/en-us/articles/360012203311';
+    const LINK_CHANGELOG = 'https://help.lengow.com/hc/en-us/articles/360011089260';
+    const LINK_UPDATE_GUIDE = 'https://help.lengow.com/hc/en-us/articles/360012203311#12-lengow-plugin-update-procedure';
+    const LINK_SUPPORT = 'https://help.lengow.com/hc/en-us/requests/new';
 
     /* Api iso codes */
     const API_ISO_CODE_EN = 'en';
@@ -164,12 +164,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
         $success = false;
         $settingUpdated = false;
         if (LengowConfiguration::isNewMerchant()) {
-            return $success;
+            return false;
         }
         if (!$force) {
             $updatedAt = LengowConfiguration::getConfig(LengowConfiguration::LAST_UPDATE_CATALOG);
             if ($updatedAt !== null && (time() - (int) $updatedAt) < self::$cacheTimes[self::SYNC_CATALOG]) {
-                return $success;
+                return false;
             }
         }
         $result = LengowConnector::queryApi(LengowConnector::GET, LengowConnector::API_CMS, array(), '', $logOutput);
@@ -326,7 +326,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowSync
                 $marketplaceFile = new LengowFile(
                     LengowMain::FOLDER_CONFIG,
                     LengowMarketplace::FILE_MARKETPLACE,
-                    'w+'
+                    'wb+'
                 );
                 $marketplaceFile->write(json_encode($result));
                 $marketplaceFile->close();

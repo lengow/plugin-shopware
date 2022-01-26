@@ -58,7 +58,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
     const FOLDER_CONFIG = 'Config';
     const FOLDER_EXPORT = 'Export';
     const FOLDER_LOG = 'Logs';
-    const FOLDER_TOOLBOX = 'Toolbox';
 
     /* Lengow actions controller */
     const ACTION_EXPORT = 'export';
@@ -617,11 +616,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
      */
     public static function getLengowTechnicalErrorStatus()
     {
-        $params = LengowMain::compareVersion('5.1.0')
-            ? array('name' => 'lengow_technical_error')
-            : array('description' => 'Technischer Fehler - Lengow');
         /** @var OrderStatusModel $orderStatus */
-        return Shopware()->Models()->getRepository('Shopware\Models\Order\Status')->findOneBy($params);
+        return Shopware()->Models()->getRepository('Shopware\Models\Order\Status')->findOneBy(
+            array('name' => 'lengow_technical_error')
+        );
     }
 
     /**
@@ -1126,5 +1124,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
             'OE',
         );
         return preg_replace($patterns, $replacements, $str);
+    }
+
+    /**
+     * Get cleaned shop name for shop export folder
+     *
+     * @param string $shopName Shopware shop name
+     *
+     * @return string
+     */
+    public static function getShopNameCleaned($shopName)
+    {
+        return strtolower(
+            preg_replace(
+                '/[^a-zA-Z0-9_]+/',
+                '',
+                str_replace(array(' ', '\''), '_', self::replaceAccentedChars($shopName))
+            )
+        );
     }
 }

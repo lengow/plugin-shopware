@@ -32,6 +32,7 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
         me.fireEvent('loadDashboardContent');
         me.fireEvent('initToolbar');
         me.fireEvent('initLegalsTab');
+        me.fireEvent('initToolboxTab');
         me.items = [
             me.createTabPanel()
         ];
@@ -94,6 +95,16 @@ Ext.define('Shopware.apps.Lengow.view.main.Home', {
                 {
                     layout: 'border',
                     id: 'lengowLegalsTab',
+                    style: {
+                        background: '#F7F7F7'
+                    },
+                    overflowY: 'scroll',
+                    hidden: true
+                },
+                // toolbox tab, hidden
+                {
+                    layout: 'border',
+                    id: 'lengowToolboxTab',
                     style: {
                         background: '#F7F7F7'
                     },

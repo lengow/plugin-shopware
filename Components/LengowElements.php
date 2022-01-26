@@ -33,6 +33,7 @@ use Shopware_Plugins_Backend_Lengow_Components_LengowConnector as LengowConnecto
 use Shopware_Plugins_Backend_Lengow_Components_LengowMain as LengowMain;
 use Shopware_Plugins_Backend_Lengow_Components_LengowOrder as LengowOrder;
 use Shopware_Plugins_Backend_Lengow_Components_LengowSync as LengowSync;
+use Shopware_Plugins_Backend_Lengow_Components_LengowToolboxElement as LengowToolboxElement;
 use Shopware_Plugins_Backend_Lengow_Components_LengowTranslation as LengowTranslation;
 
 /**
@@ -75,7 +76,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
         $links = '';
         if ($withLinks) {
             $links = '
-                <a href="#" id="lengowLegalsTab" class="sub-link" title="Legal">'
+                <a href="#" id="lengowToolboxTab" class="sub-link" title="' . $locale->t('footer/toolbox') . '">'
+                     . $locale->t('footer/toolbox') .
+                '</a> |
+                <a href="#" id="lengowLegalsTab" class="sub-link" title="' . $locale->t('footer/legals') . '">'
                     . $locale->t('footer/legals') .
                 '</a> |
             ';
@@ -824,6 +828,78 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowElements
                         </div>
                     </div>
                 </div>
+            </div>';
+    }
+
+    /**
+     * Get toolbox content
+     *
+     * @return string
+     */
+    public static function getToolbox()
+    {
+        $locale = new LengowTranslation();
+        $toolboxElement = new LengowToolboxElement();
+        return '
+            <div id="lengow_toolbox_wrapper">
+                <div class="lgw-container">
+                    <h2>
+                        <i class="fa fa-rocket"></i>
+                        ' . $locale->t('toolbox/screen/title') . '
+                    </h2>
+                    <div class="lgw-box">
+                        <h2>' . $locale->t('toolbox/screen/global_information') . '</h2>
+                        <div class="js-lgw-global-content">
+                            <div class="lgw-box-content">
+                                <h3>
+                                    <i class="fa fa-check"></i>
+                                    ' . $locale->t('toolbox/screen/checklist_information') . '
+                                </h3>
+                                ' . $toolboxElement->getCheckList() . '
+                            </div>
+                            <div class="lgw-box-content">
+                                <h3>
+                                    <i class="fa fa-cog"></i>
+                                    ' . $locale->t('toolbox/screen/plugin_information') . '
+                                </h3>
+                                ' . $toolboxElement->getGlobalInformation() . '
+                            </div>
+                            <div class="lgw-box-content">
+                                <h3>
+                                    <i class="fa fa-download"></i>
+                                    ' . $locale->t('toolbox/screen/synchronization_information') . '
+                                </h3>
+                                ' . $toolboxElement->getImportInformation() . '
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lgw-box">
+                        <h2>' . $locale->t('toolbox/screen/shop_information') . '</h2>
+                        <div class="lgw-export-content">
+                            <div class="lgw-box-content">
+                                <h3>
+                                    <i class="fa fa-upload"></i>
+                                    ' . $locale->t('toolbox/screen/export_information') . '
+                                </h3>
+                                ' . $toolboxElement->getExportInformation() . '
+                            </div>
+                            <div class="lgw-box-content">
+                                <h3>
+                                    <i class="fa fa-list"></i>
+                                    ' . $locale->t('toolbox/screen/content_folder_media') . '
+                                </h3>
+                                ' . $toolboxElement->getFileInformation() . '
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lgw-box">
+                        <h2>' . $locale->t('toolbox/screen/checksum_integrity') . '</h2>
+                        <div class="lgw-box-content js-lgw-checksum-content">
+                            ' . $toolboxElement->checkFileMd5() . '
+                        </div>
+                    </div>
+                </div>
+                ' . self::getFooter() . '
             </div>';
     }
 }

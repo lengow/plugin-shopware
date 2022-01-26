@@ -460,7 +460,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             $this->marketplaceSku
         );
         if ($this->lengowOrder === null) {
-            return $orderUpdated;
+            return false;
         }
         // Lengow -> Cancel and reimport order
         if ($this->lengowOrder && $this->lengowOrder->isReimported()) {
@@ -474,7 +474,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 $this->marketplaceSku
             );
             $this->isReimported = true;
-            return $orderUpdated;
+            return false;
         }
         // load data for return
         $this->orderId = $order->getId();
@@ -1261,7 +1261,6 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
      */
     private function createCustomer($customerEmail)
     {
-        $newSchema = LengowMain::compareVersion('5.2.0');
         try {
             // get Lengow payment method
             $lengowPayment = LengowMain::getLengowPayment();
@@ -1277,33 +1276,15 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             // create a Shopware customer
             $customer = new CustomerModel();
             $customerAttribute = new AttributeCustomerModel();
-            // get new address object for Shopware version > 5.2.0
-            if ($newSchema) {
-                $defaultAddress = $this->lengowAddress->getCustomerAddress();
-                if ($defaultAddress) {
-                    $customer->setNumber($customerNumber);
-                    $customer->setSalutation($defaultAddress->getSalutation());
-                    $customer->setFirstname($defaultAddress->getFirstname());
-                    $customer->setLastname($defaultAddress->getLastname());
-                } else {
-                    return false;
-                }
-            }
-            // get old billing and shipping addresses objects for all versions of Shopware
-            if (LengowMain::compareVersion('5.5.0', '<')) {
-                $billingAddress = $this->lengowAddress->getCustomerAddress(false);
-                $shippingAddress = $this->lengowAddress->getCustomerAddress(false, 'shipping');
-                if ($billingAddress && $shippingAddress) {
-                    $billingAddress->setCustomer($customer);
-                    if (!$newSchema) {
-                        $billingAddress->setNumber($customerNumber);
-                    }
-                    $shippingAddress->setCustomer($customer);
-                    $customer->setBilling($billingAddress);
-                    $customer->setShipping($shippingAddress);
-                } else {
-                    return false;
-                }
+            // get new address object to create default address
+            $defaultAddress = $this->lengowAddress->getCustomerAddress();
+            if ($defaultAddress) {
+                $customer->setNumber($customerNumber);
+                $customer->setSalutation($defaultAddress->getSalutation());
+                $customer->setFirstname($defaultAddress->getFirstname());
+                $customer->setLastname($defaultAddress->getLastname());
+            } else {
+                return false;
             }
             // set generic data for all versions of Shopware
             $customer->setEmail($customerEmail);
@@ -1314,16 +1295,12 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             // saves the customer data
             $this->entityManager->persist($customer);
             // update value for global customer number
-            if (is_int($customerNumber) && $customerNumber > $number->getNumber()) {
-                $number->setNumber($customerNumber);
-            }
-            // save default address for Shopware version > 5.2.0
-            if ($newSchema && isset($defaultAddress)) {
-                $defaultAddress->setCustomer($customer);
-                $customer->setDefaultBillingAddress($defaultAddress);
-                $customer->setDefaultShippingAddress($defaultAddress);
-                $this->entityManager->persist($defaultAddress);
-            }
+            $number->setNumber($customerNumber);
+            // save default address
+            $defaultAddress->setCustomer($customer);
+            $customer->setDefaultBillingAddress($defaultAddress);
+            $customer->setDefaultShippingAddress($defaultAddress);
+            $this->entityManager->persist($defaultAddress);
             $this->entityManager->flush();
             return $customer;
         } catch (Exception $e) {
@@ -1459,9 +1436,8 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
             // saves the order data
             $this->entityManager->persist($order);
             // update value for global order number
-            if (is_int($orderNumber) && $orderNumber > $number->getNumber()) {
-                $number->setNumber($orderNumber);
-            }
+            $number->setNumber($orderNumber);
+            $this->entityManager->persist($number);
             $this->entityManager->flush();
             // create order detail foreach article
             $this->createOrderDetails($order, $articles);
