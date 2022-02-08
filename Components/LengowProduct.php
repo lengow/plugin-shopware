@@ -514,18 +514,23 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
     {
         $detailPrice = $this->getDetailPrice();
         $tax = $this->article->getTax() ? $this->article->getTax()->getTax() : 0;
-        // get original price before discount
+        // get price
         $priceExclTax = $detailPrice ? $detailPrice->getPrice() : 0;
         $priceInclTax = $priceExclTax * (100 + $tax) / 100;
-        // get price with discount
-        $discount = $detailPrice ? $detailPrice->getPercent() : 0;
-        $discountPriceExclTax = $priceExclTax * (1 - ($discount / 100));
-        $discountPriceInclTax = $discountPriceExclTax * (100 + $tax) / 100;
+        // get price before discount
+        $beforeDiscountPriceExclTax = $priceExclTax;
+        $beforeDiscountPriceInclTax = $priceInclTax;
+        $discount = $detailPrice && $detailPrice->getPseudoPrice() > 0 && $priceExclTax > 0 && $detailPrice->getPseudoPrice() > $priceExclTax ? ((($detailPrice->getPseudoPrice()-$priceExclTax)/$detailPrice->getPseudoPrice())*100) : 0;
+        if ($discount > 0) {
+            $beforeDiscountPriceExclTax = $detailPrice ? $detailPrice->getPseudoPrice() : 0;
+            $beforeDiscountPriceInclTax = $beforeDiscountPriceExclTax * (100 + $tax) / 100;
+        }
+
         return array(
-            'price_excl_tax' => round($discountPriceExclTax, 2),
-            'price_incl_tax' => round($discountPriceInclTax, 2),
-            'price_before_discount_excl_tax' => round($priceExclTax, 2),
-            'price_before_discount_incl_tax' => round($priceInclTax, 2),
+            'price_excl_tax' => round($priceExclTax, 2),
+            'price_incl_tax' => round($priceInclTax, 2),
+            'price_before_discount_excl_tax' => round($beforeDiscountPriceExclTax, 2),
+            'price_before_discount_incl_tax' => round($beforeDiscountPriceInclTax, 2),
             'discount_percent' => $discount,
         );
     }
