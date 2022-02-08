@@ -492,7 +492,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
         $shopCustomerGroupId = $this->shop->getCustomerGroup()->getId();
         $detailPrices = $this->detail->getPrices();
         foreach ($detailPrices as $price) {
-            if ($price->getCustomerGroup() !== null) {
+            if ($price->getCustomerGroup() !== null && $price->getFrom() === 1) {
                 if ($price->getCustomerGroup()->getId() === $shopCustomerGroupId) {
                     $shopArticlePrice = $price;
                 }
