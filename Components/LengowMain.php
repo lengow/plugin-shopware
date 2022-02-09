@@ -231,7 +231,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowMain
         if (isset($_SERVER['SERVER_ADDR'])) {
             $authorizedIps[] = $_SERVER['SERVER_ADDR'];
         }
-        return in_array($_SERVER['REMOTE_ADDR'], $authorizedIps, true);
+        return in_array((string) Shopware()->Container()->get('request_stack')->getCurrentRequest()->getClientIp(), $authorizedIps, true);
     }
 
     /**

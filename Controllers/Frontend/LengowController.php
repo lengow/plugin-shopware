@@ -395,7 +395,7 @@ class Shopware_Controllers_Frontend_LengowController extends Enlight_Controller_
                 $errorMessage = LengowMain::decodeLogMessage(
                     'log/export/unauthorised_ip',
                     LengowTranslation::DEFAULT_ISO_CODE,
-                    array('ip' => $_SERVER['REMOTE_ADDR'])
+                    array('ip' => (string) Shopware()->Container()->get('request_stack')->getCurrentRequest()->getClientIp())
                 );
             } else {
                 $errorMessage = $token !== ''

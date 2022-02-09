@@ -1396,7 +1396,7 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowImportOrder
                 'currency' => $currency->getCurrency(),
                 'currencyFactor' => $currency->getFactor(),
                 'subshopID' => $this->shop->getId(),
-                'remote_addr' => $_SERVER['REMOTE_ADDR'],
+                'remote_addr' => (string) Shopware()->Container()->get('request_stack')->getCurrentRequest()->getClientIp(),
             );
             Shopware()->Db()->insert('s_order', $orderParams);
             // get temporary order
