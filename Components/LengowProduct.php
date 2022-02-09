@@ -208,9 +208,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
             case 'price_incl_tax':
             case 'price_before_discount_excl_tax':
             case 'price_before_discount_incl_tax':
-                return number_format($this->prices[$name] * $this->factor, 2);
+                return number_format($this->prices[$name] * $this->factor, 2, '.', '');
             case 'discount_percent':
-                return number_format($this->prices[$name], 2);
+                return number_format($this->prices[$name], 2, '.', '');
             case 'discount_start_date':
             case 'discount_end_date':
                 return '';
@@ -654,9 +654,9 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowProduct
                     }
                 }
             }
-            return number_format($shippingCost * $this->factor, 2);
+            return number_format($shippingCost * $this->factor, 2, '.', '');
         }
-        return number_format(0, 2);
+        return number_format(0, 2, '.', '');
     }
 
     /**
