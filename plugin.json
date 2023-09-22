@@ -6,8 +6,12 @@
     "support_mail": "support.lengow.zendesk@lengow.com",
     "license": "proprietary",
     "link": "https://lengow.com",
-    "currentVersion": "1.7.1",
+    "currentVersion": "1.7.2",
     "changes": {
+        "1.7.2": {
+            "releasedate": "2023-09-22",
+            "line": ""
+        },
         "1.7.1": {
             "releasedate": "2022-01-27",
             "line": ""
@@ -119,6 +123,7 @@
     },
     "changelog": {
         "en": {
+            "1.7.2": "Bugfix: [install] Missing quotes for snippet name's parameter for view; Bugfix: [import] Not display Lengow order's grid in backoffice; Bugfix: [import] Scenario missing if last name or first is empty and full name is filled in when importing orders",
             "1.7.1": "Feature: Removal of compatibility with Shopware versions lower than 5.5; Feature: Integration of an internal toolbox with all Lengow information for support; Feature: Adding the php version in the toolbox; Feature: Modification of the fallback urls of the Lengow Help Center; Feature: Adding extra field update date in external toolbox",
             "1.7.0": "Feature: Integration of order synchronization in the toolbox webservice; Feature: Retrieving the status of an order in the toolbox webservice",
             "1.6.2": "Bugfix: [export] Correction on the recovery of the breadcrumb of categories",

@@ -8,12 +8,12 @@ Ext.define('Shopware.apps.Lengow.view.export.Panel', {
     bodyStyle: 'background:#fff;',
 
     snippets: {
-        filterTitle:    '{s name=export/filter/filter_title namespace="backend/Lengow/translation"}Filter{/s}',
-        noFilter:       '{s name=export/filter/no_filter namespace="backend/Lengow/translation"}No filter{/s}',
-        lengowProducts: '{s name=export/filter/lengow_products namespace="backend/Lengow/translation"}Lengow\'s products{/s}',
-        activeProducts: '{s name=export/filter/active_products namespace="backend/Lengow/translation"}Active products{/s}',
-        inStock:        '{s name=export/filter/in_stock namespace="backend/Lengow/translation"}In stock{/s}',
-        noCategory:     '{s name=export/filter/no_category namespace="backend/Lengow/translation"}No categories{/s}'
+        filterTitle:    '{s name="export/filter/filter_title" namespace="backend/Lengow/translation"}Filter{/s}',
+        noFilter:       '{s name="export/filter/no_filter" namespace="backend/Lengow/translation"}No filter{/s}',
+        lengowProducts: '{s name="export/filter/lengow_products" namespace="backend/Lengow/translation"}Lengow\'s products{/s}',
+        activeProducts: '{s name="export/filter/active_products" namespace="backend/Lengow/translation"}Active products{/s}',
+        inStock:        '{s name="export/filter/in_stock" namespace="backend/Lengow/translation"}In stock{/s}',
+        noCategory:     '{s name="export/filter/no_category" namespace="backend/Lengow/translation"}No categories{/s}'
     },
 
     initComponent: function () {

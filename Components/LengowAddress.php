@@ -670,6 +670,10 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             'lastname' => trim($addressData['last_name']),
             'fullname' => $this->cleanFullName($addressData['full_name']),
         );
+        // Check if either firstname or lastname is empty and fullname is not empty
+        if ((empty($names['firstname']) || empty($names['lastname'])) && !empty($names['fullname'])) {
+            $names = $this->splitNames($names['fullname']);
+        }
         if (empty($names['firstname']) && !empty($names['lastname'])) {
             $names = $this->splitNames($names['lastname']);
         }
