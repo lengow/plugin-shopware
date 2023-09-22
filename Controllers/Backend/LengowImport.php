@@ -53,7 +53,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
     public function getListAction()
     {
         $filterParams = $this->Request()->getParam('filter', array());
-        $order = $this->Request()->getParam('sort', null);
+        $order = $this->Request()->getParam('sort', array());
         $start = $this->Request()->getParam('start', 0);
         $limit = $this->Request()->getParam('limit', 20);
 

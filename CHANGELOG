@@ -1,8 +1,9 @@
-=============================================================
 Version 1.7.2
 =============================================================
 
-
+    - Bugfix: [install] Missing quotes for snippet name's parameter for view
+    - Bugfix: [import] Not display Lengow order's grid in backoffice
+    - Bugfix: [import] Scenario missing if last name or first is empty and full name is filled in when importing orders
 
 =============================================================
 Version 1.7.1
