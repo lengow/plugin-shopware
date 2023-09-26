@@ -670,15 +670,21 @@ class Shopware_Plugins_Backend_Lengow_Components_LengowAddress
             'lastname' => trim($addressData['last_name']),
             'fullname' => $this->cleanFullName($addressData['full_name']),
         );
-        // Check if either firstname or lastname is empty and fullname is not empty
+        // check if either firstname or lastname is empty and fullname is not empty
         if ((empty($names['firstname']) || empty($names['lastname'])) && !empty($names['fullname'])) {
-            $names = $this->splitNames($names['fullname']);
-        }
-        if (empty($names['firstname']) && !empty($names['lastname'])) {
-            $names = $this->splitNames($names['lastname']);
-        }
-        if (empty($names['lastname']) && !empty($names['firstname'])) {
-            $names = $this->splitNames($names['firstname']);
+            $splitNames = $this->splitNames($names['fullname']);
+            // if fullname have firstname and lastname after split
+            if (!empty($splitNames['firstname']) && !empty($splitNames['lastname'])) {
+                $names = $splitNames;
+            }
+            // if firstname is missing, set it to the first part of splitNames
+            if (empty($names['firstname']) && !empty($splitNames['firstname'])) {
+                $names['firstname'] = $splitNames['firstname'];
+            }
+            // if lastname is missing, and fullname have only one value, set it to the first part of splitNames
+            if (empty($names['lastname']) && empty($splitNames['lastname'])) {
+                $names['lastname'] = $splitNames['firstname'];
+            }
         }
         // check full name if last_name and first_name are empty
         if (empty($names['lastname']) && empty($names['firstname'])) {
