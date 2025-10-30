@@ -103,10 +103,10 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $builder = $em->createQueryBuilder();
         $builder->select($select)
             ->from('Shopware\CustomModels\Lengow\Order', 'orderLengow')
-            ->leftJoin('Shopware\Models\Shop\Shop', 'shops', 'WITH', 'orderLengow.shopId = shops.id')
-            ->leftJoin('orderLengow.order', 's_order')
-            ->leftJoin('Shopware\Models\Order\Status', 's_core_states', 'WITH', 's_order.status = s_core_states')
-            ->leftJoin(
+            ->innerJoin('Shopware\Models\Shop\Shop', 'shops', 'WITH', 'orderLengow.shopId = shops.id')
+            ->innerJoin('orderLengow.order', 's_order')
+            ->innerJoin('Shopware\Models\Order\Status', 's_core_states', 'WITH', 's_order.status = s_core_states')
+            ->innerJoin(
                 'Shopware\Models\Country\Country',
                 's_core_countries',
                 'WITH',
@@ -141,7 +141,7 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
             $builder->orderBy($order['property'], $order['direction']);
         }
         $builder->addOrderBy('orderLengow.orderDate', 'DESC');
-//        $builder->distinct();
+        $builder->distinct();
 
         $countBuilder = clone $builder;
         $countBuilder->resetDQLPart('select')
