@@ -103,10 +103,10 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         $builder = $em->createQueryBuilder();
         $builder->select($select)
             ->from('Shopware\CustomModels\Lengow\Order', 'orderLengow')
-            ->leftJoin('Shopware\Models\Shop\Shop', 'shops', 'WITH', 'orderLengow.shopId = shops.id')
-            ->leftJoin('orderLengow.order', 's_order')
-            ->leftJoin('Shopware\Models\Order\Status', 's_core_states', 'WITH', 's_order.status = s_core_states')
-            ->leftJoin(
+            ->innerJoin('Shopware\Models\Shop\Shop', 'shops', 'WITH', 'orderLengow.shopId = shops.id')
+            ->innerJoin('orderLengow.order', 's_order')
+            ->innerJoin('Shopware\Models\Order\Status', 's_core_states', 'WITH', 's_order.status = s_core_states')
+            ->innerJoin(
                 'Shopware\Models\Country\Country',
                 's_core_countries',
                 'WITH',
@@ -140,8 +140,17 @@ class Shopware_Controllers_Backend_LengowImport extends Shopware_Controllers_Bac
         if ($order['property'] && $order['direction']) {
             $builder->orderBy($order['property'], $order['direction']);
         }
-        $builder->distinct()->addOrderBy('orderLengow.orderDate', 'DESC');
-        $totalOrders = count($builder->getQuery()->getArrayResult());
+        $builder->addOrderBy('orderLengow.orderDate', 'DESC');
+        $builder->distinct();
+
+        $countBuilder = clone $builder;
+        $countBuilder->resetDQLPart('select')
+            ->resetDQLPart('orderBy')
+            ->setFirstResult(null)
+            ->setMaxResults(null)
+            ->select('COUNT(DISTINCT orderLengow.id)');
+        $totalOrders = (int) $countBuilder->getQuery()->getSingleScalarResult();
+
         $builder->setFirstResult($start)->setMaxResults($limit);
         $results = $builder->getQuery()->getArrayResult();
         $orderErrors = $this->getOrderErrors();
